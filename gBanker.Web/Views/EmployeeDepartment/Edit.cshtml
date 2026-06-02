@@ -1,0 +1,116 @@
+﻿@model gHRM.Web.ViewModels.EmployeeDepartmentViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeDepartment">Department</a></li>
+        <li><a href="/EmployeeDepartment/Edit">DepartmentEdit</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var officeTypeList = Model == null ? null : Model.OfficeTypeList;
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnEmployeeDepartmentSave").click(function (e) {
+
+            if ($("#DepartmentCode").val() == '' && $("#DepartmentName").val() == '') {
+                $("#DepartmentCode").addClass("errorClass");
+                $("#DepartmentName").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DepartmentCode").val() == '' && $("#DepartmentName").val() != '') {
+                $("#DepartmentCode").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DepartmentCode").val() != '' && $("#DepartmentName").val() == '') {
+                $("#DepartmentName").addClass("errorClass");
+                return false;
+            }
+            else
+                return true;
+        });
+    });
+
+</script>
+
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Department(বিভাগের তথ্য সম্পাদন)</h2>
+&nbsp;
+@using (Html.BeginForm("Edit", "EmployeeDepartment", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+        <div class="form-group">
+            @Html.HiddenFor(model => model.DepartmentId, new { @class = "control-label col-md-4 " })
+            <div class="col-sm-6">
+                @Html.HiddenFor(model => model.DepartmentId, new { htmlAttributes = new { @class = "form-control", @placeholder = "Department Name" } })
+               
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.OfficeTypeId, officeTypeList, new { @class = "form-control", @id = "mainParentID" })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentParentId, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+           <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DepartmentCode, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.DepartmentCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Deparment Code" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentCode, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DepartmentName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Deparment Name" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentName, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+                    
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DepartmentShortName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.DepartmentShortName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Deparment Short Name"} })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentShortName, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                &nbsp;
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="submit" value="Save" id="btnEmployeeDepartmentSave" class="btn btn-primary" />
+                <input type="hidden" value="" id="hdnEmployeeDepartmentSave" />
+                <input type="hidden" value="" id="hdnDepartmentId" />
+            </div>
+        </div>
+    </div>
+
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

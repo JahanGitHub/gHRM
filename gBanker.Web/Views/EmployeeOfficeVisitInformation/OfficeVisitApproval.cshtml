@@ -1,0 +1,153 @@
+﻿@model gHRM.Web.ViewModels.EmployeeTVPROViewModel
+@{
+    ViewBag.Title = "Employee Office Visit Approval";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script>
+    $(document).ready(function() {
+
+        $('#gridOfficeVisit').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOfficeVisitInformation/GetEmployeeOfficeVisitInformation?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                EmpOfficeVisitId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    title: 'EmployeeId',
+                    width: '3%'
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                VisitType: {
+                    title: 'Visit Type',
+                    width: '5%'
+                },
+                Location: {
+                    title: 'Location',
+                    width: '5%'
+                },
+                Reason: {
+                    title: 'Reason',
+                    width: '5%'
+                },
+                CurrentOfficeProvidedVal: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                CurrentOfficeProvided: {
+                    title: 'CurrentOfficeProvided',
+                    width: '5%'
+                },
+                EditLink: {
+                    title: "Approve",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) { 
+                        return '<div class="text-center"><a href="#" OnClick="EmployeeOfficeVisitApprove( ' + data.record.EmpOfficeVisitId + ');"><i class="fa fa-check"></i></a></div>';
+                      }
+                },
+                Delete: {
+                    title: "Reject",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EmployeeOfficeVisitReject(' + data.record.EmpOfficeVisitId + ');"><i class="fa fa-times"></i></a></div>';
+                      }
+
+                },
+            }
+        });
+        $('#gridOfficeVisit').jtable('load');
+
+
+
+
+    });
+
+    function EmployeeOfficeVisitReject(EmpOfficeVisitId) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("EmployeeOfficeVisitReject", "EmployeeOfficeVisitInformation", "http")',
+            data: { Id: EmpOfficeVisitId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.alert.open("Success", data.message);
+                    $("#gridOfficeVisit").jtable('load');
+                } else {
+                    $.alert.open("Error", data.message);
+                }
+            },
+            error: function (request, status, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function EmployeeOfficeVisitApprove(EmpOfficeVisitId) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("EmployeeOfficeVisitApprove", "EmployeeOfficeVisitInformation", "http")',
+            data: { Id: EmpOfficeVisitId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.alert.open("Success", data.message);
+                    $("#gridOfficeVisit").jtable('load');
+                } else {
+                    $.alert.open("Error", data.message);
+                }
+            },
+            error: function (request, status, error) {
+                alert(error);
+            }
+        });
+    }
+
+
+
+
+</script>
+
+<h2>Employee Office Visit Approval</h2>
+<div class="form-group form-action" style="padding:10px;margin:5px;"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div id="gridOfficeVisit"></div>
+        </div>
+    </div>

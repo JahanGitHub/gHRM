@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@SessionHelper.CompanyInfo.CompanyShortName - @ViewBag.Title</title>
+    <link rel="shortcut icon" href="../images/LOGO_G.ico">
+    <style type="text/css">
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba( 255, 255, 255, .8 ) url(../images/ajax-loading.gif) 50% 50% no-repeat;
+        }
+
+        .success {
+            display: block;
+            background-color: rgb(249, 255, 0);
+            color: rgb(21, 21, 21);
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .failed {
+            display: block;
+            background-color: red;
+            color: white;
+            text-decoration: initial;
+            padding: 10px;
+        }
+    </style>
+
+
+
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/themes/base/css")
+    @*@Scripts.Render("~/bundles/modernizr")*@
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+    @RenderSection("scripts", required: false)
+    <link href="~/content/bootstrap.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet">
+
+    <link href="~/content/ui-libs/font-awesome-4.3.0/css/font-awesome.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet">
+    <link href="~/content/gHRM-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="content/ui-libs/html5shiv/3.7.2/html5shiv.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+      <script src="content/ui-libs/respond/1.4.2/respond.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <![endif]-->
+    @*@Scripts.Render("~/bundles/gapi")*@
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJ3F989PEF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SJ3F989PEF');
+    </script>
+
+</head>
+<body>
+    <div id="loading" style="display:none" class="modal">
+
+    </div>
+    @{
+        var parentModules = gHRM.Web.Helpers.SessionHelper.AllPrentModules ?? new List<gHRM.Data.CodeFirstMigration.Db.AspNetSecurityModule>();
+        var userModules = gHRM.Web.Helpers.SessionHelper.UserSecurityModules ?? new List<gHRM.Data.CodeFirstMigration.Db.AspNetSecurityModule>();
+
+    }
+    <div class="wrapper">
+        <div class="container">
+
+            @Html.Partial("_header")
+            <div class="page-content">
+                @if (Request.IsAuthenticated)
+                {
+                    //var parentModules = gHRM.Web.Helpers.SessionHelper.AllPrentModules ?? new List<gHRM.Data.CodeFirstMigration.Db.AspNetSecurityModule>();
+                    //var userModules = gHRM.Web.Helpers.SessionHelper.UserSecurityModules ?? new List<gHRM.Data.CodeFirstMigration.Db.AspNetSecurityModule>();
+
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation">
+                            <a href="/Home" role="tab">
+                                <i class="fa fa-home"></i>
+                            </a>
+                        </li>
+                        @foreach (var module in parentModules)
+                        {
+                            if (module.AspNetSecurityModuleId != 1)
+                            {
+                                var securityModules = userModules.Where(w => w.ParentModuleId == module.AspNetSecurityModuleId && (!w.IsMenuItem.HasValue || w.IsMenuItem.Value)).OrderBy(o => o.DisplayOrder).ToList();
+                                if (securityModules.Count > 0)
+                                {
+                                    <li role="presentation">
+                                        <a href="#@module.AspNetSecurityModuleId" aria-controls="@module.AspNetSecurityModuleId" role="tab" data-toggle="tab">
+                                            <i class="fa fa-crosshairs"></i>
+                                            @module.LinkText
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        }
+                    </ul>
+                    <div class="tab-content">
+                        <!-- Nav tabs -->
+                        @*<ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation"><a href='@Html.ActionLink("Home", "Index", "Home")' aria-controls="home" role="tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
+                                <li role="presentation" class="active">
+                                <a href="#entry" aria-controls="entry" role="tab" data-toggle="tab">
+                                    <i class="fa fa-crosshairs"></i>
+                                    CODE ENTRY</a>
+                                </li>
+
+                            </ul>*@
+
+                        <!-- Tab panes -->
+                        <div role="tabpanel" class="tab-pane" id="home">
+                            <div class="sub-tabs">
+                                <ul class="list-unstyled list-inline">
+                                    <li><a href="#" onclick="showOfficeDialog();">Select Office </a></li>
+
+                                </ul>
+                            </div>
+                        </div>
+
+                        @foreach (var module in parentModules)
+                        {
+                            if (module.AspNetSecurityModuleId != 1)
+                            {
+                                var securityModules = userModules.Where(w => w.ParentModuleId == module.AspNetSecurityModuleId && (!w.IsMenuItem.HasValue || w.IsMenuItem.Value)).OrderBy(o => o.DisplayOrder).ToList();
+                                if (securityModules.Count > 0)
+                                {
+                                    <div role="tabpanel" class="tab-pane" id="@module.AspNetSecurityModuleId">
+                                        <div class="sub-tabs">
+                                            <ul class="list-unstyled list-inline">
+                                                @foreach (var securityModule in securityModules)
+                                                {
+                                                    <li>@Html.ActionLink(securityModule.LinkText, securityModule.ActionName, securityModule.ControllerName)</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+
+                        <div class="sub-tabs" style="display:none">
+                            <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+
+                                <!-- Wrapper for slides -->
+                                <div class="carousel-inner" role="listbox">
+                                    <div class="item active">
+                                        1
+                                    </div>
+                                    <div class="item">
+                                        2
+                                    </div>
+                                </div>
+
+                                <!-- Controls -->
+                                <a class="left" href="#carousel-example-generic" role="button" data-slide="prev">
+                                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="right" href="#carousel-example-generic" role="button" data-slide="next">
+                                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+                         </div>
+                            @*<div role="tabpanel" class="tab-pane" id="25">
+                <div class="sub-tabs">
+                    <ul class="list-unstyled list-inline">
+                        <li><a href="#" class="active">OFFICE Test</a></li>
+                        <li><a href="#">CENTER Test</a></li>
+                    </ul>
+                </div>
+            </div>*@
+                            <div id="dvMessage">
+
+                            </div>
+                            <div class="content">
+
+                                @RenderBody()
+                            </div>
+                        </div>
+
+                }
+
+
+                <div class="footer">
+                    <p>Copyright © 2015 Grameen Communications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function confirmDayInitiated() {
+            var isDayInitiated = "@gHRM.Web.Helpers.SessionHelper.IsDayInitiated";
+            if(isDayInitiated.toLowerCase()=='false')
+            {
+                var css = "failed";
+                $("#dvMessage").attr('class', css);
+                $("#dvMessage").html("Please run the start work process.");
+                $("#dvMessage").show();
+            }
+        }
+        function clearAllControls(url) {
+            var splits = url.split("/");
+            var edit = false;
+            for (var i = 0; i < splits.length; i++) {
+                if (splits[i] == "Edit") {
+                    edit = true;
+                    break;
+                }
+            }
+            if (!edit) {
+                $('input[type="text"]').each(function (index) {
+                    var defaultValue = $(this).attr('defaultValue');
+                    if (defaultValue != null && defaultValue.length > 0)
+                        $(this).val(defaultValue);
+                    else
+                        $(this).val('');
+                });
+            }
+        }
+        $(document).ready(function () {
+
+            $('input').bind('focus', function (e) {
+                $("#dvMessage").hide();
+            });
+            // Handle the form submit event, and make the Ajax request:
+            $("form").on("submit", function (event) {
+                var _currentForm = $(this).closest('form');
+                if (_currentForm.valid()) {
+
+                    event.preventDefault();
+                    $("#loading").show();
+                    var url = $(this).attr("action");
+                    var formData = $(this).serialize();
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: formData,
+                        dataType: "json",
+                        success: function (resp) {
+                            $("#loading").hide();
+                            var result = resp.Result;
+                            var msg = resp.Message;
+                            var css = "failed";
+                            if (result == "OK")
+                                css = "success";
+                            $("#dvMessage").attr('class', css);
+                            $("#dvMessage").html(msg);
+                            $("#dvMessage").show();
+                            if (result == "OK") {
+                                $("#dvMessage").toggle('fade', 1500);
+
+                                clearAllControls(url);
+                            }
+                        },
+                        error: function (err) {
+                            $("#loading").hide();
+                            var msg = err.responseText;
+                            var css = "failed";
+                            $("#dvMessage").attr('class', css);
+                            $("#dvMessage").html(msg);
+                            $("#dvMessage").show();
+                            //$("#dvMessage").toggle('fade',1500);
+
+                        }
+
+                    })
+                }
+            });
+
+        });
+    </script>
+
+</body>
+</html>

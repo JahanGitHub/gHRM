@@ -1,0 +1,108 @@
+﻿@model gHRM.Web.ViewModels.StateOrProvinceViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var countryList = Model == null ? null : Model.CountryList;
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnStateOrProvinceySave").click(function (e) {
+            if ($("#CountryId").val() == '0' && $("#Code").val() == '' && $("#Name").val() == '') {
+                $("#CountryId").addClass("errorClass");
+                $("#Code").addClass("errorClass");
+                $("#Name").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CountryId").val() == '0' && $("#Code").val() == '' && $("#Name").val() != '') {
+                $("#CountryId").addClass("errorClass");
+                $("#Code").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CountryId").val() == '0' && $("#Code").val() != '' && $("#Name").val() == '') {
+                $("#CountryId").addClass("errorClass");
+                $("#Name").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CountryId").val() == '0' && $("#Code").val() != '' && $("#Name").val() != '') {
+                $("#CountryId").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CountryId").val() != '' && $("#Code").val() == '' && $("#Name").val() == '') {
+                $("#Code").addClass("errorClass");
+                $("#Name").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CountryId").val() != '' && $("#Code").val() == '' && $("#Name").val() != '') {
+                $("#Code").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CountryId").val() !='' && $("#Code").val() != '' && $("#Name").val() == '') {
+                $("#Name").addClass("errorClass");
+                return false;
+            }
+            else
+                return true;
+            });
+        });
+   
+</script>
+
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Add State Or Province Or Division (বিভাগ সংযুক্তি করুন)</h2>
+&nbsp;
+@using (Html.BeginForm("Create", "StateOrProvince", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "StateOrProvinceProfile" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CountryId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CountryId, countryList, new { @class = "form-control" })
+                        @*@Html.ValidationMessageFor(model => model.CountryId, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>              
+            </div>        
+           <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "StateOrProvince Name" } })
+                        @*@Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Code, new { @class = "control-label  col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", @placeholder = "StateOrProvince Code" } })
+                    @*@Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })*@
+                </div>
+            </div>
+        </div>    
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <input type="submit" value="Save" id="btnStateOrProvinceySave" class="btn btn-primary" />
+                    <input type="hidden" value="" id="hdnStateOrProvinceSave" />
+                    <input type="hidden" value="" id="hdnStateOrProvinceId" />
+                </div>
+            </div>
+        </div>
+   
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

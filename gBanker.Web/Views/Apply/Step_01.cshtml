@@ -1,0 +1,1153 @@
+﻿@model gHRM.Web.ViewModels.ApplicantMasterViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Apply/Step_01">Apply</a></li>
+        <li><a href="/Apply/Step_01">PersonalInformation</a></li>
+        <li><a href="/Apply/Step_02">AccademicInformation</a></li>
+        <li><a href="/Apply/Step_03">JobExperience</a></li>
+        <li><a href="/Apply/Step_04">Training Info</a></li>
+        <li><a href="/Apply/Step_05">Reference Info</a></li>
+    </ol>
+</div>
+ &nbsp;
+ &nbsp;
+@{
+    ViewBag.Title = "Personal Information";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<style>
+    @@import url('//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+    .frmRow {
+        margin-bottom: 10px;
+    }
+
+    .accordion-toggle:after {
+        font-family: 'FontAwesome';
+        content: "\f078";
+        float: right;
+    }
+
+    .accordion-opened .accordion-toggle:after {
+        content: "\f054";
+    }
+</style>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
+
+<script type="text/javascript">
+
+    function ViewResumeAsPDF() {
+        var ID = $("#ID").val();
+        if (ID > 0) {
+            var location = "/CommonReportGenerator/ApplicantCVReport?format=pdf&Id=" + ID
+            PrintReport(location)
+        }
+
+        else {
+
+            $.alert.open('Please save your Information first');
+        }
+    }
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function IndividualIdCoverletter() {
+
+        var ID = $("#ID").val();
+        window.open('/Apply/ViewIndividualIdCoverletter?ID=' + ID, 'mywindow', 'resizable=yes, width = 800 px, height =600px scrollbars=auto');
+    }
+
+    function IndividualIdAttachedCV() {
+
+        var ID = $("#ID").val();
+        window.open('/Apply/ViewIndividualIdAttachedCV?ID=' + ID, 'mywindow', 'resizable=yes, width = 800 px, height =600px scrollbars=auto');
+    }
+
+    function ViewProfile() {
+        var ID = $("#ID").val();
+        if (ID > 0) {
+        window.open('/Apply/ViewProfile?Id=' + ID, '_blank');
+          }
+       else {
+            $.alert.open('Please save your Information first');
+        }
+    }
+    function showImage(fileInput) {
+        $("#blaImage").show();
+        $("#imgApplicant").hide();
+        var files = fileInput.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var imageType = /image.*/;
+
+            if (file.type.match(imageType)) {
+                var size = Math.round(file.size / 1024);
+                if (size <= 50) {
+                    var img = document.getElementById("thumbnil");
+                    img.file = file;
+                    var reader = new FileReader();
+                    reader.onload = (function (aImg) {
+                        return function (e) {
+                            aImg.src = e.target.result;
+                        };
+                    })(img);
+                    reader.readAsDataURL(file);
+                }
+                else
+                    alert('Image file cannot be greater than 50 KB.');
+            }
+            else {
+                $("#Image").replaceWith($("#Image").clone(true));
+                alert('Please select a valid image file');
+            }
+        }
+    }
+
+    function showCoverLetter(fileInput) {
+        var files = fileInput.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var Type = /.pdf/;
+
+            if (file.type.match(Type)) {
+                var size = Math.round(file.size / 1024);
+                if (size <= 600) {
+                    var img = document.getElementById("thumbnil");
+                    img.file = file;
+                    var reader = new FileReader();
+                    reader.onload = (function (aImg) {
+                        return function (e) {
+                            aImg.src = e.target.result;
+                        };
+                    })(img);
+                    reader.readAsDataURL(file);
+                }
+                else
+                    alert('file cannot be greater than 50 KB.');
+            }
+            else {
+                $("#PDF").replaceWith($("#PDF").clone(true));
+                alert('Please select a valid PDF file');
+         
+                $("#ExtraCoverLetter").val("");
+                $("#AttachedCV").val("");
+            }
+        }
+    }
+
+    function SaveCoverLetter() {
+             var ID = $("#ID").val();
+
+             if (ID > 0) {
+                 var CoverLetter = document.getElementById("CoverLetter").value;
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: '@Url.Action("SavedApplicantModel", "Apply")',
+                data: JSON.stringify({ AppplicantId: ID }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if (data.result > 0) {
+                        var ID = data.result;
+                        var xhr = new XMLHttpRequest();
+                        var fd = new FormData();
+                        fd.append("file", document.getElementById("CoverLetter").files[0]);
+                        fd.append("ID", ID);
+                        xhr.open("POST", "/Apply/UploadCoverLetter/", true);
+                        xhr.send(fd);
+                        xhr.addEventListener("load", function (event) {
+                            if (event.target.response > 0) {
+                                $(".panel-body .create-success").show(800).fadeToggle(3000);
+                            } else {
+                                $.alert.open("Error", "CoverLetter couldn't Save");
+                            }
+                        }, false);
+
+                        $.alert.open('Success', data.message);
+                        $("#ÄpplyforJobs").hide();
+                    } else {
+                        $.alert.open('Error', data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+                 $.alert.open("Please Save Personal Details First");
+        }
+    }
+
+  function SaveAttachedCV() {
+             var ID = $("#ID").val();
+
+             if (ID > 0) {
+                 var AttachedCV = document.getElementById("AttachedCV").value;
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: '@Url.Action("SavedApplicantModel", "Apply")',
+                data: JSON.stringify({ AppplicantId: ID }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if (data.result > 0) {
+                        var ID = data.result;
+                        var xhr = new XMLHttpRequest();
+                        var fd = new FormData();
+                        fd.append("file", document.getElementById("AttachedCV").files[0]);
+                        fd.append("ID", ID);
+                        xhr.open("POST", "/Apply/UploadAttachedCV/", true);
+                        xhr.send(fd);
+                        xhr.addEventListener("load", function (event) {
+                            if (event.target.response > 0) {
+                                $(".panel-body .create-success").show(800).fadeToggle(3000);
+                            } else {
+                                $.alert.open("Error", "Attached CV couldn't Save");
+                            }
+                        }, false);
+
+                        $.alert.open('Success', data.message);
+                        $("#ÄpplyforJobs").hide();
+                    } else {
+                        $.alert.open('Error', data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+                 $.alert.open("Please Save Personal Details First");
+        }
+    }
+
+    function SaveImage() {
+             var ID = $("#ID").val();
+
+             if (ID > 0) {
+            var img = document.getElementById("Image").value;
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: '@Url.Action("SavedApplicantModel", "Apply")',
+                data: JSON.stringify({ AppplicantId: ID }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if (data.result > 0) {
+                        var ID = data.result;
+                        var xhr = new XMLHttpRequest();
+                        var fd = new FormData();
+                        fd.append("file", document.getElementById("Image").files[0]);
+                        fd.append("ID", ID);
+                        xhr.open("POST", "/Apply/UploadImage/", true);
+                        xhr.send(fd);
+                        xhr.addEventListener("load", function (event) {
+                            if (event.target.response > 0) {
+                                $(".panel-body .create-success").show(800).fadeToggle(3000);
+                            } else {
+                                $.alert.open("Error", "Image couldn't Save");
+                            }
+                        }, false);
+
+                        $.alert.open('Success', data.message);
+                        $("#ÄpplyforJobs").hide();
+                    } else {
+                        $.alert.open('Error', data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+                 $.alert.open("Please Save Personal Details First");
+        }
+    }
+
+
+    function Step_01() {
+        location.href = "/Apply/Step_01"
+    }
+
+    function Step_02() {
+        location.href = "/Apply/Step_02"
+    }
+
+   
+    function SubmitApplication() {
+
+        debugger;
+
+        var JobId = $('#JobId').val();
+
+        if (JobId == "") {
+            $.alert.open("Error", "Please Apply again from Job Apply Menu");
+            return false;
+        }
+
+        var QAnswerList = [], obj,
+            count = 1;
+
+        $('#AdderTable tr').each(function () {
+            var cID = $(this).find("td:eq(1) input").attr("id").match(/\d+/);
+            obj = {};
+            obj["QId"] = $("#QId" + cID).val();
+            obj["QAnswer"] = $("#QAnswer" + cID).val();
+
+            QAnswerList.push(obj);
+            count = count + 1;
+        });
+        var val = [];
+        var i = 0;
+
+        $('input[name="locationthemes"]:checked').each(function () {
+            /*          console.log(this.value);*/
+            val.push($(this).val());
+        });
+
+        if (val[0] != 1 && val[1] != 1) {
+            $.alert.open("Error", "Please Complete your profile & Cover letter then Apply again from Job Apply Menu");
+            return false;
+        }
+        else {
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "POST", //GET or POST or PUT or DELETE verb
+                url: '/Apply/SubmitApplication',
+                data: {
+                    JobId: JobId, 'QAnswerList': QAnswerList
+                },
+                dataType: "json", //Expected data format from server
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $('#AjaxLoader').hide();
+                    $("#ÄpplyforJobs").hide();
+                    Swal.fire({
+                        icon: 'success',
+                        html: '<b>'+ data.message + '</b>',
+                        type: "success"
+                    }).then(function () {
+                        window.location = "/Apply/ApplyJobs";
+                    });
+                },
+                error: function (data) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open('error', 'Error');
+                }
+            });
+        }
+    }
+
+    $(document).on('show', '.accordion', function (e) {
+        //$('.accordion-heading i').toggleClass(' ');
+        $(e.target).prev('.accordion-heading').addClass('accordion-opened');
+    });
+
+    $(document).on('hide', '.accordion', function (e) {
+        $(this).find('.accordion-heading').not($(e.target)).removeClass('accordion-opened');
+        //$('.accordion-heading i').toggleClass('fa-chevron-right fa-chevron-down');
+    });
+
+    $(document).ready(function () {
+        //CheckInputLengthLessOrEqual("#Phone", "11");
+
+
+        $("#Phone").blur(function () {
+            var phoneNo = $("#Phone").val();
+            if (phoneNo != "" && phoneNo != '' && phoneNo != null && phoneNo.length > 0) {
+                if (phoneNo.length != 11) {
+                    $.alert.open("Alert", "Phone number must be 11 digit");
+                    $("#Phone").val('');
+                }
+                else {
+                    return false;
+                }
+                //CheckInputLengthEqual("#Phone", "11");
+            }
+        });
+
+        $(function () { // will trigger when the document is ready
+            $('.datepicker').datepicker(); //Initialise any date pickers
+        });
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+            debugger;
+
+            var FirstName = $("#FirstName").val();
+            var LastName = $("#LastName").val();
+            var FatherName = $("#FatherName").val();
+            var MotherName = $("#MotherName").val();
+            var GuardianName = $("#GuardianName").val();
+            var DateofBirth = $("#DateofBirth").val();
+            var BirthDateMsg = $("#BirthDateMsg").val();
+            var Gender = $("#Gender").val();
+            var Religion = $("#Religion").val();
+            var MaritalStatus = $("#MaritalStatus").val();
+            var Nationality = $("#Nationality").val();
+            var NationalId = $("#NationalId").val();
+            var PassportNumber = $("#PassportNumber").val();
+            var PrimaryMobile = $("#PrimaryMobile").val();
+            var SecondaryMobile = $("#SecondaryMobile").val();
+            var BloodGroup = $("#BloodGroup").val();
+            var CareerObjective = $("#CareerObjective").val();
+            var PresentSalary = $("#PresentSalary").val();
+            var ExpectedSalary = $("#ExpectedSalary").val();
+            var LookingforJob_Level = $("#LookingforJob_Level").val();
+            var Availablefor = $("#Availablefor").val();
+            var CareerSummary = $("#CareerSummary").val();
+            var QualificationKeyword = $("#QualificationKeyword").val();
+            var SpecialQualification = $("#SpecialQualification").val();
+            var PresentAddress = $("#PresentAddress").val();
+            var PermanentAddress = $("#PermanentAddress").val();
+            var PrimaryEmail = $("#PrimaryEmail").val();
+
+            if ($("#FirstName").val() == "" || $("#LastName").val() == "" || $("#FatherName").val() == "" || $("#MotherName").val() == "") {
+                $.alert.open("Error", "Please Insert Required fields");
+                return false;
+            }
+            if ($("#DateofBirth").val() == "" || $("#MaritalStatus").val() == "" || $("#Nationality").val() == "" || $("#NationalId").val() == "") {
+                $.alert.open("Error", "Please Insert Required fields");
+                return false;
+            }
+            if ($("#PassportNumber").val() == "" || $("#PrimaryMobile").val() == "" || $("#PrimaryEmail").val() == "") {
+                $.alert.open("Error", "Please Insert Required fields");
+                return false;
+            }
+
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "GET", //GET or POST or PUT or DELETE verb
+                url: '/Apply/SavePersonalInfo', // Location of the service
+                data: {
+                    FirstName: FirstName, LastName: LastName, FatherName: FatherName, MotherName: MotherName, GuardianName: GuardianName, DateofBirth: DateofBirth, Gender: Gender,
+                    Religion: Religion, MaritalStatus: MaritalStatus, Nationality: Nationality, NationalId: NationalId, PassportNumber: PassportNumber, PrimaryMobile: PrimaryMobile, SecondaryMobile: SecondaryMobile,
+                    BloodGroup: BloodGroup, CareerObjective: CareerObjective, PresentSalary: PresentSalary, ExpectedSalary: ExpectedSalary, LookingforJob_Level: LookingforJob_Level, Availablefor: Availablefor, CareerSummary: CareerSummary,
+                    QualificationKeyword: QualificationKeyword, SpecialQualification: SpecialQualification, BirthDateMsg: BirthDateMsg, PresentAddress: PresentAddress, PermanentAddress: PermanentAddress, PrimaryEmail: PrimaryEmail
+                }, //Data sent to server
+                dataType: "json", //Expected data format from server
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $('#AjaxLoader').hide();
+
+                    /*   clearData();*/
+                    $.alert.open("Alert", data.message);
+
+                    setTimeout(Step_01(), 7000);
+
+                    $("#ÄpplyforJobs").hide();
+
+
+
+                },
+                error: function (data) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open('error', 'Error');
+                }
+            });
+            //} else {
+            //    $.alert.open("Error", "Please Insert required fields");
+            //}
+
+        });
+
+        $(function () {
+            $('#save_value').click(function () {
+          
+                console.log(val);
+            });
+        });
+        $('.togglePersonalInfo').click(function (e) {
+
+            e.preventDefault();
+            var $this = $(this);
+
+            $this.text($this.text() == 'Personal Info' ? "View Personal Info" : "Personal Info")
+            $this.next().toggle()
+
+
+        });
+        $('.toggleCareerInformation').click(function (e) {
+
+            e.preventDefault();
+            var $this = $(this);
+
+            $this.text($this.text() == 'Career Information' ? "View Career Information " : "Career Information")
+            $this.next().toggle()
+        });
+        $('.OtherRelevantInformation').click(function (e) {
+
+            e.preventDefault();
+            var $this = $(this);
+
+            $this.text($this.text() == 'Other Relevant Information' ? "View Other Relevant Information" : "Other Relevant Information")
+            $this.next().toggle()
+
+
+            isCarrerInfo = 0;
+            isactive = 1;
+
+        });
+
+        $('.toggleCareerInformation').trigger('click');
+        $('.OtherRelevantInformation').trigger('click');
+        CheckInputLengthEqual("#PrimaryMobile", "11");
+        CheckInputLengthEqual("#SecondaryMobile", "11");
+
+        var JobId = $('#JobId').val();
+        if (JobId > 0) {
+            $('.togglePersonalInfo').trigger('click');
+        }
+
+
+    });
+
+
+</script>
+@*@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })*@
+
+<div class="row">
+    <div class="col-md-8">
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <i class="btn btn-success col-sm-6 " style="font-size: 1vw; color:bisque; float:right; " onclick="ViewProfile()">See your Profile</i>
+            <i class="btn btn-success col-sm-6 " style="font-size: 1vw; color:bisque; float: right;" onclick="ViewResumeAsPDF()">Resume as PDF </i>
+        </div>
+    </div>
+    <h2 class="page-title">Add Personal Information</h2>
+    @using (Html.BeginForm("Step_01", "Apply", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "ApplicantProfile" }))
+
+    {
+        @Html.AntiForgeryToken()
+        <div class="container-fluid">
+            <button class='togglePersonalInfo btn btn-success col-sm-offset' style="width:340px">Personal Info</button>
+            <fieldset>
+                <legend>Personal Details</legend>
+                <div class="">
+                    @*@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)*@
+
+                    @*<hr/>*@
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(m => m.ID)
+                    <input type="hidden" value="@ViewBag.JobId" />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.LastName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.FatherName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.FatherName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.FatherName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.MotherName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.MotherName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.MotherName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.GuardianName, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.GuardianName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.GuardianName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.BirthDateMsg, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.BirthDateMsg, new { @class = "form-control datepicker" })
+                                    @Html.ValidationMessageFor(model => model.BirthDateMsg, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.Gender, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Religion, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.Religion, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Religion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.MaritalStatus, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.MaritalStatus, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.MaritalStatus, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Nationality, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.Nationality, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.Nationality, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.NationalId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.NationalId, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.NationalId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PassportNumber, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.PassportNumber, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.PassportNumber, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PrimaryMobile, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.PrimaryMobile, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.PrimaryMobile, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.SecondaryMobile, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.SecondaryMobile, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.SecondaryMobile, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PresentAddress, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.PresentAddress, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.PresentAddress, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PermanentAddress, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.PermanentAddress, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.PermanentAddress, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.BloodGroup, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.BloodGroup, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.BloodGroup, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PrimaryEmail, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.TextBoxFor(model => model.PrimaryEmail, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.PrimaryEmail, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+            <button class='toggleCareerInformation btn btn-success col-sm-offset' style="width:340px">Career Information</button>
+            <fieldset>
+                <legend>Career Information</legend>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CareerObjective, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.CareerObjective, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PresentSalary, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.PresentSalary, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.ExpectedSalary, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.ExpectedSalary, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LookingforJob_Level, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.LookingforJob_Level, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Availablefor, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.Availablefor, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+            <button class='OtherRelevantInformation btn btn-success col-sm-offset' style="width:340px">Other Relevant Information</button>
+            <fieldset>
+                <legend>Other Relevant Information</legend>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CareerSummary, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.CareerSummary, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.SpecialQualification, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.SpecialQualification, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.QualificationKeyword, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.QualificationKeyword, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            @*<button class='DisabilityInformation btn btn-success col-sm-offset' style="width:250px">Disability Information(If have)</button>
+                <fieldset>
+                    <legend>Disability Information(If have)</legend>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DisabilityId, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-sm-8">
+                                    @Html.EditorFor(model => model.DisabilityId, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.KindsOfDisability, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-sm-8">
+                                    @Html.EditorFor(model => model.KindsOfDisability, new { htmlAttributes = new { @class = "form-control" } })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>*@
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    &nbsp;
+                    <button type="button" id="btnSave" class="btn btn-success btn-sm"><i class="fa fa-check-circle-o"></i> Save</button>
+                    <button type="button" class="btn btn-success col-sm-offset-5" onclick="Step_02()" style="float: right;">Next Page</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-Training" style="text-align:center">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseImage">
+                        <i class="fa fa-plus"></i>&nbsp; Upload Image
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseImage" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <h4 class="text-info" style="text-align:center">Upload your Image</h4>
+                    <br /><br />
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Image, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        <div id="imgApplicant">
+
+                                        </div>
+                                        <div id="blaImage">
+                                            <img id="thumbnil" style="width:100px; height:100px;" src="@ViewBag.Image" alt="Applicant Image" class="img-responsive" />
+                                        </div>
+                                        @Html.TextBoxFor(model => model.Image, new
+                                        {
+                                            type = "file",
+                                            @id = "Image",
+                                       @onchange = "showImage(this);",
+                                            @class = "form -control"
+                                        })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveImage()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-Training" style="text-align:center">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseCoverLetter">
+                        <i class="fa fa-plus"></i>&nbsp; Upload Cover Letter
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseCoverLetter" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <h4 class="text-info" style="text-align:center">Upload your Cover Letter</h4>
+                    <br /><br />
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.CoverLetter, new { @class = "control-label col-md-4" })
+                                    <div class="col-md-8">
+                                        @Html.TextBoxFor(model => model.CoverLetter, new
+                                        {
+                                            type = "file",
+                                            @id = "CoverLetter",
+                                       @onchange = "showCoverLetter(this);",
+                                            @class = "form -control"
+                                        })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveCoverLetter()" />
+                                    @*<input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdateTraining()" />
+                                        <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetTraining()" />*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        if (ViewBag.JobId > 0)
+        {
+            <div class="row">
+
+                <div class="col-md-12">
+                    <table class="col-md-12" style="width: 100%">
+
+                        <thead style="background-color:gainsboro">
+                        <th style="font:300;text-align:center; font-size:medium">Mandatory Information</th>
+                        </thead>
+
+                    </table>
+                    &nbsp;
+                    &nbsp;
+                    <table class="col-md-12" style="width: 100%" border="1">
+                        <tr style="text-align:center">
+                            <td></td>
+                            <td>Document Type</td>
+                            <td>Name</td>
+                            <td colspan="3">Actions</td>
+
+
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; width:1%; padding: 15px 2px 5px 3px "> <input name="locationthemes" id="ad_Checkbox1" class="chk" type="checkbox" value="@ViewBag.AttachedCVVal" /></td>
+                            <td style="font: 70; font-size: medium; width:24%; text-align:center; padding: 15px 0px 5px 0px "> CV</td>
+
+                            <td style="font: 70; font-size: medium; width:25%; padding: 15px 0px 5px 0px"></td>
+
+                            <td style="font: 70; font-size: small; font-weight: bold; padding: 15px 0px 5px 0px; width:10%; text-align: center">
+                                <button type="button" onclick="ViewProfile()" style="color: green; width: 85%"> <b>View Profile</b></button>
+                            </td>
+
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px; text-align: center">
+                                <div class="row">
+
+                                    <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <div class="col-md-8">
+                                                @Html.TextBoxFor(model => model.AttachedCV, new
+                                                {
+                                                    type = "file",
+                                                    @id = "AttachedCV",
+                                               @onchange = "showCoverLetter(this);",
+                                                    @class = "form -control"
+                                                })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveAttachedCV()" />
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <button type="button" onclick="IndividualIdAttachedCV()" style="color: green; font-size: small; width: 55%"> <b>View Attached CV</b></button>
+                                </div>
+
+                            </td>
+
+                            <td style="font: 70; font-size: small; padding: 15px 0px 5px 0px; width:10%; text-align: center">
+                                <button type="button" onclick="Step_01()" style="color: green; width: 85%"> <b>Add Profile +</b></button>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; width:1%; padding: 15px 2px 5px 3px "> <input name="locationthemes" id="ad_Checkbox1" class="chk" type="checkbox" value="@ViewBag.CoverLetterVal" /></td>
+                            <td style="font: 70; font-size: medium; width: 24%; text-align: center;  padding: 15px 0px 5px 0px ">Cover Letter</td>
+
+                            <td style="font: 70; font-size: medium; width:25%; padding: 15px 0px 5px 0px"></td>
+
+                            <td style="font: 70; font-size: small; font-weight: bold; padding: 15px 0px 5px 0px; width:10%; text-align: center">
+                                <button type="button" onclick="IndividualIdCoverletter()" style="color: green; width: 85%"> <b>View Cover letter</b></button>
+                            </td>
+
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px; text-align: center">
+                                <div class="row">
+
+                                    <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <div class="col-md-8">
+                                                @Html.TextBoxFor(model => model.CoverLetter, new
+                                                {
+                                                    type = "file",
+                                                    @id = "ExtraCoverLetter",
+                                               @onchange = "showCoverLetter(this);",
+                                                    @class = "form -control"
+                                                })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveCoverLetter()" />
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px; width:10%; text-align: center"></td>
+
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+            <div id="ÄpplyforJobs">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title panel-title-Training" style="text-align:center">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseUploadAnswer">
+                                <i class="fa fa-plus"></i>&nbsp; Please CareFully Answer Following Question
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseUploadAnswer" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <h4 class="text-info" style="text-align:center">Answer Following Question</h4>
+                            <br /><br />
+                            <div id="AjaxLoader" class="ajaxLoader"></div>
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="col-md-12" style="width: 96%" id="AdderTable">
+
+                                            <tr>
+                                                <td>
+
+                                                    <input type=hidden id="QId1" value="1" />
+
+                                                </td>
+                                                <td>
+                                                    @*@Html.EditorFor(model => model.QualificationKeyword, new { htmlAttributes = new { @class = "form-control" } })*@
+                                                    <label for="QAnswer1">1. Why you prefer Grameen Communication? </label>
+                                                    <input type="text" class="form-control txt" placeholder="Write Your Answer here.." id="QAnswer1" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <input type=hidden id="QId2" value="2" />
+
+                                                </td>
+                                                <td>
+                                                    @*@Html.EditorFor(model => model.QualificationKeyword, new { htmlAttributes = new { @class = "form-control" } })*@
+                                                    <label for="QAnswer2">2. What is your strenth?</label>
+                                                    <input type="text" class="form-control txt" placeholder="Write Your Answer here.." id="QAnswer2" />
+                                                    @*<input type="text" id="QAnswer2" />*@
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="col-sm-12">
+                        <div class="form-group form-action" style="padding:10px;margin:5px; text-align:center">
+                            &nbsp;
+                            <input type="hidden" id="JobId" value="@ViewBag.JobId" />
+                            <button type="button" id="btnSave" class="btn btn" onclick="SubmitApplication()" style="color:red"><i class="fa fa-check-circle-o"></i> <b>Submit your Application</b><p> or </p>[ If you need to edit profile, First Complete your profile then Apply again ]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+    }
+
+
+
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/gbUtility")
+        @Scripts.Render("~/bundles/alert")
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+
+
+
+
+

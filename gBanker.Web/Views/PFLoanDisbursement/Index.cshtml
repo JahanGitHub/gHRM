@@ -1,0 +1,228 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanDisbursementViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        @if (Model.IsOpen == true)
+         {
+             <text>
+        $("#create").removeClass('disabled');
+        </text>
+         }
+
+        @if(Model.IsOpen == false){
+            <text>
+        $("#create").addClass('disabled');
+        </text>
+        }
+
+        $("#FromDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: '1980:2050'
+         }).datepicker("setDate", new Date());
+
+        $("#ToDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true
+          }).datepicker("setDate", new Date());
+
+
+        $("#btnSearch").click(function () {
+
+            var employeeCode = $("#EmployeeCode").val();
+            var fromDateString = $("#FromDate").val();
+            var toDateString = $("#ToDate").val();
+            var loanState = $("#LoanState option:selected").val();
+
+            var fDate, tDate;
+
+            if (fromDateString != '' && toDateString == '') {
+                tDate = new Date();
+            }
+            else if (fromDateString == '' && toDateString != '') {
+                fDate = null;
+            }
+            else if (fromDateString != '' && toDateString != '') {
+
+                var fDate = new Date(fromDateString);
+                var tDate = new Date(toDateString);
+
+                if (fDate > tDate) {
+                    $.alert.open("Info", "Enter From Date less than or equal to To Date");
+                    return;
+                }
+            }
+
+            $('#grid2').jtable('load', { employeeCode: employeeCode, fromDate: fromDateString, toDate: toDateString, loanState: loanState });
+        });
+
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 20,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFLoanDisbursement/GetDisbursementList'
+            },
+            fields: {
+                LoanId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Emp. Code',
+                    width: '8%',
+                },
+                EmployeeName: {
+                    title: 'Name',
+                    width: '15%',
+                },
+                DisburseAmount: {
+                    title: 'Disburse Amount',
+                    width: '10%',
+                },
+                IntersetRate: {
+                    title: 'Interest Rate',
+                    width: '6%',
+                },
+                NoOfInstallment: {
+                    title: 'No. Of Installment',
+                    width: '8%',
+                },
+                MonthlyInstallment: {
+                    title: 'Monthly Ins.',
+                    width: '8%',
+                },
+                DisburseDate: {
+                    title: 'Disburse Date',
+                    width: '10%'
+                },
+                LoanPaid: {
+                    title: 'Loan Paid',
+                    width: '8%'
+                },
+                InterestPaid: {
+                    title: 'Int Paid',
+                    width: '8%'
+                },
+                InterestCharge: {
+                    title: 'Int. Charge',
+                    width: '8%'
+                },
+                LastInstallmentDate: {
+                    title: 'Last Ins. Date',
+                    width: '10%'
+                },
+                IsInstallmentOver: {
+                    title: 'Ins. Over',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.IsInstallmentOver == 1)
+                            return "Yes";
+                        if (data.record.IsInstallmentOver == 0)
+                            return "No";
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFLoanDisbursement/Edit/" + data.record.LoanId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+            }
+        });
+
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+
+            var employeeCode = $("#EmployeeCode").val();
+            var fromDate = $("#FromDate").val();
+            var toDate = $("#ToDate").val();
+            var loanState = $("#LoanState option:selected").val();
+
+            if (fromDate != '' && toDate != '') {
+                $('#grid2').jtable('load', { employeeCode: employeeCode, fromDate: fromDate, toDate: toDate, loanState: loanState });
+            }
+        }
+    });
+</script>
+
+@Html.ActionLink("Add Disbursement", "Create", null, new { @class = "btn btn-success btn-sm pull-right", id = "create" })
+&nbsp;
+<h2 class="page-title">
+    Disbursement List
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-3">
+                @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Employee Code" } })
+            </div>
+            @Html.LabelFor(model => model.FromDate, htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-3">
+                @Html.EditorFor(model => model.FromDate, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Select From Date" } })
+            </div>
+            @Html.LabelFor(model => model.ToDate, htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-3">
+                @Html.EditorFor(model => model.ToDate, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Select To Date" } })
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <div class="row">
+        <div class="form-group">
+            <label for="LoanStatus" class="control-label col-md-1">Loan State</label>
+            <div class="col-md-3">
+                @Html.DropDownListFor(m => m.LoanState, DropdownListHelper.GetDropdownList(DropdownListTypes.LoanState, Model.LoanState.ToString()), "-Select One-", new { @class = "form-control" })
+                <br />
+            </div>
+            <div class="col-md-1"></div>
+            <input type="button" value="Search" id="btnSearch" class="btn btn-warning" style="margin-left:16px;" />
+        </div>
+    </div>
+
+    <div id="grid2">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}

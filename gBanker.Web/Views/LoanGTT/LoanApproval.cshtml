@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Loan Approval";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#grid').jtable({
+            // title: 'Product List',
+            paging: false,
+            //pageSize: 10,
+            sorting: false,
+            //defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/LoanGTT/GetAllLoanApplication',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+            },
+            fields: {
+                EmployeeCode: {
+                    title: "Employee Id",
+                    width: "30px",
+                },
+                EmployeeName: {
+                    title: "Name",
+                    width: "100px",
+                },
+                LoanType: {
+                    title: "Loan Type",
+                    width: "30px",
+                },
+                PurposeName: {
+                    title: "Purpose",
+                    width: "30px",
+                },
+                LoanAmount: {
+                    title: "LoanAmount",
+                    width: "20px",
+
+                },
+                InstallmentNo: {
+                    title: "InstallmentNo",
+                    width: "20px",
+
+                },
+                Action: {
+                    title: "Action",
+                    width: '10px',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" title="Approved" OnClick="Approved(' + data.record.Id + ');"><i class="fa fa-check"></i></a>' +
+                            ' | <a href="#" title="Reject" OnClick="Reject(' + data.record.Id + ');"><i class="fa fa-close"></i></a>'
+                            +'</div>';
+                    }
+                },
+            }
+        });
+        reloadGrid();
+
+
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+    function Approved(id) {
+        var data = GenerateAjaxRequist('/LoanGTT/PostLoanApproval', JSON.stringify({ id: id, status: "A" }), "POST");
+        $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+        reloadGrid();
+    }
+    function Reject(id) {
+        var data = GenerateAjaxRequist('/LoanGTT/PostLoanApproval', JSON.stringify({ id: id, status: "R" }), "POST");
+        $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+        reloadGrid();
+    }
+</script>
+<h2 class="page-title">Loan Approval</h2>
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+}

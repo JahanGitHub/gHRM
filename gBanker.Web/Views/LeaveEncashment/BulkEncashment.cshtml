@@ -1,0 +1,42 @@
+﻿@model gHRM.Web.ViewModels.LeaveSellViewModel
+
+@{
+    ViewBag.Title = "EL Bulk Encashment";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .grid-title {
+        margin: 5px;
+        display: block;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+
+<script type="text/javascript">
+    var BulkEncashmentDataList = @Html.Raw(ViewBag.BulkEncashmentData);
+</script>
+
+<h2 class="page-title">EL Bulk Encashment</h2>
+&nbsp;
+<div class="row">
+    <div class="col-md-6">
+        <div class="table-responsive">
+            <div id="grid"></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-responsive">
+            <div id="grid-excluded"></div>
+        </div>
+    </div>
+</div>
+<input type="submit" value="Bulk Encash" id="btnSave" class="btn btn-primary" onclick="Page.Save()" style="margin-top:20px;">
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/leave/bulk-leave-encashment.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

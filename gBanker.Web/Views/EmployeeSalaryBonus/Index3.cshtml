@@ -1,0 +1,788 @@
+﻿@model gHRM.Web.ViewModels.Payroll.EmployeeSalaryBonusViewModel
+@{
+    ViewBag.Title = "AttendancePenaltyLeaveDeduction";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+<script>
+
+    $(document).ready(function () {
+        $(".divUpdate").hide();
+        $("#btnPrint").hide();
+        $("#btnExelPrint").hide();
+
+        function CheckRequiredFieldvalidation() {
+            var ComponentName = $("#ComponentName").val();
+            var year = $("#SalaryYear").val();
+            var month = $("#SalaryMonth").val();           
+            var revStampDeduction = $("#RevStampDeduction").val();
+
+            var object = {};
+
+            if (ComponentName != "" && year != "" && month != "") {
+                object = {
+                    ComponentName: ComponentName,
+                    SalaryYear: year,
+                    SalaryMonth: month,
+                    RevStampDeduction: revStampDeduction ? revStampDeduction : 0
+                }
+
+                return object;
+            }
+        }
+
+        $("#btnViewBonus").click(function () {
+
+            var obj = CheckRequiredFieldvalidation();
+            if (obj != null) {
+                ViewBonusInGrid();
+            } else {
+                $.alert.open("Error", "Please insert required fields");
+            }
+        });
+
+
+        $("#btnGenerateBonus").click(function () {
+            var obj = CheckRequiredFieldvalidation();
+            if (obj != null) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    async: true,
+                    cache: false,
+                    url: '@Url.Action("SaveEmployeeSalaryBonus3", "EmployeeSalaryBonus")',
+                    data: JSON.stringify({ obj: obj }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+
+            } else {
+                $.alert.open("Error", "Please insert required fields");
+            }
+
+        });
+
+        $("#btnSendForApproval").click(function () {
+
+            var obj = CheckRequiredFieldvalidation();
+            if (obj != null) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    async: true,
+                    cache: false,
+                    url: '@Url.Action("SendForApproval", "EmployeeSalaryBonus")',
+                    data: JSON.stringify({ obj: obj }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            ViewBonusInGrid();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please insert required fields");
+            }
+        });
+
+
+        $("#ReportType").change(function () {
+
+            var type = $("#ReportType").val();
+            if (type == "1") {
+                $("#btnPrint").show();
+                $("#btnExelPrint").hide();
+            }
+            if (type == "2") {
+                $("#btnPrint").hide();
+                $("#btnExelPrint").show();
+            }
+            if (type == "3") {
+                $("#btnPrint").show();
+                $("#btnExelPrint").hide();
+            }
+            if (type == "4") {
+                $("#btnPrint").show();
+                $("#btnExelPrint").hide();
+            }
+            if (type == "5") {
+                $("#btnPrint").hide();
+                $("#btnExelPrint").show();
+            }
+            if (type == "6") {
+                $("#btnPrint").show();
+                $("#btnExelPrint").hide();
+            }
+        });
+
+        $("#btnPrint").click(function () {
+            var url;
+            var type = $("#ReportType").val();
+
+            if (type == "1") {
+                var obj = CheckRequiredFieldvalidation();
+                if (obj != null) {
+
+                    var office_TypeId = $("#OfficeTypeId").val();
+                    if (office_TypeId == 1) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVHeadOfficeId").val();
+                    } else if (office_TypeId == 3) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (office_TypeId == 4) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (office_TypeId == 5) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (office_TypeId == 6) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#UnitId").val();
+                    }
+                    else if (office_TypeId == null || office_TypeId == '') {
+                        OfficeTypeId = '';
+                        officeId = ''
+                    };
+
+                    url = '/EmployeeSalaryBonus/BonusReportBeforeSendForApprovalPdf?ComponentName=' + obj.ComponentName + '&Year=' + obj.SalaryYear + '&Month=' + obj.SalaryMonth + '&officeId=' + officeId + '&OfficeTypeId=' + OfficeTypeId;
+                    PrintReport(url);
+                } else {
+                    $.alert.open("Error", "Please insert required fields");
+                }
+            }
+
+
+
+            if (type == "3") {
+                var obj = CheckRequiredFieldvalidation();
+                if (obj != null) {
+                    var office_TypeId = $("#OfficeTypeId").val();
+                    if (office_TypeId == 1) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVHeadOfficeId").val();
+                    } else if (office_TypeId == 3) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (office_TypeId == 4) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (office_TypeId == 5) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (office_TypeId == 6) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#UnitId").val();
+                    }
+                    else if (office_TypeId == null || office_TypeId == '') {
+                        OfficeTypeId = '';
+                        officeId = ''
+                    };
+                    url = '/EmployeeSalaryBonus/BonusRejectedReportBeforeSendForApprovalPdf?ComponentName=' + obj.ComponentName + '&Year=' + obj.SalaryYear + '&Month=' + obj.SalaryMonth + '&officeId=' + officeId + '&OfficeTypeId=' + OfficeTypeId;
+                    PrintReport(url);
+                } else {
+                    $.alert.open("Error", "Please insert required fields");
+                }
+            }
+
+            if (type == "4") {
+                var obj = CheckRequiredFieldvalidation();
+                if (obj != null) {
+                    var office_TypeId = $("#OfficeTypeId").val();
+                    if (office_TypeId == 1) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVHeadOfficeId").val();
+                    } else if (office_TypeId == 3) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (office_TypeId == 4) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (office_TypeId == 5) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (office_TypeId == 6) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#UnitId").val();
+                    }
+                    else if (office_TypeId == null || office_TypeId == '') {
+                        OfficeTypeId = '';
+                        officeId = ''
+                    };
+                    url = '/EmployeeSalaryBonus/BonusReportAfterApprovalPdf?ComponentName=' + obj.ComponentName + '&Year=' + obj.SalaryYear + '&Month=' + obj.SalaryMonth + '&officeId=' + officeId + '&OfficeTypeId=' + OfficeTypeId;
+                    PrintReport(url);
+                } else {
+                    $.alert.open("Error", "Please insert required fields");
+                }
+            }
+
+            if (type == "6") {
+                var obj = CheckRequiredFieldvalidation();
+                if (obj != null) {
+                    var office_TypeId = $("#OfficeTypeId").val();
+                    if (office_TypeId == 1) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVHeadOfficeId").val();
+                    } else if (office_TypeId == 3) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (office_TypeId == 4) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (office_TypeId == 5) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (office_TypeId == 6) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#UnitId").val();
+                    }
+                    else if (office_TypeId == null || office_TypeId == '') {
+                        OfficeTypeId = '';
+                        officeId = ''
+                    };
+                    url = '/EmployeeSalaryBonus/BonusRejectedReportAfterSendForApprovalPdf?ComponentName=' + obj.ComponentName + '&Year=' + obj.SalaryYear + '&Month=' + obj.SalaryMonth + '&officeId=' + officeId + '&OfficeTypeId=' + OfficeTypeId;
+                    PrintReport(url);
+                } else {
+                    $.alert.open("Error", "Please insert required fields");
+                }
+            }
+
+        });
+
+
+        $("#btnExelPrint").click(function () {
+            var url;
+            var type = $("#ReportType").val();
+
+            if (type == "2") {
+                var obj = CheckRequiredFieldvalidation();
+                if (obj != null) {
+                    var office_TypeId = $("#OfficeTypeId").val();
+                    if (office_TypeId == 1) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVHeadOfficeId").val();
+                    } else if (office_TypeId == 3) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (office_TypeId == 4) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (office_TypeId == 5) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (office_TypeId == 6) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#UnitId").val();
+                    }
+                    else if (office_TypeId == null || office_TypeId == '') {
+                        OfficeTypeId = '';
+                        officeId = ''
+                    };
+                    url = '/EmployeeSalaryBonus/BonusReportBeforeSendForApprovalExel?ComponentName=' + obj.ComponentName + '&Year=' + obj.SalaryYear + '&Month=' + obj.SalaryMonth + '&officeId=' + officeId + '&OfficeTypeId=' + OfficeTypeId;
+                    PrintReport(url);
+                } else {
+                    $.alert.open("Error", "Please insert required fields");
+                }
+            }
+            if (type == "5") {
+                var obj = CheckRequiredFieldvalidation();
+                if (obj != null) {
+                    var office_TypeId = $("#OfficeTypeId").val();
+                    if (office_TypeId == 1) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVHeadOfficeId").val();
+                    } else if (office_TypeId == 3) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (office_TypeId == 4) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (office_TypeId == 5) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (office_TypeId == 6) {
+                        OfficeTypeId = office_TypeId;
+                        officeId = $("#UnitId").val();
+                    }
+                    else if (office_TypeId == null || office_TypeId == '') {
+                        OfficeTypeId = '';
+                        officeId = ''
+                    };
+                    url = '/EmployeeSalaryBonus/BonusReportAfterApprovalExel?ComponentName=' + obj.ComponentName + '&Year=' + obj.SalaryYear + '&Month=' + obj.SalaryMonth + '&officeId=' + officeId + '&OfficeTypeId=' + OfficeTypeId;
+                    PrintReport(url);
+                } else {
+                    $.alert.open("Error", "Please insert required fields");
+                }
+            }
+        });
+
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        //window.location.href = "/LeaveHistory/Index";
+    }
+
+
+    function ViewBonusInGrid() {
+
+        var componentName = $("#ComponentName").val();
+        var year = $("#SalaryYear").val();
+        var month = $("#SalaryMonth").val();
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetGeneratedBonus", "EmployeeSalaryBonus", "http")',
+                    dataType: 'json',
+                    data: function () {
+                        return {
+                            componentName: componentName, year: year, month: month
+                        };
+                    }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            // height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "ESBonusId",
+                     hidden: true,
+                     filterable: false
+                 },
+
+                  {
+                      width: "150px",
+                      field: "EmployeeId",
+                      hidden: true,
+                      filterable: true,
+                      title: "EmployeeId",
+                      //locked: true
+                  },
+
+                 {
+                     field: "rowSl",
+                     title: "Sl No.",
+                     width: "20px",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false
+                     //locked: true,
+                     //lockable: false,
+                 },
+
+                 {
+                     width: "40px",
+                     field: "EmployeeCode",
+                     title: "Employee Code",
+                     //locked: true
+                 },
+                {
+                    width: "80px",
+                    field: "EmployeeName",
+                    title: "EmployeeName",
+                    //locked: true
+                },
+
+                {
+                    width: "100px",
+                    hidden: true,
+                    field: "ComponentId",
+                    title: "Component Id"
+                },
+
+                {
+                    width: "100px",
+                    hidden: true,
+                    field: "ComponentName",
+                    title: "Component Id"
+                },
+
+                 {
+                     width: "80px",
+                     hidden: true,
+                     field: "DesignationName",
+                     title: "Designation Name"
+                 },
+
+                 {
+                     width: "80px",
+                     field: "DepartmentName",
+                     title: "Department Name"
+                 },
+
+                  {
+                      width: "50px",
+                      field: "BonusAmount",
+                      title: "Bonus Amount"
+                  },
+                  {
+                      width: "40px",
+                      field: "RevStampDeduction",
+                      title: "RevStamp"
+                  },
+                  {
+                      width: "80px",
+                      field: "BonusProcessingDate",
+                      title: "Bonus Processing Date"
+                  },
+
+                 {
+                     width: "50px",
+                     title: 'Edit',
+                     template: function (dataItem) {
+                         return '<div class="text-center"><a href="#" OnClick="EditGrid(' + "'" + dataItem.ESBonusId + "'" + ',' + "'" + dataItem.EmployeeId + "'" + ',' + "'" + dataItem.ComponentId + "'" + ',' + "'" + dataItem.BonusAmount + "'" + ',' + "'" + dataItem.SalaryYear + "'" + ',' + "'" + dataItem.SalaryMonth + "'" + ',' + "'" + dataItem.BonusProcessingDate + "'" + ',' + "'" + dataItem.EmployeeName + "'" + ',' + "'" + dataItem.ComponentName + "'" + ',' + "'" + dataItem.RevStampDeduction + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                     }
+                 },
+                 {
+                     width: "50px",
+                     title: 'Hold',
+                     template: function (dataItem) {
+                         return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + dataItem.ESBonusId + ');"><i class="fa fa-pause"></i></a></div>';
+                     }
+                 }
+            ]
+        });
+    }
+
+
+
+
+    function EditGrid(ESBonusId, EmployeeId, ComponentId, BonusAmount, SalaryYear, SalaryMonth, BonusProcessingDate, EmployeeName, ComponentName, RevStampDeduction) {
+        debugger;
+
+        $(".divUpdate").show();
+        $(".divSave").hide();
+        $("#ESBonusId").val(ESBonusId);
+        $("#EmployeeId").val(EmployeeId);
+        $("#EmployeeName").val(EmployeeName);
+        $("#ComponentId").val(ComponentId);
+        $("#ComponentNameMsg").val(ComponentName);
+        $("#BonusAmount").val(BonusAmount);
+        $(".RevStampDeduction").val(RevStampDeduction);
+        $("#SalaryYear").val(SalaryYear);
+        $("#SalaryMonthMsg").val(SalaryMonth);
+        $("#SalaryYearMsg").val(SalaryYear);
+        $("#BonusProcessingDate").val(BonusProcessingDate);
+
+    }
+
+    function UpdateEmployeeSalaryBonus() {
+        var bonusId = $("#ESBonusId").val();
+        var bonusAmt = $("#BonusAmount").val();
+        var revStampDeduction = $(".RevStampDeduction").val();
+
+        var obj = {
+            ESBonusId: bonusId,
+            BonusAmount: bonusAmt,
+            revStampDeduction: revStampDeduction
+        }
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("UpdateEmployeeSalaryBonus", "EmployeeSalaryBonus")',
+            data: JSON.stringify({ obj: obj }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $('#AjaxLoader').hide();
+                if (data.result == 1) {
+                    $.alert.open("Success", data.message);
+                    //$('#grid').jtable('load');
+                    ViewBonusInGrid();
+                } else {
+                    $.alert.open("Error", data.message);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function InformationDelete(ESBonusId) {
+        $.alert.open('confirm', 'Are you sure you want to hold this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeeSalaryBonus", "EmployeeSalaryBonus", "http")',
+                    data: { ESBonusId: ESBonusId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            ViewBonusInGrid();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    };
+
+</script>
+
+<h2 class="page-title">Employee Salary Bonus Generation</h2>
+  &nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+
+<div class="form-horizontal divSave">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Component Name</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ComponentName, Model.ComponentList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Year </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.SalaryYear, Model.YearList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Month </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.SalaryMonth, Model.MonthList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Revenue Stamp Deduction </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.RevStampDeduction, Model.RevStampDeductionList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                    <input type="button" value="View Bonus" id="btnViewBonus" class="btn btn-primary" /> &nbsp;&nbsp;
+                    <button type="button" id="btnGenerateBonus" class="btn btn-primary">Generate Bonus</button> &nbsp;&nbsp;
+                    <input type="button" value="Send For Approval" id="btnSendForApproval" class="btn btn-primary" />&nbsp;&nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Report Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ReportType, Model.ReportList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"></label>
+                <div class="col-md-6">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+
+                <div class="exelPrint">
+                    <input type="button" id="btnExelPrint" value="Print Exel" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="form-horizontal divUpdate">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.ESBonusId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Id</label>
+                    <div class="col-sm-8">
+                        @Html.HiddenFor(model => model.EmployeeId)
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Component Id</label>
+                    <div class="col-sm-8">
+                        @Html.HiddenFor(model => model.ComponentId)
+                        @Html.TextBoxFor(model => model.ComponentNameMsg, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Bonus Amount</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.BonusAmount, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Revenue Stamp Deduction </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.RevStampDeduction, new { @class = "form-control RevStampDeduction" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Salary Year</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.SalaryYearMsg, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Salary Month</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.SalaryMonthMsg, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Bonus Processing Date</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.BonusProcessingDate, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-8 col-md-offset-4">
+                        <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdateEmployeeSalaryBonus()" /> &nbsp;
+                        <button class="btn btn-primary"><a href="/EmployeeSalaryBonus/" style="color:black;">Reset</a></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div id="grid"></div>
+
+
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

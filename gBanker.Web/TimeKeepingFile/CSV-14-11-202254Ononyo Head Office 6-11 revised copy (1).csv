@@ -1,0 +1,94 @@
+Date,employee code from gHRM+,ID,User Name,Department,Daily Schedule,First-In Time,Last-Out Time,Result,Gender
+11/6/2022,001,1,Md. Ashraful Hasan,Management,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,002,2,Md. Jahirul Islam Khan,Management,WorkSchedule,10:45,15:01,Late In,Male
+11/6/2022,003,3,Md. Asadullah Dewan,BOQ Dept.,WorkSchedule,09:03,16:28,Normal,Male
+11/6/2022,004,4,Md. Abul Hashem,BOQ Dept.,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,005,5,Biswajit Kumar Biswas,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,006,6,Mahbubur Rahman Khan,Construction & Implementation,WorkSchedule,10:06,16:06,Late In,Male
+11/6/2022,007,7,Md. Elius Ibna Rahman,Design Development Dept.,WorkSchedule,09:13,16:50,Normal,Male
+11/6/2022,008,8,Md. Mahmudul Hasan,Administration,WorkSchedule,13:11,16:11,Late In,Male
+11/6/2022,009,9,Mohammad Rafiquel Islam,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,010,10,Md. Rafiq Sheikh,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,011,11,Dewan Masnun Nafi,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,012,12,Noor -A- Laila,Design Development Dept.,WorkSchedule,00:00,00:00,Absence,Female
+11/6/2022,013,13,Tuhin Sheikh,Construction & Implementation,WorkSchedule,09:03,00:00,Missing Out,Male
+11/6/2022,014,14,Md. Shihab Hasan,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,015,15,Rafika Khanom,Design Development Dept.,WorkSchedule,00:00,00:00,Absence,Female
+11/6/2022,016,16,Mohammad Sadmani Iqbal,Administration,WorkSchedule,09:03,16:51,Normal,Male
+11/6/2022,017,17,Md. Jalil Sikder,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,018,18,Md. Bokul Mia,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,019,19,Md. Motiar Rahman,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,020,20,Md. Abdul Barek,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,021,21,Md. Aiub Ali Sikder,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,022,22,Md. Maniruzzaman,Procurement & SCM,WorkSchedule,08:58,16:31,Normal,Male
+11/6/2022,023,23,Md Abdul Halim Bepary,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,024,24,Md. Rakib Hossein,Administration,WorkSchedule,09:10,17:12,Normal,Male
+11/6/2022,025,25,Mohammad Suibal Kabir,HRD Dept.,WorkSchedule,09:01,16:05,Normal,Male
+11/6/2022,026,26,Md Rafiqul Islam,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,027,27,Yousuf Ali Siddique,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,028,28,Jewel Ashrafi,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,029,29,Md Hosen Howlader,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,030,30,Md. Mohiuddin Mohin,O & M _ TB,WorkSchedule,09:27,16:44,Late In,Male
+11/6/2022,031,31,Akib Khan,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,032,32,Md Abdul Hannan,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,033,33,Md Mithun Ali,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,034,34,Md. Sohel Sharder,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,035,35,Md. Jewel Hossain,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,036,36,Md. Humayun Kabir,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,037,37,Reaz Hossain,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,038,38,Shahriar Rahman,O & M,WorkSchedule,09:09,00:00,Missing Out,Male
+11/6/2022,039,39,Md. Nasir Uddin,Finance & Accounts,WorkSchedule,09:09,16:43,Normal,Male
+11/6/2022,040,40,Md. Feroz Alom,O & M _ TB,WorkSchedule,07:12,14:21,Normal,Male
+11/6/2022,041,41,Mohammad Roich Sheikh,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,042,42,Md Jahangir Alom,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,043,43,Din Islam,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,,44,Flora Sultana,Design Development Dept.,WorkSchedule,00:00,00:00,Absence,Female
+11/6/2022,045,45,Md. Nazrul Islam,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,046,46,Monir Hosen,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,047,47,Md. Raishul Islam,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,048,48,Md. Akteruzzaman,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,049,49,Md. Lokman Hossain,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,050,50,Maruf Ahmed,O & M _ TB,WorkSchedule,09:06,16:32,Normal,Male
+11/6/2022,051,51,Mohammad Ashraf Ali,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,052,52,Syed Naimur Rahman,O & M _ SCC,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,054,53,Mohammad Ashifur Rahman,Design Development Dept.,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,055,54,Md. Khalil Sikder,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,056,55,Md. Tajul Islam,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,057,56,Muhammad Akter Hossain,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,058,57,Mohammad Manirul Alam,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,059,58,Md. Shehab Uddin,BOQ Dept.,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,,59,Hridoy Sarker,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,060,60,Mahfuzur Rahman,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,061,61,Saddam Hossain,RMC Plant,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,062,62,Zayed Mahmud,Procurement & SCM,WorkSchedule,10:47,16:06,Late In,Male
+11/6/2022,063,63,Imtiaz Masrur,O & M _ TB,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,064,64,Md. Sanjuarul Islam,O & M _ TB,WorkSchedule,21:43,00:00,Absence,Male
+11/6/2022,065,65,Md. Monir Hosen,O & M _ TB,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,066,66,Md. Nasir Uddin,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,067,67,Md. Iqbal Hossain,O & M _ TB,WorkSchedule,08:16,16:23,Normal,Male
+11/6/2022,068,68,Tapas Chandra Paik,O & M _ TB,WorkSchedule,06:51,00:00,Missing Out,Male
+11/6/2022,069,69,Md. Yusuf,O & M _ TB,WorkSchedule,08:37,16:49,Normal,Male
+11/6/2022,070,70,Sajib Chandra Ghosh,O & M _ TB,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,071,71,Mozammel Hossain,O & M _ TB,WorkSchedule,09:00,22:02,Normal,Male
+11/6/2022,072,72,Mohammad Shabab Habib Khan,Design Development Dept.,WorkSchedule,09:10,16:12,Normal,Male
+11/6/2022,073,73,Norul Haque Miah,O & M _ TB,WorkSchedule,08:45,17:11,Normal,Male
+11/6/2022,074,74,Papia Amin Suchita,O & M _ TB,WorkSchedule,08:56,16:09,Normal,Female
+11/6/2022,075,75,Mohammad Mahbubul Alam,Construction & Implementation,WorkSchedule,09:11,16:12,Normal,Male
+11/6/2022,076,76,Md. Liton Chowdhury,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,077,77,Md. Naim Khan,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,078,78,Md. Sharifuzzaman AL -Amin,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,079,79,Balaram Halder,O & M _ GCCN,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,080,80,Khokon Chowdhury,O & M _ TB,WorkSchedule,07:55,17:10,Normal,Male
+11/6/2022,081,81,Md Maruf Billah Piyash,Construction & Implementation,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,082,82,Md. Abdul Khalek,Design Development Dept.,WorkSchedule,08:56,16:43,Normal,Male
+11/6/2022,083,83,Sujan Kumar Ghosh ,Design Development Dept.,WorkSchedule,09:10,16:16,Normal,Male
+11/6/2022,084,84,Md. Abu Jafar,Administration,WorkSchedule,11:08,00:00,Missing Out,Male
+11/6/2022,085,85,MD. Jahidul Bapari,Administration,WorkSchedule,10:49,00:00,Missing Out,Male
+11/6/2022,086,86,Md. Ismail,Administration,WorkSchedule,00:00,00:00,Absence,Male
+11/6/2022,087,87,Md. Ahad,Administration,WorkSchedule,07:57,17:20,Normal,Male
+11/6/2022,088,88,K.M. Mynul Hasan,IT Dept.,WorkSchedule,09:15,16:26,Late In,Male
+11/6/2022,089,89,Mobashser Ahmed,Finance & Accounts,WorkSchedule,08:48,11:15,Normal,Male
+11/6/2022,090,90,Mohammad Monir Hossain,HRD Dept.,WorkSchedule,09:03,16:01,Normal,Male
+11/6/2022,091,91,Lamia Shubha,HRD Dept.,WorkSchedule,08:49,16:09,Normal,Female
+11/6/2022,,990,Hussain,KTI,WorkSchedule,07:39,17:20,Normal,Male
+11/6/2022,,998,Nazma,KTI,WorkSchedule,07:37,17:16,Normal,Female

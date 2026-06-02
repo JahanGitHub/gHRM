@@ -1,0 +1,362 @@
+﻿@model gHRM.Web.ViewModels.FeedBack.FeedbackCategoryViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    //Save Work Area
+    function Update() {
+       // alert("Update");
+        var FeedbackCategoryID = $("#FeedbackCategoryID").val();
+        var FeedbackCategoryType = $("#CatType option:selected").val();
+        var FeedbackCategoryName = $("#FeedbackCategoryName").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateFeedBackCat", "FeedbackCategory", "http")', // UpdateFeedBackCat(string FeedbackCategoryName, string FeedbackCategoryType, int FeedbackCategoryID)
+            data: { FeedbackCategoryName: FeedbackCategoryName, FeedbackCategoryType: FeedbackCategoryType, FeedbackCategoryID : FeedbackCategoryID },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Update Successfully");
+
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+
+        });
+
+    }// End of Function
+
+
+    //Save 
+    function Save() {
+
+        var FeedbackCategoryName = $("#FeedbackCategoryName").val();
+        var FeedbackCategoryType = $("#CatType option:selected").val();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("CreateNCategory", "FeedbackCategory", "http")', //CreateNCategory(string FeedbackCategoryName, string FeedbackCategoryType)
+            data: { FeedbackCategoryName: FeedbackCategoryName, FeedbackCategoryType : FeedbackCategoryType },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Saved Successfully");
+
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+
+        });
+
+    }// End of Function
+
+
+
+    //Promotion Config JS
+    function GetData(ID) { //populate Area Form
+        //alert(AreaID);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetFeedBackList", "FeedbackCategory", "http")',  //GetFeedBackList(string Id, int jtStartIndex, int jtPageSize, string jtSorting, string filterColumn, string filterValue)
+            data: { Id: ID, jtStartIndex: 1, jtPageSize: 5, jtSorting: true, filterColumn: null, filterValue: null },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+                $.each(data, function (id, option) {
+
+                    //promotionConfigAge.append($('<option></option>').val(option.Value).html(option.Text));
+                    //$('#DesignationIdFrom option[value=' + option.DesignationIdFrom + ']').prop('selected', true);
+                    //$('#DesignationIdTo option[value=' + option.DesignationIdTo + ']').prop('selected', true);
+                    $('#FeedbackCategoryName').val(option.FeedbackCategoryName);
+                    $('#FeedbackCategoryID').val(option.FeedbackCategoryID);
+                    //$("#CatType").val(option.FeedbackCategoryType);
+                    $('#CatType option[value=' + option.FeedbackCategoryType + ']').prop('selected', true);
+
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+                clear();
+            }
+        });
+    }
+    function clear()
+    {
+        $("#FeedbackCategoryName").val('');
+        $("#FeedbackCategoryID").val('');
+        $("#CatType").prop('selectedIndex', 0);
+    }
+    //Delete Cat
+    function DeleteAction(Id) {
+
+        //var FeedbackCategoryID = $("#FeedbackCategoryID").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("DeleteFeedBack", "FeedbackCategory", "http")', //DeleteFeedBack(int FeedbackCategoryID)
+            data: { FeedbackCategoryID: Id },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Delete Successfully");
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Delete");
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+
+        });
+
+
+
+    }// End of Function
+
+
+    function Edit(id) // Edit ConfigAge Table
+    {
+        GetData(id);
+        //$("#PromotionConfigId").attr('disabled', true);
+        //GetDataPromoAge(id);
+    }
+
+    function Delete(id)
+    {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                DeleteAction(id);
+                return true;
+            }
+            else {
+
+                return false;
+            }
+        });
+
+    }
+
+    //End Save Work Area
+
+    $(document).ready(function () {
+
+
+        $('#WorkAreaName').on('keyup keypress', function (e) {
+            var keyCode = e.keyCode || e.which;
+            if (keyCode === 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+
+
+
+        $("#InvestmentTranDate").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2050"
+
+           });
+        $("#InvestmentTranDate").datepicker(
+      'setDate', new Date());
+
+
+        $("#txtMasterID").blur(function (e) {
+            var employee_code = $("#txtMasterID").val();
+            if ($("#txtMasterID").val() != '') {
+                LoadEmpInfoByCode(employee_code);
+            }
+
+            else {
+                $("#EmployeeName").empty();
+            }
+        });
+
+
+        $("#btnReset").click(function () { // Reset form
+            clear();
+        });
+
+        $("#btnSave").click(function () {
+
+            var FeedbackCategoryName = $("#FeedbackCategoryName").val();
+            var id = $("#FeedbackCategoryID").val();
+            var CategoryType = $("#CatType option:selected").val();
+
+            if (FeedbackCategoryName == '')
+            {
+                $.alert.open("Please Give Feedback Category Name.");
+                return false;
+            }
+            if (CategoryType == "0")
+            {
+                $.alert.open("Please Select Category Type.");
+                return false;
+            }
+            if (id != 0)
+            {
+                // Update
+                Update();
+                clear();
+            }
+            else
+            {
+                // Save
+                Save();
+                clear();
+            }
+
+        });
+
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 25,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/FeedbackCategory/GetFeedBackList'
+            },
+            fields: {
+                FeedbackCategoryID: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                FeedbackCategoryName: {
+                    title: 'Feedback Category',
+                    width: '20%'
+                },
+                FeedbackCategoryType: {
+                    title: 'Feedback Category Type',
+                    width: '20%'
+                    },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="Edit(' + data.record.FeedbackCategoryID + ')"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="Delete(' + data.record.FeedbackCategoryID + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            //$("#loading").show();
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            //$("#loading").hide();
+        }
+
+
+
+
+
+    });// End Document Rready
+</script>
+
+<h2 class="page-title">Add Feedback Category</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.FeedbackCategoryName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.FeedbackCategoryName, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Category Name" } })
+                            @Html.HiddenFor(model => model.FeedbackCategoryID)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                         <label class="control-label col-sm-2">Category Type</label>
+                        <div class="col-sm-8">
+                            <select id="CatType" class="form-control">
+                                <option value="0">Please Select</option>
+                                <option value="Report">Report</option>
+                                <option value="Form">Form</option>
+								<option value="FormOrReport">Form Or Report</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+                            &nbsp;
+                            <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    &nbsp;
+                </div>
+                &nbsp;
+                <div id="grid2">
+
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

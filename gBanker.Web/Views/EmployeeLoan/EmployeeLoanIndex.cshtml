@@ -1,0 +1,212 @@
+﻿
+@model gHRM.Web.ViewModels.Loan.EmployeeLoanInstallmentDetailViewModel
+
+@{
+    ViewBag.Title = "Loan List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+
+}
+
+<script type="text/javascript">
+
+    ////// Kendo Grid Integration
+
+    function getLoanDashboard() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+
+                    url: '@Url.Action("getLoanDashboard", "EmployeeLoan", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "LoanId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "20px",
+                    filterable: false,
+                },//OfficeTypeName
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "DepartmentName",
+                    title: "Department",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "DesignationName",
+                    title: "Designation",
+                    width: "100px",
+                    filterable: false,
+                },
+                {
+                    field: "TotalLoanAmt",
+                    title: "Total Amount",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "LoanStartDateMsg",
+                    title: "Disburse Date",
+                    width: "50px",
+                    filterable: false,
+                },
+                 {
+                     field: "InstallmentAmount",
+                     title: "Installment Amount",
+                     width: "50px",
+                     filterable: false,
+                 },
+                  {
+                      field: "InstallmentDateMsg",
+                      title: "Installment start Date",
+                      width: "50px",
+                      filterable: false,
+                  },
+                  {
+                      field: "LoanEndDateMsg",
+                      title: "Installment end Date",
+                      width: "50px",
+                      filterable: false,
+                },
+                {
+                    field: "LoanStatus",
+                    title: "Loan Status",
+                    width: "50px",
+                    filterable: true,
+                },
+                 {
+                     title: "Edit",
+                     width: "30px",
+                     template: function (dataItem) {
+
+                         var editUrl = dataItem.LoanStatus === loanStatusConstants.Running
+                             ? `<a href='/EmployeeLoan/EmployeeShortLoanEdit/?LoanId=${dataItem.LoanId}'><i class='fa fa-pencil-square-o'></i></a>` : ``;
+
+                         return editUrl;
+
+                     }
+                 },
+            //{
+            //    title: "Delete",
+            //    width: "25px",
+            //    template: function (dataItem) {
+            //        if (dataItem.OfficeTypeId != 1) {
+            //            return "<a href='#' OnClick='OfficeDelete(" + dataItem.OfficeId + ");'><i class='fa fa-trash-o'></i></a>";
+            //        } else {
+            //            return "";
+            //        }
+            //    }
+            //}
+            ]
+        });
+    }
+
+    ////// Integration Ends
+
+
+
+
+
+    $(document).ready(function () {
+
+        getLoanDashboard();
+        $("#btnLoan").hide();
+
+        $("#btnLoan").click(function () {          
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("CalculateLoan", "EmployeeLoan", "http")',
+                data: {},
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data==1) {
+                        getLoanDashboard()
+                    } else {
+                        $.alert.open("Error",'Error occured')
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        });
+
+    });
+
+</script>
+
+@*@Html.ActionLink("Calculate Loan", "EmployeeLoanCalculate", null, new { @class = "btn btn-success btn-sm pull-left" })*@
+@Html.ActionLink("Add New", "EmployeeShortLoanCreate", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Employee Loan List</h2>
+&nbsp;
+&nbsp;
+&nbsp;
+
+<br />
+<div class="box-content">
+
+    <div class="table-responsive">
+        <div id="gridKendo"></div>
+    </div>
+</div>
+
+<div class="row">
+    <input type="button" value="Calculate Loan" id="btnLoan" class="btn btn-primary pull-left" />
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}
+
+

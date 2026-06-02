@@ -1,0 +1,213 @@
+﻿
+@model gHRM.Web.ViewModels.Payroll.OvertimeHourEmployeeViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/OvertimeProcess">OvertimeWithSalay</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Overtime Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        getOverTimeConfiguredData();
+
+        //$("#Year").change(function () {
+        //    year = $("#Year").val();
+        //    month = $("#Month").val();
+
+        //    if (year != "" && month != "") {
+        //        GetOTDetails(year, month);
+        //    }
+        //});
+
+        //$("#Month").change(function () {
+        //    year = $("#Year").val();
+        //    month = $("#Month").val();
+
+        //    if (year != "" && month != "") {
+        //        GetOTDetails(year, month);
+        //    }
+        //});
+
+        $("#btnApprove").click(function () {
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+
+            if (year == "" || month == "") {
+                $.alert.open("Message", "Please Fill All required Data.");
+                return false;
+            }
+            $.alert.open('confirm', "Are you sure, you want to aprove overtime with monthly salary?", function (button) {
+                if (button == 'yes') {
+                    ApproveOvertimeWithSalay(year, month);
+                }
+            });
+        });
+
+    });
+
+    ////// Kendo Grid Integration
+
+    function getOverTimeConfiguredData() {
+        $('#gridKendo').html("");
+        dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    //url: baseURL + '/ProcessCategory/GetProcessCategoryList?QueryOption=' + 1,
+                    url: '@Url.Action("getOvertimeNotPaid", "OvertimeBill", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "EmployeeCode",
+                     title: "Employee Code.",
+                     width: "20px",
+                     filterable: false,
+                 },
+                {
+                    field: "TotalWorkHour",
+                    title: "Total Work Hour",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "TotalOTHour",
+                    title: "Total OT THour",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "TotalOTAmount",
+                    title: "Total OT Amount",
+                    width: "50px",
+                    filterable: true,
+                },
+            ]
+        });
+    }
+
+    function ApproveOvertimeWithSalay(year, month) {
+        $("#AjaxLoader").show();
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("ApproveOvertimeWithSalay", "OvertimeBill", "http")',
+            data: JSON.stringify({ 'salaryYear': year, 'salaryMonth': month }),
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $("#btnProcessMonthlyOvertime").show();
+                $("#AjaxLoader").hide();
+                $.alert.open("Message", data.message);
+                //$.alert.open("Alert", "HourTo must be greater than " + hourFrom);
+            },
+            error: function (request, status, error) {
+                $("#AjaxLoader").hide();
+                $.alert.open("Message", data);
+            }
+        });
+    }
+
+</script>
+
+<h2 class="page-title">Approve Overtime With Salary</h2>
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div id="AjaxLoader" class="ajaxLoader"></div>
+            <div class="row">
+                <div id="MonthlySalaryProcess">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-md-2" })
+                                    <div class="col-md-10">
+                                        @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-md-2" })
+                                    <div class="col-md-10">
+                                        @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="form-group form-action" style="padding-top:10px;margin:5px;">
+                                    <input type="button" value="Approve" id="btnApprove" class="btn btn-success" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="box-content">
+                        <div class="table-responsive">
+                            <div id="gridKendo"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+
+
+
+
+

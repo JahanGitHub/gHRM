@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "Resign Notice List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Resign Notice List</h2>
+&nbsp;
+@Html.AntiForgeryToken()
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/employee/resign-notice.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

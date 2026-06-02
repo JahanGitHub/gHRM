@@ -1,0 +1,342 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanCollectionViewModel
+
+@{
+    ViewBag.Title = "CreateLoanCollection";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@Html.ActionLink("Back to List", "LoanCollectionList", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">
+    Loan Collection
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.IsOpen)
+
+        <div class="row">
+            <div class="form-group">
+
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, @Placeholder = "Enter Employee Code" } })
+                    @Html.HiddenFor(model => model.EmployeeId)
+                </div>
+
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanTypeId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.LoanTypeList, new List<SelectListItem>(), new { @class = "form-control", @tabindex = 2 })
+                </div>
+                @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @tabindex = 4, @Placeholder = "Enter Amount" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Comment, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Comment, new { htmlAttributes = new { @class = "form-control", @tabindex = 5, @Placeholder = "Enter Comments" } })
+                </div>
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-5">
+                    <input type="button" value="Save" id="btnSaveLoanCollection" class="btn btn-success" tabindex="6" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" tabindex="7" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+                <fieldset style="border: 1px solid gray;">
+                    <legend>Disburse Info</legend>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LoanId, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.LoanId, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.DisburseDate, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.DisburseDate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.DisburseAmount, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.DisburseAmount, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.IntersetRate, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.IntersetRate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.NoOfInstallment, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.NoOfInstallment, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.MonthlyInstallment, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.MonthlyInstallment, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="col-md-4">
+                <fieldset style="border: 1px solid gray;">
+                    <legend>Payment Info</legend>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LoanPaid, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.LoanPaid, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.InterestPaid, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.InterestPaid, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.PrincipalDue, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.PrincipalDue, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.InterestDue, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.InterestDue, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.TotalDue, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.TotalDue, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+
+            <div class="col-md-4">
+                <fieldset style="border: 1px solid gray;">
+                    <legend>Installment Distribution</legend>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LoanInstallment, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.LoanInstallment, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.InterestInstallment, htmlAttributes: new { @class = "control-label col-md-5" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.InterestInstallment, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                            </div>
+                        </div>
+                    </div>                    
+                </fieldset>
+            </div>
+        </div>
+
+
+        @*Start: New for Calculator*@
+
+
+        @*<div class="row" style="padding: 15px;">
+                <div class="col-md-9" style="background-color: #b2b2b2; border: 2px solid #467813; border-radius: 5px; color: #fff; font-family: Helvetica, Arial, sans-serif; padding: 10px;">
+                    <div class="row">
+                        <div class="form-group">
+                                <label class="control-label col-md-2">Loan Amount</label>
+                                <div class="col-md-2">
+                                    <input id="LoanAmt" type="text" class="form-control" />
+                                </div>
+
+                                <label class="control-label col-md-1">Loan Paid</label>
+                                <div class="col-md-2">
+                                    <input id="LoanPaid" type="text" class="form-control" />
+                                </div>
+
+                                <label class="control-label col-md-2">Loan Due</label>
+                                <div class="col-md-2">
+                                    <input id="LoanDue" type="text" class="form-control" />
+                                </div>
+                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+
+                            <label class="control-label col-md-2">Interest Amount</label>
+                            <div class="col-md-2">
+                                <input id="InterestAmt" type="text" class="form-control" />
+                            </div>
+
+                            <label class="control-label col-md-1">Interest Paid</label>
+                            <div class="col-md-2">
+                                <input id="InterestPaid" type="text" class="form-control" />
+                            </div>
+
+                            <label class="control-label col-md-2">Interest Due</label>
+                            <div class="col-md-2">
+                                <input id="InterestDue" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="margin:6px; padding:0;" />
+
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-7">
+                            </div>
+
+                            <label class="control-label col-md-2">Total Due</label>
+                            <div class="col-md-2">
+                                <input id="TotalDue" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-md-2">Last Installment</label>
+                            <div class="col-md-2">
+                                <input id="LastInstallment" type="text" class="form-control" />
+                            </div>
+
+                            <label class="control-label col-md-1">Interest Upto</label>
+                            <div class="col-md-2">
+                                <input id="InterestUpto" type="text" class="form-control" />
+                            </div>
+
+
+                            <label class="control-label col-md-2">Interest Charge</label>
+                            <div class="col-md-2">
+                                <input id="InterestCharge" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="margin:6px; padding:0;" />
+
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-md-7">
+                            </div>
+
+                            <label class="control-label col-md-2">Grand Total Due Upto</label>
+                            <div class="col-md-2">
+                                <input id="GrandTotalDueUpto" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-10" style="background-color: #b2b2b2; border: 2px solid #467813; border-radius: 5px; color: #fff; font-family: Helvetica, Arial, sans-serif; padding: 10px;">
+                            <div class="form-group">
+                                <label class="control-label col-md-5">Loan</label>
+                                <div class="col-md-7">
+                                    <input id="loan" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5">Disburse Date</label>
+                                <div class="col-md-7">
+                                    <input id="DisburseDt" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5">Monthly Installment</label>
+                                <div class="col-md-7">
+                                    <input id="MonthlyInstallment" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5">Total Installment</label>
+                                <div class="col-md-7">
+                                    <input id="Total Installment" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5">Complete Installment</label>
+                                <div class="col-md-7">
+                                    <input id="CompleteInstallment" type="text" class="form-control" disabled="disabled" value="1234567" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-5">Due Installment</label>
+                                <div class="col-md-7">
+                                    <input id="Due Installment" type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+
+        @*End*@
+
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Assets/js/app/pf/pfLoanCollectionManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

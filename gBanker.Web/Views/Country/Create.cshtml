@@ -1,0 +1,114 @@
+﻿@model gHRM.Web.ViewModels.CountryViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@*<style type="text/css">
+    .required:after 
+    {
+        content: "*";
+        font-weight: bold;
+        color: red; 
+    }
+</style>*@
+<script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnCountrySave").click(function (e) {
+                if ($("#CountryName").val() == '' && $("#CountryShortCode").val() == '' && $("#isoCode3").val() == '') {
+                    $("#CountryName").addClass("errorClass");
+                    $("#CountryShortCode").addClass("errorClass");
+                    $("#isoCode3").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryName").val() == '' && $("#CountryShortCode").val() == '' && $("#isoCode3").val() != '') {
+                    $("#CountryName").addClass("errorClass");
+                    $("#CountryShortCode").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryName").val() == '' && $("#CountryShortCode").val() != '' && $("#isoCode3").val() == '') {
+                    $("#CountryName").addClass("errorClass");
+                    $("#isoCode3").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryName").val() == '' && $("#CountryShortCode").val() != '' && $("#isoCode3").val() != '') {
+                    $("#CountryName").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryName").val() != '' && $("#CountryShortCode").val() == '' && $("#isoCode3").val() == '') {
+                    $("#CountryShortCode").addClass("errorClass");
+                    $("#isoCode3").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryName").val() != '' && $("#CountryShortCode").val() == '' && $("#isoCode3").val() != '') {
+                    $("#CountryShortCode").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryName").val() != '' && $("#CountryShortCode").val() != '' && $("#isoCode3").val() == '') {
+                    $("#isoCode3").addClass("errorClass");
+                    return false;
+                }
+                else
+                    return true;
+            });
+        });
+    </script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right" })
+
+    <h2 class="page-title">Add Country</h2>
+    @using (Html.BeginForm("Create", "Country", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "CountryProfile" }))
+{
+    @Html.AntiForgeryToken()
+        <div class="container-fluid">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CountryName, new { @class = "control-label col-md-4 required" })                            
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.CountryName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Country Name" } })
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CountryShortCode, new { @class = "control-label col-md-4 required" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.CountryShortCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Short Code" } })
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.isoCode3, new { @class = "control-label col-md-4 required" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.isoCode3, new { htmlAttributes = new { @class = "form-control", @placeholder = "ISO Code" } })
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            <input type="submit" value="Save" id="btnCountrySave" class="btn btn-primary" />
+                            <input type="hidden" value="" id="hdnCountrySave" />
+                            <input type="hidden" value="" id="hdnCountryId" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+}
+    <div>
+        @Html.ActionLink("Back to List", "Index")
+    </div>
+
+    @section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,76 @@
+﻿@model gHRM.Web.ViewModels.WelfareFund.HealthWelfareFundSetting.HealthWelfareFundSettingViewModel
+
+@{
+    ViewBag.Title = "Health Welfare Fund Setting";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/HealthWelfareFundSetting">Health Welfare Fund Setting</a></li>
+    </ol>
+</div>
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+    &nbsp;
+<h2 class="page-title">Health Welfare Fund Setting</h2>
+    &nbsp;
+<div class="container-fluid">
+    @using (Html.BeginForm("AddNew", "HealthWelfareFundSetting", FormMethod.Post,new {@role = "form",@class = "form-horizontal test-add-or-edit-form", @id = "add-or-edit-form"}))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.HealthWelfareFundSettingId)
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DeductionAmount, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DeductionAmount, new { htmlAttributes = new { @class = "form-control" } })                     
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @*@Html.LabelFor(model => model.IsPercentage, htmlAttributes: new { @class = "control-label col-md-4 required" })*@
+                    <div class="col-sm-8">
+                        <label class="switch ib switch-primary mt10">
+                            @Html.CheckBoxFor(m => m.IsPercentage)
+                            <label for="IsPercentage" data-on="YES" data-off="NO"></label>
+                            <span>Is Percentage</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" class="btn btn-success">Save</button> 
+                        &nbsp;                      
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" onclick="healthWelfareFundSettingManager.clearform()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h2 class="page-title">Health Welfare Fund Settings  List</h2><br>
+    <!--To view Listings-->
+    <div id="grid"></div>
+</div>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/HealthWelfareFund/healthWelfareFundSettingManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

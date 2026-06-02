@@ -1,0 +1,321 @@
+﻿@model gHRM.Web.ViewModels.LinkWithEmployeeViewModel
+
+@{
+    ViewBag.Title = "Relation with employee";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+
+<script>
+
+    $(document).ready(function () {
+        getEmployeeRelativeInfo();
+        $("#btnEmployeeLinkUpdate").hide();
+        $("#btnEmployeeLinkReset").hide();
+    });
+
+    // starts Visit Information functions//
+
+
+    function SaveEmployeeLink() {
+        debugger;
+        var orgCode = $("#OrganizationCode").val();
+        var empCode = $("#RelativeEmployeeCode").val();
+        var deptname = $("#RelativeDepartmentName").val();
+        var desigName = $("#RelativeDesignationName").val();
+        var empName = $("#RelativeEmployeeName").val();
+
+
+        if (orgCode != "" && empCode != "" && deptname != "" && desigName != "" && empName != "") {
+            var dataObject = {
+                OrganizationCode: orgCode,
+                RelativeEmployeeCode: empCode,
+                RelativeDepartmentName: deptname,
+                RelativeDesignationName: desigName,
+                RelativeEmployeeName: empName
+            };
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveEmployeeLink", "EmployeeOfficeVisitInformation", "http")',
+                data: JSON.stringify({ obj: dataObject }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeRelativeInfo();
+                        Clearform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+
+    function Clearform() {
+        $("#OrganizationCode").val('');
+        $("#RelativeEmployeeCode").val('');
+        $("#RelativeDepartmentName").val('');
+        $("#RelativeDesignationName").val('');
+        $("#RelativeEmployeeName").val('');
+
+    }
+
+
+    function getEmployeeRelativeInfo() {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOfficeVisitInformation/GetEmployeeRelativeInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                LinkId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationCode: {
+                    title: 'OrganizationCode',
+                    width: '3%'
+                },
+                RelativeEmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                RelativeDepartmentName: {
+                    title: 'DepartmentName',
+                    width: '5%'
+                },
+                RelativeDesignationName: {
+                    title: 'DesignationName',
+                    width: '5%'
+                },
+                RelativeEmployeeName: {
+                    title: 'EmployeeName',
+                    width: '5%'
+                },
+               EditLink: {
+                    title: "Edit",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditEmpRelativeInfo( ' + data.record.LinkId + ',' + "'" + data.record.OrganizationCode + "'" + ',' + "'" + data.record.RelativeEmployeeCode + "'" + ',' + "'" + data.record.RelativeDepartmentName + "'" + ',' + "'" + data.record.RelativeDesignationName + "'" + ',' + "'" + data.record.RelativeEmployeeName + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteEmpRelativeInfo(' + data.record.LinkId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#grid').jtable('load');
+    }
+
+    function EditEmpRelativeInfo(LinkId, OrganizationCode, RelativeEmployeeCode, RelativeDepartmentName, RelativeDesignationName, RelativeEmployeeName) {
+        $("#LinkId").val(LinkId);
+        $("#OrganizationCode").val(OrganizationCode);
+        $("#RelativeEmployeeCode").val(RelativeEmployeeCode);
+        $("#RelativeDepartmentName").val(RelativeDepartmentName);
+        $("#RelativeDesignationName").val(RelativeDesignationName);
+        $("#RelativeEmployeeName").val(RelativeEmployeeName);
+
+        $("#btnEmployeeLinkUpdate").show();
+        $("#btnEmployeeLinkReset").show();
+        $("#btnEmployeeLinkSave").hide();
+    }
+
+    function UpdateEmployeeLink() {
+        debugger;
+        var linkId = $("#LinkId").val();
+        var orgCode = $("#OrganizationCode").val();
+        var empCode = $("#RelativeEmployeeCode").val();
+        var deptname = $("#RelativeDepartmentName").val();
+        var desigName = $("#RelativeDesignationName").val();
+        var empName = $("#RelativeEmployeeName").val();
+
+
+        if (orgCode != "" && empCode != "" && deptname != "" && desigName != "" && empName != "") {
+            var dataObject = {
+                LinkId:linkId,
+                OrganizationCode: orgCode,
+                RelativeEmployeeCode: empCode,
+                RelativeDepartmentName: deptname,
+                RelativeDesignationName: desigName,
+                RelativeEmployeeName: empName
+            };
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateEmployeeLink", "EmployeeOfficeVisitInformation", "http")',
+                data: JSON.stringify({ obj: dataObject }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeRelativeInfo();
+                        Clearform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+
+    function DeleteEmpRelativeInfo(LinkId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeeRelativeInfo", "EmployeeOfficeVisitInformation", "http")',
+                    data: { Id: LinkId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridCertificate').jtable('load');
+                            $.alert.open("Error", data.message);
+                            getEmployeeRelativeInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function ResetEmployeeLinks() {
+        $("#btnEmployeeLinkUpdate").hide();
+        $("#btnEmployeeLinkReset").hide();
+        $("#btnEmployeeLinkSave").show();
+        Clearform();
+    }
+
+
+</script>
+
+<h2 class="page-title">Relation With Employee</h2> &nbsp;
+<div class="form-horizontal">
+    @Html.HiddenFor(model => model.LinkId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Organization Name</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.OrganizationCode, Model.OrganizationList, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.RelativeEmployeeCode, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Department Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.RelativeDepartmentName, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Designation Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.RelativeDesignationName, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.RelativeEmployeeName, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4">
+                        <input type="button" value="Save" id="btnEmployeeLinkSave" class="btn btn-primary" onclick="SaveEmployeeLink()" />
+                        <input type="button" value="Update" id="btnEmployeeLinkUpdate" class="btn btn-primary" onclick="UpdateEmployeeLink()" />
+                        <input type="button" value="Reset" id="btnEmployeeLinkReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetEmployeeLinks()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+       <div class="row">
+            <div class="col-md-12">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+</div>

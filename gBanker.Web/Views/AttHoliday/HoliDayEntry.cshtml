@@ -1,0 +1,779 @@
+﻿@model gHRM.Web.ViewModels.AttHolidayDeclarationViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/AttHoliday">AttHoliday</a></li>
+        <li><a href="/AttHoliday/HoliDayEntry">HoliDayEntry</a></li>
+    </ol>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+    function reloadGrid2(officeId) {
+        //return;
+    }
+
+    function Save() {
+
+        debugger;
+
+        var HolidayYear = $("#HolidayYear option:selected").val();
+        var AttHolidayTypeId = $("#AttHolidayTypeId option:selected").val();
+        var HolidayDate = $("#HolidayDate").val();
+        var HolidayDateTo = $("#HolidayDateTo").val();
+        var OfficeTypeId = $("#OfficeTypeId").val();
+
+        var OfficeIdList = 0;
+        if (OfficeTypeId == "1") {
+            OfficeIdList = $("#PVHeadOfficeId").val();
+        } else if (OfficeTypeId == "3") {
+            OfficeIdList = $("#typeFilterColumn").val();
+        } else if (OfficeTypeId == "4") {
+            OfficeIdList = $("#ZoneId").val();
+        } else if (OfficeTypeId == "5") {
+            OfficeIdList = $("#AreaId").val();
+        } else if (OfficeTypeId == "6") {
+            OfficeIdList = $("#UnitId").val();
+        }
+
+        var radio_button_all = $('input[name=All]:checked').val();
+        if (radio_button_all == "All") {
+            radio_button_all = 1;
+        } else {
+            radio_button_all = 0;
+        }
+
+        var allTrx = new Object();
+        allTrx.HolidayYear = HolidayYear;
+        allTrx.AttHolidayTypeId = AttHolidayTypeId;
+        allTrx.HolidayDate = HolidayDate;
+        allTrx.HolidayDateTo = HolidayDateTo;
+        allTrx.OfficeIdList = OfficeIdList;
+        allTrx.OfficeTypeId = OfficeTypeId;
+        allTrx.radio_button_all = radio_button_all;
+
+        var json = JSON.stringify(allTrx);
+        $('#AjaxLoader').show();
+        $.ajax({
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("CreateH", "AttHoliday", "http")',
+            type: "POST",
+            dataType: 'json',
+            async: true,
+            data: json,
+            success: function (data) {
+                $("#btnSave").removeAttr('disabled');
+                $('#AjaxLoader').hide();
+                if (data.result == 1) {
+                    $.alert.open("Message", "Data Saved Successfully");
+                } else {
+                    $.alert.open("Error", "" == data.message ? "An Error occured" : data.message);
+                }
+            },
+            error: function (request, status, error) {
+                $("#btnSave").removeAttr('disabled');
+                $('#AjaxLoader').hide();
+                //$.alert.open("Message", "Data Not Saved");
+            }
+        });
+    }// End of Function
+
+
+
+    function clear() {
+        $("#OfficeTypeId").val("").trigger('change');
+        $("#HolidayYear").prop("disabled", false);
+        $("#AttHolidayDeclarationId").val("");
+        $("#HolidayYear").prop('selectedIndex', 0);
+        $("#AttHolidayTypeId").prop('selectedIndex', 0);
+        $("#HolidayDate").datepicker('setDate', new Date());
+        $("#HolidayDateTo").datepicker('setDate', new Date());
+
+        LoadAttHolidayList(HolidayYear = 0, AttHolidayTypeId = "", OfficeIdList = [], OfficeTypeId = 0, radio_button_all = "1");
+
+    }
+
+    function Delete(AttHolidayDeclarationId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                DeleteAtt(AttHolidayDeclarationId);
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+    //Save Work Area
+    function DeleteAtt(AttHolidayDeclarationId) {
+        var AttHolidayDeclarationId = AttHolidayDeclarationId;
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("Delete", "AttHoliday", "http")',
+            data: { AttHolidayDeclarationId: AttHolidayDeclarationId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Delete Successfully");
+                clear();
+                //GridLoad(Id);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Delete");
+                clear();
+            }
+        });
+    }
+
+    function LoadAttHolidayList(HolidayYear, AttHolidayTypeId, OfficeIdList, OfficeTypeId, radio_button_all) {
+        $('#holidayGrid').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetListPublicHoliday", "AttHoliday", "http")',
+                    dataType: 'json',
+                    data: { HolidayYear: HolidayYear, AttHolidayTypeId: AttHolidayTypeId, OfficeIdList: OfficeIdList, OfficeTypeId: OfficeTypeId, radio_button_all: radio_button_all }
+                }
+            }
+        });
+
+        $("#holidayGrid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "Id",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "AttHolidayDeclarationId",
+                     title: "AttHolidayDeclarationId",
+                     width: "50px",
+                     filterable: true,
+                     hidden: true,
+                 },
+                 {
+                     width: "30px",
+                     field: "HolidayYear",
+                     title: "Holiday Year",
+                     filterable: true,
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "AttHolidayTypeId",
+                     title: "AttHolidayTypeId",
+                     hidden: true,
+                     //locked: true
+                 },
+                 {
+                     width: "40px",
+                     field: "OfficeName",
+                     title: "Office Name",
+                     filterable: true,
+                     //locked: true
+                 },
+                 {
+                     field: "HolidayTypeFullName",
+                     title: "Holiday Type Name",
+                     width: "70px",
+                     filterable: true
+                 },
+                 {
+                     width: "40px",
+                     field: "DayName",
+                     title: "Day Name",
+                     filterable: true,
+                     //locked: true
+                 },
+                 {
+                     width: "40px",
+                     field: "HolidayDateForView",
+                     title: "Holiday Date",
+                     filterable: true,
+                     //locked: true
+                 },
+                 {
+                     width: "20px",
+                     title: 'Action',
+                     template: function (data) {
+                         var btn = '';
+                         //btn += '<div class="text-center" style="float:left;"><a href="#" OnClick="Edit(' + data.AttHolidayDeclarationId + ')"><i class="fa fa-pencil-square-o"></i></a></div>';
+                         btn += '<div class="text-center"><a href="#" OnClick="Delete(' + data.AttHolidayDeclarationId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                         return btn;
+                     }
+                 },
+            ]
+        });
+    }
+
+    function GetHeadOfficeByOfficeType() {
+        var ddlName = $("#PVHeadOfficeId");
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/GetHeadOfficeByOfficeType', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            async: false,
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetProjectsByOfficeType() {
+        var ddlName = $("#typeFilterColumn");
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/AttHoliday/GetProjectsByOfficeType', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            async: false,
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                    $('#ProjectDiv .selectpicker').selectpicker('refresh');
+                    $('#ProjectDiv input[name=All]').prop("checked", true);
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function SetSearchParameters() {
+        debugger;
+        var AttHolidayDeclarationId = $("#AttHolidayDeclarationId").val();
+        var HolidayYear = $("#HolidayYear option:selected").val();
+        var AttHolidayTypeId = $("#AttHolidayTypeId option:selected").val();
+        if (AttHolidayTypeId == 0) { AttHolidayTypeId = ""; }
+        var HolidayDate = $("#HolidayDate").val();
+        var OfficeId = "";
+        var OfficeTypeId = $("#OfficeTypeId").val();
+        if (OfficeTypeId == "") { OfficeTypeId = 0; }
+        var OfficeIdList = "";
+        if (OfficeTypeId == "1") {
+            OfficeIdList = $("#PVHeadOfficeId").val();
+        } else if (OfficeTypeId == "3") {
+            OfficeIdList = $("#typeFilterColumn").val();
+        } else if (OfficeTypeId == "4") {
+            OfficeIdList = $("#ZoneId").val();
+        } else if (OfficeTypeId == "5") {
+            OfficeIdList = $("#AreaId").val();
+        } else if (OfficeTypeId == "6") {
+            OfficeIdList = $("#UnitId").val();
+        }
+
+        var radio_button_all = $('input[name=All]:checked').val();
+        if (radio_button_all == "All") {
+            radio_button_all = 1;
+        } else {
+            radio_button_all = 0;
+        }
+        LoadAttHolidayList(HolidayYear, AttHolidayTypeId, OfficeIdList, OfficeTypeId, radio_button_all);
+    }
+
+
+    $(document).ready(function () {
+        LoadAttHolidayList(HolidayYear = 0, AttHolidayTypeId = "", OfficeIdList = [], OfficeTypeId = 0, radio_button_all = "1");
+
+        $("#HolidayDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "-2:+2",
+          });
+
+        $("#HolidayDate").datepicker('setDate', new Date());
+
+        $("#HolidayDateTo").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-2:+2",
+            });
+
+        $("#HolidayDateTo").datepicker('setDate', new Date());
+
+        $('input[name=All]').click(function () {
+            var status_text = $('input[name=All]:checked').val();
+            if (status_text == "All") {
+                $('.selectpicker').selectpicker('deselectAll');
+                $('.selectpicker').selectpicker('refresh');
+
+                $('#ZoneId').val("");
+                $('#AreaId').val("");
+                $('#UnitId').val("");
+            }
+        });
+
+        $('#typeFilterColumn').change(function () {
+            var status_text = $('#typeFilterColumn option:selected').val();
+            if (status_text != null) {
+                $('#ProjectDiv input[name=All]').prop("checked", false);
+            } else {
+                $('#ProjectDiv input[name=All]').prop("checked", true);
+            }
+        });
+
+        $("#HeadOfficeDiv").hide();
+        $("#ProjectDiv").hide();
+        $("#ZoneDiv").hide();
+        $("#AreaDiv").hide();
+        $("#UnitDiv").hide();
+
+        $("#OfficeTypeId").change(function () {
+            $('#ProjectDiv input[name=All]').prop("checked", true);
+            $('#ZoneDiv input[name=All]').prop("checked", true);
+            var officeType = $("#OfficeTypeId").val();
+            if (officeType != "") {
+                $("#ZoneId").val('');
+                $("#AreaId").html('<option value="">Please Select</option>');
+                $("#UnitId").html('<option value="">Please Select</option>');
+                if (officeType == 1) {
+                    GetHeadOfficeByOfficeType();
+                    $("#HeadOfficeDiv").show();
+
+                    $("#ProjectDiv").hide();
+                    $("#ZoneDiv").hide();
+                    $("#AreaDiv").hide();
+                    $("#UnitDiv").hide();
+                } else if (officeType == 3) { //project
+                    $("#HeadOfficeDiv").hide();
+
+                    GetProjectsByOfficeType();
+                    $("#ProjectDiv").show();
+                    $("#ZoneDiv").hide();
+                    $("#AreaDiv").hide();
+                    $("#UnitDiv").hide();
+
+                } else if (officeType == 4) { //zone
+                    $("#HeadOfficeDiv").hide();
+                    $("#ProjectDiv").hide();
+
+                    $("#AreaDiv").hide();
+                    $("#UnitDiv").hide();
+                    $("#ZoneDiv").show();
+                } else if (officeType == 5) { //area
+                    $("#HeadOfficeDiv").hide();
+                    $("#ProjectDiv").hide();
+                    $("#UnitDiv").hide();
+
+                    $("#ZoneDiv").show();
+                    $("#AreaDiv").show();
+                } else if (officeType == 6) { //field
+                    $("#HeadOfficeDiv").hide();
+                    $("#ProjectDiv").hide();
+                    $("#UnitDiv").show();
+                    $("#ZoneDiv").show();
+                    $("#AreaDiv").show();
+                }
+            } else {
+                $("#HeadOfficeDiv").hide();
+                $("#ProjectDiv").hide();
+                $("#ZoneDiv").hide();
+                $("#AreaDiv").hide();
+                //$("#AreaId").html('<option value="">Please Select</option>');
+                $("#UnitDiv").hide();
+                //$("#UnitId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#ZoneId").change(function () {
+
+            var status_text = $('#ZoneId option:selected').val();
+            if (status_text != "") {
+                $('#ZoneDiv input[name=All]').prop("checked", false);
+            } else {
+                $('#ZoneDiv input[name=All]').prop("checked", true);
+            }
+
+            var zoneId = $("#ZoneId").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            var ddlArea = $("#AreaId");
+
+            if (zoneId != "" && (officeTypeId == 5 || officeTypeId == 6)) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllAreaIdByZoneCode', // Location of the service
+                    data: { ZoneId: zoneId }, //Data sent to server
+                    dataType: "json",
+                    async: false,//Expected data format from server
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlArea.html('');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlArea.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                        $("#UnitId").html('<option value="">Please Select</option>');
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                ddlArea.html('<option value="">Please Select</option>');
+                $("#UnitId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#AreaId").change(function () {
+
+            var areaId = $("#AreaId").val();
+            var ddlUnit = $("#UnitId");
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (areaId != "" && (officeTypeId == 6)) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllUnitIdByAreaCode', // Location of the service
+                    data: { AreaId: areaId }, //Data sent to server
+                    dataType: "json", //Expected data format from server
+                    async: false,
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlUnit.html('');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlUnit.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                $("#UnitId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        var _OfficeTypeId = '@Model.OfficeTypeId';
+        if (parseInt(_OfficeTypeId) > 0) {
+
+            $("#OfficeTypeId").val(_OfficeTypeId);
+            $('#OfficeTypeId').val(_OfficeTypeId).trigger('change');
+            $('#OfficeTypeId').change();
+            if (parseInt(_OfficeTypeId) == 1) {
+                $("#PVHeadOfficeId").val('@Model.PVHeadOfficeId');
+            }
+            else if (parseInt(_OfficeTypeId) == 3) {
+                $("#PVProjectId").val(@Model.PVProjectId);
+            }
+            else if (parseInt(_OfficeTypeId) == 4) {
+                $("#ZoneId").val(@Model.ZoneId);
+            }
+            else if (parseInt(_OfficeTypeId) == 5) {
+                $("#ZoneId").val(@Model.ZoneId);
+                $("#ZoneId").val(@Model.ZoneId).trigger('change');
+
+                $("#AreaId").val('@Model.AreaId');
+            } else if (parseInt(_OfficeTypeId) == 6) {
+                $("#ZoneId").val(@Model.ZoneId);
+                $("#ZoneId").val(@Model.ZoneId).trigger('change');
+                $("#AreaId").val(@Model.AreaId);
+                $("#AreaId").val(@Model.AreaId).trigger('change');
+                $("#UnitId").val(@Model.UnitId);
+            }
+
+        } else {
+            $("#OfficeTypeId").val("");
+        }
+
+        $("#PVHeadOfficeId").click(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "1") {
+                var officeId = $("#PVHeadOfficeId").val();
+                reloadGrid2(officeId);
+            }
+        });
+
+        $("#PVProjectId").click(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#PVProjectId").val();
+            if (officeTypeId == "3" && officeId != "") {
+                reloadGrid2(officeId);
+            }
+        });
+
+        $("#ZoneId").change(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#ZoneId").val();
+            if (officeTypeId == "4" && officeId != "") {
+                reloadGrid2(officeId);
+            }
+        });
+
+        $("#AreaId").click(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#AreaId").val();
+            if (officeTypeId == "5" && officeId != "") {
+                reloadGrid2(officeId);
+            }
+        });
+
+        $("#UnitId").click(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#UnitId").val();
+            if (officeTypeId == "6" && officeId != "") {
+                reloadGrid2(officeId);
+            }
+        });
+
+        $("#btnReset").click(function () {
+            clear();
+        });
+
+        $("#btnSave").click(function () {
+            Save();
+        });
+
+
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        $("#btnSearch").click(function () {
+            SetSearchParameters();
+        });
+    });
+
+
+</script>
+
+<h2 class="page-title">Public Holiday Entry</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div id="AjaxLoader" class="ajaxLoader"></div>
+
+            <div>
+                @*@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)*@
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-sm-4" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control", @required = "true" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="HeadOfficeDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.PVHeadOfficeId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.PVHeadOfficeId, Model.AreaList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="ProjectDiv">
+
+                        <div class="item form-group">
+                            <div class="col-sm-2">
+                                <input type="radio" name="All" id="All" value="All"> All
+                            </div>
+                            @Html.LabelFor(model => model.PVProjectId, htmlAttributes: new { @class = "control-label col-sm-6 required" })
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.PVProjectId, Model.AreaList, new { @id = "typeFilterColumn", @multiple = "multiple", @class = "selectpicker form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="ZoneDiv">
+                        <div class="item form-group">
+                            <div class="col-sm-2">
+                                <input type="radio" name="All" id="All" value="All"> All
+                            </div>
+                            @Html.LabelFor(model => model.ZoneId, new { @class = "control-label col-sm-6 required" })
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(model => model.ZoneId, Model.ZoneList, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6" id="AreaDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.AreaId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.AreaId, Model.AreaList, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="UnitDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.UnitId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.UnitId, Model.UnitList, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.HolidayYear, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @*@Html.EditorFor(model => model.HolidayYear, new { htmlAttributes = new { @class = "form-control" } })*@
+                            @Html.DropDownList("Years", null, new { @ID = "HolidayYear", @class = "form-control" })
+                            @Html.HiddenFor(model => model.AttHolidayDeclarationId)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label id="testLabel" class="control-label col-md-4 required">Holiday Type</label>
+                        @*@Html.LabelFor(model => model.AttHolidayTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })*@
+                        <div class="col-sm-8">
+                            @Html.DropDownList("AttHolidayType", null, new { @ID = "AttHolidayTypeId", @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+                <a style="margin-top:20px;" href="/AttHolidayType"><i class="fa fa-plus fa-3x" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.HolidayDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.HolidayDate, new { htmlAttributes = new { @class = "form-control" } })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.HolidayDateTo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.HolidayDateTo, new { htmlAttributes = new { @class = "form-control" } })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+                            &nbsp;
+                            <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                            &nbsp;
+                            <input type="button" value="Search" id="btnSearch" class="btn btn-success" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    &nbsp;
+                </div>
+                &nbsp;
+                <div id="holidayGrid">
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,341 @@
+﻿@model gHRM.Web.ViewModels.Payroll.ComponentPayrollViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/ComponentPayroll/Index">Index</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Component Payroll";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+}
+
+<script type="text/javascript">
+
+    //create
+    function GenerateComponentPayroll() {
+        var item = {};
+        item.ComponentName = $("#ComponentName").val();
+        item.ComponentCategory = $("#ComponentCategory").val();
+        //item.IsChangeable = $("#IsChangeable").val();
+        return item;
+    }
+
+    function GenerateUpdateComponentPayroll() {
+        var item = {};
+        item.Id = $("#Id").val();
+        item.ComponentName = $("#ComponentName").val();
+        item.ComponentCategory = $("#ComponentCategory").val();
+        //item.IsChangeable = $("#IsChangeable").val();
+        return item;
+    }
+
+    function ClearControl() {
+        $("#ComponentName").val('');
+        $("#ComponentCategory").val('');
+        //$("#IsChangeable").val('');
+
+    }
+
+    function SaveComponentPayroll() {
+
+
+        var cp = GenerateComponentPayroll();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("SaveComponentPayroll", "ComponentPayroll")',
+            data: JSON.stringify({ cp: cp }),
+            contentType: "application/json; charset=utf-8",
+            success: function(data) {
+                $.alert.open('Success', data);
+                if (data == "Save Successfull") {
+                    ClearControl();
+                    $('#grid').jtable('load');
+                }
+
+            },
+            error: function(xhr, status, error) {
+                alert(error);
+            }
+
+        });
+
+    }
+
+    function UpdateComponentPayroll() {
+
+
+        var cp = GenerateUpdateComponentPayroll();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("UpdateComponentPayroll", "ComponentPayroll")',
+            data: JSON.stringify({ cp: cp }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $.alert.open('Success', data);
+                if (data == "Update Successfull") {
+                    ClearControl();
+                    $('#grid').jtable('load');
+                }
+
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+
+        });
+
+    }
+
+</script>
+
+
+<h2 class="page-title">Component Payroll</h2>
+@using (Html.BeginForm("SaveComponentPayroll", "ComponentPayroll", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <br /><br />
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Component Name</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.ComponentName, new { @class = "form-control required" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Component Category</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ComponentCategory, Model.ComponentCategoryList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        @*<div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">IsChangeable</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.IsChangeable, Model.IsChangeableList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>*@
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveComponentPayroll()" />
+                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdateComponentPayroll()" />
+                    <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetComponentPayroll()" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-8">
+            @Html.HiddenFor(model => model.Id)
+        </div>
+    </div>
+}
+
+
+@*list*@
+
+<script type="text/javascript">
+
+    // delete
+    function InformationDelete(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationDelete", "ComponentPayroll", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#grid').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    //edit using jtable
+
+    function ResetComponentPayroll() {
+        $("#btnUpdate").hide();
+        $("#btnSave").show();
+        $("#btnReset").hide();
+        ClearControl();
+    }
+
+    function EditComponent(Id, ComponentName, ComponentCategory, IsChangeable) {
+        debugger;
+        $("#Id").val(Id);
+        $("#ComponentName").val(ComponentName);
+        $("#ComponentCategory").val(ComponentCategory);
+        $("#IsChangeable").val(IsChangeable);
+        $("#btnUpdate").show();
+        $("#btnReset").show();
+        $("#btnSave").hide();
+    }
+
+
+
+    $(document).ready(function () {
+        //$("#IsChangeable").text('Please Select');
+        $("#btnUpdate").hide();
+        $("#btnReset").hide();
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            defaultSorting: 'InventoryId ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    var eCode = $("#Ecode").val();
+
+                    return $.Deferred(function ($dfd) {
+
+                        $.ajax({
+                            url: '/ComponentPayroll/ListComponentPayroll?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                ComponentName: {
+                    title: 'ComponentName',
+                    width: '15%'
+                },
+                ComponentCategory: {
+                    title: 'ComponentCategory',
+                    width: '15%'
+                },
+                //IsChangeable: {
+                //    title: 'IsChangeable',
+                //    width: '15%',
+                //    display: function (data) {
+                //        if (data.record.IsChangeable == "1") {
+                //            return "Yes"
+                //        } else if (data.record.IsChangeable == "0") {
+                //            return "No"
+                //        }
+                //    }
+                //},
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditComponent(' + "'" + data.record.Id + "'" + ',' + "'" + data.record.ComponentName + "'" + ',' + "'" + data.record.ComponentCategory + "'" + ',' + "'" + data.record.IsChangeable + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                    //display: function (data) {
+                    //    if (data.record.IsChangeable == "1") {
+                    //        return '<div class="text-center"><a href="#" OnClick="EditComponent(' + "'" + data.record.Id + "'" + ',' + "'" + data.record.ComponentName + "'" + ',' + "'" + data.record.ComponentCategory + "'" + ',' + "'" + data.record.IsChangeable + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    //    } else if (data.record.IsChangeable == "0") {
+                    //        return ""
+                    //    }
+                    //}
+                },
+                Delete: {
+                    title: "Delete",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.Id + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#grid').jtable('load');
+    });
+
+
+</script>
+
+@*@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+<h2 class="page-title"> Component Payroll List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="col-sm-12">
+        &nbsp;
+    </div>
+</div>
+
+<div id="grid"></div>
+
+<div class="row">
+    <div class="col-sm-12">
+        &nbsp;
+    </div>
+</div>
+
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,258 @@
+﻿@model gHRM.Web.ViewModels.Payroll.EmployeeSalaryIncentiveViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Loan">Loan</a></li>
+        <li><a href="/SpecialCollection">Special Collection</a></li>
+    </ol>
+</div>
+
+<style>
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 7px;
+        line-height: 0.82857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+        text-align: right;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+
+    EmployeeCode
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+
+    .form-group {
+        margin-bottom: 7px;
+        padding: 2px 6px;
+        height: fit-content;
+    }
+</style>
+
+
+
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-6 required">Employee</label>
+                            <div class="col-md-6">
+                                <input class="form-control" style="font-size:12px; padding:1px 4px; height:27px;" autocomplete="off" id="EmployeeCode" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-6 required">Loan No.</label>
+                            <div class="col-md-6">
+                                <select class="form-control" style="font-size:12px; padding:1px 4px; height:27px;" id="LoanID" onchange="clearTH();"> </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group" align="right">
+                            <button class="btn btn-primary" style="margin:1%; background-color:#b709e3;color:#ffffff" id="btnView">View</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-6 required">Transaction Date</label>
+                            <div class="col-md-6">
+                                <input class="form-control" style="font-size:12px; padding:1px 4px; height:27px;" id="TransactionDate" autocomplete="off" readonly="readonly" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-6 required">Transaction Amount </label>
+                            <div class="col-md-6">
+                                <input class="form-control" style="font-size:12px; padding:1px 4px; height:27px;" id="TransactionAmount" autocomplete="off" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="control-label col-md-6 required">Narration</label>
+                            <div class="col-md-6">
+                                <textarea class="form-control" style="font-size:12px; padding:1px 4px; height:30px;resize:none;" id="Narration"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group" align="right">
+                            <button class="btn btn-primary" style="margin: 1%; background-color: #4d0026; color: #ffffff" id="btnSave">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="DivTableView">
+                            <div class="box-body no-padding table-responsive">
+                                <table class="table table-striped" id="tblAllowanceConfiguration" border="1" style="padding:0; font-size:11px; text-align:right;">
+                                    <thead>
+                                        <tr class="">
+                                            <th class="column-title" width="22%" align="right">Emp. Name</th>
+                                            <th colspan="5" class="column-title" width="90%" id="thEmployeeName" style="text-align:left;"></th>
+                                            @*<th class="column-title" width="15%">Loan</th>
+                                                <th class="column-title" width="15%">&nbsp;</th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="" style="background-color:skyblue;">
+                                            <th class="column-title" width="15%">Disburse Date</th>
+                                            <th class="column-title" width="75%" colspan="5" id="th_dis_dt" style="text-align:left;"></th>
+
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="">
+                                            <th class="column-title" width="15%">Loan Amount</th>
+                                            <th class="column-title" width="15%" id="th_loan_amt">&nbsp;</th>
+                                            <th class="column-title" width="17%">Paid Amount</th>
+                                            <th class="column-title" width="15%" id="th_loan_paid_amt">&nbsp;</th>
+                                            <th class="column-title" width="17%">Due Amount</th>
+                                            <th class="column-title" width="15%" id="th_loan_due_amt">&nbsp;</th>
+                                        </tr>
+                                    </tbody>
+                                    <tbody>
+                                        <tr class="" style="background-color:skyblue;">
+                                            <th class="column-title">Interest Amount</th>
+                                            <th class="column-title" id="th_interest_amt">&nbsp;</th>
+                                            <th class="column-title">Paid Amount</th>
+                                            <th class="column-title" id="th_interest_paid_amt">&nbsp;</th>
+                                            <th class="column-title">Due Amount</th>
+                                            <th class="column-title" id="th_interest_due_amt">&nbsp;</th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="">
+                                            <th class="column-title" colspan="3"></th>
+                                            <th class="column-title" colspan="2">Total Due Amount</th>
+                                            <th class="column-title" id="th_total_due_amt"></th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="" style="background-color:skyblue;">
+                                            <th class="column-title" colspan="6" style="text-align:center;">Last Installment Paid On </th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="">
+                                            <th colspan="2">Interest Up to</th>
+                                            <th colspan="3">
+                                                <input class="form-control" style="font-size: 12px; padding: 4px 4px 4px 1px; height: 16px; width: 40%; background-color: #ffffcc;" id="InterestUptoDate" autocomplete="off" />
+                                            </th>
+                                            <th colspan="1"></th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="" style="background-color:skyblue;">
+                                            <th class="column-title" colspan="2">&nbsp;</th>
+                                            <th class="column-title" colspan="3" align="right">Total Due Amount upto Today </th>
+                                            <th class="column-title" id="th_upto_interest_charge">&nbsp;</th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="">
+                                            <th class="column-title">Installment</th>
+                                            <th class="column-title"></th>
+                                            <th class="column-title">Complete</th>
+                                            <th class="column-title"></th>
+                                            <th class="column-title">Due</th>
+                                            <th class="column-title" id="th_total_due_amt_after_charge"></th>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody>
+                                        <tr class="" style="background-color:skyblue;">
+                                            <th class="column-title">Status</th>
+                                            <th class="column-title" colspan="5"></th>
+
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                </div>
+                @*<div class="col-md-12" align="center">
+                        <button class="btn-primary" align="center" style="margin:1%; background-color:#b709e3;color:#ffffff">Print</button>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @*@Scripts.Render("~/bundles/jtable")*@
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/loan/SpecialLoanCollection.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

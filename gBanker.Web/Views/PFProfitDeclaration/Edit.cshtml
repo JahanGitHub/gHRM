@@ -1,0 +1,160 @@
+﻿@model gHRM.Web.ViewModels.PF.ProfitDeclarationViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function UpdateProfitDeclaration(declararionId, induceRate, isDeclared) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateProfitDeclaration", "PFProfitDeclaration", "http")',
+            data: { declararionId: declararionId, induceRate: induceRate, isDeclared: isDeclared },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                setTimeout(function () {
+                    window.location.href = "/PFProfitDeclaration/Index";
+                }, 1500);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+            }
+        });
+    }
+
+    function Update() {
+        var declararionId = $('#DeclararionId').val();
+        var profitRate = $("#ProfitRate").val();
+        var induceRate = $("#InduceRate").val();
+        var isDeclared = $("#IsDeclared").is(':checked');
+      
+        if (declararionId == '') {
+            return;
+        }
+
+        if (profitRate == '') {
+            $.alert.open("Profit rate changed");
+            return;
+        }
+        if (induceRate == '') {
+            $.alert.open("Enter Induce rate");
+            return;
+        }
+
+        if (parseFloat(profitRate) < parseFloat(induceRate)) {
+            $.alert.open("Induce rate exceeded Profit rate");
+            return;
+        }
+        UpdateProfitDeclaration(declararionId, induceRate, isDeclared);
+    }
+
+
+    $(document).ready(function () {
+       
+        var isReadonly = @Html.Raw(Model.IsInduceRateReadonly == true ? "true" : "false")
+        $('#InduceRate').attr('disabled', isReadonly);
+        $('#btnUpdateProfitDeclaration').attr('disabled', isReadonly);
+       // $('#IsDeclared').attr('disabled', true);
+        
+
+        $("#btnUpdateProfitDeclaration").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Profit Declaration</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Profit, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Profit, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @*@Html.LabelFor(model => model.InduceRate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InduceRate, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, @Placeholder = "Induce Rate" } })
+                </div>*@
+                @Html.LabelFor(model => model.DeclarationYear, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.DeclarationYear, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    @Html.HiddenFor(model => model.DeclararionId)
+                    @Html.HiddenFor(model => model.IsInduceRateReadonly)
+                </div>
+            </div>
+        </div>
+              
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ProfitRate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ProfitRate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.IsDeclared, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.CheckBoxFor(model => model.IsDeclared, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                @*@Html.LabelFor(model => model.Profit, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Profit, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>*@
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InduceRate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InduceRate, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, @Placeholder = "Induce Rate" } })
+                </div>
+                @*@Html.LabelFor(model => model.IsDeclared, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.CheckBoxFor(model => model.IsDeclared, new { htmlAttributes = new { @class = "form-control" } })
+                </div>*@
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Update" id="btnUpdateProfitDeclaration" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

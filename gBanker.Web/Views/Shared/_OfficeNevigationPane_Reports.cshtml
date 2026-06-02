@@ -1,0 +1,18 @@
+﻿@model gHRM.Web.ViewModels.OfficeNevigationPartialViewModel
+
+@{
+    var pleaseSelect = new SelectListItem() { Text = "Please Select", Value = "" };
+}
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-sm-4", @style = "text-align: left;" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control", @required = "true" })
+            </div>
+        </div>
+    </div>
+
+</div>

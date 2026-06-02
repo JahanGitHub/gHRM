@@ -1,0 +1,687 @@
+﻿@{
+    ViewBag.Title = "Increment Letter";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement ?? "True";
+}
+
+
+<h2>Increment Letter</h2>
+
+<br />
+
+<div class="form-horizontal">
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee Code", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("EmployeeCode", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+     
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee Name", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("EmployeeName", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee Status", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("txtEmpStatus", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Department Name", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("DepartmentName", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Designation Status", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("DesignationName", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+      
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Joining Date", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("JoiningDate", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Confirmation Date", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("ConfirmationDate", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required" for="SalaryGenerationType">Generation Type</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" id="SalaryGenerationType" name="SalaryGenerationType" disabled>
+                            <option value="">Please Select</option>
+                            <option value="PS">Pay-Scale</option>
+                            <option value="NPS">Non Pay-Scale</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+
+
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required" for="GradeList">GradeList</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" id="GradeList" name="GradeList" disabled>
+                            <option value="">Please Select</option>
+                            <option value="2">Grade 2-Driver/Lineman/Technician/Electrician</option>
+                            <option value="3">Grade 3-Support Executive (MIS/ IT System)</option>
+                            <option value="4">Grade 4-Junior Executive</option>
+                            <option value="5">Grade 5-Executive(MIS/IT system)</option>
+                            <option value="6">Grade 6-Senior Executive</option>
+                            <option value="7">Grade 7-Deputy Manager</option>
+                            <option value="8">Grade 8-Manager</option>
+                            <option value="9">Grade 9-Senior Manager</option>
+                            <option value="10">Grade 10-Assistant General Manager</option>
+                            <option value="11">Grade 11-Deputy General Manager</option>
+                            <option value="12">Grade 12-General Manager</option>
+                            <option value="13">Grade 13-Managing Director</option>
+                            <option value="14">Grade 14-Computer Operator/Junior Support Engineer</option>
+                            <option value="15">Grade 15-Junior MIS Officer/Support Engineer</option>
+                            <option value="16">Grade 16-MIS Officer</option>
+                            <option value="17">Grade 17-Senior MIS Officer</option>
+                            <option value="18">Grade 18-Supervisor</option>
+                            <option value="19">Grade 19-Senior Supervisor</option>
+                            <option value="20">Grade 20-Junior MIS Officer (Old)</option>
+                            <option value="21">Grade 21-MIS Officer (Old)</option>
+                            <option value="22">Grade 22-Senior MIS Officer (Old)</option>
+                            <option value="23">Grade 1.1-Senior Messenger</option>
+                            <option value="24">grade 25-manager</option>
+                            <option value="25">grade 1-Messenger</option>
+                        </select>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Step", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        <select class="form-control" id="SalaryScaleList" name="SalaryScaleList">
+                            <option value="">Please Select</option>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                            <option value="32">32</option>
+                            <option value="33">33</option>
+                            <option value="34">34</option>
+                            <option value="35">35</option>
+                            <option value="36">36</option>
+                            <option value="37">37</option>
+                            <option value="38">38</option>
+                            <option value="39">39</option>
+                            <option value="40">40</option>
+                            <option value="41">41</option>
+                            <option value="42">42</option>
+                            <option value="43">43</option>
+                            <option value="44">44</option>
+                            <option value="45">45</option>
+                            <option value="46">46</option>
+                            <option value="47">47</option>
+                            <option value="48">48</option>
+                            <option value="49">49</option>
+                            <option value="50">50</option>
+                            <option value="51">51</option>
+                            <option value="52">52</option>
+                            <option value="53">53</option>
+                            <option value="54">54</option>
+                            <option value="55">55</option>
+                            <option value="56">56</option>
+                            <option value="57">57</option>
+                            <option value="58">58</option>
+                            <option value="59">59</option>
+                            <option value="60">60</option>
+                        </select>
+
+                        <input type="hidden" id="hiddenStep" value="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Increment Step", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("IncrementStep", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Increment Amount", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("IncrementAmount", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+       
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Gross/Basic Salary", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("GrossSalary", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("কার্যকর  তারিখ", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("EffectiveDate", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+   
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("রিপোর্টের  তারিখ", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("Date", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <input type="button" id="btnSave" value="Save" class="btn btn-primary" formtarget="_blank" />
+                        @*<input style="margin-left:10px;" type="button" id="btnBack"  value="Back" class="btn btn-success" />*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+
+            <h2 class="page-title">Employee Increment Letter List</h2>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+
+
+            <br />
+            <div class="box-content">
+
+
+                <div class="table-responsive">
+                    <div id="gridKendo"></div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+
+        $("#SalaryScaleList").change(function () {
+
+            var scale = $("#SalaryScaleList").val();
+            var EmployeeCode = $("#EmployeeCode").val();
+            var IncrementAmount = $("#IncrementAmount").val();
+            var GrossSalary = $("#GrossSalary").val();
+            var step = $('#SalaryScaleList').val();
+            var hiddenStep = $('#hiddenStep').val();
+            if (scale != "") {
+                
+                if (EmployeeCode != "" && IncrementAmount != "" && GrossSalary !="" ) {
+
+                    step = parseFloat(step);
+                    hiddenStep = parseFloat(hiddenStep);
+                    IncrementAmount = parseFloat(IncrementAmount);
+                    GrossSalary = parseFloat(GrossSalary);
+                    if (step > hiddenStep) {
+                        var stepIncrement = step - hiddenStep
+                        $('#IncrementStep').val(stepIncrement);
+                        $("#IncrementAmount").val(IncrementAmount);
+                        IncrementAmount = IncrementAmount * stepIncrement;                       
+                        GrossSalary = GrossSalary + IncrementAmount;
+                        $("#GrossSalary").val(GrossSalary);
+                    }
+
+                } else {
+                    $.alert.open("Message", "Please select step ");
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        });
+
+
+
+        $("#GradeList").change(function (e) {
+            console.log('gradechange');
+            console.log($('#GradeList').val());
+        });
+
+
+        $("#EmployeeCode").blur(function (e) {
+            var employee_code = $("#EmployeeCode").val();
+            if ($("#EmployeeCode").val() !== '') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/EmployeeReport/GetExistingSalaryConfigurationListbyEmployeeCode',
+                    data: { employeeCode: employee_code },
+                    dataType: 'json',
+                    async: false,
+                    cache: false,
+                    success: function (data) {
+                        if (data.Result === "OK") {
+                            if (data.dataList.length > 0) {
+                                //GenerateTableWithData(data.dataList);
+                            }
+
+                            if (data.dataList !== null) {
+                                if (data.dataList.length > 0 && data.dataList[0].GradeId == 0) {
+                                    $("#SalaryGenerationType").val("NPS");
+                                    $("#GradeList").val("");
+                                    $("#GrossSalary").attr('Disabled', false);
+                                } else {
+                                    $("#SalaryGenerationType").val("PS");
+                                }
+
+
+                                $("#JoiningDate").val(data.JoiningDate);
+                                $("#ConfirmationDate").val(data.ConfirmationDate);                             
+                                
+                                $("#DepartmentName").val(data.DepartmentName);
+                                $("#DesignationName").val(data.DesignationName);
+                            
+                                $("#EmployeeName").val(data.dataList[0].EmployeeName);
+                                $("#txtEmpStatus").val(data.dataList[0].EmployeeStatusName);
+                                $("#IncrementAmount").val(data.dataList[0].CalculatedAmount);
+                           
+                                if (data.dataList[0].Step === 0) {
+                                    $("#SalaryScaleList").val("");
+                                } else {
+                                    $("#SalaryScaleList").val(data.dataList[0].Step);
+                                    $("#hiddenStep").val(data.dataList[0].Step);
+                                }                            
+                                $("#EffectiveDate").val(data.dataList[0].EmployeeNameBng);
+                                $("#GradeList").val(data.GradeId);
+                                $("#GrossSalary").val(data.dataList[0].GrossSalary);
+                               
+                            }
+                        }
+                    },
+                    error: function (request, status, error) {
+                    }
+                });
+            }
+            else {
+                $("#EmployeeCode").empty();
+                $("#EmployeeName").val('');              
+                $("#GrossSalary").val('');
+            }        
+        });
+
+
+                getPromotionLetterList();
+
+                $('#btnSave').click(function () {
+
+                    var Date = $("#Date").val();                   
+                    var EmployeeCode = $("#EmployeeCode").val();
+                    var IncrementAmount = $("#IncrementAmount").val();
+                    var GrossSalary = $("#GrossSalary").val();
+                    var step = $('#SalaryScaleList').val();
+                    var hiddenStep = $('#IncrementStep').val();
+                    var EffectiveDate = $("#EffectiveDate").val();
+
+                    if (Date == '') {
+                        $.alert.open('Report date is needed!');
+                        return false;
+                    }
+
+                    if (EmployeeCode == '') {
+                        $.alert.open('EmployeeCode is needed!');
+                        return false;
+                    }
+
+                    if (IncrementAmount == '') {
+                        $.alert.open('Increment Amount is needed!');
+                        return false;
+                    }
+
+
+                    if (hiddenStep == '') {
+                        $.alert.open('Add Step is needed!');
+                        return false;
+                    }
+                
+
+                    if (GrossSalary == '') {
+                        $.alert.open('Gross Salary is needed!');
+                        return false;
+                    }
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/EmployeeReport/IncrementLetterSave?Date=' + Date + '&EmployeeCode=' + EmployeeCode + '&IncrementAmount=' + IncrementAmount + '&hiddenStep=' + hiddenStep + '&GrossSalary=' + GrossSalary + '&EffectiveDate=' + EffectiveDate,
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open('Error', 'Employee Code Invalid!');
+                            }
+
+                            if (data.result == 1) {
+                                $.alert.open('Success', 'Saved Successfully!');
+                                getPromotionLetterList();
+                            }
+
+                        },
+                        error: function (xhr, status, error) {
+                            // Handle the error here
+                            console.log(error);
+                        }
+                    });
+                });
+
+
+                $("#Date").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                $("#Date").datepicker('setDate', new Date());
+
+    });
+
+    ////// Kendo Grid Integration
+
+    function getPromotionLetterList() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+
+                    url: '@Url.Action("getIncrementLetterList", "EmployeeReport", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "LoanId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "20px",
+                    filterable: false,
+                },//OfficeTypeName
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "70px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeName",
+                    title: "Office Name",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "DepartmentName",
+                    title: "Department",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "DesignationName",
+                    title: "Designation",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "LoanStartDateMsg",
+                    title: "Report Date",
+                    width: "40px",
+                    filterable: false,
+                },
+
+                 {
+                     title: "Edit",
+                     width: "20px",
+
+                         template: function (dataItem) {
+                             return "<a href='#' OnClick='Edit(" + dataItem.LoanId + ");'><i class='fa fa-edit'></i></a>";
+                         }
+
+
+                 },
+                    {
+                        title: "Delete",
+                        width: "20px",
+                        template: function (dataItem) {
+                            return "<a href='#' OnClick='Delete(" + dataItem.LoanId + ");'><i class='fa fa-trash-o'></i></a>";
+                        }
+                }
+                , {
+                    title: "Print",
+                    width: "20px",
+                    template: function (dataItem) {
+                        return "<a href='#' OnClick='Print(" + dataItem.LoanId + ");'><i class='fa fa-print'></i></a>";
+                    }
+                }
+            ]
+        });
+    }
+
+    function Edit(id) {
+        console.log(id);
+         $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetEmployeeIncrementLetter", "EmployeeReport", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            $.each(data, function (index, data) {
+                                if (data != "Error") {
+                                    // alert(data.PermanentAddress);
+                                    $('#Date').val(data.DateOfBirthMsg);
+                                    $("#EmployeeCode").val(data.EmployeeCode);                                    
+                                }
+                                else {
+
+                                    $("#EmployeeCode").val('');
+                                    alert("Wrong Employe Code");
+                                    $("#EmployeeCode").focus();
+                                }
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+    }
+    function Delete(id) {
+        console.log(id);
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+              $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("DeleteIncrementLetter", "EmployeeReport", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open('Error', 'Employee Code Invalid!');
+                            }
+
+                            if (data.result == 1) {
+                                $.alert.open('Success', 'Deleted Successfully!');
+                                getPromotionLetterList();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+
+     }
+    function Print(id) {
+        console.log(id);
+        var url = "/EmployeeReport/IncrementLetterReport?id="+id
+          window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+@section Scripts {
+
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

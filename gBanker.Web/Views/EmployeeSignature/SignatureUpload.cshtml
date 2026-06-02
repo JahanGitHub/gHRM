@@ -1,0 +1,106 @@
+﻿@model gHRM.Web.ViewModels.EmployeeDocumentViewModel
+
+@{
+    ViewBag.Title = "SignatureUpload";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Signature Upload</h2>
+@using (Html.BeginForm("SignatureUpload", "EmployeeSignature", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "SignatureUpload" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-8">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DocumentType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(m => m.DocumentType, DropdownListHelper.GetDropdownList(DropdownListTypes.EmployeeDocumentType, Model.DocumentType), "-Select One-", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBox("txtEmpCode", "", new { @class = "form-control", id = "txtEmployeeCode" })
+                        @Html.HiddenFor(model => model.EmployeeId)
+                    </div>
+                </div>
+            </div>        
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Employee Name", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmpSignature, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        <div id="sigImage"><img id="thumbnil" style="width:100px; height:100px;" src="~/Images/BlankSig.png" alt="Employee Singature" class="img-responsive" /></div>
+                        @Html.TextBoxFor(model => model.ImgFile, new { type = "file", @onchange = "empDocumentManager.showMyImage(this);", @class = "form-control" })
+                    </div>
+                    <div class="col-sm-10">
+                        <label class="pull-right" style="color:red">Image size must be under 100 KB</label>
+                    </div>
+                </div>
+            </div>       
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DocumentRemarks, htmlAttributes: new { @class = "control-label col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.TextAreaFor(model => model.DocumentRemarks, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class ="control-label col-sm-4"></label>                    
+                    <div class="col-sm-8">
+                        <input type="submit" value="Save" id="btnSignatureSave" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Signature upload successfully.</p>
+                    </div>
+                    &nbsp;
+                    <input type="submit" value="Save" id="btnSignatureSave" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>*@
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Assets/js/app/employee/employeeDocumentManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}
+
+
+
+

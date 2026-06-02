@@ -1,0 +1,719 @@
+﻿@model gHRM.Web.ViewModels.ChallanViewModel
+
+@{
+    ViewBag.Title = "Challan No";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var officeTypeid = SessionHelper.LoggedInOfficeTypeId;
+    var system = SessionHelper.CompanyInfo.CompanyShortName;
+}
+<input id="system" value="@system" type="hidden">
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRProcess/Challan">Challan</a></li>
+    </ol>
+</div>
+
+<h2 class="page-title">Challan No </h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        
+
+        @*@Html.TextBoxFor( model=> model.SalaryDay)*@
+
+        <div class="container-fluid">
+            <div id="AjaxLoader" class="ajaxLoader"></div>
+
+            <div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-sm-4" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control", @required = "true" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="HeadOfficeDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.PVHeadOfficeId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.PVHeadOfficeId, Model.AreaList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="ProjectDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.PVProjectId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.PVProjectId, Model.AreaList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="ZoneDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.ZoneId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.ZoneId, Model.ZoneList, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6" id="AreaDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.AreaId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.AreaId, Model.AreaList, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" id="UnitDiv">
+                        <div class="item form-group">
+                            @Html.LabelFor(model => model.UnitId, new { @class = "control-label col-sm-4 required" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.UnitId, Model.UnitList, new { @class = "form-control", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4"> Year</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("Years", null, new { @ID = "Year", @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4"> Month</label>
+                            <div class="col-md-8">
+                                @Html.DropDownList("Months", null, new { @ID = "Month", @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4"> Challan No</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="ChallnNo" name="ChallnNo" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4"> Challan Date</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="ChallanDate" name="ChallanDate" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="row" id="dvButton">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                            <input type="button" id="btnSave" value="Save" class="btn btn-primary" /> &nbsp;&nbsp;
+                            <input type="button" id="btnView" value="View" class="btn btn-primary" />&nbsp;&nbsp;
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-content">
+                <h4><label id="beforeApprovalLbl">Challan List</label></h4>
+                <div class="table-responsive">
+                    <div id="beforeApprovalGridKendo"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+
+
+    function GenerateDropDownList(dorpDownFieldId, controllerName, functionName) {
+        var ddlName = $("#'" + dorpDownFieldId + "");
+        var dataUrl = '/' + controllerName + '/' + functionName + '';
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: dataUrl, // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetHeadOfficeByOfficeType() {
+        var ddlName = $("#PVHeadOfficeId");
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/GetHeadOfficeByOfficeType', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            async: false,
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetProjectsByOfficeType() {
+        var ddlName = $("#PVProjectId");
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/GetProjectsByOfficeType', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            async:false,
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetAllOfficeType() {
+        var ddlOfficeType = $("#OfficeTypeId");
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/OfficeTypeList_JS', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlOfficeType.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlOfficeType.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetAllZoneOffice() {
+        var ddlZone = $("#ZoneId");
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/getAllZoneId', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlZone.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlZone.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function ChangeOfficeType() {
+
+    }
+
+    function SummaryPreview(ChallnNo, month, year, officeTypeId, OfficeId, ChallanDate) {
+
+        $("#beforeApprovalLbl").show();
+        $('#beforeApprovalGridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '/PRProcess/ChallanViewData',
+                    dataType: 'json',
+                    data: { ChallnNo: ChallnNo, year: year, month: month, officeTypeId: officeTypeId, OfficeId: OfficeId, ChallanDate: ChallanDate  }
+                }
+            }
+        });
+
+        $("#beforeApprovalGridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "Department",
+                    title: "Department",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "Designation",
+                    title: "Designation",
+                    width: "100px",
+                    filterable: true,
+                },
+                //{
+                //    field: "IncomeTax",
+                //    title: "Income Tax",
+                //    width: "50px",
+                //    filterable: false,
+                //},
+                {
+                    field: "ChallanNo",
+                    title: "Challan No",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "ChallanDate",
+                    title: "Challan Date",
+                    width: "50px",
+                    filterable: false,
+                },
+                //{
+                //    field: "NetPayable",
+                //    title: "Net Payable",
+                //    width: "50px",
+                //    filterable: false,
+                //},
+                //{
+                //    field: "GrossSalary",
+                //    title: "Net Payable",
+                //    width: "50px",
+                //    filterable: false,
+                //},
+                //{
+                //    field: "TotalEarning",
+                //    title: "Total Earning",
+                //    width: "50px",
+                //    filterable: false,
+                //},
+                //{
+                //    field: "TotalDeduction",
+                //    title: "Total Deduction",
+                //    width: "50px",
+                //    filterable: false,
+                //}
+                //,
+                //{
+                //    title: "HoldSalary",
+                //    width: "50px",
+                //    template: function (dataItem) {
+                //        return "<a href='#' title='Hold Salary' OnClick='HoldSalary(" + dataItem.EmployeeId + ");'><i class='fa fa-pause'></i></a>";
+                //    }
+                //}
+            ]
+        });
+    }
+
+    $(document).ready(function () {
+        $("#HeadOfficeDiv").hide();
+        $("#ProjectDiv").hide();
+        $("#ZoneDiv").hide();
+        $("#AreaDiv").hide();
+        $("#UnitDiv").hide();
+
+        // GetAllOfficeType();
+        //GetAllZoneOffice();
+
+
+
+
+        $("#OfficeTypeId").change(function () {
+
+            var officeType = $("#OfficeTypeId").val();
+            if (officeType != "") {
+                $("#ZoneId").val('');
+                $("#AreaId").html('<option value="">Please Select</option>');
+                $("#UnitId").html('<option value="">Please Select</option>');
+
+                if (officeType == 1) {
+                    GetHeadOfficeByOfficeType();
+                    $("#HeadOfficeDiv").show();
+
+                    $("#ProjectDiv").hide();
+                    $("#ZoneDiv").hide();
+                    $("#AreaDiv").hide();
+                    $("#UnitDiv").hide();
+                } else if (officeType == 3) { //project
+                    $("#HeadOfficeDiv").hide();
+
+                    GetProjectsByOfficeType();
+                    $("#ProjectDiv").show();
+                    $("#ZoneDiv").hide();
+                    $("#AreaDiv").hide();
+                    $("#UnitDiv").hide();
+
+                } else if (officeType == 4) { //zone
+                    $("#HeadOfficeDiv").hide();
+                    $("#ProjectDiv").hide();
+
+                    $("#AreaDiv").hide();
+                    $("#UnitDiv").hide();
+                    $("#ZoneDiv").show();
+                } else if (officeType == 5) { //area
+                    $("#HeadOfficeDiv").hide();
+                    $("#ProjectDiv").hide();
+                    $("#UnitDiv").hide();
+
+                    $("#ZoneDiv").show();
+                    $("#AreaDiv").show();
+                } else if (officeType == 6) { //field
+                    $("#HeadOfficeDiv").hide();
+                    $("#ProjectDiv").hide();
+                    $("#UnitDiv").show();
+                    $("#ZoneDiv").show();
+                    $("#AreaDiv").show();
+                }
+            } else {
+                $("#HeadOfficeDiv").hide();
+                $("#ProjectDiv").hide();
+                $("#ZoneDiv").hide();
+                $("#AreaDiv").hide();
+                //$("#AreaId").html('<option value="">Please Select</option>');
+                $("#UnitDiv").hide();
+                //$("#UnitId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#ZoneId").change(function () {
+
+            var zoneId = $("#ZoneId").val();
+            var ddlArea = $("#AreaId");
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (zoneId != "" && (officeTypeId == 5 || officeTypeId == 6)) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllAreaIdByZoneCode', // Location of the service
+                    data: { ZoneId: zoneId }, //Data sent to server
+                    dataType: "json",
+                    async: false,//Expected data format from server
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlArea.html('');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlArea.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                        $("#UnitId").html('<option value="">Please Select</option>');
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                ddlArea.html('<option value="">Please Select</option>');
+                $("#UnitId").html('<option value="">Please Select</option>');
+
+            }
+        });
+
+        $("#AreaId").change(function () {
+
+            var areaId = $("#AreaId").val();
+            var ddlUnit = $("#UnitId");
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (areaId != "" && (officeTypeId == 6)) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllUnitIdByAreaCode', // Location of the service
+                    data: { AreaId: areaId }, //Data sent to server
+                    dataType: "json", //Expected data format from server
+                    async: false,
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlUnit.html('');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlUnit.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                $("#UnitId").html('<option value="">Please Select</option>');
+
+            }
+        });
+
+        var _OfficeTypeId = '@Model.OfficeTypeId';
+        if (parseInt(_OfficeTypeId) > 0) {
+
+            $("#OfficeTypeId").val(_OfficeTypeId);
+            $('#OfficeTypeId').val(_OfficeTypeId).trigger('change');
+            $('#OfficeTypeId').change();
+            if (parseInt(_OfficeTypeId) == 1) {
+                $("#PVHeadOfficeId").val('@Model.PVHeadOfficeId');
+            }
+            else if (parseInt(_OfficeTypeId) == 3) {
+                $("#PVProjectId").val(@Model.PVProjectId);
+            }
+            else if (parseInt(_OfficeTypeId) == 4) {
+                $("#ZoneId").val(@Model.ZoneId);
+            }
+            else if (parseInt(_OfficeTypeId) == 5) {
+                $("#ZoneId").val(@Model.ZoneId);
+                $("#ZoneId").val(@Model.ZoneId).trigger('change');
+
+                $("#AreaId").val('@Model.AreaId');
+            } else if (parseInt(_OfficeTypeId) == 6) {
+                $("#ZoneId").val(@Model.ZoneId);
+                $("#ZoneId").val(@Model.ZoneId).trigger('change');
+                $("#AreaId").val(@Model.AreaId);
+                $("#AreaId").val(@Model.AreaId).trigger('change');
+                $("#UnitId").val(@Model.UnitId);
+            }
+
+        } else {
+            $("#OfficeTypeId").val("");
+        }
+
+
+        $("#ChallanDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2100"
+        });
+
+        $("#btnSave").click(function () {
+            var ChallnNo = $("#ChallnNo").val();
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+            //var OfficeTypeId = $("#OfficeTypeId").val();
+
+
+            var officeTypeId = $("#OfficeTypeId").val();
+            //var salaryDate = $("#ProcessDate").val();
+
+            var OfficeId = "";
+            //var officeTypeId = $("#OfficeTypeId").val();
+            console.log(officeTypeId);
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    OfficeId = $("#PVHeadOfficeId").val();
+                } else if (officeTypeId == 3) {
+                    OfficeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    OfficeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    OfficeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    OfficeId = $("#UnitId").val();
+                }
+            }
+            console.log(OfficeId);
+
+            //var officeID = $("#OfficeId").val();
+            var ChallanDate = $('#ChallanDate').val();
+
+            if (Year == "" || Month == 0 || ChallnNo == "" || officeTypeId == "" || OfficeId == "" || ChallanDate == "") {
+                $.alert.open("Message", "Please Fill All required Data.");
+                return false;
+            }
+
+
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '/PRProcess/ChallanSave',
+                data: {
+                    ChallnNo: ChallnNo,
+                    month: month,
+                    year: year,
+                    OfficeTypeId: officeTypeId,
+                    OfficeId: OfficeId,
+                    ChallanDate: ChallanDate,
+
+                },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    $.alert.open("Message", data);
+                },
+                error: function (request, status, error) {
+                    $.alert.open("Message", error);
+                }
+            });
+
+
+        });
+
+        $('#btnView').click(function () {
+
+            var ChallnNo = $("#ChallnNo").val();
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+            //var OfficeTypeId = $("#OfficeTypeId").val();
+
+
+            var officeTypeId = $("#OfficeTypeId").val();
+            //var salaryDate = $("#ProcessDate").val();
+
+            var OfficeId = "";
+            //var officeTypeId = $("#OfficeTypeId").val();
+            console.log(officeTypeId);
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    OfficeId = $("#PVHeadOfficeId").val();
+                } else if (officeTypeId == 3) {
+                    OfficeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    OfficeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    OfficeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    OfficeId = $("#UnitId").val();
+                }
+            }
+            console.log(OfficeId);
+           //var officeID = $("#OfficeId").val();
+            var ChallanDate = $('#ChallanDate').val();
+
+            if (year == "0" || month == "0"  || officeTypeId == "" || OfficeId == "" ) {
+                $.alert.open("Message", "Please Fill All required Data.");
+                return false;
+            }
+
+             if( month != '0' && year != "0" && officeTypeId != '' && OfficeId != '' ) {
+                SummaryPreview(ChallnNo, month, year, officeTypeId, OfficeId, ChallanDate );
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+    });
+
+</script>
+
+@section Scripts {
+   @*<script src="~/Assets/js/app/payroll/prProcessManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>*@
+    @Scripts.Render("~/bundles/jqueryval")
+}

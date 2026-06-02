@@ -1,0 +1,108 @@
+﻿.bg-img {
+    padding: 0px;
+    margin-top: -15px;
+    margin-left: 15px;
+    background: url("/Images/HomeBanner.jpg") no-repeat top center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    min-height: 567px;
+}
+
+.content-wrapper, .right-side {
+    background: #fff;
+}
+
+.employee-overview-title {
+    font-size: 20px;
+    margin-left: 5px;
+    padding-bottom: 10px;
+}
+
+.card-container {
+    height: 150px;
+    width: 250px;
+    margin: 5px;
+    color: #fff;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    opacity: 0.9;
+}
+
+.card-container2 {
+    height: 220px;
+    width: 200px;
+    margin: 5px;
+    color: #fff;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    opacity: 0.9;
+}
+
+
+
+.card-container > * {
+    display: block;
+    text-align: center;
+}
+
+.card-container2 > * {
+    display: block;
+    text-align: center;
+}
+
+
+.card-container .card-head {
+    padding: 20px 10px 0;
+    font-size: 16px;
+}
+
+
+.card-container2 .card-head2 {
+    padding: 20px 10px 0;
+    font-size: 16px;
+}
+
+.card-container .card-subhead {
+    padding: 20px 20px 0;
+    font-size: 16px;
+}
+
+.card-container .card-body {
+    padding: 10px;
+    font-size: 40px;
+}
+
+.card-container .card-body2 {
+    padding: 5px;
+    font-size: 16px;
+}
+
+
+.page-card {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px;
+    height: 300px;
+    width: 500px;
+    background: #fff;
+    border: 1px solid #d6d6d6;
+    border-radius: 5px;
+    font-size: 13px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    opacity: 0.9;
+}
+
+.page-card-header {
+    height: 25px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.page-card-body {
+    height: 275px;
+    overflow: auto;
+}

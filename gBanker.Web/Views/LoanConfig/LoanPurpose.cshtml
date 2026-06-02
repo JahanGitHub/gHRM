@@ -1,0 +1,163 @@
+﻿@model gHRM.Web.ViewModels.Loan.LoanPurposeViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Loan Purpose";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btnSave').click(function (e) {
+            e.preventDefault();
+            var dataObject = {
+                PurposeId: $("#PurposeId").val(),
+                PurposeName: $("#PurposeName").val(),
+                LoanType: $("#LoanType").val(),
+                MethodType: $("#MethodType").val(),
+                GracePeriod: $("#GracePeriod").val(),
+                IsActive: true
+            };
+            var data = GenerateAjaxRequist('/LoanConfig/PostLoanPurpose', JSON.stringify({ model: dataObject }), "POST");
+            if (data.Result == 1)
+                $("#Id").val(0);
+            $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+            reloadGrid();
+        });
+
+        $('#grid').jtable({
+            // title: 'Product List',
+            paging: false,
+            //pageSize: 10,
+            sorting: false,
+            //defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/LoanConfig/GetAllLoanPurpose',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+            },
+            fields: {
+                LoanType: {
+                    title: "Loan Type",
+                    width: "30px",
+                    display: function (dataItem) {
+                        return dataItem.record.LoanType == "PFL" ? "PF Loan" : dataItem.record.LoanType == "COL" ? "Co-Operative Loan" : dataItem.record.LoanType == "CL"? "Company Loan":"";
+                    }
+                },
+                PurposeName: {
+                    title: "Purpose Name",
+                    width: "30px",
+                    
+                    
+                },
+                MethodType: {
+                    title: "Method",
+                    width: "30px",
+                    display: function (data) {
+                        return data.record.MethodType == "D" ? "Decline Method" : data.record.MethodType == "F" ? "Flat Method" : "";
+                    }
+                },
+                GracePeriod: {
+                    title: "Grace Period",
+                    width: "30px",
+                    display: function (data) {
+                        return data.record.GracePeriod;
+                    }
+                },
+               
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return `<div class="text-center"><a href="#" OnClick="Edit(${data.record.PurposeId},'${data.record.LoanType}','${data.record.PurposeName}','${data.record.MethodType}',${data.record.GracePeriod});"><i class="fa fa-pencil-square-o"></i></a></div>`;
+                    }
+                },
+            }
+        });
+        reloadGrid();
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+
+    function Edit(PurposeId, LoanType, PurposeName, MethodType, GracePeriod) {
+        $("#PurposeId").val(PurposeId);
+        $("#LoanType").val(LoanType);
+        $("#PurposeName").val(PurposeName);
+        $("#MethodType").val(MethodType);
+        $("#GracePeriod").val(GracePeriod);
+        
+    }
+</script>
+<h2 class="page-title">Loan Purpose</h2>
+@using (Html.BeginForm("CollectionMethod", "LoanConfig", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "CollectionMethod" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.PurposeId)
+        <br />
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LoanType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.LoanType, Model.LoanTypeLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MethodType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.MethodType, Model.MethodTypeLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PurposeName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.PurposeName, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MethodType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.GracePeriod, Model.GracePeriodLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row frmRow">
+            <div class="col-md-6"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <button type="button" class="btn btn-success col-sm-offset-5" id="btnSave">Save</button>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+}

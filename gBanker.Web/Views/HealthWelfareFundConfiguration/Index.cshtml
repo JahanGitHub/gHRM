@@ -1,0 +1,88 @@
+﻿@model gHRM.Web.ViewModels.WelfareFund.HealthWelfareFundConfiguration.HealthWelfareFundConfigurationViewModel
+
+@{
+    ViewBag.Title = "Health Welfare Fund Configuration";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var healthWelfareFundSettingList = Model == null ? null : Model.HealthWelfareFundSettingList;
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/HealthWelfareFundConfiguration">Health Welfare Fund Configuration</a></li>
+    </ol>
+</div>
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+    &nbsp;
+<h2 class="page-title">Health Welfare Fund Configuration</h2>
+    &nbsp;
+<div class="container-fluid">
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    @using (Html.BeginForm("Configure", "HealthWelfareFundConfiguration", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "add-or-edit-form" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.HealthWelfareFundConfigurationId)
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Year </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CollectionYear, Model.YearList, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Month </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CollectionMonth, Model.MonthList, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.HealthWelfareFundSettingId, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.HealthWelfareFundSettingId, healthWelfareFundSettingList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" class="btn btn-success">Save</button>
+                        &nbsp;
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" onclick="healthWelfareFundConfigurationManager.clearform()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+</div>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/HealthWelfareFund/healthWelfareFundConfigurationManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

@@ -1,0 +1,157 @@
+﻿@model gHRM.Web.ViewModels.PF.TransactionCategoryViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    $(document).ready(function () {
+
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#TransCategoryId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $("#btnSearch").click(function () {
+            var categoryId = $("#TransCategoryId").val();
+            var transName = $("#TransCategoryName").val();
+          //  var accountCode = $("#AccountCode").val();
+
+            if (categoryId == "" && transName == "" ) {
+                $('#grid').jtable('load', {});
+            }
+            $('#grid2').jtable('load', { categoryId: categoryId, transName: transName });
+        });        
+
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFTransactionCategory/GetTransCategoryList'
+            },
+            fields: {
+                TransCategoryId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                TransCategoryId: {
+                    title: 'Category ID',
+                    width: '5%'
+                },
+                TransCategoryName: {
+                    title: 'Trans. Name',
+                    width: '15%'
+                },
+                TransGroupName: {
+                    title: 'Group Name',
+                    width: '7%'
+                },
+                AccountId: {
+                    title: 'Account Code',
+                    width: '10%'
+                },
+                TransactionType: {
+                    title: 'Transaction Type',
+                    width: '10%'
+                },
+                Particulars: {
+                    title: 'Particulars',
+                    width: '15%'
+                },
+                ReverseAccountId: {
+                    title: 'R. Account Code',
+                    width: '7%'
+                },
+                ReverseTransactionType: {
+                    title: 'R. Trans Type',
+                    width: '7%'
+                },
+                ReverseParticulars: {
+                    title: 'R. Particulars',
+                    width: '15%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFTransactionCategory/Edit/" + data.record.TransCategoryId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+    });
+</script>
+
+@Html.ActionLink("Add Collection Category", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Collection Category List</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransCategoryId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.TransCategoryId, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Transaction Category" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransCategoryName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.TransCategoryName, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Transaction Name" } })
+                </div>
+                <div class="col-sm-4">
+                    <input type="button" value="Search" id="btnSearch" class="btn btn-warning" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="grid2">
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

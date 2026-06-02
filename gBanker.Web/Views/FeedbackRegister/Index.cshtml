@@ -1,0 +1,104 @@
+﻿@model IEnumerable<gHRM.Web.ViewModels.FeedBack.FeedbackRegisterViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+<h2>Feedback Register</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
+</p>
+
+<script type="text/javascript">
+
+    function reloadGrid() {
+
+        $('#grid').jtable('load', { QType: '1', SolvedStatus: '1' });
+
+    }
+
+    $(document).ready(function () {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 100,
+            sorting: false,
+            defaultSorting: 'FeedbackRegisterID',
+            actions: {
+                listAction: function (postData, jtParams) {
+
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/FeedbackRegister/FeedbackRegisterSolvedStatusWise?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+
+ 
+            fields: {
+                OrderId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                FeedbackRegisterID: {
+                    title: 'Register ID',
+                },
+
+                OfficeName: {
+                    title: 'Office Name',
+                },
+                EmployeeCode: {
+                    title: 'Employee Code'
+                },
+                EmployeeName: {
+                    title: 'Employee Name'
+                },
+                FeedbackCategoryName: {
+                    title: 'Country Name'
+                },
+                FeedbackDescription: {
+                    title: 'Feedback Description'
+                },
+                FeedbackDateMsg: {
+                    title: 'Feedback Date'
+                },
+                SolvedStatus: {
+                    title: 'Solved Status',
+                },
+                            
+            }
+        });
+
+        reloadGrid();
+    });
+
+</script>
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

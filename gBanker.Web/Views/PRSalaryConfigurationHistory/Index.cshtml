@@ -1,0 +1,494 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRSalaryConfigurationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRSalaryConfigurationHistory">PRSalaryConfigurationHistory</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var empSalaryType = Model == null ? null : Model.EmployeeSalaryType;
+    var salaryScaleList = Model == null ? null : Model.SalaryScaleList;
+    var gradeList = Model == null ? null : Model.GradeList;
+}
+
+<style type="text/css">
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    #multiSection {
+        width: 40px;
+    }
+
+    /*.required {
+        color: red;
+    }*/
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+    /*.jtable > thead > tr {
+        height: 40px;
+    }*/
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+</style>
+
+<script src="~/Scripts/wickedpicker.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<link href="~/Content/wickedpicker.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+
+<script type="text/javascript">
+
+    function LoadEmployeeSalaryHistory(employee_code) {
+        if (employee_code != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("LoadEmployeeSalaryHistory", "PRSalaryConfigurationHistory", "http")',
+                data: { employee_code: employee_code },
+                dataType: 'json',
+                async: false,
+                cache: false,
+                success: function (Data) {
+                    if (Data.Message == "OK") {
+                        var dtTable = $('#tblSalaryConfigurationForSalary');
+                        dtTable.find('tbody').html("");
+                        var NewSl = 0;
+                        var lastSl = 0;
+                        var rowValue = "";
+                        if (Data.List_ViewModel[0] != null) {
+
+                            $.each(Data.List_ViewModel, function (id, option) {
+                                NewSl++;
+                                rowValue += ('<tr id="tableRow' + NewSl + '">' +
+                                    '<td><input type="text" value="' + NewSl + '" style="display:none;" name="NewSl" id="txtNewSl' + NewSl + '" /></td>' +
+                                    '<td>' + option.EmployeeID + '<input type="text" value="' + option.EmployeeID + '" style="display:none;" name="EmployeeID" id="txtEmployeeID' + NewSl + '" /></td>' +
+                                    '<td>' + option.SalaryAmount + '<input type="text" value="' + option.SalaryAmount + '" style="display:none;" name="SalaryAmount" id="txtSalaryAmount' + NewSl + '" /></td>' +
+                                    '<td>' + option.CreateDateMsg + '<input type="text" value="' + option.CreateDateMsg + '" style="display:none;" name="CreateDateMsg" id="txtCreateDateMsg' + NewSl + '" /></td>' +
+                                    '<td>' + '<button class="btn btn-xs btn-light" title="Salary Component Details" onclick="LoadEmployeeSalaryHistoryDetails(\'' + option.EmployeeID + '\',\'' + option.CreateDateTime + '\')"  id="txtEdit' + NewSl + '" ><i class="fa fa-search"> </button></td>' +
+                                    '</tr>');
+                            });
+                            var tableBody = dtTable.find('tbody').html(rowValue);
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+
+    function LoadEmployeeSalaryHistoryDetails(EmployeeId, CreateDateMsg) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+
+            url: '@Url.Action("LoadEmployeeSalaryHistoryDetails", "PRSalaryConfigurationHistory", "http")',
+            data: { EmployeeId: EmployeeId, CreateDateMsg: CreateDateMsg },
+            dataType: 'json',
+            async: false,
+            cache: false,
+            success: function (Data) {
+                if (Data.Message == "OK") {
+
+                    var dtTable = $('#tblSalaryConfigurationForSalaryDetails');
+                    dtTable.find('tbody').html("");
+                    var NewSl = 0;
+                    var lastSl = 0;
+                    var rowValue = "";
+                    if (Data.List_ViewModel[0] != null) {
+
+                        $.each(Data.List_ViewModel, function (id, option) {
+                            NewSl++;
+                            rowValue += ('<tr id="tableRow' + NewSl + '">' +
+                                '<td><input type="text" value="' + NewSl + '" style="display:none;" name="NewSl" id="txtNewSl' + NewSl + '" /></td>' +
+                                //'<td>' + option.EmployeeID + '<input type="text" value="' + option.EmployeeID + '" style="display:none;" name="EmployeeID" id="txtEmployeeID' + NewSl + '" /></td>' +
+                                '<td>' + option.CreateDateMsg + '<input type="text" value="' + option.CreateDateMsg + '" style="display:none;" name="CreateDateMsg" id="txtCreateDateMsg' + NewSl + '" /></td>' +
+
+                                '<td>' + option.ComponentName + '<input type="text" value="' + option.PRComponentId + '" style="display:none;" name="PRComponentId" id="txtPRComponentId' + NewSl + '" /><input type="text" value="' + option.ComponentName + '" style="display:none;" name="ComponentName" id="ComponentName' + NewSl + '" /></td>' +
+                                //'<td>' + option.PRComponentID + '<input type="text" value="' + option.PRComponentID + '" style="display:none;" name="PRComponentID" id="txtPRComponentID' + NewSl + '" /></td>' +
+                                '<td>' + option.ComponentAmount + '<input type="text" value="' + option.ComponentAmount + '" style="display:none;" name="ComponentAmount" id="txtComponentAmount' + NewSl + '" /></td>' +
+                                '<td>' + option.ComponentCategory + '<input type="text" value="' + option.ComponentCategory + '" style="display:none;" name="ComponentCategory" id="txtComponentCategory' + NewSl + '" /></td>' +
+                                //'<td>' + option.PRSalaryConfigurationID + '<input type="text" value="' + option.PRSalaryConfigurationID + '" style="display:none;" name="PRSalaryConfigurationID" id="txtPRSalaryConfigurationID' + NewSl + '" /></td>' +
+
+                                '<td>' + option.EffectiveStartDateMsg + '<input type="text" value="' + option.EffectiveStartDateMsg + '" style="display:none;" name="EffectiveStartDateMsg" id="txtEffectiveStartDateMsg' + NewSl + '" /></td>' +
+                                '<td>' + option.EffectiveEndDateMsg + '<input type="text" value="' + option.EffectiveEndDateMsg + '" style="display:none;" name="EffectiveEndDateMsg" id="txtEffectiveEndDateMsg' + NewSl + '" /></td>' +
+                                '<td>' + option.TransactionType + '<input type="text" value="' + option.TransactionType + '" style="display:none;" name="TransactionType" id="txtTransactionType' + NewSl + '" /></td>' +
+                                '</tr>');
+                        });
+                        var tableBody = dtTable.find('tbody').html(rowValue);
+                    }
+
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function hideUnhideDiv() {
+        var salType = $("#SalaryGenerationType").val();
+
+        if (salType != "") {
+            if (salType == "PS") {
+                $("#GradeList").val('');
+                $("#SalaryScaleList").val('');
+                $("#gradeScaleDiv").show();
+                $("#grossSalaryDiv").show();
+                $("#GrossSalary").attr("readonly", true);
+            }
+            else if (salType == "NPS") {
+                $("#gradeScaleDiv").hide();
+                $("#GrossSalary").val('');
+                $("#GrossSalary").removeAttr("readonly");
+                $("#grossSalaryDiv").show();
+            }
+        } else {
+            return false;
+        }
+    }
+
+
+    function LoadEmployeeInformationbyCode(employee_code) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetExistingSalaryConfigurationListbyEmployeeCode", "PRSalaryConfigurationHistory", "http")',
+            data: { employeeCode: employee_code },
+            dataType: 'json',
+            async: false,
+            cache: false,
+            success: function (data) {
+                if (data.Result == "OK") {
+                    if (data.dataList.length > 0) {
+                        GenerateTableWithData(data.dataList);
+                    }
+
+                    if (data.dataList != null) {
+                        if (data.dataList[0].EmployeeTypeId == 0) {
+                            $("#EmployeeSalaryType").val("");
+                        } else {
+                            $("#EmployeeSalaryType").val(data.dataList[0].EmployeeTypeId);
+                        }
+
+                        $("#txtEmpStatus").val(data.dataList[0].EmployeeStatusName);
+                        $("#EmployeeStatusId").val(data.dataList[0].EmployeeStatusId);
+                        $("#JoiningDate").val(data.JoiningDate);
+                        $("#ConfirmationDate").val(data.ConfirmationDate);
+                        $("#BankAccountNo").val(data.BankAccountNo);
+                        $("#DepartmentName").val(data.DepartmentName);
+                        $("#DesignationName").val(data.DesignationName);
+                        $("#OfficeLocationId").val(data.OfficeLocationId);
+                        $("#OfficeId").val(data.OfficeId);
+                        //$("#IncrementYearFrom").val(data.IncrementYear);
+                        hideUnhideDiv();
+
+                        if (data.dataList[0].GradeId == 0) {
+                            $("#SalaryGenerationType").val("NPS");
+                            $("#GradeList").val("");
+                            $("#GrossSalary").attr('Disabled', false);
+                        } else {
+                            $("#SalaryGenerationType").val("PS");
+                            hideUnhideDiv();
+                            $("#GradeList").val(data.dataList[0].GradeId);
+                        }
+
+                        if (data.dataList[0].Step == 0) {
+                            $("#SalaryScaleList").val("");
+                        } else {
+                            $("#SalaryScaleList").val(data.dataList[0].Step);
+                        }
+                        var incMonth = data.dataList[0].IncrementMonth == 0 ? "" : data.dataList[0].IncrementMonth;
+                        var incYear = data.dataList[0].IncrementYearFrom == 0 ? "" : data.dataList[0].IncrementYear;
+
+                        var bankName = data.dataList[0].BankName == null ? "" : data.dataList[0].BankName;
+                        var bankBranchName = data.dataList[0].BankBranchName == null ? "" : data.dataList[0].BankBranchName;
+
+                        $("#BankName").val(bankName);
+                        $("#BankBranchName").val(bankBranchName);
+
+                        $("#MonthList").val(incMonth);
+                        $("#IncrementYearFrom").val(incYear);
+
+                        $("#GrossSalary").val(data.dataList[0].GrossSalary);
+                        $("#EffectiveStartDate").val(data.dataList[0].EffectiveStartDate);
+                        $("#EffectiveEndDate").val(data.dataList[0].EffectiveEndDate);
+                        $("#BankAccountNo").val(data.dataList[0].BankAccountNo);
+                        $("#OvertimeHour").val(data.dataList[0].OvertimeHour);
+                        $("#OvertimeRate").val(data.dataList[0].OvertimeRate);
+                        $("#IsOverTime").val("" + data.dataList[0].IsOverTime + "");
+                        $("#MaxOvertimePerDay").val(data.dataList[0].MaxOvertimePerDay);
+                        $("#MaxOvertimePerMonth").val(data.dataList[0].MaxOvertimePerMonth);
+
+                        if (data.dataList[0].IsOverTime == true) {
+                            //$("#overtime").show();
+                            $("#overtimeDuration").show();
+                        } else {
+                            //$("#overtime").hide();
+                            $("#overtimeDuration").hide();
+                        }
+                        $("#LoginTime").val(data.dataList[0].LogInTime);
+                        $("#LogoutTime").val(data.dataList[0].LogOutTime);
+                        $("#LastLoginTime").val(data.dataList[0].LastLoginTime);
+                        $("#OfficeID").val(data.dataList[0].OfficeID);
+                        $("#EmployeeID").val(data.dataList[0].EmployeeID);
+                        $("#EmployeeName").val(data.dataList[0].EmployeeName);
+                        //alert(data.dataList[0].EmployeeStatus);
+                        $("#EmployeeStatus").val(data.dataList[0].EmployeeStatus);
+                        if (data.dataList[0].IncrementMonth == 0) {
+                            $("#MonthList").val("");
+                        } else {
+                            $("#MonthList").val(data.dataList[0].IncrementMonth);
+                        }
+
+                    }
+                }
+            },
+            error: function (request, status, error) {
+                $("#ComponentAmount").val('');
+                //alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GenerateTableWithData(dataTable) {
+        var dtTable = $('#tblSalaryConfiguration');
+        dtTable.find('tbody').html("");
+        var NewSl = 0;
+        var lastSl = 0;
+        var rowValue = "";
+        if (dataTable[0] != null) {
+            var prComponentId = dataTable[0].PRComponentId;
+
+            if (prComponentId != "") {
+                $.each(dataTable, function (id, option) {
+                    NewSl++;
+                    if (option.ComponentName == "Income Tax") {
+                        $("#IncomeTax").val(option.CalculatedAmount);
+                    }
+                    rowValue += ('<tr id="tableRow' + NewSl + '">' +
+                        '<td><input type="text" value="' + NewSl + '" style="display:none;" name="NewSl" id="txtNewSl' + NewSl + '" /></td>' +
+                        '<td>' + option.ComponentName + '<input type="text" value="' + option.PRComponentId + '" style="display:none;" name="PRComponentId" id="txtPRComponentId' + NewSl + '" /><input type="text" value="' + option.ComponentName + '" style="display:none;" name="ComponentName" id="ComponentName' + NewSl + '" /></td>' +
+                        '<td>' + option.CalculatedAmount + '<input type="text" value="' + option.CalculatedAmount + '" style="display:none;" name="CalculatedAmount" id="txtCalculatedAmount' + NewSl + '" /></td>' +
+                        '<td>' + option.ComponentCategory + '<input type="text" value="' + option.ComponentCategory + '" style="display:none;" name="ComponentCategory" id="txtComponentCategory' + NewSl + '" /></td>' +
+                        '<td style="display:none">' + option.TransactionType + '<input type="text" value="' + option.TransactionType + '" style="display:none;" name="TransactionType" id="txtTransactionType' + NewSl + '" /></td>' +
+                        '<td>' + option.TransactionTypeView + '<input type="text" value="' + option.TransactionTypeView + '" style="display:none;" name="TransactionTypeView" id="txtTransactionTypeView' + NewSl + '" /></td>' +
+                        '</tr>');
+                });
+                var tableBody = dtTable.find('tbody').html(rowValue);
+                $("#incomeTaxDiv").show();
+            } else {
+                $("#incomeTaxDiv").hide();
+            }
+        }
+    }
+
+
+    $(document).ready(function () {       
+
+        $("#txtEmpName").blur(function (e) {
+            var employee_code = $("#txtEmpName").val();
+            if ($("#txtEmpName").val() != '') {
+                LoadEmployeeInformationbyCode(employee_code);
+                LoadEmployeeSalaryHistory(employee_code);
+            }
+            else {
+                $("#EmployeeName").empty();
+                $("#EmployeeName").val('');
+                $("#OfficeID").val('');
+                $("#GrossSalary").val('');
+            }
+        });
+
+    });
+
+</script>
+
+&nbsp;
+<h2 class="page-title">Employee Salary Configuration History</h2>
+&nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Code</label>
+                    <div class="col-sm-8">
+                        @*@Html.DropDownListFor(model => model.EmployeeId, empList, new { @class = "form-control" })*@
+                        @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                        @Html.HiddenFor(model => model.EmployeeID)
+                        @Html.HiddenFor(model => model.EmployeeStatusId)
+                        @Html.HiddenFor(model => model.EmployeeStatusName)
+                        @Html.HiddenFor(model => model.PRSalaryConfigurationID)
+                        @Html.HiddenFor(model => model.OfficeID)
+                        @Html.HiddenFor(model => model.PRComponentID)
+                        @Html.HiddenFor(model => model.OfficeLocationId)
+                        @Html.HiddenFor(model => model.PRWorkAreaID)
+                        @Html.HiddenFor(model => model.BasicSalary)
+                        @*@Html.TextBox("txtEmpStatus", "", new { @class = "form-control" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Status</label>
+                    <div class="col-sm-8">
+                        @Html.TextBox("txtEmpStatus", "", new { @class = "form-control", @readonly = "readonly" })
+                        @Html.HiddenFor(model => model.EmployeeStatusId)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Department Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Designation Status</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Joining Date</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.JoiningDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Confirmation Date</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.ConfirmationDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="DivTableView">
+                    <div class="box-header">
+                        <h3 class="box-title">Salary Summary List</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblSalaryConfigurationForSalary">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Sl</th>
+                                    <th class="column-title">Employee Id</th>
+                                    <th class="column-title">Amount</th>
+                                    <th class="column-title">Create Date</th>
+                                    <th class="column-title">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="DivTableView">
+                    <div class="box-header">
+                        <h3 class="box-title">Salary Details List</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblSalaryConfigurationForSalaryDetails">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Sl</th>
+                                    <th class="column-title">Create Date</th>
+
+                                    <th class="column-title">Component Name</th>
+                                    <th class="column-title">Component Amount</th>
+                                    <th class="column-title">Component Category</th>
+                                    @*<th class="column-title">PRSalaryConfigurationID</th>*@
+
+                                    <th class="column-title">Effective StartDate</th>
+                                    <th class="column-title">Effective EndDate</th>
+                                    <th class="column-title">Transaction Type</th>
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @*@Scripts.Render("~/bundles/alert")*@
+}

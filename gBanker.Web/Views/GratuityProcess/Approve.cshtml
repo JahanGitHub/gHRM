@@ -1,0 +1,93 @@
+﻿@model gHRM.Web.ViewModels.GratuityApproveViewModel
+
+@{
+    ViewBag.Title = "Gratuity Approve";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Gratuity Approve</h2>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @using (Html.BeginForm("Index", "GratuityProcess", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "GratuityProcessForm", onsubmit = "return Page.IsValid()" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Raw("&nbsp")
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">From Year (বছর থেকে)</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.FromYear, Model.YearList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">From Month (মাস থেকে)</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.FromMonth, Model.MonthList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Date (তারিখ)</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.ApproveDate, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding-top: 10px;">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                    <input type="button" value="Summary Before Approval" id="btnSummaryBeforeSendForApproval" class="btn btn-primary" onclick="Page.SummaryPreview()" /> &nbsp;&nbsp;
+                    <input type="submit" value="Gratuity Approve" id="btnApprove" class="btn btn-primary" onclick="Page.ApproveGratuitySendForApproval()" />&nbsp;&nbsp;
+                    <input type="button" value="Gratuity Reject" id="btnReject" class="btn btn-primary" onclick="Page.RejectGratuitySendForApproval()" />&nbsp;&nbsp;
+                </div>
+            </div>
+        </div>
+        @Html.Raw("&nbsp;")
+        <div class="row">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Report Type</label>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ReportType" name="ReportType">
+                            <option value="">Please Select</option>
+                            <option value="gratuity-before-approval-pdf">Gratuity Before Approval (Pdf Format)</option>
+                            <option value="gratuity-before-approval-excel">Gratuity Before Approval (Excel Format)</option>
+                            <option value="rejected-gratuity">Rejected Gratuity</option>
+                            <option value="approved-gratuity-pdf">Approved Gratuity (Pdf Format)</option>
+                            <option value="approved-gratuity-excel">Approved Gratuity (Excel Format)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" onclick="Page.ReportView()" />
+                </div>
+            </div>
+        </div>
+        <div class="box-content before-approval-container" style="display: none;">
+            <h4><label>Before Approval</label></h4>
+            <div class="table-responsive">
+                <div id="beforeApprovalGridKendo"></div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("/Assets/js/app/gratuity/gratuity-approve.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+    <script>
+        var LoggedInOfficeTypeId = @ViewBag.LoggedInOfficeTypeId;
+    </script>
+}

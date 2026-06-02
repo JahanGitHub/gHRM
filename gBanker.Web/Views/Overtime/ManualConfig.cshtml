@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "Manual Overtime Configuration List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@Html.ActionLink("Add New", "ManualConfigCreate", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Manual Overtime Configuration List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Payroll Designation (পদবী)</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("PayrollDesignationId", (List<SelectListItem>)ViewBag.PayrollDesignationList, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="col-md-8 col-md-offset-4">
+                    @Html.AntiForgeryToken()
+                    <button id="btnSearch" class="btn btn-primary" onclick="Page.Search()"><i class="fa fa-search"></i>&nbsp;&nbsp; Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:15px;">
+        <div class="col-md-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/time-kepping/overtime-manual-config.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

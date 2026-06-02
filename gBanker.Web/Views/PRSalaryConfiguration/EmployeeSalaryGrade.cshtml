@@ -1,0 +1,110 @@
+﻿@model gHRM.Web.ViewModels.EmployeeGradeListViewModel
+
+@{
+    ViewBag.Title = "Employee Grade List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Employee Salary Grade List Configuration</h2>
+    &nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.GradeId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Grade Name </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.GradeName, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Grade Description </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.GradeDescription, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Initial Amount </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.InitialAmount, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="display:none;">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Ratio On </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.RatioOn, DropdownListHelper.GetDropdownList(DropdownListTypes.GradeRatioOn, Model.RatioOn), new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 section-percentage">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Percentage </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Percentage, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            @*<div class="col-md-6" style="display:none">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Amount Per Increment </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.AmountPerIncrement, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>*@
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Effective Date From </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EffectiveDateFrom, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Effective Date To </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EffectiveDateTo, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>       
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <input type="button" id="btnSave" value="Save" class="btn btn-default" />
+        <input type="button" id="btnUpdate" value="Update" class="btn btn-default" /> &nbsp;
+        <input type="button" id="btnRestore" value="Restore" class="btn btn-default" />
+    </div>
+</div>
+<br /><br />
+
+<div id="grid"></div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/employeeGradeListManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}
+
+

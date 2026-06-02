@@ -1,0 +1,89 @@
+﻿@model gHRM.Web.ViewModels.Discipline.DiscPunishmentViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnPunishmentSave").click(function (e) {
+
+            if ($("#PunishmentCode").val() == '' && $("#PunishmentName").val() == '') {
+                $("#PunishmentCode").addClass("errorClass");
+                $("#PunishmentName").addClass("errorClass");
+                return false;
+            }
+            else if ($("#PunishmentCode").val() == '' && $("#PunishmentName").val() != '') {
+                $("#PunishmentCode").addClass("errorClass");
+                return false;
+            }
+            else if ($("#PunishmentCode").val() != '' && $("#PunishmentName").val() == '') {
+                $("#PunishmentName").addClass("errorClass");
+                return false;
+            }
+            else
+                return true;
+        });
+    });
+
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Add Punishment</h2>
+<br />
+@using (Html.BeginForm("Create", "DiscPunishment", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "DiscPunishmentProfile" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        <div class="form-group">
+            @Html.HiddenFor(model => model.PunishmentId, new { @class = "control-label col-md-4 " })
+            <div class="col-sm-6">
+                @Html.HiddenFor(model => model.PunishmentId, new { htmlAttributes = new { @class = "form-control" } })
+                @*@Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })*@
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PunishmentCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.PunishmentCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Punishment Code" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentParentId, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PunishmentName, htmlAttributes: new { @class = "control-label col-md-3 required" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.PunishmentName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Punishment Name" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentCode, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Remarks, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="submit" value="Save" id="btnPunishmentSave" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

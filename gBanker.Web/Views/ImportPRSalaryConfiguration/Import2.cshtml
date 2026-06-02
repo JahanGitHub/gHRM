@@ -1,0 +1,70 @@
+﻿
+@{
+    ViewBag.Title = "Import Employee Salary Configuration";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var sampleFileDownLoadUrl = "/Assets/docs/payroll/import-salary-configuration2.xlsx";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="#">@ViewBag.Title</a></li>
+    </ol>
+</div>
+
+&nbsp;
+<h2 class="page-title"> Import Employee Salary Configuration 2 </h2>
+&nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+
+<div class="container-fluid">
+    @using (Html.BeginForm("ImportConfiguration2", "ImportPRSalaryConfiguration", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id= "import-salary-configuration-form", @enctype = "multipart/form-data" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2"> </label>
+                    <div class="col-sm-10">                       
+                        <p class="bg-danger"><i class="fa fa-bullhorn"></i> Tip: Please upload valid excel file that can be populated with employee code, gross salary, is overtime, max overtime per day, max overtime per month, Bank Name, Bank Branch Name, Bank Account No, Effective Start Date and Effective End Date.</p>
+                        <p class="bg-danger"><i class="fa fa-bullhorn"></i> Tip: Please populate max 1500 rows for per excel file.</p>
+                        <p class="bg-danger"><i class="fa fa-bullhorn"></i> Tip: Please do not refresh the page untill the process has completed!</p>
+                        <p class="text-success"><i class="fa fa-excel"></i> Click here to <a href="@sampleFileDownLoadUrl"> download</a> sample excel file that will help you to generate excel allowance and deduction file</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <div class="row">            
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Upload Excel File</label>
+                    <div class="col-md-8">
+                        <div class="controls">
+                            <div class="widget-main">
+                                <input class="input-file-drag-drop form-control" type="file" id="file" name="file" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>           
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;padding-left: 180px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" class="btn btn-success btn-import-salary-configuration">Import Salary Configuration</button>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+@section Scripts {
+    <script src="~/Assets/js/app/payroll/importSalaryConfigurationManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

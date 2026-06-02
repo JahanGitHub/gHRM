@@ -1,0 +1,263 @@
+﻿@model gHRM.Web.ViewModels.PF.DayEndProcessViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 40px;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    function ProcessDayEnd(transDate, systemDate) {
+        
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("ProcessDayEnd", "PFDayEndProcess", "http")',
+            data: { transDate: transDate, systemDate: systemDate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.status == 'ok') {
+                    $("#DayStatus").val(data.DayStatus);
+                    $("#TransactionDate").val(data.TransactionDate);
+                    $("#btnProcessDayEnd").prop('disabled', true);
+                }
+                $.alert.open("Message", data.message);
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Unable to Process");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+    }
+
+ 
+    function GetTotalTransaction(transDate) {
+        var totalTransaction = -1;
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetTotalTransaction", "PFDayEndProcess", "http")',
+            data: { transDate: transDate },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.status == 'nok') {
+                    $.alert.open("Message", data.message);
+                }
+                if (data.status == 'ok') {
+                    totalTransaction = data.TotalTransaction;
+                    
+                    if (parseInt(totalTransaction) <= 0) {
+                        alert("No Transaction occured, either make Transaction or Close Day to proceed to next Transaction day");
+                    }
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Unable to Process");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+        return totalTransaction;
+    }
+
+    function CloseDayWithoutAccounting(transDate) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("CloseDayWithoutAccounting", "PFDayEndProcess", "http")',
+            data: { transDate: transDate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                if (data.status == 'ok') {
+                    $("#DayStatus").val(data.DayStatus);
+                    $("#btnProcessDayEnd").prop('disabled', true);
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Unable to Process");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+        return totalTransaction;
+    }
+
+    function Process() {
+        var transDate = $('#TransactionDate').val();
+        var systemDate = $('#SystemDate').val();
+
+        if (transDate == '') {
+            alert('Check Transaction date');
+            return;
+        }
+        //Validation
+        //1. Check Transaction Occured or Not
+        var totalTransaction = -1;
+        totalTransaction = GetTotalTransaction(transDate);
+
+        if (parseInt(totalTransaction) == 0) {
+            $.alert.open('confirm', 'Are you sure you want to Close Day to proceed to next day?', function (button) {
+                if (button == 'yes') {
+                    CloseDayWithoutAccounting(transDate);
+                    return true;
+                }
+                else {
+                    alert('Thanks for taking decision of making transaction');
+                    return false;
+                }
+            });
+        }
+        if (totalTransaction > 0) {
+            ProcessDayEnd(transDate, systemDate);
+        }
+    }
+   
+    $(document).ready(function () {
+
+
+        @if(Model.IsOpen == true){
+            <text>
+            $("#btnProcessDayEnd").prop('disabled', false);
+            </text>
+        }
+        @if(Model.IsOpen == false){
+            <text>
+            $("#btnProcessDayEnd").prop('disabled', true);
+            </text>
+        }
+       
+        $("#btnProcessDayEnd").click(function () {
+            $.alert.open('confirm', 'Are you sure you want to Close Day?', function (button) {
+                if (button == 'yes') {
+                    Process();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+
+        $('#grid2').jtable({
+            title: 'Day Initialization List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFProcessLog/GetProcessLogList'
+            },
+            fields: {
+                ProcessLogId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                StartDate: {
+                    title: 'Start Date',
+                    width: '30%'
+                },
+                SystemDateAtDayStart: {
+                    title: 'System Date [Day Open]',
+                    width: '30%'
+                },
+                SystemDateAtDayEnd: {
+                    title: 'System Date [Day Close]',
+                    width: '30%'
+                },
+                IsOpen: {
+                    title: 'Day Status',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.IsOpen == true)
+                            return "Open";
+                        if (data.record.IsOpen == false)
+                            return "Closed";
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+
+    });
+</script>
+
+<h2 class="page-title">Day Close</h2>
+<br />
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DayStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.DayStatus, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransactionDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SystemDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.SystemDate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Process" id="btnProcessDayEnd" class="btn btn-success" tabindex="4" />
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div id="grid2">
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,75 @@
+﻿
+@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+
+
+<div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-9">W/O HO. Report</label>
+                <div class="col-md-3">
+                    <input type="checkbox" id="chkwoHO" style="margin-top:7px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Office Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Office</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.OfficeId, Model.OfficeList, new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.OfficeId)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Processed By</label>
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Year</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("Years", null, new { @ID = "Year", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Month</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("Months", null, new { @ID = "Month", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="ProcessDate" name="ProcessDate" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

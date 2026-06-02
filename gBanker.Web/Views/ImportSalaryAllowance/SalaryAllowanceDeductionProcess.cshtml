@@ -1,0 +1,104 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRImportSalaryAllowanceDeductionViewModel
+
+@{
+    ViewBag.Title = " Allowance Deduction for Confirmation in Current Month ";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var sampleFileDownLoadUrl = "/Assets/docs/payroll/salary-allowance-deduction-sample.xlsx";
+    string IsSuccess = ViewBag.IsSuccess ? "true" : "false";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="#">@ViewBag.Title</a></li>
+    </ol>
+</div>
+
+&nbsp;
+<h2 class="page-title"> Confirmation in Current Month  Process </h2>
+&nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+
+<div class="container-fluid">
+    @using (Html.BeginForm("SalaryAllowanceDeductionProcess", "ImportSalaryAllowance", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "import-allowance-deduction-form", @enctype = "multipart/form-data" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2"> </label>
+                    <div class="col-sm-10">
+              
+              
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Salary Year </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryYear, Model.Years, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Salary Month </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryMonth, Model.Months, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Start Date</label>
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @class = "form-control",@readonly="readonly" } })
+                        @Html.ValidationMessageFor(model => model.StartDate)
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">End Date</label>
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.EndDate)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.Raw(null == ViewBag.ErrorList ? "" : ViewBag.ErrorList)
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;padding-left: 180px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" class="btn btn-success btn-import-allowance-deduction">Confirmation in Current Month  Process </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/salaryAllowanceDeductionImportManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script type="text/javascript">
+        var IsSuccess = @IsSuccess;
+        var Message = "@ViewBag.Message";
+        if (IsSuccess) {
+            if ("" != Message) $.alert.open("Success", Message);
+        } else {
+            $.alert.open("error", Message);
+        }
+    </script>
+}

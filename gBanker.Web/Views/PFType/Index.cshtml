@@ -1,0 +1,122 @@
+﻿@model IEnumerable<gHRM.Web.ViewModels.PF.PFTypeViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style type="text/css">
+    .jtable > thead > tr {
+        height: 50px;
+        background: #12b8ee !important;
+        color: #FFFFFF !important;
+    }
+</style>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //loading Drop Type
+        $('#grid2').jtable({
+            //title: 'Employee Drop List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFType/GetPfTypeList'
+            },
+            fields: {
+                PFTypeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                PFTypeId: {
+                    title: 'ID',
+                    width: '5%'
+                },
+                ShortName: {
+                    title: 'Short Name',
+                    width: '8%'
+                },
+                FullName: {
+                    title: 'Full Name',
+                    width: '25%'
+                },
+                HasSelfContribution: {
+                    title: 'Has Self Contribution',
+                    width: '10%',
+                        display: function (data) {
+                            if (data.record.HasSelfContribution == true)
+                                return "Yes";
+                            if (data.record.HasSelfContribution == false)
+                                return "No";
+                        }
+                },
+                HasOrgContribution: {
+                    title: 'Has Organization Contribution',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.HasOrgContribution == true)
+                            return "Yes";
+                        if (data.record.HasOrgContribution == false)
+                            return "No";
+                    }
+                },
+                HasAddSelfContribution: {
+                    title: 'Has. Add. Self Contribution',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.HasAddSelfContribution == true)
+                            return "Yes";
+                        if (data.record.HasAddSelfContribution == false)
+                            return "No";
+                    }
+                },
+                SelfContributionRate: {
+                    title: 'Self Contribution Rate',
+                    width: '15%'
+                },
+                OrgContributionRate: {
+                    title: 'Org Contribution Rate',
+                    width: '15%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFType/Edit/" + data.record.PFTypeId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Add PF Type", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">PF Type List</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div id="grid2">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}

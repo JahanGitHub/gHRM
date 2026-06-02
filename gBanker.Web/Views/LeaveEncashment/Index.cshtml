@@ -1,0 +1,285 @@
+﻿@model gHRM.Web.ViewModels.LeaveSellViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        ApprovalStatus = "N";
+        $("#chkNonApproved").prop('checked', true);
+        LoadLeaveSellGrid(ApprovalStatus);
+
+        $("#chkNonApproved").click(function () {
+
+            var checkVal = $("#chkNonApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                ApprovalStatus = "N";
+                LoadLeaveSellGrid(ApprovalStatus);
+            }
+        });
+
+        $("#chkApproved").click(function () {
+            var checkVal = $("#chkApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                ApprovalStatus = "A";
+                LoadLeaveSellGrid(ApprovalStatus);
+            }
+        });
+
+        $("#chkReject").click(function () {
+            var checkVal = $("#chkReject").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkApproved").prop('checked', false);
+                ApprovalStatus = "R";
+                LoadLeaveSellGrid(ApprovalStatus);
+            }
+        });
+    })
+
+    function leaveSellApprove(LeaveSellId) {
+        $.alert.open('confirm', 'Are you sure you want to approve this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("leaveSellApprove", "LeaveEncashment", "http")',
+                    data: { LeaveSellId: LeaveSellId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            debugger;
+                            LoadLeaveSellGrid(ApprovalStatus);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    function LeaveSellReject(LeaveSellId) {
+        $.alert.open('confirm', 'Are you sure you want to reject this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("leaveSellReject", "LeaveEncashment", "http")',
+                    data: { LeaveSellId: LeaveSellId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data == 1) {
+                            LoadLeaveSellGrid(ApprovalStatus);
+                            $.alert.open('Success', 'leave Encashment Rejected successfully')
+                        } else {
+                            $.alert.open('Error', 'Error Occured')
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+   
+
+    function ELEncashmentApplication(LeaveSellId, EmployeeId) {
+        var url;
+        url = '/LeaveEncashment/ELEncashmentApplication?LeaveSellId=' + LeaveSellId + '&EmployeeId=' + EmployeeId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function LoadLeaveSellGrid(ApprovalStatus) {
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetLeaveSellList", "LeaveEncashment", "http")',
+                    dataType: 'json',
+                    data: { ApprovalStatus: ApprovalStatus }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "LeaveSellId",
+                     hidden: true,
+                     filterable: false
+                 },
+
+                 {
+                     field: "EmployeeId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "Rowsl",
+                     title: "Sl.",
+                     width: "30px",
+                     filterable: false
+                 },
+                 {
+                     width: "50px",
+                     field: "EmployeeCode",
+                     filterable: true,
+                     title: "Code"
+                 },
+                 {
+                     width: "100px",
+                     field: "EmployeeName",
+                     title: "Name",
+                     filterable: false
+                 },
+                {
+                    width: "70px",
+                    field: "SaleDateMsg",
+                    title: "Sale Date",
+                    filterable: false
+                },
+                {
+                    width: "50px",
+                    field: "BalanceEl",
+                    title: "EL Balance",
+                    filterable: false
+                },
+
+                {
+                    width: "50px",
+                    field: "TotalDays",
+                    title: "Days Sold",
+                    filterable: false
+                },
+                {
+                    width: "50px",
+                    field: "EncashedAmount",
+                    title: "Amount",
+                    filterable: false
+                },
+                 {
+                     title: "Print",
+                     width: "40px",
+                     template: function (data) {
+                         return '<div class="text-center"><a title="EL Encashment Application" href="#" OnClick="ELEncashmentApplication(' + data.LeaveSellId + ',' + data.EmployeeId + ');"><i class="fa fa-print"></i></a></div>';
+                     }
+                 },
+                {
+                    width: "100px",
+                    title: 'Status',
+                    template: function (data) {
+                        if (data.IsApproved == false && data.IsActive == true) {
+                            // return '<input type="file" name="pic" accept="image/*">';
+                            return "Not Approved";
+                        }
+                        else if (data.IsApproved == true) {
+                            return "Approved";
+                        }
+                        else if (data.IsApproved == false && data.IsActive == false) {
+                            return "Rejected";
+                        }
+                    }
+                },
+                 {
+                     width: "60px",
+                     title: 'Action',
+                     template: function (data) {
+                         if (data.IsApproved == false && data.IsActive == true) {
+                             return '<div class="text-center"><a title="Approval" href="#" OnClick="leaveSellApprove(' + data.LeaveSellId + ');"><i class="fa fa-caret-square-o-up"></i></a> &nbsp' +
+                             '<a title="Reject" href="#" OnClick="LeaveSellReject(' + data.LeaveSellId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                         }
+                         else if (data.IsActive == true) {
+                             if (data.IsAmountPaid == false || data.IsAmountPaid == '') {
+                                 return '<div class="text-center"> <label>Not Paid</label></div>';
+                             } else {
+                                 return '<div class="text-center"> <label>Paid</label></div>';
+                             }
+                         }
+                         else {
+                             return '';
+                         }
+                     }
+                 },
+            ]
+        });
+    }
+
+</script>
+
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">EL Encashment List</h2>
+&nbsp;
+<div class="row">
+    <div class="col-md-12" style="float:left">
+        <div class="col-md-2" style="float:left">
+            <input type="checkbox" name="app" id="chkNonApproved" />&nbsp;&nbsp;&nbsp;<label>Non-Approved</label><br />
+            <input type="checkbox" name="app" id="chkApproved" />&nbsp;&nbsp;&nbsp;<label>Approved</label><br />
+            <input type="checkbox" name="app" id="chkReject" />&nbsp;&nbsp;&nbsp;<label>Reject</label>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

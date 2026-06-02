@@ -1,0 +1,142 @@
+﻿@model gHRM.Web.ViewModels.LeaveApproversViewModel
+
+@{
+    ViewBag.Title = "Leave Approvers (Employee Wise)";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+}
+
+<link href="~/Content/bpopup/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+<script src="~/Content/bpopup/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    function getApprovalListDashboard() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("getApprovalListDashboard", "LeaveApproversIndividual", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+
+                {
+                    field: "ApplicantDetail",
+                    title: "Applicant Detail",
+                    width: "150px",
+                    filterable: true,
+                },
+                {
+                    field: "TotalApprovalLevel",
+                    title: "Total Approval Level",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    title: "Details",
+                    filterable: false,
+                    width: "40px",
+                    template: function (dataItem) {
+                        return "<a href='/LeaveApproversIndividual/EditConfiguration/?EmployeeId=" + dataItem.EmployeeId + "'><i class='fa fa-outdent'></i></a>";
+                    }
+                }
+            ]
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        getApprovalListDashboard();
+
+        $("#btnReconfigure").click(function () {
+            $.alert.open('confirm', 'Are you sure you want to approve this leave?', function (button) {
+                if (button == 'yes') {
+                    $('#AjaxLoader').show();
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("LeaveApprovalReConfigure", "LeaveApproversIndividual", "http")',
+                        data: {},
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $('#AjaxLoader').hide();
+                                getApprovalListDashboard();
+                                $.alert.open("Success", data.message);
+                            } else {
+                                $('#AjaxLoader').hide();
+                                $.alert.open("Error", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $('#AjaxLoader').hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                    return true;
+                }
+                else {
+                    //hiddenField.value = 'false';
+                    return false;
+                }
+            });
+        })
+    });
+
+</script>
+
+
+<input type="button" class="btn btn-success btn-sm pull-right" id="btnReconfigure" value="Re-Configure" />
+&nbsp;
+<h2 class="page-title">Leave Approvers (Employee Wise)</h2>
+&nbsp;
+&nbsp;
+&nbsp;
+
+<br />
+<div class="box-content">
+    <div id="AjaxLoader" class="ajaxLoader"></div> 
+    <div class="table-responsive">
+        <div id="gridKendo"></div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

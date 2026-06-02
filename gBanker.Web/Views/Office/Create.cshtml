@@ -1,0 +1,393 @@
+﻿@model gHRM.Web.ViewModels.OfficeViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Office">Office</a></li>
+        <li><a href="/Office/Create">OfficeCreate</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Office Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var geo = Model == null ? null : Model.GeoLocationList; 
+}
+
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<style>
+    .frmRow {
+        margin-bottom: 10px;
+    }
+</style>
+
+<script type="text/javascript">
+    var OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED = "True" == "@ViewBag.OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED";
+
+    function InputShowHide(allInputList, targetInputList) {
+        for (var i = 0; i < allInputList.length; i++) {
+            var element = allInputList[i];
+            if (targetInputList.includes(element)) {
+                $(element).show();
+            } else {
+                $(element).hide();
+            }
+        }
+    }
+    function clearData() {
+        $("#OfficeTypeId").val("").trigger('change');
+        $("#ZoneCode").val("").trigger('change');
+        //$("#OfficeTypeId").val("").trigger('change');
+        $("#OfficeCode").val("");
+        $("#OfficeName").val("");
+        $("#OfficeNameBn").val("");
+        $("#OperationStartDateMsg").datepicker('setDate', new Date());
+        $("#OfficeAddress").val("");
+        $("#Phone").val("");
+        $("#Email").val("");
+    }
+
+    $(document).ready(function () {
+
+        $('.numeric-only').on('keypress', function (e) {
+            if (e.which < 48 || e.which > 57) {
+                e.preventDefault();
+            }
+        });
+
+
+        //CheckInputLengthLessOrEqual("#Phone", "11");
+        
+        $("#Phone").blur(function () {            
+            var phoneNo = $("#Phone").val();
+            if (phoneNo != "" && phoneNo != '' && phoneNo != null && phoneNo.length>0)
+            {
+                if (phoneNo.length != 11) {
+                    $.alert.open("Alert", "Phone number must be 11 digit");
+                    $("#Phone").val('');
+                }
+                else
+                {
+                    return false;
+                }
+                //CheckInputLengthEqual("#Phone", "11");
+            }
+        });
+        $("#ZoneDiv").hide();
+        $("#AreaDiv").hide();
+
+        $("#OfficeTypeId").change(function () {
+            if ('@Model.OfficeId' >0){
+                $("#ZoneCode").val("");
+                $("#AreaId").val("");
+            }
+            var allInputList = new Array("#ZoneDiv", "#AreaDiv");
+            var targetInputList = new Array();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId != "") {
+                if (officeTypeId == "2" || officeTypeId == "3" || officeTypeId == "4") {
+                    targetInputList = [''];
+                    InputShowHide(allInputList, targetInputList);
+                } else if (officeTypeId == "5") {
+                    targetInputList = ['#ZoneDiv'];
+                    InputShowHide(allInputList, targetInputList);
+                } else if (officeTypeId == "6") {
+                    targetInputList = ['#ZoneDiv', '#AreaDiv'];
+                    InputShowHide(allInputList, targetInputList);
+                }
+            } else {
+                targetInputList = [''];
+                InputShowHide(allInputList, targetInputList);
+            }
+        });
+
+        $("#ZoneCode").change(function () {
+            var ZoneCode = $("#ZoneCode").val();
+            var ddlArea = $("#AreaCode");
+
+            if (ZoneCode != "") {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllAreaByZoneCode', // Location of the service
+                    data: { ZoneCode: ZoneCode }, //Data sent to server
+                    dataType: "json", //Expected data format from server
+                    async:false,
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlArea.html('');
+                        //ddlArea.append('<option value="">Please Select</option>');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlArea.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                ddlArea.html('<option value="">Please Select</option>');
+
+            }
+        });
+        $("#OperationStartDateMsg").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2025",
+        });
+        $("#OperationStartDateMsg").datepicker('setDate', new Date());
+        if ('@Model.OfficeId' == 0) {
+            
+            $("#OfficeTypeId").val("");
+        } else {
+            
+            $("#OfficeTypeId").val(@Model.OfficeTypeId);
+            $('#OfficeTypeId').val(@Model.OfficeTypeId).trigger('change');
+            if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#OfficeCode").attr("readonly", true);
+            if('@Model.OfficeTypeId'==5){
+                $("#ZoneCode").val('@Model.ZoneCode');
+                if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#OfficeCode").attr("readonly", true);
+                if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#ZoneCode").attr("disabled", true);
+            } else if ('@Model.OfficeTypeId' == 6) {
+                $("#ZoneCode").val('@Model.ZoneCode');
+                $("#ZoneCode").val('@Model.ZoneCode').trigger('change');
+                
+                //$("#AreaCode").val('@Model.AreaCode').trigger('change');
+                $("#AreaCode").val('@Model.AreaCode');
+                if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#OfficeCode").attr("readonly", true);
+                if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#ZoneCode").attr("disabled", true);
+                if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#AreaCode").attr("disabled", true);
+            }
+            $("#OperationStartDateMsg").val('@Model.OperationStartDateMsg');
+            if (!OFFICE_EDIT_PAGE_OFFICE_MAPPING_ENABLED) $("#OfficeTypeId").attr("disabled", true);
+        }
+
+        
+
+        $("#Email").blur(function () {
+            
+            var email = $("#Email").val();
+            if (email != "") {
+                var isValid = ValidateEmail(email);
+                if (isValid == false) {
+                    $.alert.open('error', 'Invalid email address! ');
+                    $("#Email").val("");
+                    return false;
+                }
+            }
+        });
+
+        $("#btnSave").click(function(e) {
+            e.preventDefault();
+            
+            
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#OfficeId").val();
+            var ZoneCode = $("#ZoneCode").val();
+            var AreaCode = $("#AreaCode").val();
+            var officeCode = $("#OfficeCode").val();
+            var officeName = $("#OfficeName").val();
+            var officeNameBn = $("#OfficeNameBn").val();
+            var operationStartDateMsg = $("#OperationStartDateMsg").val();
+            var officeAddress = $("#OfficeAddress").val();
+            var phone = $("#Phone").val();
+            var email = $("#Email").val();
+            var OfficeLocationId = $("#OfficeLocationId").val();
+            if ($("#OfficeLocationId").val() == "") {
+                $.alert.open("Error", "Please Insert Office Location.");
+                return false;
+            }
+            if (officeTypeId == 5) {
+                if ($("#ZoneCode").val() == "") {
+                    $.alert.open("Error", "Please Insert Zone Name");
+                    return false;
+                }
+            }else if (officeTypeId == 6) {
+                if ($("#ZoneCode").val() == "") {
+                    $.alert.open("Error", "Please Insert Zone Name");
+                    return false;
+                }
+                if ($("#AreaCode").val() == "") {
+                    $.alert.open("Error", "Please Insert Area Name");
+                    return false;
+                }
+            }
+
+            if (officeCode != "" && officeName != "" && officeNameBn != "" && OfficeLocationId !="") {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/SaveOffice', // Location of the service
+                    data: {
+                        officeId: officeId,officeLocationId:OfficeLocationId, officeTypeId: officeTypeId, zoneId: ZoneCode, areaId: AreaCode, officeCode: officeCode, officeName: officeName,
+                        officeNameBn: officeNameBn, operationStartDateMsg: operationStartDateMsg, officeAddress: officeAddress, phone: phone, email: email
+                    }, //Data sent to server
+                    dataType: "json", //Expected data format from server
+                    processdata: false, //True or False
+                    success: function(data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        $.alert.open("Alert", data.message);
+                        clearData();
+                    },
+                    error: function(data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please Insert required fields");
+            }
+
+        });
+    });
+
+
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Add Office (অফিসের অন্তর্ভূক্তকরণ)</h2>
+&nbsp;
+@using (Html.BeginForm("Create", "Office", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "OfficeProfile" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="">
+        @*@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)*@
+        
+        @*<hr/>*@
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.HiddenFor(model=>model.OfficeId)
+                        @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row frmRow" id="ZoneDiv">
+            <div class="col-sm-6">
+                <div class="item form-group">
+                    @Html.LabelFor(model => model.ZoneCode, new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.ZoneCode, Model.ZoneList, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row frmRow" id="AreaDiv">
+            <div class="col-sm-6">
+                <div class="item form-group">
+                    @Html.LabelFor(model => model.AreaCode, new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.AreaCode, Model.AreaList, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeCode, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.OfficeCode, new {  @class = "form-control numeric-only", @required = "required" })
+                        @Html.ValidationMessageFor(model => model.OfficeCode, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.OfficeName, new { @class = "form-control"  })
+                        @Html.ValidationMessageFor(model => model.OfficeName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeNameBn, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.OfficeNameBn, new { @class = "form-control"  })
+                        @Html.ValidationMessageFor(model => model.OfficeNameBn, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OperationStartDateMsg, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.OperationStartDateMsg, new { @class = "form-control"})
+                        @Html.ValidationMessageFor(model => model.OperationStartDateMsg, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeAddress, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                    <div class="col-sm-8">
+                        @Html.TextAreaFor(model => model.OfficeAddress,  new { @class = "form-control" } )
+                        @Html.ValidationMessageFor(model => model.OfficeAddress, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Phone, new { @class = "form-control", @onkeypress = "return checkNumeric(event);" })
+                        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeLocationId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.OfficeLocationId,Model.OfficeLocationList ,new { @class = "form-control", @required = "required" })
+                        @Html.ValidationMessageFor(model => model.OfficeLocationId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <button  type="button" class="btn btn-success col-sm-offset-5" id="btnSave">Save</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}

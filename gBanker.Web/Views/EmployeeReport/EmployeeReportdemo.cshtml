@@ -1,0 +1,56 @@
+﻿@model gHRM.Web.ViewModels.EmployeeReportViewModel
+
+@{
+    ViewBag.Title = "Employee Report demo";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="~/Scripts/jquery.searchabledropdown-1.0.8.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#myselect").searchable({
+            maxListSize: 200, // if list size are less than maxListSize, show them all
+            maxMultiMatch: 300, // how many matching entries should be displayed
+            exactMatch: false, // Exact matching on search
+            wildcards: true, // Support for wildcard characters (*, ?)
+            ignoreCase: true, // Ignore case sensitivity
+            latency: 200, // how many millis to wait until starting search
+            warnMultiMatch: 'top {0} matches ...',
+            warnNoMatch: 'no matches ...',
+            zIndex: 'auto'
+        });
+    });
+
+</script>
+
+
+<h2 class="page-title">Employee Report</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">My Dropdown: </label>
+                <div class="col-md-8">
+                    <select ID="myselect" class="form-control">
+                        <option value="volvo">Select</option>
+                        <option value="saab">venki</option>
+                        <option value="mercedes">venu</option>
+                        <option value="venuzila">venuzila</option>
+                        <option value="audi">veron philender</option>
+                        <option value="audi">india</option>
+                        <option value="audi">indianven</option>
+                        <option value="audi">vesta</option>
+                        <option value="audi">vestanop</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

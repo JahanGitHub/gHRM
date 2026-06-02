@@ -1,0 +1,121 @@
+﻿@model gHRM.Web.ViewModels.GratuityProcessViewModel
+
+@{
+    ViewBag.Title = "Gratuity Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    string ErrStat = null != ViewBag.IsSuccess && ViewBag.IsSuccess ? "Success" : "Error";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+<h2 class="page-title">Gratuity Process</h2>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @using (Html.BeginForm("Index2", "GratuityProcess", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "GratuityProcessForm", onsubmit = "return Page.IsValid()" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Raw("&nbsp")
+        @Html.HiddenFor(model => model.OfficeId)
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPanePartial2.cshtml", pvOfficeNevigation)
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Processed By (যে ব্যক্তি দ্বারা প্রক্রিয়াকৃত)</label>
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Year</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.FromYear, Model.YearList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6" style="display:none;">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Month</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.FromMonth, Model.MonthList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Date (তারিখ)</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="ProcessDate" name="ProcessDate" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        if ("" != ViewData["GeneratedLastDate"].ToString())
+        {
+        <div>Gratuity Generated till: <b>@ViewData["GeneratedLastDate"].ToString()</b></div>
+        }
+        <div class="row" style="padding-top: 10px;">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                    <input type="button" value="Summary Before Send for Approval" id="btnSummaryBeforeSendForApproval" class="btn btn-primary" onclick="Page.SummaryPreview()" /> &nbsp;&nbsp;
+                    <input type="submit" value="Generate Gratuity" id="btnProcess" class="btn btn-primary" />&nbsp;&nbsp;
+                    <input type="button" value="Send For Approval" id="btnSendForApproval" class="btn btn-primary" onclick="Page.SendGeneratedGratuityForApproval()" />&nbsp;&nbsp;
+                    <input type="button" value="Approve" id="btnApproval" class="btn btn-primary" onclick="Page.GratuityForApproval()" />&nbsp;&nbsp;
+                </div>
+            </div>
+        </div>
+        @Html.Raw("&nbsp;")
+        <div class="row">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+            </div>
+        </div>
+        <div class="row" style="display:none;">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Report Type</label>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ReportType" name="ReportType">
+                            <option value="">Please Select</option>
+                            <option value="gratuity-before-approval-pdf">Gratuity Before Approval (Pdf Format)</option>
+                            <option value="gratuity-before-approval-excel">Gratuity Before Approval (Excel Format)</option>
+                            <option value="rejected-gratuity">Rejected Gratuity</option>
+                            <option value="approved-gratuity-pdf">Approved Gratuity (Pdf Format)</option>
+                            <option value="approved-gratuity-excel">Approved Gratuity (Excel Format)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" onclick="Page.ReportView()" />
+                </div>
+            </div>
+        </div>
+        <div class="box-content before-approval-container" style="display: none;">
+            <h4><label>Before Approval</label></h4>
+            <div class="table-responsive">
+                <div id="beforeApprovalGridKendo"></div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("/Assets/js/app/gratuity/gratuity-process2.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION()+DateTime.Now)
+    <script>
+        var LoggedInOfficeTypeId = @ViewBag.LoggedInOfficeTypeId;
+        var ServerMessage = "@ViewBag.Message";
+
+        $(function () {
+            if (![null, ""].includes(ServerMessage)) {
+                $.alert.open("@ErrStat", ServerMessage);
+            }
+        });
+    </script>
+}

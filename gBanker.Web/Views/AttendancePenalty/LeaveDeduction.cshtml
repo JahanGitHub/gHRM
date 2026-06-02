@@ -1,0 +1,489 @@
+﻿@model gHRM.Web.ViewModels.AttendancePenaltyConfigurationViewModel
+
+@{
+    ViewBag.Title = "AttendancePenaltyLeaveDeduction";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml"; var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var deptList = Model == null ? null : Model.DepartmentList;
+    var desgList = Model == null ? null : Model.DesignationList;
+}
+
+<script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="~/Scripts/momentjs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script>
+    var checkedIds = {};
+
+    //on click of the checkbox:
+    function selectRow() {
+
+        var checked = this.checked,
+            row = $(this).closest("tr"),
+            grid = $("#gridKendo").data("kendoGrid"),
+            dataItem = grid.dataItem(row);
+
+        checkedIds[dataItem.EmployeeId] = checked;
+
+        if (checked) {
+            //-select the row
+            row.addClass("k-state-selected");
+
+            var checkHeader = true;
+
+            $.each(grid.items(), function (index, item) {
+                if (!($(item).hasClass("k-state-selected"))) {
+                    checkHeader = false;
+                }
+            });
+
+            $("#header-chb")[0].checked = checkHeader;
+        } else {
+            //-remove selection
+            row.removeClass("k-state-selected");
+            $("#header-chb")[0].checked = false;
+        }
+    }
+
+    function loadSearchData() {
+        var month = $("#Month").val();
+        var year = $("#Year").val();
+
+        var office_TypeId = $("#OfficeTypeId").val();
+        if (office_TypeId == 1) {
+            OfficeTypeId = office_TypeId;
+            officeId = $("#PVHeadOfficeId").val();
+        } else if (office_TypeId == 3) {
+            OfficeTypeId = office_TypeId;
+            officeId = $("#PVProjectId").val();
+        } else if (office_TypeId == 4) {
+            OfficeTypeId = office_TypeId;
+            officeId = $("#ZoneId").val();
+        } else if (office_TypeId == 5) {
+            OfficeTypeId = office_TypeId;
+            officeId = $("#AreaId").val();
+        } else if (office_TypeId == 6) {
+            OfficeTypeId = office_TypeId;
+            officeId = $("#UnitId").val();
+        } else if (office_TypeId == null || office_TypeId == '') {
+            OfficeTypeId = '';
+            officeId = ''
+        };
+
+        if (month != "" && year != "") {
+            GetLeaveDeductionInfo(month, year, OfficeTypeId, officeId);
+        } else {
+            $.alert.open("Error", "Please provide all required fields");
+            return false;
+        }
+    }
+
+    $(document).ready(function () {
+
+        //$("#btnSaveBulk").click(function () {
+
+        //    var totalrow = $("#gridKendo").data("kendoGrid").dataSource.data().length;
+
+        //    if (totalrow > 0) {
+        //        var LeavePenalty = new Array();
+
+        //        for (var i in checkedIds) {
+        //            var isChecked = checkedIds[i];
+        //            if (isChecked) {
+        //                var empId = i;
+        //                var empCode = $("#empCode" + i).val();
+        //                var lvDeduct = $("#lvDeduct" + i).val();
+        //                var lvTypeId = $("#lvTypeId" + i).val();
+        //                var obj = CreateLeaveDeductionObject(empId, empCode, lvDeduct, lvTypeId);
+        //                if (obj != false) {
+        //                    LeavePenalty.push(obj);
+        //                } else {
+        //                    $.alert.open("Error", "Provide valid date");
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //        if (LeavePenalty.length > 0) {
+        //            SaveLeavePenalty(LeavePenalty);
+        //        } else {
+        //            $.alert.open("Error", "No Data found");
+        //            return false;
+        //        }
+        //    } else {
+        //        $.alert.open("Error", "No Data found");
+        //        return false;
+        //    }
+        //});
+
+        $("#Year").val((new Date).getFullYear());
+
+        $("#btnSearch").click(function () {
+            loadSearchData();
+        })
+
+    });
+
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function btnPrintinput(EmployeeCode) {
+        var month = $("#Month").val();
+        var year = $("#Year").val();
+        if (EmployeeCode != "") {
+            url = '/AttendanceReport/EmployeeCodeReportBySingleCode?EmployeeCode=' + EmployeeCode + '&month=' + month + '&year=' + year;
+            PrintReport(url);
+        } else {
+            $.alert.open("Error", "Please Select Date");
+            return false;
+        }
+    }
+
+    function ApproveLeaveDeduction(EmployeeId, EmployeeCode, LeaveDeduction, LeaveTypeId) {
+
+        var LeavePenalty = new Array();
+        if (EmployeeId > 0 && EmployeeCode != "" && LeaveDeduction > 0 && LeaveTypeId > 0) {
+            var obj = CreateLeaveDeductionObject(EmployeeId, EmployeeCode, LeaveDeduction, LeaveTypeId);
+            LeavePenalty.push(obj);
+
+            if (LeavePenalty.length > 0) {
+                SaveLeavePenalty(LeavePenalty);
+            } else {
+                $.alert.open("Error", "No Data found");
+                return false;
+            }
+        }
+    }
+
+    function CreateLeaveDeductionObject(EmployeeId, EmployeeCode, LeaveDeduction, LeaveTypeId) {
+
+        var fromDate = $("#FromDate" + EmployeeId).val();
+        var dateTo = $("#ToDate" + EmployeeId).val();
+        if (fromDate != "" && dateTo != "" && LeaveDeduction > 0) {
+            var startDate = new Date(MakeDate(fromDate));
+            var endDate = new Date(MakeDate(dateTo));
+            var start = moment(endDate);
+            var end = moment(startDate);
+            var totDay = start.diff(end, "days") + 1;
+            if (LeaveDeduction == totDay) {
+                var deductionObject = {
+                    EmployeeId: EmployeeId,
+                    LeaveTypeId: LeaveTypeId,
+                    LeaveRequestDate: fromDate,
+                    LeaveStartDate: fromDate,
+                    LeaveEndDate: dateTo,
+                    TotalDays: LeaveDeduction
+                }
+                return deductionObject;
+
+            } else {
+                $.alert.open("Error", "Total deduction day(s) for " + EmployeeCode + "not given");
+                return false;
+            }
+        } else {
+            $.alert.open("Error", "Please provide dates");
+            return false;
+        }
+    }
+
+
+    function SaveLeavePenalty(LeavePenalty) {
+        $.alert.open('confirm', 'Are you sure to Apply & Approve Leave for this employee?', function (button) {
+            if (button == 'yes') {
+
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ApproveLeaveDeduction", "AttendancePenalty", "http")',
+                    data: JSON.stringify({ LeavePenalty: LeavePenalty }),
+                    dataType: 'json',
+                    async: true,
+                    success: function (Data) {
+                        if (Data.result == 1) {
+                            $.alert.open("Success", Data.message);
+                            loadSearchData();
+                        } else {
+                            $.alert.open("Error", Data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function CheckDayDifference(serialNo,dayCount) {
+
+        var dateFrom = $("#FromDate" + serialNo).val();
+        var dateTo = $("#ToDate" + serialNo).val();        
+        if (dateFrom != "" && dateTo != "") {           
+            var startDate = new Date(MakeDate(dateFrom));
+            var endDate = new Date(MakeDate(dateTo));
+            var start = moment(endDate);
+            var end = moment(startDate);
+            var totDay = start.diff(end, "days") + 1;
+            //alert(totDay + '=' + dayCount);
+            if (totDay === dayCount) {
+                return true
+            } else {
+                $.alert.open("Error","This leave will be for " + dayCount + " day(s). Please check the dates.")
+                $("#ToDate" + serialNo).val("");
+            }
+        }
+    }
+
+    function GetTotalDays() {
+        var startDate = new Date(MakeDate($('#LeaveStartDate').val()));
+        var endDate = new Date(MakeDate($('#LeaveEndDate').val()));
+        var start = moment(endDate);
+        var end = moment(startDate);
+        var totDay = start.diff(end, "days") + 1;
+        return totDay;
+    }
+
+    function GetLeaveDeductionInfo(month, year, OfficeTypeId, officeId) {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+
+                    url: '@Url.Action("GetLeaveDeductionInfo", "AttendancePenalty", "http")',
+                    dataType: 'json',
+                    data: { Month: month, Year: year, OfficeTypeId: OfficeTypeId, officeId: officeId }
+                }
+            }
+        });
+        var grid = $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 //{
+                 //    title: 'Select All',
+                 //    headerTemplate: "<input type='checkbox' id='header-chb' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-chb'></label>",
+                 //    template: function (dataItem) {
+                 //        return "<input type='checkbox' id=" + dataItem.EmployeeId + " class='k-checkbox row-checkbox'><label class='k-checkbox-label' for=" + dataItem.EmployeeId + "></label>";
+                 //    },
+                 //    width: '15px'
+                 //},
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "LeaveTypeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "30px",
+                    filterable: true,
+                    
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Employee Name",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeName",
+                    title: "Office",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "DepartmentName",
+                    title: "Department",
+                    width: "50px",
+                    filterable: true,
+                },
+                 {
+                     field: "OfficeDesignation",
+                     title: "Designation",
+                     width: "50px",
+                     filterable: true,
+                 },
+                {
+                    field: "TotalLateDays",
+                    title: "Total Late",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "LeaveDeduction",
+                    title: "Leave Count",
+                    width: "30px",
+                    filterable: false,
+                },
+                {
+                    field: "LeaveType",
+                    title: "Leave Type",
+                    width: "30px",
+                    filterable: false,
+                },
+                 {
+                     width: "50px",
+                     title: "Leave From",
+                     template: function (dataItem) {
+                         return "<input type='text' id='FromDate" + dataItem.EmployeeId + "' style='width:100%' class='k-textbox DtPicker' value='' onchange='CheckDayDifference(" + dataItem.EmployeeId + "," + dataItem.LeaveDeduction + ")'></input>";
+                     }
+                 },
+                 {
+                     width: "50px",
+                     title: "Leave To",
+                     template: function (dataItem) {
+                         return "<input type='text' id='ToDate" + dataItem.EmployeeId + "' style='width:100%' class='k-textbox DtPicker' value='' onchange='CheckDayDifference(" + dataItem.EmployeeId + "," + dataItem.LeaveDeduction + ")'></input>"
+                         + "<input type='hidden' id='empId" + dataItem.EmployeeId + "' value=" + dataItem.EmployeeId + "></input>"
+                         + "<input type='hidden' id='empCode" + dataItem.EmployeeId + "' value=" + dataItem.EmployeeCode + "></input>"
+                         + "<input type='hidden' id='lvDeduct" + dataItem.EmployeeId + "' value=" + dataItem.LeaveDeduction + "></input>"
+                         + "<input type='hidden' id='lvTypeId" + dataItem.EmployeeId + "' value=" + dataItem.LeaveTypeId + "></input>";
+
+                     }
+                 },
+                 {
+                     title: "Print PDF",
+                     width: "20px",
+                     filterable: false,
+                     template: function (dataItem) {
+                         return "<a href='#' OnClick='btnPrintinput(\"" + dataItem.EmployeeCode + "\");'><i class='fa fa-print '></i></a>";
+                     }
+                 },
+                {
+                    title: "Approve",
+                    width: "20px",
+                    template: function (dataItem) {
+                        //return "<a href='#' OnClick='ApproveLeaveDeduction(" + dataItem.EmployeeId + ",'" + dataItem.EmployeeCode + "'," + dataItem.LeaveDeduction + "," + dataItem.LeaveTypeId + ");'><i class='fa fa-check '></i></a>";
+                        return "<a href='#' OnClick='ApproveLeaveDeduction(" + dataItem.EmployeeId + ",\"" + dataItem.EmployeeCode + "\"," + dataItem.LeaveDeduction + "," + dataItem.LeaveTypeId + ");'><i class='fa fa-check '></i></a>";
+                    }
+                },
+            ],
+            dataBound: function (container, options) {
+                var view = this.dataSource.view();
+                for (var i = 0; i < view.length; i++) {
+                    if (checkedIds[view[i].id]) {
+                        this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                          .addClass("k-state-selected")
+                          .find(".checkbox")
+                          .attr("checked", "checked");
+                    }
+                }
+
+                var year = $("#Year").val();
+                var month = $("#Month").val();
+
+                var firstDay = new Date(year, month - 1, 1);
+                var lastDay = new Date(year, month, 0);
+
+                $('.DtPicker').datepicker({
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: false,
+                    changeYear: false,
+                    minDate: firstDay,
+                    maxDate: lastDay,
+                    yearRange: "2009:2050"
+                });
+
+
+            }
+        }).data("kendoGrid");
+
+       // grid.table.on("click", ".k-checkbox", selectRow);
+
+        //$('#header-chb').change(function (ev) {
+
+        //    var checked = ev.target.checked;
+        //    $('.row-checkbox').each(function (idx, item) {
+        //        if (checked) {
+        //            if (!($(item).closest('tr').is('.k-state-selected'))) {
+        //                $(item).click();
+        //            }
+        //        } else {
+        //            if ($(item).closest('tr').is('.k-state-selected')) {
+        //                $(item).click();
+        //            }
+        //        }
+        //    });
+        //});
+    }
+
+    ////// Integration Ends
+
+</script>
+
+<h2 class="page-title"> Leave Deduction Penalty For Late Attendance</h2> &nbsp;
+<div class="form-horizontal">
+    @Html.HiddenFor(model => model.Id)
+    <div class="container-fluid">
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+        <div class="row">
+            <div class="col-sm-3 col-sm-offset-1">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Year</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3 col-sm-offset-1">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Month</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group" style="padding-left:10px;">
+                    <input type="button" value="Search" id="btnSearch" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="gridKendo"></div>
+            </div>
+        </div>
+        @*<div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <input type="button" value="Save" id="btnSaveBulk" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>*@
+    </div>
+</div>
+

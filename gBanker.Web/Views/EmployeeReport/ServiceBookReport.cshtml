@@ -1,0 +1,1804 @@
+﻿
+@model gHRM.Web.ViewModels.EmployeeReportViewModel
+
+@{
+    ViewBag.Title = "Employee Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .companyreport-control {
+        display: none;
+    }
+</style>
+
+<h2 class="page-title">Service Book Report</h2>
+<br />
+
+<div class="row">
+    <ul class="nav nav-tabs">
+
+
+    </ul>
+    <div class="tab-content">
+        <div id="typewise" class="tab-pane fade in active">
+            &nbsp;
+            &nbsp;
+            <div class="container-fluid">
+
+                <div class="row companyreport-control">
+                    <div class="col-sm-6" style="margin-top: 35px;">
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="padding: 0;">Report Type (রিপোর্টের ধরন)</label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="CRReportType" name="CRReportType" onchange="Page.CRReportTypeChange()">
+                                    <option selected="selected" value="0">Please Select</option>
+                                    <option value="1">Employee Education Information</option>
+                                    <option value="2">Employee Education Information Summary</option>
+                                    <option value="3">Employee District Information</option>
+                                    <option value="4">Employee District Information Summary</option>
+                                    <option value="5">Department Wise Employee Information</option>
+                                    <option value="6">Delay Confirmation Employee List</option>
+                                    <option value="7">Confirmation Eligible Employee List</option>
+                                    <option value="8">Confirmation Eligible Employee Summary</option>
+                                    <option value="9">Transferable Employee List</option>
+                                    <option value="10">Transferable Employee Summary</option>
+                                    <option value="11">Increment Eligible Employee List</option>
+                                    <option value="12">Increment Eligible Employee Summary</option>
+                                    <option value="13">Promotion Eligible Employee List</option>
+                                    <option value="14">Promotion Eligible Employee Summary</option>
+                                    <option value="15">Final Sattlement</option>
+                                    <option value="16">GC-HO Confirmation Eligible Employee List</option>
+                                    <option value="17">GC-FO Confirmation Eligible Employee List</option>
+                                    <option value="18">GC-HO Separation Employee List</option>
+                                    <option value="19">GC-FO Separation Employee List</option>
+                                    <option value="20">Employee Highest Degree Report</option>
+                                    <option value="21">Gender Wise Employee Details Report</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row companyreport-control education-control" style="margin-top: 15px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label  col-sm-4 required" style="padding: 0;" for="DegreeLevel" aria-required="true">Degree Level (খেতাব সমতা)</label>
+                            <div class="col-sm-8">
+                                <select class="form-control valid" data-val="true" data-val-length="The field Degree Level (খেতাব সমতা) must be a string with a maximum length of 150." data-val-length-max="150" id="DegreeLevel" name="DegreeLevel" aria-invalid="false" aria-describedby="DegreeLevel-error">
+                                    <option selected="selected" value="0">Please Select</option>
+                                    <option value="1">PSC</option>
+                                    <option value="2">JSC</option>
+                                    <option value="3">Secondary</option>
+                                    <option value="4">Higher Secondary</option>
+                                    <option value="5">
+                                        Bachelor
+                                    </option>
+                                    <option value="6">Masters</option>
+                                    <option value="7">CA</option>
+                                    <option value="8">PHD</option>
+                                    <option value="9">General</option>
+                                    <option value="10">Diploma</option>
+                                    <option value="11">Vocational</option>
+                                    <option value="12">
+                                        PGD
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label  col-sm-4 required" style="padding: 0;" for="DegreeTitle" aria-required="true">Degree/Title (খেতাব)</label>
+                            <div class="col-sm-8">
+                                <select class="form-control valid" id="DegreeTitle" name="DegreeTitle" aria-invalid="false">
+                                    <option value="">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row companyreport-control education-control" style="margin-top: 15px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label  col-sm-4 required" style="padding: 0;" for="Concentration" aria-required="true">Concentration Name (মূল বিষয়)</label>
+                            <div class="col-sm-8">
+                                <select class="form-control valid" data-val="true" data-val-length="The field Concentration Name (মূল বিষয়) must be a string with a maximum length of 250." data-val-length-max="250" id="Concentration" name="Concentration" aria-invalid="false" aria-describedby="Concentration-error">
+                                    <option value="">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hideReportTypeOther" style="display: none;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4 required" for="ReportTypeOther" style="padding: 0;">Report Type (রিপোর্টের ধরন)</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" data-val="true" data-val-required="Report Type (রিপোর্টের ধরন) is Required" id="ReportTypeOther" name="ReportTypeOther">
+                                    <option value="">Please Select</option>
+                                    <option value="DropoutByReason">Dropout By Reason</option>
+                                    <option value="DropoutByReasonForMousumi">Dropout By Reason for Mousumi</option>
+                                    <option value="OfficeWiseActiveEmployeeByDesignation">Office Wise Active Employee By Designation</option>
+                                    <option value="PersonalInfo">Personal Info</option>
+                                    <option value="MonthWiseConfirmationList">Month Wise Confirmation List</option>
+                                    <option value="MonthWiseConfirmationDueList">Month Wise Confirmation Due List</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=1.0.1">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=1.0.1"></script>
+
+
+
+
+
+            <div class="form-horizontal" style="padding-top: 15px;">
+
+                <div class="container-fluid">
+                    <div class="row hideReportType">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4" style="text-align: left;">Report Type (রিপোর্টের ধরন)</label>
+                                <div class="col-md-8">
+                                    <select class="form-control" id="ReportType" name="ReportType">
+                                        <option selected="selected" value="16">Employee Service Book</option>
+                                     
+                                      
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display: block;">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4" style="text-align: left;">Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)</label>
+                                <div class="col-md-8">
+                                    <input class="form-control" id="EmployeeCode" name="EmployeeCode" type="text" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row ManualOfficeTypeDiv" style="display: none;">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4" style="text-align: left;">Office Type</label>
+                                <div class="col-md-8">
+                                    <select id="ManualOfficeType" class="form-control">
+                                        <option value="0">All</option>
+                                        <option value="1">Head Office</option>
+                                        <option value="2">Field Office</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row hideBloodGroup" style="display: none;">
+                        <div class="row" style="margin-top:15px; margin:15px;">
+
+
+                            <script>
+                                function GenerateDropDownList(dorpDownFieldId, controllerName, functionName) {
+                                    var ddlName = $("#'" + dorpDownFieldId + "");
+                                    var dataUrl = '/' + controllerName + '/' + functionName + '';
+
+                                    $('#AjaxLoader').show();
+                                    $.ajax({
+                                        type: "GET", //GET or POST or PUT or DELETE verb
+                                        url: dataUrl, // Location of the service
+                                        data: {}, //Data sent to server
+                                        dataType: "json", //Expected data format from server
+                                        processdata: false, //True or False
+                                        success: function (data) { //On Successful service call
+                                            $('#AjaxLoader').hide();
+                                            ddlName.html('');
+                                            if (data.length > 0) {
+                                                $.each(data, function (i, option) {
+                                                    ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                });
+                                            }
+                                        },
+                                        error: function (data) {
+                                            $('#AjaxLoader').hide();
+                                            $.alert.open('error', 'Error');
+                                        }
+                                    });
+                                }
+
+                                function GetHeadOfficeByOfficeType() {
+                                    var ddlName = $("#PVHeadOfficeId");
+
+                                    $('#AjaxLoader').show();
+                                    $.ajax({
+                                        type: "GET", //GET or POST or PUT or DELETE verb
+                                        url: '/Office/GetHeadOfficeByOfficeType', // Location of the service
+                                        data: {}, //Data sent to server
+                                        dataType: "json", //Expected data format from server
+                                        async: false,
+                                        processdata: false, //True or False
+                                        success: function (data) { //On Successful service call
+                                            $('#AjaxLoader').hide();
+                                            ddlName.html('');
+                                            if (data.length > 0) {
+                                                $.each(data, function (i, option) {
+                                                    ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                });
+                                            }
+                                        },
+                                        error: function (data) {
+                                            $('#AjaxLoader').hide();
+                                            $.alert.open('error', 'Error');
+                                        }
+                                    });
+                                }
+
+                                function GetProjectsByOfficeType() {
+                                    var ddlName = $("#PVProjectId");
+
+                                    $('#AjaxLoader').show();
+                                    $.ajax({
+                                        type: "GET", //GET or POST or PUT or DELETE verb
+                                        url: '/Office/GetProjectsByOfficeType', // Location of the service
+                                        data: {}, //Data sent to server
+                                        dataType: "json", //Expected data format from server
+                                        async: false,
+                                        processdata: false, //True or False
+                                        success: function (data) { //On Successful service call
+                                            $('#AjaxLoader').hide();
+                                            ddlName.html('');
+                                            if (data.length > 0) {
+                                                $.each(data, function (i, option) {
+                                                    ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                });
+                                            }
+                                        },
+                                        error: function (data) {
+                                            $('#AjaxLoader').hide();
+                                            $.alert.open('error', 'Error');
+                                        }
+                                    });
+                                }
+
+                                function GetAllOfficeType() {
+                                    var ddlOfficeType = $("#OfficeTypeId");
+                                    $('#AjaxLoader').show();
+                                    $.ajax({
+                                        type: "GET", //GET or POST or PUT or DELETE verb
+                                        url: '/Office/OfficeTypeList_JS', // Location of the service
+                                        data: {}, //Data sent to server
+                                        dataType: "json", //Expected data format from server
+                                        processdata: false, //True or False
+                                        success: function (data) { //On Successful service call
+                                            $('#AjaxLoader').hide();
+                                            ddlOfficeType.html('');
+                                            if (data.length > 0) {
+                                                $.each(data, function (i, option) {
+                                                    ddlOfficeType.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                });
+                                            }
+                                        },
+                                        error: function (data) {
+                                            $('#AjaxLoader').hide();
+                                            $.alert.open('error', 'Error');
+                                        }
+                                    });
+                                }
+
+                                function GetAllZoneOffice() {
+                                    var ddlZone = $("#ZoneId");
+                                    $.ajax({
+                                        type: "GET", //GET or POST or PUT or DELETE verb
+                                        url: '/Office/getAllZoneId', // Location of the service
+                                        data: {}, //Data sent to server
+                                        dataType: "json", //Expected data format from server
+                                        processdata: false, //True or False
+                                        success: function (data) { //On Successful service call
+                                            $('#AjaxLoader').hide();
+                                            ddlZone.html('');
+                                            if (data.length > 0) {
+                                                $.each(data, function (i, option) {
+                                                    ddlZone.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                });
+                                            }
+                                        },
+                                        error: function (data) {
+                                            $('#AjaxLoader').hide();
+                                            $.alert.open('error', 'Error');
+                                        }
+                                    });
+                                }
+
+                                function ChangeOfficeType() {
+
+                                }
+
+                                $(document).ready(function () {
+                                    $("#HeadOfficeDiv").hide();
+                                    $("#ProjectDiv").hide();
+                                    $("#ZoneDiv").hide();
+                                    $("#AreaDiv").hide();
+                                    $("#UnitDiv").hide();
+
+                                    // GetAllOfficeType();
+                                    //GetAllZoneOffice();
+
+
+
+
+                                    $("#OfficeTypeId").change(function () {
+
+                                        var officeType = $("#OfficeTypeId").val();
+                                        if (officeType != "") {
+                                            $("#ZoneId").val('');
+                                            $("#AreaId").html('<option value="">Please Select</option>');
+                                            $("#UnitId").html('<option value="">Please Select</option>');
+
+                                            if (officeType == 1) {
+                                                GetHeadOfficeByOfficeType();
+                                                $("#HeadOfficeDiv").show();
+
+                                                $("#ProjectDiv").hide();
+                                                $("#ZoneDiv").hide();
+                                                $("#AreaDiv").hide();
+                                                $("#UnitDiv").hide();
+                                            } else if (officeType == 3) { //project
+                                                $("#HeadOfficeDiv").hide();
+
+                                                GetProjectsByOfficeType();
+                                                $("#ProjectDiv").show();
+                                                $("#ZoneDiv").hide();
+                                                $("#AreaDiv").hide();
+                                                $("#UnitDiv").hide();
+
+                                            } else if (officeType == 4) { //zone
+                                                $("#HeadOfficeDiv").hide();
+                                                $("#ProjectDiv").hide();
+
+                                                $("#AreaDiv").hide();
+                                                $("#UnitDiv").hide();
+                                                $("#ZoneDiv").show();
+                                            } else if (officeType == 5) { //area
+                                                $("#HeadOfficeDiv").hide();
+                                                $("#ProjectDiv").hide();
+                                                $("#UnitDiv").hide();
+
+                                                $("#ZoneDiv").show();
+                                                $("#AreaDiv").show();
+                                            } else if (officeType == 6) { //field
+                                                $("#HeadOfficeDiv").hide();
+                                                $("#ProjectDiv").hide();
+                                                $("#UnitDiv").show();
+                                                $("#ZoneDiv").show();
+                                                $("#AreaDiv").show();
+                                            }
+                                        } else {
+                                            $("#HeadOfficeDiv").hide();
+                                            $("#ProjectDiv").hide();
+                                            $("#ZoneDiv").hide();
+                                            $("#AreaDiv").hide();
+                                            //$("#AreaId").html('<option value="">Please Select</option>');
+                                            $("#UnitDiv").hide();
+                                            //$("#UnitId").html('<option value="">Please Select</option>');
+                                        }
+                                    });
+
+                                    $("#ZoneId").change(function () {
+
+                                        var zoneId = $("#ZoneId").val();
+                                        var ddlArea = $("#AreaId");
+                                        var officeTypeId = $("#OfficeTypeId").val();
+
+                                        if (zoneId != "" && (officeTypeId == 5 || officeTypeId == 6)) {
+                                            $('#AjaxLoader').show();
+                                            $.ajax({
+                                                type: "GET", //GET or POST or PUT or DELETE verb
+                                                url: '/Office/getAllAreaIdByZoneCode', // Location of the service
+                                                data: { ZoneId: zoneId }, //Data sent to server
+                                                dataType: "json",
+                                                async: false,//Expected data format from server
+                                                processdata: false, //True or False
+                                                success: function (data) { //On Successful service call
+                                                    $('#AjaxLoader').hide();
+                                                    ddlArea.html('');
+                                                    if (data.length > 0) {
+                                                        $.each(data, function (i, option) {
+                                                            ddlArea.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                        });
+                                                    }
+                                                    $("#UnitId").html('<option value="">Please Select</option>');
+                                                },
+                                                error: function (data) {
+                                                    $('#AjaxLoader').hide();
+                                                    $.alert.open('error', 'Error');
+                                                }
+                                            });
+                                        } else {
+                                            ddlArea.html('<option value="">Please Select</option>');
+                                            $("#UnitId").html('<option value="">Please Select</option>');
+
+                                        }
+                                    });
+
+                                    $("#AreaId").change(function () {
+
+                                        var areaId = $("#AreaId").val();
+                                        var ddlUnit = $("#UnitId");
+                                        var officeTypeId = $("#OfficeTypeId").val();
+
+                                        if (areaId != "" && (officeTypeId == 6)) {
+                                            $('#AjaxLoader').show();
+                                            $.ajax({
+                                                type: "GET", //GET or POST or PUT or DELETE verb
+                                                url: '/Office/getAllUnitIdByAreaCode', // Location of the service
+                                                data: { AreaId: areaId }, //Data sent to server
+                                                dataType: "json", //Expected data format from server
+                                                async: false,
+                                                processdata: false, //True or False
+                                                success: function (data) { //On Successful service call
+                                                    $('#AjaxLoader').hide();
+                                                    ddlUnit.html('');
+                                                    if (data.length > 0) {
+                                                        $.each(data, function (i, option) {
+                                                            ddlUnit.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                        });
+                                                    }
+                                                },
+                                                error: function (data) {
+                                                    $('#AjaxLoader').hide();
+                                                    $.alert.open('error', 'Error');
+                                                }
+                                            });
+                                        } else {
+                                            $("#UnitId").html('<option value="">Please Select</option>');
+
+                                        }
+                                    });
+
+                                    var _OfficeTypeId = '0';
+                                    if (parseInt(_OfficeTypeId) > 0) {
+
+                                        $("#OfficeTypeId").val(_OfficeTypeId);
+                                        $('#OfficeTypeId').val(_OfficeTypeId).trigger('change');
+                                        $('#OfficeTypeId').change();
+                                        if (parseInt(_OfficeTypeId) == 1) {
+                                            $("#PVHeadOfficeId").val('');
+                                        }
+                                        else if (parseInt(_OfficeTypeId) == 3) {
+                                            $("#PVProjectId").val();
+                                        }
+                                        else if (parseInt(_OfficeTypeId) == 4) {
+                                            $("#ZoneId").val();
+                                        }
+                                        else if (parseInt(_OfficeTypeId) == 5) {
+                                            $("#ZoneId").val();
+                                            $("#ZoneId").val().trigger('change');
+
+                                            $("#AreaId").val('');
+                                        } else if (parseInt(_OfficeTypeId) == 6) {
+                                            $("#ZoneId").val();
+                                            $("#ZoneId").val().trigger('change');
+                                            $("#AreaId").val();
+                                            $("#AreaId").val().trigger('change');
+                                            $("#UnitId").val();
+                                        }
+
+                                    } else {
+                                        $("#OfficeTypeId").val("");
+                                    }
+                                });
+                            </script>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4" for="OfficeTypeId" style="text-align: left;">Office Type (অফিসের ধরণ)</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" data-val="true" data-val-number="The field Office Type (অফিসের ধরণ) must be a number." data-val-required="The Office Type (অফিসের ধরণ) field is required." id="OfficeTypeId" name="OfficeTypeId" required="true">
+                                                <option value="">Please Select</option>
+                                                <option value="1">Head Office</option>
+                                                <option value="3">Project</option>
+                                                <option value="4">Zonal Office</option>
+                                                <option value="5">Area Office</option>
+                                                <option value="6">Branch/Unit Office</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" id="HeadOfficeDiv" style="display: none;">
+                                    <div class="item form-group">
+                                        <label class="control-label col-sm-4 required" for="PVHeadOfficeId" style="text-align: left;">Head Office (প্রধান কার্য্যালয়)</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="PVHeadOfficeId" name="PVHeadOfficeId">
+                                                <option value="">Please Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" id="ProjectDiv" style="display: none;">
+                                    <div class="item form-group">
+                                        <label class="control-label col-sm-4 required" for="PVProjectId" style="text-align: left;">Project Office (প্রোজেক্ট অফিস)</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="PVProjectId" name="PVProjectId">
+                                                <option value="">Please Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" id="ZoneDiv" style="display: none;">
+                                    <div class="item form-group">
+                                        <label class="control-label col-sm-4 required" for="ZoneId" style="text-align: left;">Zone Name (যোনের নাম)</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="ZoneId" name="ZoneId" required="required">
+                                                <option value="">Please Select</option>
+                                                <option value="9">Jamalpur</option>
+                                                <option value="10">Rangpur</option>
+                                                <option value="11">Tangail</option>
+                                                <option value="12">Manikganj</option>
+                                                <option value="15">Chattogram Zonal Office</option>
+                                                <option value="16">Tangail Zonal Office</option>
+                                                <option value="17">Rangpur Zonal Office</option>
+                                                <option value="18">Manikganj Zonal Office</option>
+                                                <option value="19">Patuakhali Zonal Office</option>
+                                                <option value="20">Bogura Zonal Office</option>
+                                                <option value="21">Sylhet Zonal Office</option>
+                                                <option value="22">Rajshahi Zonal Office</option>
+                                                <option value="23">Dinjpur Zonal Office </option>
+                                                <option value="24">Faridpur Zonal Office</option>
+                                                <option value="25">Cumilla Zonal Office </option>
+                                                <option value="26"> Mymensingh Zonal Office</option>
+                                                <option value="27">Narayanganj Zonal Office</option>
+                                                <option value="28">Khulna Zonal Office</option>
+                                                <option value="29">Noakhali Zonal Office </option>
+                                                <option value="30">Jamalpur Zonal Office</option>
+                                                <option value="31">Nilphamari Zonal Office</option>
+                                                <option value="32">Hobiganj Zonal office </option>
+                                                <option value="33">Pabna Zonal Office</option>
+                                                <option value="34">Barishal Zonal Office</option>
+                                                <option value="35">Jhenaidah Zonal Office</option>
+                                                <option value="36"> Cox'sbazar Zonal Office</option>
+                                                <option value="37">Gaibandha Zonal Office </option>
+                                                <option value="38">Naogaon Zonal Office </option>
+                                                <option value="39">Jashore Zonal Office </option>
+                                                <option value="40">Chandpur Zonal Office </option>
+                                                <option value="41">Kishoreganj Zonal Office </option>
+                                                <option value="42">Bhola Zonal Office </option>
+                                                <option value="43">Rangamati Zonal Office</option>
+                                                <option value="44">Gazipur Zonal Office</option>
+                                                <option value="45">Madaripur Zonal Office </option>
+                                                <option value="46">Thakurgaon Zonal Office</option>
+                                                <option value="47">Pirojpur Zonal Office </option>
+                                                <option value="48">Sunamganj Zonal Office</option>
+                                                <option value="49">Feni Zonal Office</option>
+                                                <option value="50">Narshingdi Zonal Office </option>
+                                                <option value="51">Kurigram Zonal Office</option>
+                                                <option value="52">Netrokona Zonal Office</option>
+                                                <option value="53">Sirajganj Zonal Office </option>
+                                                <option value="54">Sherpur Zonal Office</option>
+                                                <option value="55">Z.AUDIT CHITTAGONG</option>
+                                                <option value="56">Z.AUDIT TANGAIL</option>
+                                                <option value="57">Z.AUDIT RANGPUR</option>
+                                                <option value="58">Z.AUDIT MANIKGANJ</option>
+                                                <option value="59">Z.AUDIT PATUAKHALI</option>
+                                                <option value="60">Z.AUDIT BOGRA</option>
+                                                <option value="61">Z.AUDIT SYLHET</option>
+                                                <option value="62">Z.AUDIT RAJSHAHI</option>
+                                                <option value="63">Z.AUDIT DINAJPUR</option>
+                                                <option value="64">Z.AUDIT FARIDPUR</option>
+                                                <option value="65">Z.AUDIT COMILLA</option>
+                                                <option value="66">Z.AUDIT MYMENSINGH</option>
+                                                <option value="67">Z.AUDIT NARAYANGANJ</option>
+                                                <option value="68">Z.AUDIT KHULNA</option>
+                                                <option value="69">Z.AUDIT NOAKHALI</option>
+                                                <option value="70">Z.AUDIT JAMALPUR</option>
+                                                <option value="71">Z.AUDIT NILPHAMARI</option>
+                                                <option value="72">Z.AUDIT HOBIGANJ</option>
+                                                <option value="73">Z.AUDIT PABNA</option>
+                                                <option value="74">Z.AUDIT BARISAL</option>
+                                                <option value="75">Z.AUDIT JHENAIDAH</option>
+                                                <option value="76">Z.AUDIT COX'S BAZAR</option>
+                                                <option value="77">Z.AUDIT GAI BANDHA</option>
+                                                <option value="78">Z.AUDIT NAOGAON</option>
+                                                <option value="79">Z.AUDIT JESSORE</option>
+                                                <option value="80">Z.AUDIT CHANDPUR</option>
+                                                <option value="81">Z.AUDIT KISHOREGANJ</option>
+                                                <option value="82">Z.AUDIT BHOLA</option>
+                                                <option value="83">Z.AUDIT RANGAMATI</option>
+                                                <option value="84">Z.AUDIT GAZIPUR</option>
+                                                <option value="85">Z.AUDIT MADARIPUR</option>
+                                                <option value="86">Z.AUDIT THAKURGAON</option>
+                                                <option value="87">Z.AUDIT PEROJPUR</option>
+                                                <option value="88">Z.AUDIT SUNAMGANJ</option>
+                                                <option value="89">Z.AUDIT FENI</option>
+                                                <option value="90">Z. AUDIT NARSHINGDI</option>
+                                                <option value="91">Z.AUDIT KURIGRAM</option>
+                                                <option value="92">Z.AUDIT NETROKONA</option>
+                                                <option value="93">Z.AUDIT SERAJGANJ</option>
+                                                <option value="94">Z.AUDIT SHERPUR</option>
+                                                <option value="365">BOGRA DIVISION-GS</option>
+                                                <option value="366">RANGPUR DIVISION-GS</option>
+                                                <option value="367">SYLHET DIVISION-GS</option>
+                                                <option value="368">BARISAL DIVISION-GS</option>
+                                                <option value="369">FARIDPUR DIVISION-GS</option>
+                                                <option value="370">KHULNA DIVISION-GS</option>
+                                                <option value="371">MYMENSINGH DIVISION-GS</option>
+                                                <option value="372">CHITTAGONG DIVISION-GS</option>
+                                                <option value="373">COMILLA DIVISION-GS</option>
+                                                <option value="374">TANGAIL DIVISION-GS</option>
+                                                <option value="375">HOBIGANJ DIVISION-GS</option>
+                                                <option value="376">PATUAKHALI DIVISION-GS</option>
+                                                <option value="377">FENI DIVISION-GS</option>
+                                                <option value="378">MADARIPUR DIVISION-GS</option>
+                                                <option value="379">KISHOREGANJ DIVISION-GS</option>
+                                                <option value="380">NATORE DIVISION-GS</option>
+                                                <option value="547">Central Store GSHO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6" id="AreaDiv" style="display: none;">
+                                    <div class="item form-group">
+                                        <label class="control-label col-sm-4 required" for="AreaId" style="text-align: left;">Area Name (এরিয়ার নাম)</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="AreaId" name="AreaId" required="required">
+                                                <option value="">Please Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" id="UnitDiv" style="display: none;">
+                                    <div class="item form-group">
+                                        <label class="control-label col-sm-4 required" for="UnitId" style="text-align: left;">Unit/Branch Name (ইউনিট/ব্রাঞ্চের নাম)</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control" id="UnitId" name="UnitId" required="required">
+                                                <option value="">Please Select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="row" style="margin: 0;">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-md-4 ">
+
+                                        <label class="control-label" style="padding-top:8px;">Payroll Designation (পদবী)</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select class="form-control" data-val="true" data-val-number="The field Designation (পদবী) must be a number." data-val-required="The Designation (পদবী) field is required." id="DesignationId" name="DesignationId">
+                                            <option value="">Please Select</option>
+                                            <option value="4">Messenger</option>
+                                            <option value="5">Driver</option>
+                                            <option value="6">Support Executive (MIS/IT/System)</option>
+                                            <option value="7">Junior Executive (MIS/IT/System)</option>
+                                            <option value="8">Executive (MIS/IT/System)</option>
+                                            <option value="9">Senior Executive</option>
+                                            <option value="10">Deputy Manager</option>
+                                            <option value="11">Manager</option>
+                                            <option value="12">Senior Manager</option>
+                                            <option value="13">AGM</option>
+                                            <option value="14">DGM</option>
+                                            <option value="15">General Manager</option>
+                                            <option value="16">Managing Director</option>
+                                            <option value="17">ED</option>
+                                            <option value="18">MIS Officer</option>
+                                            <option value="19">Project Manager</option>
+                                            <option value="20">Software Engineer</option>
+                                            <option value="21">Senior Software Engineer</option>
+                                            <option value="22">ASP.net Software Developer</option>
+                                            <option value="23">Junior Software Developer</option>
+                                            <option value="24">TA/DA Bill Checking Officer</option>
+                                            <option value="25">Junior MIS Officer</option>
+                                            <option value="27">Senior Network Engineer</option>
+                                            <option value="28">Computer Operator</option>
+                                            <option value="29">Quality Monitoring Officer</option>
+                                            <option value="30">Program Officer</option>
+                                            <option value="31">PHP Developer</option>
+                                            <option value="32">Sr. Business Development &amp; Operation Manager</option>
+                                            <option value="33">Health Assistant</option>
+                                            <option value="34">Program Assistant</option>
+                                            <option value="35">Business Development Associate </option>
+                                            <option value="36">System Analyst</option>
+                                            <option value="37">Assistant Coordinator</option>
+                                            <option value="38">Junior Programmer</option>
+                                            <option value="39">IT Specialist</option>
+                                            <option value="40">Senior Officer</option>
+                                            <option value="41">Hardware Engineer</option>
+                                            <option value="42">Senior MIS Officer</option>
+                                            <option value="43">Supervisor </option>
+                                            <option value="44">Junior Support Engineer</option>
+                                            <option value="45">Support Engineer</option>
+                                            <option value="46">Senior Support Assistant</option>
+                                            <option value="47">Medical Assistant</option>
+                                            <option value="48">Assistant Software Engineer </option>
+                                            <option value="49">Local Coordinator</option>
+                                            <option value="50">IT Executive</option>
+                                            <option value="51">Undefined Designation/Ex Employees</option>
+                                            <option value="52">Electrician</option>
+                                            <option value="53">Front Desk Assistant</option>
+                                            <option value="55">Consultant </option>
+                                            <option value="56">Junior Hardware Engineer</option>
+                                            <option value="57">Assistant Programmer</option>
+                                            <option value="58">Programmer</option>
+                                            <option value="59">Executive</option>
+                                            <option value="60">Senior Hardware Engineer</option>
+                                            <option value="61">Senior Supervisor</option>
+                                            <option value="62">Special Officer</option>
+                                            <option value="63">Data Analyst &amp; Project Management Lead</option>
+                                            <option value="64">Cloud Solution &amp; Business System Architect</option>
+                                            <option value="65">Executive Vice Chairman</option>
+                                            <option value="66">MIS Officer (Hardware)</option>
+                                            <option value="67">Senior MIS Officer (Hardware)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        <label class="control-label" style="padding-top:8px;">Responsibility (অফিস পদবী)</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <select class="form-control" data-val="true" data-val-number="The field OfficeDesignationId must be a number." id="OfficeDesignationId" name="OfficeDesignationId">
+                                            <option value="">Please Select</option>
+                                            <option value="43">Acting Zone Supervisor</option>
+                                            <option value="72">Acting Zone Supervisor (HO)</option>
+                                            <option value="64">Analyst Programmer</option>
+                                            <option value="59">ASP. Net Software Developer</option>
+                                            <option value="60">Assistant Coordinator</option>
+                                            <option value="20">Assistant General Manager</option>
+                                            <option value="61">Assistant Software Engineer</option>
+                                            <option value="49">Computer Operator</option>
+                                            <option value="66">Consultant</option>
+                                            <option value="12">Deputy General Manager</option>
+                                            <option value="23">Deputy Manager</option>
+                                            <option value="28">Driver</option>
+                                            <option value="31">Electrician</option>
+                                            <option value="25">Executive</option>
+                                            <option value="68">Executive Vice Chairman</option>
+                                            <option value="65">Front Desk Assistant</option>
+                                            <option value="63">IT Executive</option>
+                                            <option value="26">Junior Executive</option>
+                                            <option value="46">Junior MIS Officer</option>
+                                            <option value="71">Junior MIS Officer (HO)</option>
+                                            <option value="41">Junior Programmer</option>
+                                            <option value="34">Junior Software Engineer</option>
+                                            <option value="47">Junior Support Engineer</option>
+                                            <option value="29">Lineman</option>
+                                            <option value="22">Manager</option>
+                                            <option value="1">Managing Director</option>
+                                            <option value="62">Medical Assistant</option>
+                                            <option value="53">Messenger</option>
+                                            <option value="45">MIS Officer</option>
+                                            <option value="50">MIS Officer (HDW)</option>
+                                            <option value="69">MIS Officer (HO)</option>
+                                            <option value="10">Not Applicable</option>
+                                            <option value="36">Not Applicable Project</option>
+                                            <option value="37">PHP Developer</option>
+                                            <option value="39">Program Assistant</option>
+                                            <option value="54">Program Officer</option>
+                                            <option value="73">Project Co Ordinator</option>
+                                            <option value="55">Project Manager</option>
+                                            <option value="56">Quality Monitoring Officer</option>
+                                            <option value="24">Senior Executive</option>
+                                            <option value="21">Senior Manager</option>
+                                            <option value="42">Senior MIS Officer</option>
+                                            <option value="70">Senior MIS Officer (HO)</option>
+                                            <option value="58">Senior Network Engineer</option>
+                                            <option value="32">Senior Software Engineer</option>
+                                            <option value="57">Senior Support Assistant</option>
+                                            <option value="33">Software Engineer</option>
+                                            <option value="67">Special Officio</option>
+                                            <option value="35">SQA Engineer</option>
+                                            <option value="38">Sr. Business Development &amp; Operation Manager</option>
+                                            <option value="51">Sr. MIS Offcer (HDW)</option>
+                                            <option value="48">Support Engineer</option>
+                                            <option value="52">Support Engineer (HDW)</option>
+                                            <option value="27">Support Executive</option>
+                                            <option value="40">System Analyse</option>
+                                            <option value="30">Technician</option>
+                                            <option value="19">Unit Chief</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin: 0;">
+
+
+
+                            <div class="col-sm-6 emp-status-container">
+                                <div class="form-group text-right">
+                                    <div class="col-md-4 ">
+
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="radio" name="empStatus" id="empStatus" value="Active" checked=""> Active &nbsp;&nbsp;&nbsp;
+                                        <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                                        <input type="radio" name="empStatus" id="empStatus" value="All"> All
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 emp-status-container">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4 required" for="EmployeeStatus" style="text-align: left;">Employee Status (কর্মসংস্থানের অবস্থা)</label>
+                                    <div class="col-sm-8">
+                                        <div class="btn-group bootstrap-select show-tick form-control">
+                                            <button type="button" class="btn dropdown-toggle btn-default" data-toggle="dropdown" role="button" data-id="typeFilterColumn" title="Regular, Contractual, Probationary, Extended Probationary, Trainee, Intern, Unauthorized Absent, Leave on Preparation for Retiredment(L.P.R), Lien, Suspended, Officer On Special Duty (OSD)"><span class="filter-option pull-left">Regular, Contractual, Probationary, Extended Probationary, Trainee, Intern, Unauthorized Absent, Leave on Preparation for Retiredment(L.P.R), Lien, Suspended, Officer On Special Duty (OSD)</span>&nbsp;<span class="bs-caret"><span class="caret"></span></span></button><div class="dropdown-menu open" role="combobox"><ul class="dropdown-menu inner" role="listbox" aria-expanded="false"><li data-original-index="0" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Regular</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="1" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Contractual</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="2" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Probationary</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="3" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Extended Probationary</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="4" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Trainee</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="5" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Intern</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="6" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Unauthorized Absent</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="7" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Leave on Preparation for Retiredment(L.P.R)</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="8" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Lien</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="9" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Suspended</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="10" class="selected"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="true"><span class="text">Officer On Special Duty (OSD)</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="11"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Resign</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="12"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Retirement</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="13"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Retrenchment</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="14"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Redundancy</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="15"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Discharge</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="16"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Dismissal</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="17"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Termination</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="18"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Death</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li><li data-original-index="19"><a tabindex="0" class="" data-tokens="null" role="option" aria-disabled="false" aria-selected="false"><span class="text">Non Employee</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li></ul></div><select class="selectpicker form-control" data-val="true" data-val-number="The field EmployeeStatusId must be a number." data-val-required="The EmployeeStatusId field is required." id="typeFilterColumn" multiple="multiple" name="EmployeeStatusId" tabindex="-98">
+                                                <option value="1">Regular</option>
+                                                <option value="2">Contractual</option>
+                                                <option value="3">Probationary</option>
+                                                <option value="4">Extended Probationary</option>
+                                                <option value="5">Trainee</option>
+                                                <option value="6">Intern</option>
+                                                <option value="7">Unauthorized Absent</option>
+                                                <option value="8">Leave on Preparation for Retiredment(L.P.R)</option>
+                                                <option value="9">Lien</option>
+                                                <option value="10">Suspended</option>
+                                                <option value="11">Officer On Special Duty (OSD)</option>
+                                                <option value="12">Resign</option>
+                                                <option value="13">Retirement</option>
+                                                <option value="14">Retrenchment</option>
+                                                <option value="15">Redundancy</option>
+                                                <option value="16">Discharge</option>
+                                                <option value="17">Dismissal</option>
+                                                <option value="18">Termination</option>
+                                                <option value="19">Death</option>
+                                                <option value="22">Non Employee</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4" style="text-align: left;">Department (বিভাগ)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" data-val="true" data-val-number="The field DepartmentId must be a number." data-val-required="The DepartmentId field is required." id="DepartmentId" name="DepartmentId">
+                                            <option value="">Please Select</option>
+                                            <option value="1"> Accounts &amp; Finance </option>
+                                            <option value="4">HR &amp; Admin              </option>
+                                            <option value="5">Internal Audit</option>
+                                            <option value="15">Implementation</option>
+                                            <option value="16">Hardware</option>
+                                            <option value="17">Network &amp; Infrastructure Service</option>
+                                            <option value="18">HR &amp; Admin, Training</option>
+                                            <option value="19">Software</option>
+                                            <option value="21">Purchase &amp; Distribution</option>
+                                            <option value="22">GCC</option>
+                                            <option value="23">GC (Management)</option>
+                                            <option value="24">Undefined Department</option>
+                                            <option value="29">Global Communication Center</option>
+                                            <option value="30">Business Development</option>
+                                            <option value="31">Chairman's Shachibaloy</option>
+                                            <option value="32">Grameen Shakti Unit</option>
+                                            <option value="34">ITSD-2</option>
+                                            <option value="35">ITSD-1</option>
+                                            <option value="36">ITSD-3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" style="text-align: left;">Section (সেকশন)</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="Section" name="Section">
+                                            <option selected="selected" value="0">Please Select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row BloodGroupControlContainer" style="margin: 0;">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 blood-group-label" style="text-align: left;">Blood Group (রক্তের গ্রুপ)</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="BloodGroup" name="BloodGroup">
+                                            <option selected="selected" value="0">Please Select</option>
+                                            <option value="A+">A+</option>
+                                            <option value="A-">A-</option>
+                                            <option value="B+">B+</option>
+                                            <option value="B-">B-</option>
+                                            <option value="AB+">AB+</option>
+                                            <option value="AB-">AB-</option>
+                                            <option value="O+">O+</option>
+                                            <option value="O-">O-</option>
+                                            <option value="U">Unknown</option>
+                                            <option value="AG">All Group</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row employeeStatus" style="display: none;">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Employee Status</label>
+                                <div class="col-md-8">
+                                    <select class="form-control" id="EmployeeStatus" name="EmployeeStatus">
+                                        <option value="1">Regular</option>
+                                        <option value="2">Contractual</option>
+                                        <option value="3">Probationary</option>
+                                        <option value="4">Extended Probationary</option>
+                                        <option value="5">Trainee</option>
+                                        <option value="6">Intern</option>
+                                        <option value="7">Unauthorized Absent</option>
+                                        <option value="8">Leave on Preparation for Retiredment(L.P.R)</option>
+                                        <option value="9">Lien</option>
+                                        <option value="10">Suspended</option>
+                                        <option value="11">Officer On Special Duty (OSD)</option>
+                                        <option value="12">Resign</option>
+                                        <option value="13">Retirement</option>
+                                        <option value="14">Retrenchment</option>
+                                        <option value="15">Redundancy</option>
+                                        <option value="16">Discharge</option>
+                                        <option value="17">Dismissal</option>
+                                        <option value="18">Termination</option>
+                                        <option value="19">Death</option>
+                                        <option value="22">Non Employee</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row reportDate" style="display: none;">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4" style="text-align: left;">Date From (তারিখ হতে)</label>
+                                <div class="col-md-8">
+                                    <input class="form-control hasDatepicker" id="DateFrom" name="DateFrom" type="text" value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4" style="text-align: left;">Date To (তারিখ পর্যন্ত)</label>
+                                <div class="col-md-8">
+                                    <input class="form-control hasDatepicker" id="DateTo" name="DateTo" type="text" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="officeNavigation" style="display: none;">
+
+                    </div>
+
+                    <div class="employeeServiceBook digitalIDCardSection" style="display: none;">
+
+
+                        <script>
+                            function GenerateDropDownList(dorpDownFieldId, controllerName, functionName) {
+                                var ddlName = $("#'" + dorpDownFieldId + "");
+                                var dataUrl = '/' + controllerName + '/' + functionName + '';
+
+                                $('#AjaxLoader').show();
+                                $.ajax({
+                                    type: "GET", //GET or POST or PUT or DELETE verb
+                                    url: dataUrl, // Location of the service
+                                    data: {}, //Data sent to server
+                                    dataType: "json", //Expected data format from server
+                                    processdata: false, //True or False
+                                    success: function (data) { //On Successful service call
+                                        $('#AjaxLoader').hide();
+                                        ddlName.html('');
+                                        if (data.length > 0) {
+                                            $.each(data, function (i, option) {
+                                                ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                            });
+                                        }
+                                    },
+                                    error: function (data) {
+                                        $('#AjaxLoader').hide();
+                                        $.alert.open('error', 'Error');
+                                    }
+                                });
+                            }
+
+                            function GetHeadOfficeByOfficeType() {
+                                var ddlName = $("#PVHeadOfficeId");
+
+                                $('#AjaxLoader').show();
+                                $.ajax({
+                                    type: "GET", //GET or POST or PUT or DELETE verb
+                                    url: '/Office/GetHeadOfficeByOfficeType', // Location of the service
+                                    data: {}, //Data sent to server
+                                    dataType: "json", //Expected data format from server
+                                    async: false,
+                                    processdata: false, //True or False
+                                    success: function (data) { //On Successful service call
+                                        $('#AjaxLoader').hide();
+                                        ddlName.html('');
+                                        if (data.length > 0) {
+                                            $.each(data, function (i, option) {
+                                                ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                            });
+                                        }
+                                    },
+                                    error: function (data) {
+                                        $('#AjaxLoader').hide();
+                                        $.alert.open('error', 'Error');
+                                    }
+                                });
+                            }
+
+                            function GetProjectsByOfficeType() {
+                                var ddlName = $("#PVProjectId");
+
+                                $('#AjaxLoader').show();
+                                $.ajax({
+                                    type: "GET", //GET or POST or PUT or DELETE verb
+                                    url: '/Office/GetProjectsByOfficeType', // Location of the service
+                                    data: {}, //Data sent to server
+                                    dataType: "json", //Expected data format from server
+                                    async: false,
+                                    processdata: false, //True or False
+                                    success: function (data) { //On Successful service call
+                                        $('#AjaxLoader').hide();
+                                        ddlName.html('');
+                                        if (data.length > 0) {
+                                            $.each(data, function (i, option) {
+                                                ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                            });
+                                        }
+                                    },
+                                    error: function (data) {
+                                        $('#AjaxLoader').hide();
+                                        $.alert.open('error', 'Error');
+                                    }
+                                });
+                            }
+
+                            function GetAllOfficeType() {
+                                var ddlOfficeType = $("#OfficeTypeId");
+                                $('#AjaxLoader').show();
+                                $.ajax({
+                                    type: "GET", //GET or POST or PUT or DELETE verb
+                                    url: '/Office/OfficeTypeList_JS', // Location of the service
+                                    data: {}, //Data sent to server
+                                    dataType: "json", //Expected data format from server
+                                    processdata: false, //True or False
+                                    success: function (data) { //On Successful service call
+                                        $('#AjaxLoader').hide();
+                                        ddlOfficeType.html('');
+                                        if (data.length > 0) {
+                                            $.each(data, function (i, option) {
+                                                ddlOfficeType.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                            });
+                                        }
+                                    },
+                                    error: function (data) {
+                                        $('#AjaxLoader').hide();
+                                        $.alert.open('error', 'Error');
+                                    }
+                                });
+                            }
+
+                            function GetAllZoneOffice() {
+                                var ddlZone = $("#ZoneId");
+                                $.ajax({
+                                    type: "GET", //GET or POST or PUT or DELETE verb
+                                    url: '/Office/getAllZoneId', // Location of the service
+                                    data: {}, //Data sent to server
+                                    dataType: "json", //Expected data format from server
+                                    processdata: false, //True or False
+                                    success: function (data) { //On Successful service call
+                                        $('#AjaxLoader').hide();
+                                        ddlZone.html('');
+                                        if (data.length > 0) {
+                                            $.each(data, function (i, option) {
+                                                ddlZone.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                            });
+                                        }
+                                    },
+                                    error: function (data) {
+                                        $('#AjaxLoader').hide();
+                                        $.alert.open('error', 'Error');
+                                    }
+                                });
+                            }
+
+                            function ChangeOfficeType() {
+
+                            }
+
+                            $(document).ready(function () {
+                                $("#HeadOfficeDiv").hide();
+                                $("#ProjectDiv").hide();
+                                $("#ZoneDiv").hide();
+                                $("#AreaDiv").hide();
+                                $("#UnitDiv").hide();
+
+                                // GetAllOfficeType();
+                                //GetAllZoneOffice();
+
+
+
+
+                                $("#OfficeTypeId").change(function () {
+
+                                    var officeType = $("#OfficeTypeId").val();
+                                    if (officeType != "") {
+                                        $("#ZoneId").val('');
+                                        $("#AreaId").html('<option value="">Please Select</option>');
+                                        $("#UnitId").html('<option value="">Please Select</option>');
+
+                                        if (officeType == 1) {
+                                            GetHeadOfficeByOfficeType();
+                                            $("#HeadOfficeDiv").show();
+
+                                            $("#ProjectDiv").hide();
+                                            $("#ZoneDiv").hide();
+                                            $("#AreaDiv").hide();
+                                            $("#UnitDiv").hide();
+                                        } else if (officeType == 3) { //project
+                                            $("#HeadOfficeDiv").hide();
+
+                                            GetProjectsByOfficeType();
+                                            $("#ProjectDiv").show();
+                                            $("#ZoneDiv").hide();
+                                            $("#AreaDiv").hide();
+                                            $("#UnitDiv").hide();
+
+                                        } else if (officeType == 4) { //zone
+                                            $("#HeadOfficeDiv").hide();
+                                            $("#ProjectDiv").hide();
+
+                                            $("#AreaDiv").hide();
+                                            $("#UnitDiv").hide();
+                                            $("#ZoneDiv").show();
+                                        } else if (officeType == 5) { //area
+                                            $("#HeadOfficeDiv").hide();
+                                            $("#ProjectDiv").hide();
+                                            $("#UnitDiv").hide();
+
+                                            $("#ZoneDiv").show();
+                                            $("#AreaDiv").show();
+                                        } else if (officeType == 6) { //field
+                                            $("#HeadOfficeDiv").hide();
+                                            $("#ProjectDiv").hide();
+                                            $("#UnitDiv").show();
+                                            $("#ZoneDiv").show();
+                                            $("#AreaDiv").show();
+                                        }
+                                    } else {
+                                        $("#HeadOfficeDiv").hide();
+                                        $("#ProjectDiv").hide();
+                                        $("#ZoneDiv").hide();
+                                        $("#AreaDiv").hide();
+                                        //$("#AreaId").html('<option value="">Please Select</option>');
+                                        $("#UnitDiv").hide();
+                                        //$("#UnitId").html('<option value="">Please Select</option>');
+                                    }
+                                });
+
+                                $("#ZoneId").change(function () {
+
+                                    var zoneId = $("#ZoneId").val();
+                                    var ddlArea = $("#AreaId");
+                                    var officeTypeId = $("#OfficeTypeId").val();
+
+                                    if (zoneId != "" && (officeTypeId == 5 || officeTypeId == 6)) {
+                                        $('#AjaxLoader').show();
+                                        $.ajax({
+                                            type: "GET", //GET or POST or PUT or DELETE verb
+                                            url: '/Office/getAllAreaIdByZoneCode', // Location of the service
+                                            data: { ZoneId: zoneId }, //Data sent to server
+                                            dataType: "json",
+                                            async: false,//Expected data format from server
+                                            processdata: false, //True or False
+                                            success: function (data) { //On Successful service call
+                                                $('#AjaxLoader').hide();
+                                                ddlArea.html('');
+                                                if (data.length > 0) {
+                                                    $.each(data, function (i, option) {
+                                                        ddlArea.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                    });
+                                                }
+                                                $("#UnitId").html('<option value="">Please Select</option>');
+                                            },
+                                            error: function (data) {
+                                                $('#AjaxLoader').hide();
+                                                $.alert.open('error', 'Error');
+                                            }
+                                        });
+                                    } else {
+                                        ddlArea.html('<option value="">Please Select</option>');
+                                        $("#UnitId").html('<option value="">Please Select</option>');
+
+                                    }
+                                });
+
+                                $("#AreaId").change(function () {
+
+                                    var areaId = $("#AreaId").val();
+                                    var ddlUnit = $("#UnitId");
+                                    var officeTypeId = $("#OfficeTypeId").val();
+
+                                    if (areaId != "" && (officeTypeId == 6)) {
+                                        $('#AjaxLoader').show();
+                                        $.ajax({
+                                            type: "GET", //GET or POST or PUT or DELETE verb
+                                            url: '/Office/getAllUnitIdByAreaCode', // Location of the service
+                                            data: { AreaId: areaId }, //Data sent to server
+                                            dataType: "json", //Expected data format from server
+                                            async: false,
+                                            processdata: false, //True or False
+                                            success: function (data) { //On Successful service call
+                                                $('#AjaxLoader').hide();
+                                                ddlUnit.html('');
+                                                if (data.length > 0) {
+                                                    $.each(data, function (i, option) {
+                                                        ddlUnit.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                                                    });
+                                                }
+                                            },
+                                            error: function (data) {
+                                                $('#AjaxLoader').hide();
+                                                $.alert.open('error', 'Error');
+                                            }
+                                        });
+                                    } else {
+                                        $("#UnitId").html('<option value="">Please Select</option>');
+
+                                    }
+                                });
+
+                                var _OfficeTypeId = '0';
+                                if (parseInt(_OfficeTypeId) > 0) {
+
+                                    $("#OfficeTypeId").val(_OfficeTypeId);
+                                    $('#OfficeTypeId').val(_OfficeTypeId).trigger('change');
+                                    $('#OfficeTypeId').change();
+                                    if (parseInt(_OfficeTypeId) == 1) {
+                                        $("#PVHeadOfficeId").val('');
+                                    }
+                                    else if (parseInt(_OfficeTypeId) == 3) {
+                                        $("#PVProjectId").val();
+                                    }
+                                    else if (parseInt(_OfficeTypeId) == 4) {
+                                        $("#ZoneId").val();
+                                    }
+                                    else if (parseInt(_OfficeTypeId) == 5) {
+                                        $("#ZoneId").val();
+                                        $("#ZoneId").val().trigger('change');
+
+                                        $("#AreaId").val('');
+                                    } else if (parseInt(_OfficeTypeId) == 6) {
+                                        $("#ZoneId").val();
+                                        $("#ZoneId").val().trigger('change');
+                                        $("#AreaId").val();
+                                        $("#AreaId").val().trigger('change');
+                                        $("#UnitId").val();
+                                    }
+
+                                } else {
+                                    $("#OfficeTypeId").val("");
+                                }
+                            });
+                        </script>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4" for="OfficeTypeId" style="text-align: left;">Office Type (অফিসের ধরণ)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" data-val="true" data-val-number="The field Office Type (অফিসের ধরণ) must be a number." data-val-required="The Office Type (অফিসের ধরণ) field is required." id="OfficeTypeId" name="OfficeTypeId" required="true">
+                                            <option value="">Please Select</option>
+                                            <option value="1">Head Office</option>
+                                            <option value="3">Project</option>
+                                            <option value="4">Zonal Office</option>
+                                            <option value="5">Area Office</option>
+                                            <option value="6">Branch/Unit Office</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" id="HeadOfficeDiv">
+                                <div class="item form-group">
+                                    <label class="control-label col-sm-4 required" for="PVHeadOfficeId" style="text-align: left;">Head Office (প্রধান কার্য্যালয়)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="PVHeadOfficeId" name="PVHeadOfficeId">
+                                            <option value="">Please Select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" id="ProjectDiv">
+                                <div class="item form-group">
+                                    <label class="control-label col-sm-4 required" for="PVProjectId" style="text-align: left;">Project Office (প্রোজেক্ট অফিস)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="PVProjectId" name="PVProjectId">
+                                            <option value="">Please Select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" id="ZoneDiv">
+                                <div class="item form-group">
+                                    <label class="control-label col-sm-4 required" for="ZoneId" style="text-align: left;">Zone Name (যোনের নাম)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="ZoneId" name="ZoneId" required="required">
+                                            <option value="">Please Select</option>
+                                            <option value="9">Jamalpur</option>
+                                            <option value="10">Rangpur</option>
+                                            <option value="11">Tangail</option>
+                                            <option value="12">Manikganj</option>
+                                            <option value="15">Chattogram Zonal Office</option>
+                                            <option value="16">Tangail Zonal Office</option>
+                                            <option value="17">Rangpur Zonal Office</option>
+                                            <option value="18">Manikganj Zonal Office</option>
+                                            <option value="19">Patuakhali Zonal Office</option>
+                                            <option value="20">Bogura Zonal Office</option>
+                                            <option value="21">Sylhet Zonal Office</option>
+                                            <option value="22">Rajshahi Zonal Office</option>
+                                            <option value="23">Dinjpur Zonal Office </option>
+                                            <option value="24">Faridpur Zonal Office</option>
+                                            <option value="25">Cumilla Zonal Office </option>
+                                            <option value="26"> Mymensingh Zonal Office</option>
+                                            <option value="27">Narayanganj Zonal Office</option>
+                                            <option value="28">Khulna Zonal Office</option>
+                                            <option value="29">Noakhali Zonal Office </option>
+                                            <option value="30">Jamalpur Zonal Office</option>
+                                            <option value="31">Nilphamari Zonal Office</option>
+                                            <option value="32">Hobiganj Zonal office </option>
+                                            <option value="33">Pabna Zonal Office</option>
+                                            <option value="34">Barishal Zonal Office</option>
+                                            <option value="35">Jhenaidah Zonal Office</option>
+                                            <option value="36"> Cox'sbazar Zonal Office</option>
+                                            <option value="37">Gaibandha Zonal Office </option>
+                                            <option value="38">Naogaon Zonal Office </option>
+                                            <option value="39">Jashore Zonal Office </option>
+                                            <option value="40">Chandpur Zonal Office </option>
+                                            <option value="41">Kishoreganj Zonal Office </option>
+                                            <option value="42">Bhola Zonal Office </option>
+                                            <option value="43">Rangamati Zonal Office</option>
+                                            <option value="44">Gazipur Zonal Office</option>
+                                            <option value="45">Madaripur Zonal Office </option>
+                                            <option value="46">Thakurgaon Zonal Office</option>
+                                            <option value="47">Pirojpur Zonal Office </option>
+                                            <option value="48">Sunamganj Zonal Office</option>
+                                            <option value="49">Feni Zonal Office</option>
+                                            <option value="50">Narshingdi Zonal Office </option>
+                                            <option value="51">Kurigram Zonal Office</option>
+                                            <option value="52">Netrokona Zonal Office</option>
+                                            <option value="53">Sirajganj Zonal Office </option>
+                                            <option value="54">Sherpur Zonal Office</option>
+                                            <option value="55">Z.AUDIT CHITTAGONG</option>
+                                            <option value="56">Z.AUDIT TANGAIL</option>
+                                            <option value="57">Z.AUDIT RANGPUR</option>
+                                            <option value="58">Z.AUDIT MANIKGANJ</option>
+                                            <option value="59">Z.AUDIT PATUAKHALI</option>
+                                            <option value="60">Z.AUDIT BOGRA</option>
+                                            <option value="61">Z.AUDIT SYLHET</option>
+                                            <option value="62">Z.AUDIT RAJSHAHI</option>
+                                            <option value="63">Z.AUDIT DINAJPUR</option>
+                                            <option value="64">Z.AUDIT FARIDPUR</option>
+                                            <option value="65">Z.AUDIT COMILLA</option>
+                                            <option value="66">Z.AUDIT MYMENSINGH</option>
+                                            <option value="67">Z.AUDIT NARAYANGANJ</option>
+                                            <option value="68">Z.AUDIT KHULNA</option>
+                                            <option value="69">Z.AUDIT NOAKHALI</option>
+                                            <option value="70">Z.AUDIT JAMALPUR</option>
+                                            <option value="71">Z.AUDIT NILPHAMARI</option>
+                                            <option value="72">Z.AUDIT HOBIGANJ</option>
+                                            <option value="73">Z.AUDIT PABNA</option>
+                                            <option value="74">Z.AUDIT BARISAL</option>
+                                            <option value="75">Z.AUDIT JHENAIDAH</option>
+                                            <option value="76">Z.AUDIT COX'S BAZAR</option>
+                                            <option value="77">Z.AUDIT GAI BANDHA</option>
+                                            <option value="78">Z.AUDIT NAOGAON</option>
+                                            <option value="79">Z.AUDIT JESSORE</option>
+                                            <option value="80">Z.AUDIT CHANDPUR</option>
+                                            <option value="81">Z.AUDIT KISHOREGANJ</option>
+                                            <option value="82">Z.AUDIT BHOLA</option>
+                                            <option value="83">Z.AUDIT RANGAMATI</option>
+                                            <option value="84">Z.AUDIT GAZIPUR</option>
+                                            <option value="85">Z.AUDIT MADARIPUR</option>
+                                            <option value="86">Z.AUDIT THAKURGAON</option>
+                                            <option value="87">Z.AUDIT PEROJPUR</option>
+                                            <option value="88">Z.AUDIT SUNAMGANJ</option>
+                                            <option value="89">Z.AUDIT FENI</option>
+                                            <option value="90">Z. AUDIT NARSHINGDI</option>
+                                            <option value="91">Z.AUDIT KURIGRAM</option>
+                                            <option value="92">Z.AUDIT NETROKONA</option>
+                                            <option value="93">Z.AUDIT SERAJGANJ</option>
+                                            <option value="94">Z.AUDIT SHERPUR</option>
+                                            <option value="365">BOGRA DIVISION-GS</option>
+                                            <option value="366">RANGPUR DIVISION-GS</option>
+                                            <option value="367">SYLHET DIVISION-GS</option>
+                                            <option value="368">BARISAL DIVISION-GS</option>
+                                            <option value="369">FARIDPUR DIVISION-GS</option>
+                                            <option value="370">KHULNA DIVISION-GS</option>
+                                            <option value="371">MYMENSINGH DIVISION-GS</option>
+                                            <option value="372">CHITTAGONG DIVISION-GS</option>
+                                            <option value="373">COMILLA DIVISION-GS</option>
+                                            <option value="374">TANGAIL DIVISION-GS</option>
+                                            <option value="375">HOBIGANJ DIVISION-GS</option>
+                                            <option value="376">PATUAKHALI DIVISION-GS</option>
+                                            <option value="377">FENI DIVISION-GS</option>
+                                            <option value="378">MADARIPUR DIVISION-GS</option>
+                                            <option value="379">KISHOREGANJ DIVISION-GS</option>
+                                            <option value="380">NATORE DIVISION-GS</option>
+                                            <option value="547">Central Store GSHO</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6" id="AreaDiv">
+                                <div class="item form-group">
+                                    <label class="control-label col-sm-4 required" for="AreaId" style="text-align: left;">Area Name (এরিয়ার নাম)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="AreaId" name="AreaId" required="required">
+                                            <option value="">Please Select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" id="UnitDiv">
+                                <div class="item form-group">
+                                    <label class="control-label col-sm-4 required" for="UnitId" style="text-align: left;">Unit/Branch Name (ইউনিট/ব্রাঞ্চের নাম)</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="UnitId" name="UnitId" required="required">
+                                            <option value="">Please Select</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" style="text-align: left;">Department (বিভাগ)</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="DepartmentId" name="DepartmentId">
+                                            <option value="">-Select One-</option>
+                                            <option value="">Please Select</option>
+                                            <option value="1"> Accounts &amp; Finance </option>
+                                            <option value="4">HR &amp; Admin              </option>
+                                            <option value="5">Internal Audit</option>
+                                            <option value="15">Implementation</option>
+                                            <option value="16">Hardware</option>
+                                            <option value="17">Network &amp; Infrastructure Service</option>
+                                            <option value="18">HR &amp; Admin, Training</option>
+                                            <option value="19">Software</option>
+                                            <option value="21">Purchase &amp; Distribution</option>
+                                            <option value="22">GCC</option>
+                                            <option value="23">GC (Management)</option>
+                                            <option value="24">Undefined Department</option>
+                                            <option value="29">Global Communication Center</option>
+                                            <option value="30">Business Development</option>
+                                            <option value="31">Chairman's Shachibaloy</option>
+                                            <option value="32">Grameen Shakti Unit</option>
+                                            <option value="34">ITSD-2</option>
+                                            <option value="35">ITSD-1</option>
+                                            <option value="36">ITSD-3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4" style="text-align: left;">Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)</label>
+                                    <div class="col-md-8">
+                                        <input class="form-control employeeCode" id="EmployeeCode" name="EmployeeCode" type="text" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4"></label>
+                                <div class="col-md-4">
+                                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary">
+                                </div>
+
+                                <div class="exelPrint" style="display: none;">
+                                    <input type="button" id="btnExelPrint" value="Print Exel" class="btn btn-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid" id="FinalSattlementGridList" style="display:none;">
+                <br>
+                <br>
+                <h2 class="page-title">Final Sattlement List</h2>
+                &nbsp;
+                <input type="text" id="filterInput" placeholder="Filter by ID" onkeydown="FinalSattlementFilter(this);">
+                <div id="grid"></div>
+
+            </div>
+
+
+            &nbsp;
+            <div class="container-fluid" style="margin-top: -15px;">
+                <div class="row hideReason" style="display: none;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4" for="ReasonId" style="padding: 0;">Reason (কারণ)</label>
+                            <div class="col-sm-8" style="padding:2px">
+                                <select class="form-control" data-val="true" data-val-number="The field Reason (কারণ) must be a number." data-val-required="Reason (কারণ) is Required" id="ReasonId" name="ReasonId">
+                                    <option value="">Please Select</option>
+                                    <option value="19">Death</option>
+                                    <option value="16">Discharge</option>
+                                    <option value="17">Dismissal</option>
+                                    <option value="22">Non Employee</option>
+                                    <option value="15">Redundancy</option>
+                                    <option value="12">Resign</option>
+                                    <option value="13">Retirement</option>
+                                    <option value="14">Retrenchment</option>
+                                    <option value="18">Termination</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hideDateFrom" style="margin-top: 15px; display: none;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4 required" for="DateFromNew" style="padding: 0;">Date From (তারিখ হতে)</label>
+                            <div class="col-sm-8" style="padding:3px">
+                                <input autocomplete="off" class="form-control ddl-datepicker hasDatepicker" id="DateFromNew" name="DateFromNew" type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row hideDateTo" style="margin-top: 15px; display: none;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4 required" for="DateToNew" style="padding: 0;">Date To (তারিখ পর্যন্ত)</label>
+                            <div class="col-sm-8" style="padding:3px">
+                                <input autocomplete="off" class="form-control ddl-datepicker hasDatepicker" id="DateToNew" name="DateToNew" type="text" value="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row hidePrintExcelView" style="margin-left: 140px; text-align: center; display: none;">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <input type="button" value="View" id="btnViewOtherReport" class="btn btn-facebook">
+                            <input type="button" value="Excel Download" id="btnExcel" class="btn btn-facebook">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        InformationStatus(true);
+
+        $('input[name=empStatus]').click(function () {
+            $('.selectpicker').selectpicker('deselectAll');
+            let status_text = $('input[name=empStatus]:checked').val();
+
+            if (status_text == "Active") {
+                InformationStatus(true);
+            }
+            else if (status_text == "InActive") {
+                InformationStatus(false);
+            }
+            else {
+                $('.selectpicker').selectpicker('selectAll');
+                //$('.selectpicker').selectpicker('val', statusArray);
+                //$('.selectpicker').selectpicker('val', 'Probationary');
+                //$('#typeFilterColumn').val(['1', '2', '3', '4', '9']);
+                //$("#typeFilterColumn option:contains('Probationary')").val();
+                //$("#typeFilterColumn option:contains('Probationary')").attr('selected', true);
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+
+         $("#DepartmentId").change(function () {
+             var deptId = $("#DepartmentId").val();
+             var ddlSection = $("#Section");
+             if (deptId != "") {
+                 $.ajax({
+                     type: 'GET',
+                     contentType: "application/json; charset=utf-8",
+                     url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                     data: { deptId: deptId },
+                     dataType: 'json',
+                     async: true,
+                     success: function (data) {
+                         if (data.length > 0) {
+                             ddlSection.html("");
+                             $.each(data, function (id, option) {
+                                 ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                             });
+                         } else {
+                             ddlSection.html("<option value=''>Please Select</option>");
+                         }
+                     },
+                 });
+             } else {
+
+                 ddlSection.html("<option value='0'>Please Select</option>");
+             }
+         });
+
+                    $("#filterColumn").change(function () {
+                    $("#filterValue").val('');
+                        if ($(this).val() != "ViewAll") {
+                            if ($(this).val() == "Joining") {
+                                $("#filterValue").datepicker(
+                                    {
+                                        dateFormat: "dd-M-yy",
+                                        showAnim: "scale",
+                                    });
+                            }
+                            else if ($(this).val() == "Posting") {
+                                $("#filterValue").datepicker(
+                                    {
+                                        dateFormat: "dd-M-yy",
+                                        showAnim: "scale",
+                                    });
+                            }
+                            else if ($(this).val() == "Promotion") {
+                                $("#filterValue").datepicker(
+                                    {
+                                        dateFormat: "dd-M-yy",
+                                        showAnim: "scale",
+                                    });
+                            }
+                            else {
+                                $("#filterValue").datepicker("destroy");
+
+                            }
+                        }
+
+                    });
+         $("#DegreeLevel").change(function () {
+             GetDegreesByDegreeLevel();
+         });
+
+         $("#DegreeTitle").change(function () {
+             GetSubjectsByDegree();
+         });
+
+
+
+
+
+
+     });// END Document Ready
+
+
+    function InformationStatus(stsvalue) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("InformationStatus", "Employee", "http")',
+            data: { stsvalue: stsvalue },
+            dataType: 'json',
+            async: true,
+            success: function (response) {
+                $.each(response.Data, function (index, status) {
+                    if (status.Value) {
+                        $("#typeFilterColumn option").filter(function () {
+                            return $(this).text() == status.Text;
+                        }).prop("selected", true);
+                    }
+                });
+
+                $('.selectpicker').selectpicker('refresh');
+
+            },
+        });
+    }
+
+    function GetDegreesByDegreeLevel() {
+
+        var degreeLevelId = $("#DegreeLevel").val();
+        var ddlDegreeTitle = $("#DegreeTitle");
+
+        if (degreeLevelId != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetDegreesByDegreeLevel", "EducationSubjects", "http")',
+                data: { degreeLevelId: degreeLevelId },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        ddlDegreeTitle.html("");
+                        ddlDegreeTitle.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            ddlDegreeTitle.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        ddlDegreeTitle.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            ddlDegreeTitle.html('<option value="">Please Select</option>');
+        }
+    };
+
+    function GetSubjectsByDegree() {
+
+        var degreeCode = $("#DegreeTitle").val();
+        var ddlConcentration = $("#Concentration");
+
+        if (degreeCode != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetSubjectsByDegree", "EducationSubjects", "http")',
+                data: { degreeCode: degreeCode },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        ddlConcentration.html("");
+                        ddlConcentration.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            ddlConcentration.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        ddlConcentration.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            ddlConcentration.html('<option value="">Please Select</option>');
+        }
+    }
+
+
+
+
+
+</script>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/employee/employeeReportManager.js?v=@(gHRM.Core.Utilities.CommonHelper.DEV_VERSION()+DateTime.Now.ToString())"></script>
+
+}

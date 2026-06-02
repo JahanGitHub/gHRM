@@ -1,0 +1,82 @@
+﻿@model gHRM.Web.ViewModels.Basic.EmployeeProfileReportViewModel
+
+@{
+    ViewBag.Title = "Employee Signature Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#btnPrint").click(function () {
+            var officeId = 0;
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    officeId = $("#PVHeadOfficeId").val();
+                }
+                else if (officeTypeId == 3) {
+                    officeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    officeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    officeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    officeId = $("#UnitId").val();
+                }
+            }
+
+            if (officeId != 0) {
+                url = '/EmployeeProfileReport/EmployeeSignatureReportList?officeId=' + officeId + '&OfficeTypeId=' + officeTypeId;
+                    PrintReport(url);
+            } else {
+                $.alert.open("Error", "Please Select Office");
+            }
+
+        });
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+<h2 class="page-title">Employee Signature Report</h2>
+&nbsp;
+<div class="container-fluid">
+    <div id="officenav">
+        <hr />
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+    </div><br>
+
+    <div class="row">
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

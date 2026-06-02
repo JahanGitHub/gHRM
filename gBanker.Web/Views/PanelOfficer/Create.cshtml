@@ -1,0 +1,339 @@
+﻿@model gHRM.Web.ViewModels.PanelOfficerViewModel
+
+@{
+
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style type="text/css">
+    .frmRow {
+        padding-bottom: 10px;
+    }
+</style>
+
+<script>
+    function AssignNewUnitToPanelOfficer() {
+        //alert('hi');
+
+            var unitIdList = new Array();
+
+            $("#unAssignedUnitTbl tbody tr").each(function () {
+                var that = $(this);
+                var isChecked = that.find('#chkAssignUnit');
+
+                if ($(isChecked).is(':checked')) {
+                    var id = that.find("#unAssignedUnitId").val();
+                    var officeId = { 'OfficeId': id };
+                    unitIdList.push(officeId);
+                }
+            });
+
+            if (unitIdList.length > 0) {
+                var assigneDt = $("#AssignDt").val();
+                var employeeId = $("#ddlEmployeeId").val();
+                if (employeeId != '' || assigneDt != '') {
+                    $('#AjaxLoader').show();
+                    $.ajax({
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("AssignUnitListToPanelOfficer", "PanelOfficer", "http")',
+                        data: JSON.stringify({ 'EmployeeId': employeeId, 'AssignDt': assigneDt, 'AssignedUnitList': unitIdList }),//, 'AssignDt': assigneDt, 'AssignedUnitList': unitIdList
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+
+                            $('#AjaxLoader').hide();
+                            if (data == 1) {
+                                $.alert.open('success', 'Saved Successfully');
+                                GetAssignedUnitListToPanelOfficer();
+                                GetUnassignedUnit();
+                            } else {
+                                $.alert.open('error', 'Sorry Not Saved');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $('#AjaxLoader').hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+
+                    });
+                } else {
+                    $.alert.open("error", "Please Insert Valid Data");
+                }
+            } else {
+                $.alert.open("error", "Please Select Unit Name");
+        }
+    }
+
+    function UnassignUnitToPanelOfficer() {
+        //alert('hello');
+        debugger;
+            var unitIdList = new Array();
+            debugger;
+            $("#assignedUnitTbl tbody tr").each(function () {
+                var that = $(this);
+                var isChecked = that.find('#chkUnassignUnit');
+
+                if ($(isChecked).is(':checked')) {
+                    var id = that.find("#unAssignedUnitId").val();
+                    var unitId = { 'OfficeId': id };
+                    unitIdList.push(unitId);
+                }
+            });
+
+            if (unitIdList.length > 0) {
+                //var assigneDt = $("#AssignDt").val();
+                var employeeId = $("#ddlEmployeeId").val();
+                if (employeeId != '') {
+                    $('#AjaxLoader').show();
+                    $.ajax({
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("UnassignUnitListToPanelOfficer", "PanelOfficer", "http")',
+                        data: JSON.stringify({ 'EmployeeId': employeeId, 'UnassignedUnitList': unitIdList }),//, 'AssignDt': assigneDt, 'AssignedUnitList': unitIdList
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+
+                            $('#AjaxLoader').hide();
+                            if (data == 1) {
+                                $.alert.open('success', 'Saved Successfully');
+                                GetAssignedUnitListToPanelOfficer();
+                                GetUnassignedUnit();
+                            } else {
+                                $.alert.open('error', 'Sorry Not Saved');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $('#AjaxLoader').hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+
+                    });
+                } else {
+                    $.alert.open("error", "Please Insert Valid Data");
+                }
+            } else {
+                $.alert.open("error", "Please Select Unit Name");
+            }
+
+    }
+
+    function GetAssignedUnitListToPanelOfficer() {
+        debugger;
+        var employeeId = $("#ddlEmployeeId").val();
+        if (employeeId == "" || isNaN(employeeId)) {
+            $("#assignedUnitTbl tbody").html("");
+            return;
+        } else {
+            var tbl = "";
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetAssignedUnitListToPanelOfficer", "PanelOfficer", "http")',
+                data: { 'EmployeeId': employeeId },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+
+                    $('#AjaxLoader').hide();
+                    $("#assignedUnitTbl tbody").html("");
+
+                    $.each(data, function (id, option) {
+
+                        tbl = tbl + '<tr style="font-size:16px;"><td style="display:none;"> <input type="hidden" id="unAssignedUnitId" value="' + option.OfficeId + '"/></td><td><input type="checkbox" id="chkUnassignUnit">  ' + option.OfficeName + '</td></tr>';
+
+                    });
+                    $("#assignedUnitTbl tbody").html(tbl);
+                },
+                error: function (request, status, error) {
+                    $('#AjaxLoader').hide();
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+
+            });
+        }
+    }
+
+    function GetUnassignedUnit() {
+        debugger;
+        var zoneId = $("#ddlZoneId").val();
+        if (zoneId=="") {
+            zoneId = 0;
+        }
+        //if (zoneId == '') {
+        //    $("#unAssignedUnitTbl tbody").html("");
+        //    return;
+        //} else {
+            var tbl = "";
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetZoneWiseUnitForPanelOfficer", "PanelOfficer", "http")',
+                data: { 'zoneId': zoneId },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+
+                    $('#AjaxLoader').hide();
+                    $("#unAssignedUnitTbl tbody").html("");
+
+                    $.each(data, function (id, option) {
+                        tbl = tbl + '<tr style="font-size:16px;"><td style="display=none;"> <input type="hidden" id="unAssignedUnitId" value="' + option.OfficeId + '"/></td><td><input type="checkbox" id="chkAssignUnit">  ' + option.OfficeName + '</td></tr>';
+                    });
+                    $("#unAssignedUnitTbl tbody").html(tbl);
+                },
+                error: function (request, status, error) {
+                    $('#AjaxLoader').hide();
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+
+            });
+        //}
+    }
+
+    $(document).ready(function () {
+
+        GetUnassignedUnit();
+        $("#AssignDt").val("@DateTime.Now.ToString("dd-MMM-yyyy")");
+
+        $("#AssignDt").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2025",
+            onClose: function () {
+
+                var testdate = new Date(MakeDate($("#AssignDt").val()));
+                //var dd = ValidDateLess(testdate);
+                if (ValidDateEqualOrGreater(testdate) == false) {
+                    $.alert.open('error', 'Please insert valid date');
+                    $("#AssignDt").val("");
+                    $("#AssignDt").focus();
+                    return false;
+                }
+            }
+        });
+
+        $("#EmployeeRank").change(function () {
+            debugger;
+            var EmployeeRank = $("#EmployeeRank").val();
+            if (EmployeeRank != null && EmployeeRank != "") {
+
+                var ddlEmployee = $("#ddlEmployeeId");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("getOfficeEmployeeList", "PanelOfficer", "http")',
+                    data: { EmployeeRank: EmployeeRank },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlEmployee.html('');
+                        $.each(data, function (id, option) {
+                            ddlEmployee.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+
+        });
+
+        $("#ddlEmployeeId").change(function () {
+            GetAssignedUnitListToPanelOfficer();
+        });
+
+
+
+        $("#ddlZoneId").change(function () {
+            GetUnassignedUnit();
+        });
+    });
+
+</script>
+
+<h2 class="page-title">Assign Panel Officer</h2>
+@using (Html.BeginForm("Create", "PanelOfficer", FormMethod.Post, new { enctype = "multipart/form-data", @role = "form", id = "Create" }))
+{
+
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+
+        <br />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class=" form-group">
+                    @Html.LabelFor(model => model.AssignDt, new { @class = "control-label  col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.AssignDt, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class=" col-sm-6">
+                <div class=" form-group">
+                    @Html.LabelFor(model => model.EmployeeRank, new { @class = "control-label  col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.EmployeeRank, @Model.EmployeeRankList, new { @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br />
+        <div class="row ">
+            <div class="col-sm-6">
+                <div class=" form-group">
+                    <label class=" control-label col-sm-4" for="EmployeeId">EmployeeId</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.EmployeeId, Model.EmployeeList, new { @id = "ddlEmployeeId", @class = "form-control", @required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class=" form-group">
+                    @Html.LabelFor(model => model.ZoneId, new { @class = "control-label  col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.ZoneId, Model.ZoneList, new { @id = "ddlZoneId", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row ">
+            <div class="col-md-5" style="height: 300px;margin-left:45px;border: 1px solid #808080;padding: 0px; overflow: scroll">
+                <table id="assignedUnitTbl" style="width: 100%;">
+                    <thead>
+                        <tr style="color: white;background-color:green;font-size:18px"><th style="display: none"></th><th colspan="2" style="text-align:center"> Assigned Units </th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="col-md-1" style="height: 300px;margin: auto">
+                <table>
+                    <tr><td><br /></td></tr>
+                    <tr><td><br /></td></tr>
+                    <tr><td><br /></td></tr>
+                    <tr>
+                        <td><a href="#" title='Assign Selected Unit(s)' class='k-button k-button-icontext k-grid-Edit k-grid-Edit-Small ' style="color:green;" onclick="AssignNewUnitToPanelOfficer()"><i class='fa fa-arrow-left '></i></a></td>
+                    </tr>
+                    <tr>
+                        <td><br /><a href="#" title='Unassign Selected Unit(s)' class='k-button k-button-icontext k-grid-Edit k-grid-Edit-Small' style="color:red;" onclick="UnassignUnitToPanelOfficer()"><i class='fa fa-arrow-right'></i></a></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-5" style="height: 300px; border: 1px solid #808080; padding: 0px; overflow: scroll">
+                <table id="unAssignedUnitTbl" style="width: 100%;">
+                    <thead>
+                        <tr style="color: white;background-color:green;font-size:18px"><th style="display: none"></th><th colspan="2" style="text-align:center"> Unassigned Units </th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,1761 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOtherInformationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeOtherInformation/EmployeeOtherInfo">EmployeeOtherInfo</a></li>
+        <li><a href="/EmployeeOtherInformation/EmployeeOtherInfoApproval">EmployeeOtherInfoApproval</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Employee Other Info Approval";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var countryList = Model == null ? null : Model.CountryList;
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        getEmployeeOfficeVisitInfoApproval();
+        getEmployeeRelativeInfoApproval();
+        getWorkExperienceInfoApproval();
+        getEmployeeTraningApproval();
+        getEmployeeFamilyInfo();
+        getEmployeeMaritalStatus();
+        GetEmployeePreviousWorkExperience();
+        GetPublicationApproval();
+        GetCurrentOfficeEmployeeRelationInfo();
+
+
+        $("#collapseVisitApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-Approval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseVisitApproval"><i class="fa fa-plus"></i>&nbsp; Visit Information Approval(কর্মকর্তা/কর্মচারীর ভ্রমণ সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseVisitApproval").on("show.bs.collapse", function () {
+            $(".panel-title-Approval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseVisitApproval"><i class="fa fa-minus"></i>&nbsp; Visit Information Approval(কর্মকর্তা/কর্মচারীর ভ্রমণ সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseCurrentOrgEmployeeRelation").on("hide.bs.collapse", function () {
+            $(".panel-title-CurrentOrgEmpRelation").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseCurrentOrgEmployeeRelation"><i class="fa fa-plus"></i>&nbsp; Relation With Current Organizations Employee Approval(কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseCurrentOrgEmployeeRelation").on("show.bs.collapse", function () {
+            $(".panel-title-CurrentOrgEmpRelation").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseCurrentOrgEmployeeRelation"><i class="fa fa-minus"></i>&nbsp; Relation With Current Organizations Employee Approval(কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseLinkApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-LinkApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseLinkApproval"><i class="fa fa-plus"></i>&nbsp; Relation With Inter Organizations Employee Approval(কর্মকর্তা/কর্মচারীর আন্তঃসংগঠন সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseLinkApproval").on("show.bs.collapse", function () {
+            $(".panel-title-LinkApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseLinkApproval"><i class="fa fa-minus"></i>&nbsp; Relation With Inter Organizations Employee Approval(কর্মকর্তা/কর্মচারীর আন্তঃসংগঠন সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseExperienceApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-collapseExperienceApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseExperienceApproval"><i class="fa fa-plus"></i>&nbsp; Work Experience With Inter Organizations Approval(কর্মকর্তা/কর্মচারীর অভিজ্ঞতা সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseExperienceApproval").on("show.bs.collapse", function () {
+            $(".panel-title-collapseExperienceApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseExperienceApproval"><i class="fa fa-minus"></i>&nbsp; Work Experience With Inter Organizations Approval(কর্মকর্তা/কর্মচারীর অভিজ্ঞতা সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseTraningApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-TraningApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseTraningApproval"><i class="fa fa-plus"></i>&nbsp; Employee Training Approval (কর্মকর্তা/কর্মচারীর প্রশিক্ষণ সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseTraningApproval").on("show.bs.collapse", function () {
+            $(".panel-title-TraningApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseTraningApproval"><i class="fa fa-minus"></i>&nbsp; Employee Training Approval (কর্মকর্তা/কর্মচারীর প্রশিক্ষণ সংক্রান্ত তথ্য)</a>');
+        });
+        //$("#collapseFamilyInfoApproval").on("hide.bs.collapse", function () {
+        //  $(".panel-title-FamilyInfoApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseFamilyInfoApproval"><i class="fa fa-plus"></i>&nbsp; Family Info Approval (কর্মকর্তা/কর্মচারীর পরিবার সংক্রান্ত তথ্য)</a>');
+        //});
+        //$("#collapseFamilyInfoApproval").on("show.bs.collapse", function () {
+        //  $(".panel-title-FamilyInfoApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseFamilyInfoApproval"><i class="fa fa-minus"></i>&nbsp; Family Info Approval(কর্মকর্তা/কর্মচারীর পরিবার  সংক্রান্ত তথ্য)</a>');
+        //});
+        $("#collapseMaritalStatusApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-MaritalStatusApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseMaritalStatusApproval"><i class="fa fa-plus"></i>&nbsp; Marital Status Approval (কর্মকর্তা/কর্মচারীর বৈবাহিক অবস্থা সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapseMaritalStatusApproval").on("show.bs.collapse", function () {
+            $(".panel-title-MaritalStatusApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseMaritalStatusApproval"><i class="fa fa-minus"></i>&nbsp; Marital Status Approval(কর্মকর্তা/কর্মচারীর বৈবাহিক অবস্থা সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapsePreviousExperienceApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-PreviousExperienceApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapsePreviousExperienceApproval"><i class="fa fa-plus"></i>&nbsp; Previous Work Experience Approval (কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapsePreviousExperienceApproval").on("show.bs.collapse", function () {
+            $(".panel-title-PreviousExperienceApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapsePreviousExperienceApproval"><i class="fa fa-minus"></i>&nbsp; Previous Work Experience Approval(কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapsePublicationApproval").on("hide.bs.collapse", function () {
+            $(".panel-title-PublicationApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapsePublicationApproval"><i class="fa fa-plus"></i>&nbsp; Publication Approval (কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)</a>');
+        });
+        $("#collapsePublicationApproval").on("show.bs.collapse", function () {
+            $(".panel-title-PublicationApproval").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapsePublicationApproval"><i class="fa fa-minus"></i>&nbsp; Publication Approval(কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)</a>');
+        });
+
+    });
+
+
+    //employeevisitorinfoapproval start
+
+    function getEmployeeOfficeVisitInfoApproval() {
+        $('#gridOfficeVisitApproval').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/ListOfficeVisitApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                EmpOfficeVisitId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                //EmployeeId: {
+                //    title: 'EmployeeId',
+                //    width: '3%'
+                //},
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                VisitType: {
+                    title: 'Visit Type',
+                    width: '5%'
+                },
+                Location: {
+                    title: 'Location',
+                    width: '5%'
+                },
+                Reason: {
+                    title: 'Reason',
+                    width: '5%'
+                },
+                //CurrentOfficeProvidedVal: {
+                //    key: true,
+                //    list: false,
+                //    create: false,
+                //    edit: false
+                //},
+                CurrentOfficeProvided: {
+                    title: 'CurrentOfficeProvided',
+                    width: '5%',
+                    display: function (data) {
+                        if (data.record.CurrentOfficeProvided == 1) {
+                            debugger;
+                            return '<div class="text-center">Yes</div>';
+                        } else {
+                            return '<div class="text-center">No</div>';
+                        }
+
+                    }
+                },
+                IsApproved: {
+                    title: "Approved",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationOfficeVisitApproved(' + data.record.EmpOfficeVisitId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationOfficeVisitRejected(' + data.record.EmpOfficeVisitId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+                },
+            }
+        });
+        $('#gridOfficeVisitApproval').jtable('load');
+    }
+
+    function InformationOfficeVisitApproved(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationOfficeVisitApproved", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridOfficeVisitApproval').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function InformationOfficeVisitRejected(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationOfficeVisitRejected", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridOfficeVisitApproval').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    //employeevisitorinfoapproval end
+
+
+    // getEmployeeRelativeInfoApproval start
+    function getEmployeeRelativeInfoApproval() {
+        $('#gridLinkApproval').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/ListEmployeeLinkApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                LinkId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationCode: {
+                    title: 'OrganizationCode',
+                    width: '3%'
+                },
+                RelativeEmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                RelativeDepartmentName: {
+                    title: 'DepartmentName',
+                    width: '5%'
+                },
+                RelativeDesignationName: {
+                    title: 'DesignationName',
+                    width: '5%'
+                },
+                RelativeEmployeeName: {
+                    title: 'EmployeeName',
+                    width: '5%'
+                },
+                IsApproved: {
+                    title: "Approved",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationEmployeeLinkApproved(' + data.record.LinkId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationEmployeeLinkRejected(' + data.record.LinkId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+                },
+            }
+        });
+        $('#gridLinkApproval').jtable('load');
+    }
+    function InformationEmployeeLinkApproved(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationEmployeeLinkApproved", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridLinkApproval').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function InformationEmployeeLinkRejected(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationEmployeeLinkRejected", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridLinkApproval').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    // getEmployeeRelativeInfoApproval end
+
+
+
+    // getWorkExperienceInfoApproval start
+    function getWorkExperienceInfoApproval() {
+        $('#gridWorkExperience').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/ListEmployeeWorkExperience?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                WorkExpId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationCode: {
+                    title: 'OrganizationName',
+                    width: '3%'
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+                RelativeDepartmentName: {
+                    title: 'DepartmentName',
+                    width: '5%'
+                },
+                RelativeDesignationName: {
+                    title: 'DesignationName',
+                    width: '5%'
+                },
+                JoiningDateView: {
+                    title: 'JoiningDate',
+                    width: '5%'
+                },
+                ReleaseDateView: {
+                    title: 'ReleaseDate',
+                    width: '5%'
+                },
+                IsApproved: {
+                    title: "Approved",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationEmployeeWorkExperienceIsApproved(' + data.record.WorkExpId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationEmployeeWorkExperienceIsRejected(' + data.record.WorkExpId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+                },
+            }
+        });
+        $('#gridWorkExperience').jtable('load');
+    }
+    function InformationEmployeeWorkExperienceIsApproved(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationEmployeeWorkExperienceIsApproved", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridWorkExperience').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function InformationEmployeeWorkExperienceIsRejected(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationEmployeeWorkExperienceIsRejected", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridWorkExperience').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+    // getWorkExperienceInfoApproval end
+
+    //employee tranning informatio Approval Start
+    function getEmployeeTraningApproval() {
+        $("#collapseTraningApproval #btnUpdate").hide();
+        $("#collapseTraningApproval #btnReset").hide();
+        $('#gridTrainingApproval').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            //defaultSorting: 'InventoryId ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    var RowNumber = 0;
+
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/ListTraningApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+                EmployeeName: {
+                    title: 'EmployeeName',
+                    width: '15%'
+                },
+                TrainingTitle: {
+                    title: 'TrainingTitle',
+                    width: '15%'
+                },
+                InstituteName: {
+                    title: 'InstituteName',
+                    width: '15%'
+                },
+                //CountryName: {
+                //    title: 'CountryName',
+                //    width: '15%'
+                //},
+                TrainingTopics: {
+                    title: 'TrainingTopics',
+                    width: '15%'
+                },
+                Result: {
+                    title: 'Result',
+                    width: '15%'
+                },
+                TDF: {
+                    title: 'TrainingDateFrom',
+                    width: '15%'
+                },
+                TDT: {
+                    title: 'TrainingDateTo',
+                    width: '15%'
+                },
+                CurrentOfficeTraining: {
+                    title: 'OfficeTraining',
+                    width: '15%',
+                    display: function (data) {
+                        if (data.record.CurrentOfficeTraining == "1") {
+                            return "Yes"
+                        } else if (data.record.CurrentOfficeTraining == "0") {
+                            return "No"
+                        }
+                    }
+                },
+                IsApproved: {
+                    title: "Approved",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationTraningisapproved(' + data.record.EmployeeTrainingId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationTraningisrejected(' + data.record.EmployeeTrainingId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+                },
+            }
+        });
+        $('#gridTrainingApproval').jtable('load');
+    }
+
+    function InformationTraningisapproved(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationTraningisapproved", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridTrainingApproval').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function InformationTraningisrejected(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationTraningisrejected", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridTrainingApproval').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    //employeetranninginformationApproval End
+
+
+    function getEmployeeFamilyInfo() {
+        $('#gridFamilyInfoApproval').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeeFamilyInfoApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    title: 'EmployeeId',
+                    width: '3%'
+                },
+                FamilyMemberName: {
+                    title: 'FamilyMemberName',
+                    width: '5%'
+                },
+                RelationWithFamilyMember: {
+                    title: 'Relation',
+                    width: '3%'
+                },
+                FamilyMemberGender: {
+                    title: 'Gender',
+                    width: '3%',
+                },
+                FamilyMemberDateOfBirthShow: {
+                    title: 'DateOfBirth',
+                    width: '5%'
+                },
+                EducationalQualification: {
+                    title: 'EducationalQualification',
+                    width: '5%'
+                },
+                FamilyMemberOccupation: {
+                    title: 'Occupation',
+                    width: '5%'
+                },
+                IsApproved: {
+                    title: "Approved",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="ApproveEmployeeFamilyInfo( ' + data.record.Id + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="RejectEmployeeFamilyInfo(' + data.record.Id + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridFamilyInfoApproval').jtable('load');
+    }
+
+    function ApproveEmployeeFamilyInfo(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ApproveEmployeeFamilyInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            //$('#gridFamilyInfoApproval').jtable('load');
+                            $.alert.open("Success", data.message);
+                            getEmployeeFamilyInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function RejectEmployeeFamilyInfo(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("RejectEmployeeFamilyInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridFamilyInfoApproval').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function getEmployeeMaritalStatus() {
+        $('#gridMaritalStatus').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeeMaritalStatusApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                MaritalId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Employee Code',
+                    width: '20%'
+                },
+                MaritalStatus: {
+                    title: 'Marital Status',
+                    width: '20%',
+                },
+                IsApproved: {
+                    title: "Approved",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="ApproveEmployeeMaritalStatus( ' + data.record.MaritalId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="RejectEmployeeMaritalStatus(' + data.record.MaritalId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridMaritalStatus').jtable('load');
+    }
+
+    function ApproveEmployeeMaritalStatus(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ApproveEmployeeMaritalStatus", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridMaritalStatus').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function RejectEmployeeMaritalStatus(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("RejectEmployeeMaritalStatus", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridMaritalStatus').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function GetEmployeePreviousWorkExperience() {
+        $('#gridPreviousExperienceApproval').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeePreviousWorkExperienceApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                OrgId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationName: {
+                    title: 'OrganizationName',
+                    width: '5%',
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%',
+                },
+                PreviousDepartment: {
+                    title: 'Department',
+                    width: '5%',
+                },
+                PreviousDesignation: {
+                    title: 'Designation',
+                    width: '5%',
+                },
+                PrevJoiningDateView: {
+                    title: 'JoiningDate',
+                    width: '5%',
+                },
+                PrevReleaseDateView: {
+                    title: 'ReleaseDate',
+                    width: '5%',
+                },
+                ExperienceYear: {
+                    title: 'ExperienceYear',
+                    width: '5%',
+                },
+                ExperienceMonth: {
+                    title: 'ExperienceMonth',
+                    width: '5%',
+                },
+                IsApproved: {
+                    title: "Approved",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="ApproveEmployeeWorkExperience( ' + data.record.OrgId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="RejectEmployeeWorkExperience(' + data.record.OrgId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridPreviousExperienceApproval').jtable('load');
+    }
+
+    function ApproveEmployeeWorkExperience(Id) {
+        $.alert.open('confirm', 'Are you sure you want to approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ApproveEmployeeWorkExperience", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridPreviousExperienceApproval').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function RejectEmployeeWorkExperience(Id) {
+        debugger;
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("RejectEmployeeWorkExperience", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            debugger;
+                            $('#gridPreviousExperienceApproval').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    //Publication Starts
+
+    function GetPublicationApproval() {
+        $('#gridPublicationApproval').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetPublicationApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                PublicationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                
+                PublicationName: {
+                    title: 'Publication Name',
+                    width: '5%',
+                },
+                PublicationDetail: {
+                    title: 'Publication Detail',
+                    width: '20%',
+                },
+                IsApproved: {
+                    title: "Approved",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="ApproveEmployeePublication( ' + data.record.PublicationId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="RejectEmployeePublication(' + data.record.PublicationId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridPublicationApproval').jtable('load');
+    }
+
+    function ApproveEmployeePublication(Id) {
+        $.alert.open('confirm', 'Are you sure you want to Approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ApproveEmployeePublication", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridPublicationApproval').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function RejectEmployeePublication(Id) {
+        $.alert.open('confirm', 'Are you sure you want to rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("RejectEmployeePublication", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridPublicationApproval').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    //current org emp relation
+
+    function GetCurrentOfficeEmployeeRelationInfo() {
+        $('#gridSelfOrgRelation').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetCurrentOfficeEmployeeRelationApproval?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                SelfOrgRelationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OfficeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%',
+                },
+                OfficeName: {
+                    title: 'Office Name',
+                    width: '5%',
+                },
+                COEDepartmentId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                COEDepartmentName: {
+                    title: 'Department',
+                    width: '5%'
+                },
+                COEDesignationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                COEDesignationName: {
+                    title: 'Designation',
+                    width: '5%'
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '5%'
+                },
+                COERelationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                COERelationName: {
+                    title: 'Relation',
+                    width: '5%'
+                },
+                IsApproved: {
+                    title: "Approved",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="ApproveCurrentOfficeEmployeeRelationInfo( ' + data.record.SelfOrgRelationId + ');"><i class="fa fa-thumbs-up"></i></a></div>';
+                    }
+                },
+                IsRejected: {
+                    title: "Rejected",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="RejectCurrentOfficeEmployeeRelationInfo(' + data.record.SelfOrgRelationId + ');"><i class="fa fa-thumbs-down"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridSelfOrgRelation').jtable('load');
+    }
+
+
+    function ApproveCurrentOfficeEmployeeRelationInfo(Id) {
+        $.alert.open('confirm', 'Are you sure you want to Approved this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ApproveCurrentOfficeEmployeeRelationInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridSelfOrgRelation').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function RejectCurrentOfficeEmployeeRelationInfo(Id) {
+        $.alert.open('confirm', 'Are you sure you want to Rejected this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("RejectCurrentOfficeEmployeeRelationInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridSelfOrgRelation').jtable('load');
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+
+    //ends current org emp relation
+
+
+
+
+
+
+</script>
+
+<h2> Employee Other Information Approval </h2> &nbsp;
+
+<div class="accordion">
+    <div class="panel-group" id="accordion">
+
+        @*collapseVisitApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-Approval">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseVisitApproval">
+                        <i class="fa fa-plus"></i>&nbsp;Visit Information Approval(কর্মকর্তা/কর্মচারীর ভ্রমণ সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseVisitApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.EmpOfficeVisitId)
+                        </div>
+                    </div>
+
+
+                    <h5 class="page-title"> Employee Visit Information List Approval</h5>
+                    &nbsp;
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="gridOfficeVisitApproval"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapseVisitApproval ends*@
+
+
+        @*collapseCurrentOrgEmployeeRelation starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-CurrentOrgEmpRelation">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseCurrentOrgEmployeeRelation">
+                        <i class="fa fa-plus"></i>&nbsp;  Relation With Current Organization Employee Approval(কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseCurrentOrgEmployeeRelation" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.SelfOrgRelationId)
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="gridSelfOrgRelation"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapseCurrentOrgEmployeeRelation ends*@
+
+
+
+
+        @*collapseVisitApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-LinkApproval">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseLinkApproval">
+                        <i class="fa fa-plus"></i>&nbsp;Relation With Inter Organizations Employee Approval(কর্মকর্তা/কর্মচারীর সংগঠন সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseLinkApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.LinkId)
+                        </div>
+                    </div>
+
+
+                    <h5 class="page-title"> Relation With Inter Organizations Employee Approval List</h5>
+                    &nbsp;
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="gridLinkApproval"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapseVisitApproval ends*@
+
+
+        @*collapseVisitApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-collapseExperienceApproval">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseExperienceApproval">
+                        <i class="fa fa-plus"></i>&nbsp;Work Experience With Inter Organizations Approval(কর্মকর্তা/কর্মচারীর অভিজ্ঞতা সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseExperienceApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.WorkExpId)
+                        </div>
+                    </div>
+
+
+                    <h5 class="page-title"> Work Experience With Inter Organizations Approval List</h5>
+                    &nbsp;
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="gridWorkExperience"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapseVisitApproval ends*@
+
+        @*collapseTraningApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-TraningApproval">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTraningApproval">
+                        <i class="fa fa-plus"></i>&nbsp; Training Approval (কর্মকর্তা/কর্মচারীর প্রশিক্ষণ সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTraningApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.EmployeeTrainingId)
+                        </div>
+                    </div>
+
+
+                    <h5 class="page-title"> Training List Approval</h5>
+                    &nbsp;
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="gridTrainingApproval"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapseTrainingApproval ends*@
+
+
+        @*collapseFamilyInfoApproval starts*@
+
+        @*<div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-FamilyInfoApproval">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFamilyInfoApproval">
+                        <i class="fa fa-plus"></i>&nbsp;Employee Family Info Approval (কর্মকর্তা/কর্মচারীর পরিবার সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseFamilyInfoApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.EmployeeFamilyInfoId)
+                        </div>
+                    </div>
+
+                    <div id="gridFamilyInfoApproval"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+        @*collapseFamilyInfoApproval ends*@
+
+        @*collapseMaritalStatusApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-MaritalStatusApproval ">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseMaritalStatusApproval ">
+                        <i class="fa fa-plus"></i>&nbsp; Marital Status Approval (কর্মকর্তা/কর্মচারীর বৈবাহিক অবস্থা সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseMaritalStatusApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.MaritalId)
+                        </div>
+                    </div>
+
+                    <div id="gridMaritalStatus"></div>
+
+                </div>
+            </div>
+        </div>
+
+        @*collapseMaritalStatusApproval ends*@
+
+
+        @*collapsePreviousExperienceApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-PreviousExperienceApproval ">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapsePreviousExperienceApproval">
+                        <i class="fa fa-plus"></i>&nbsp;Previous Work Experience Approval (কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapsePreviousExperienceApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+                    <div id="gridPreviousExperienceApproval"></div>
+                </div>
+            </div>
+        </div>
+
+        @*collapsePreviousExperienceApproval ends*@
+
+
+        @*collapsePublicationApproval starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-PublicationApproval">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapsePublicationApproval">
+                        <i class="fa fa-plus"></i>&nbsp;Publication Approval (কর্মকর্তা/কর্মচারীর সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapsePublicationApproval" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+                    <div id="gridPublicationApproval"></div>
+                </div>
+            </div>
+        </div>
+
+        @*collapsePublicationApproval ends*@
+
+
+    </div>
+</div>

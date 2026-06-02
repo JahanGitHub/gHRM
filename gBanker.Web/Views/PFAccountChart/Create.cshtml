@@ -1,0 +1,200 @@
+﻿@model gHRM.Web.ViewModels.PF.AccountChartViewModel
+
+@{
+    ViewBag.Title = "Create Acccount Chart";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    function SaveAccountChart(accountCode, accountName, accountTypeCode, glLevelId, parentAccountCode, isVoucher) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveAccountChart", "PFAccountChart", "http")',
+            data: { accountCode: accountCode, accountName: accountName, accountTypeCode: accountTypeCode, glLevelId: glLevelId, parentAccountCode: parentAccountCode, isVoucher: isVoucher },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open(data.message);
+                if (data.status == 'ok') {
+                    clear();
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+            }
+        });
+    }
+
+    function GetParentAccount() {
+
+        $('#ParentAccountCode').empty();
+        var accountTypeCode = $("#AccountTypeCode option:selected").val();
+        var glLevelId = $("#GLLevelId option:selected").val();
+        if (accountTypeCode == '' || glLevelId == '') {
+            return;
+        }
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetParentAccount", "PFAccountChart", "http")',
+            data: { accountTypeCode: accountTypeCode, glLevelId: glLevelId },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    $('#ParentAccountCode').append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function clear() {
+        $('#AccountCode').attr('readonly', false);
+        $("#AccountId").val('');
+        $("#AccountCode").val('');
+        $("#AccountName").val('');
+        $("#AccountTypeCode").val('');
+        $("#GLLevelId").val('');
+        $("#ParentAccountCode").val('');
+        $("#IsVoucher").prop("checked", false);
+    }
+
+    function Add() {
+         var accountId = $("#AccountId").val();
+         var accountCode = $("#AccountCode").val();
+         var accountName = $("#AccountName").val();
+         var accountTypeCode = $("#AccountTypeCode option:selected").val();
+         var glLevelId = $("#GLLevelId option:selected").val();
+         var parentAccountCode = $("#ParentAccountCode option:selected").val();
+         var isVoucher = $('#IsVoucher').is(':checked');
+
+        if (accountCode == '' || accountName == '' || accountTypeCode == '' || glLevelId == '') {
+        $.alert.open("Please enter valid data");
+        return;
+        }
+        SaveAccountChart(accountCode, accountName, accountTypeCode, glLevelId, parentAccountCode, isVoucher);
+        
+    }
+
+    $(document).ready(function () {
+
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#AccountCode').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $("#AccountTypeCode").change(function () {
+            GetParentAccount();
+        });
+        $("#GLLevelId").change(function () {
+            GetParentAccount();
+        });
+
+
+        $("#btnReset").click(function () { // Reset form
+            clear();
+        });
+
+        $("#btnSaveAccountChart").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to add?', function (button) {
+                if (button == 'yes') {
+                    Add();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Create Account Chart</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.AccountCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.AccountCode, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Account Code" } })
+                    @Html.HiddenFor(model => model.AccountId)
+                </div>
+                @Html.LabelFor(model => model.AccountName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.AccountName, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Account Name" } })
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.AccountTypeCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.AccountTypeCode, new SelectList(Model.AccountTypeList, "Value", "Text"), "Select Account Type", new { @class = "form-control" })
+                </div>
+
+                @Html.LabelFor(model => model.GLLevelId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.GLLevelId, new SelectList(Model.GLLevelList, "Value", "Text"), "Select GL Level", new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+       
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ParentAccountCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    <select id="ParentAccountCode" name="ParentAccountCode" class="form-control"></select>                
+                </div>
+                @Html.LabelFor(model => model.IsVoucher, new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.CheckBoxFor(model => model.IsVoucher)
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnSaveAccountChart" class="btn btn-success" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

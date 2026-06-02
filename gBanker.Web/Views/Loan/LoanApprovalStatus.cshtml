@@ -1,0 +1,119 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Approval Level Status";
+}
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="LoanApprovalStatus">Approval</a></li>
+    </ol>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="form-group">
+                <label class="control-label col-sm-3 required" style="margin-top:7px;" for="LoanStatus">Loan Status</label>
+                <div class="col-sm-8">
+                    <select id="LoanStatus" class="form-control">
+                        <option value="">Please Select Status</option>
+                        <option value="Pending">Pending Status</option>
+                        <option value="Disburse">Disbursed status</option>
+                        <option value="Reject">Rejected status</option>
+                        <option value="Running">Loan Running status(Salary)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#LoanStatus").change(function () {
+            grid($(this).val())
+        });
+        var grid = function (status) {
+            $('#grid').jtable({
+                paging: false,
+                sorting: false,
+                actions: {
+                    listAction: function (postData, jtParams) {
+                        debugger
+                        console.log("Loading from custom function...");
+                        return $.Deferred(function ($dfd) {
+                            $.ajax({
+                                url: '/Loan/GetAllLoanApplicationStatus',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: postData ,
+                                success: function (data) {
+                                    $dfd.resolve(data);
+                                },
+                                error: function () {
+                                    $dfd.reject();
+                                }
+                            });
+                        });
+                    },
+                },
+                fields: {
+                    SlNo: {
+                        title: "Sl No.",
+                        width: "10px",
+                    },
+                    PurposeName: {
+                        title: "Purpose Name",
+                        width: "30px",
+                    },
+                    Applicant: {
+                        title: "Applicant",
+                        width: "20px",
+                        display: function (data) {
+                            return "("+data.record.ApplicantCode+") "+data.record.ApplicantName;
+                        }
+                    },
+                    DepartmentName: {
+                        title: "Department",
+                        width: "30px",
+                    },
+                    DesignationName: {
+                        title: "Designation",
+                        width: "30px",
+                    },
+                    CreateDate: {
+                        title: "Date",
+                        width: "30px",
+                        type: 'date',
+                    },
+                    LoanAmount: {
+                        title: "Amount",
+                        width: "30px",
+                    },
+                    LoanAmount: {
+                        title: "Amount",
+                        width: "30px",
+                    },
+                    Approval: {
+                        title: "Approval",
+                        width: "20px",
+                        display: function (data) {
+                            return "(" + data.record.ApprovalEmpCode + ") " + data.record.ApprovalEmpName;
+                        }
+                    },
+                }
+            });
+            reloadGrid(status);
+        }
+        
+    });
+    function reloadGrid(status) {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), status: status });
+    }
+</script>

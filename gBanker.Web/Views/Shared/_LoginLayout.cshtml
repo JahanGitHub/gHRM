@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title gHRMPlus | Log in</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <meta name="author" content="Grameen Communications">
+    <link rel="shortcut icon" href="~/Images/Icon%20_g.png">
+
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+
+    <link href="~/content/ui-libs/font-awesome-4.3.0/css/font-awesome.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet">
+    <!-- Theme style -->
+    <link href="~/content/AdminLTE/AdminLTE.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+    @Scripts.Render("~/bundles/bootstrap")
+    <link href="~/content/bootstrap.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet">
+    <link href="~/Assets/plugins/preloaders/css/preloader.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <link href="~/content/gHRM-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet">
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJ3F989PEF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SJ3F989PEF');
+    </script>
+</head>
+
+<body class="login-page">
+
+    <div style="margin-top: 4%;" class="login-box">
+        @RenderBody()
+        <div class="row section-footer">
+            <p style="text-align: center; color: black;">Copyright © @DateTime.Now.Year Grameen Communications</p>
+        </div>
+    </div><!-- /.login-box -->
+
+    <script type="text/javascript">
+        var enabledSSOLogin = '@gHRM.Web.Helpers.SessionHelper.EnabledSSOLogin';
+    </script>
+
+    <script src="~/Assets/plugins/preloaders/js/jquery.preloader.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/plugins/cookies/cookie.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/js/app.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

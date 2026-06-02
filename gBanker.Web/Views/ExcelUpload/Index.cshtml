@@ -1,0 +1,33 @@
+﻿@model gHRM.Web.ViewModels.Leave.ExcelFileUploadViewModel
+
+@{
+    ViewBag.Title = "Batch Posting Upload File";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style type="text/css">
+    .frmRow {
+        padding-bottom: 10px;
+    }
+</style>
+
+<script>
+
+
+    $(document).ready(function () {
+
+    });
+
+</script>
+
+
+
+<h2>Index</h2>
+
+<form name="frmBatchFileUpload" id="frmBatchFileUpload" role="form" enctype="multipart/form-data" method="post" action="/ExcelUpload/Index"></form>
+
+@using (Html.BeginForm("Index", "ExcelUpload", FormMethod.Post, new { enctype = "multipart/form-data", @class = "global-submit-form" }))
+{
+    <input type="file" id="BatchFile" class="file-actions" required="true" name="BatchFile" />
+        <button type="submit" class="btn btn-primary" id="btnSave">SAVE</button>
+}

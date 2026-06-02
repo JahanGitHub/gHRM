@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "MESSAGE";
+    Layout = "~/Views/Shared/_ERRMessage.cshtml";
+    
+    //Layout = "~/Views/Shared/_LoginLayout.cshtml";
+
+}
+<script>
+
+
+    $(document).ready(function () {
+        setTimeout("window.close()", 3000)
+    });
+
+</script>
+<h2>Message</h2>
+
+
+    <div class="form-horizontal">
+
+        <div class="row">
+            <div class="panel-body">
+                <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none;">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <p class="message-content">Report Generated Successfully.</p>
+                </div>
+            </div>
+
+            <div class="danger">
+                <div class="create-content create-content alert alert-error alert-dismissable" role="alert" style="display:none;">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <p class="message-content" id="messageErr"> @Html.Raw(TempData["Error"])  </p>
+                    <input type="hidden" id="hdnMessage" value=@Html.Raw(TempData["Error"])>
+                </div>
+                </div>
+            </div>
+
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <script>
+
+                $(".panel-body .create-success").show(700).fadeToggle(2000);
+            </script>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <script>
+                $(".danger .create-content").show(700).fadeToggle(4000);
+                var hdnMessage = $("#hdnMessage").val();
+                $.alert.open("Message", hdnMessage);
+            </script>
+        }
+

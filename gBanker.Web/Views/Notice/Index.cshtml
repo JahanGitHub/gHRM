@@ -1,0 +1,184 @@
+﻿@model gHRM.Web.ViewModels.Basic.NoticeViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+<script type="text/javascript">
+
+    function NoticeDelete(NoticeId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+                if (button == 'yes') {
+                     $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("NoticeDelete", "Notice", "http")',
+                    data: { NoticeId: NoticeId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        $('#grid').jtable('load');
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                    return true;
+                }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        $("#txtPublishDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+          });
+        $("#txtLiveFrom").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+          });
+        $("#txtLiveTo").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+          });
+
+        //$("#btnSearch").click(function (e) {
+        //    e.preventDefault();
+        //    var CrimeLocation = "0";
+        //    //Order By Embezzel Amount
+        //    /*
+        //     <select id="emb" class="form-control">
+        //                    <option value="0">Please Select</option>
+        //                    <option value="1">ASC</option>
+        //                    <option value="2">DESC</option>
+        //                </select>
+        //    */
+        //    var emb = $('#emb :selected').val();
+             
+            
+                
+        //    //OfficeId, string NoticeDate)
+        //    var NoticeDatefrm = $("#txtNoticeDatefrm").val();
+        //    var NoticeDateto = $("#txtNoticeDateto").val();
+        //    $('#grid').jtable('load', { OfficeId: CrimeLocation, NoticeDatefrm: NoticeDatefrm, NoticeDateto: NoticeDateto, NoticeOrderBy : emb });
+        //});
+
+
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            //defaultSorting: 'EmployeeCode ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/Notice/GetNoticeListInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            //
+            fields: {
+
+                NoticeId: {
+                    key: true,
+                    list: false
+                },
+
+                rowSl: {
+                    title: 'SL',
+                    width: '5%'
+                },
+
+                PublishDateMsg: {
+                    title: 'Publish Date',
+                    width: '10%'
+                },
+
+                LiveFromMsg: {
+                    title: 'Live From',
+                    width: '10%'
+                },
+
+                LiveToMsg: {
+                    title: 'Live To',
+                    width: '10%'
+                },
+
+                Title: {
+                    title: 'Title',
+                    width: '20%'
+                },
+
+                NoticeText: {
+                    title: 'Notice',
+                    width: '35%'
+                },
+
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/Notice/Edit/" + data.record.NoticeId + "'><i title='Edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+
+                DeleteLink: {
+                    title: "Delete",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="NoticeDelete(' + data.record.NoticeId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+        });
+
+        $('#grid').jtable('load');
+    });
+
+</script>
+@Html.ActionLink("Add", "Create", null, new { @class = "pull-right   btn btn-success" })
+<br />
+<h2 class="page-title">Notice List</h2>
+<br />
+@using (Html.BeginForm("Index", "Notice", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "FileDownload" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })  
+    <div class="container-fluid">
+
+        <div class="row" style="margin-top:15px;">
+            <div class="col-md-12">
+                <div id="grid"></div>
+                <div id="gridUploade"></div>
+            </div>
+        </div>
+
+    </div>
+}

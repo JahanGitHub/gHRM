@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Co-Operative Ledger Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement ?? "True";
+}
+
+
+<h2>Co-Operative Ledger Report </h2>
+
+<br />
+
+<div class="form-horizontal">
+
+    <div class="container-fluid">
+
+     
+
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("From Date", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("FromDate", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("To Date", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("ToDate", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee Code", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("EmployeeCode", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <input type="button" id="btnView" value="View" class="btn btn-primary" formtarget="_blank" />
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+
+
+
+                $('#btnView').click(function () {
+
+                    var FromDate = $("#FromDate").val();
+                    var ToDate = $("#ToDate").val();
+                    var EmployeeCode = $("#EmployeeCode").val();
+
+                    console.log(FromDate);
+                    console.log(ToDate);
+                    console.log(EmployeeCode);
+
+                    var url = "/EmployeeReport/CooperativeLedgerReportView?FromDate=" + FromDate + "&ToDate=" + ToDate + "&EmployeeCode=" + EmployeeCode;
+                    window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+                });
+
+                
+
+
+                $("#FromDate").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                // const fixedDate = new Date(2023, 7, 31);
+                $("#FromDate").datepicker('setDate', new Date());
+
+
+                $("#ToDate").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                // const fixedDate = new Date(2023, 7, 31);
+                $("#ToDate").datepicker('setDate', new Date());
+
+    });
+
+  
+
+
+</script>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

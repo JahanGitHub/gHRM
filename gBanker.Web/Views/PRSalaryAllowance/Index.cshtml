@@ -1,0 +1,245 @@
+﻿@model gHRM.Web.ViewModels.EmployeeSalaryIncentiveViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRSalaryAllowance">PRSalaryAllowance</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+    function Approve(SalaryIncentiveId) {
+        if (SalaryIncentiveId != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("ApproveSalaryAllowance", "PRSalaryAllowance", "http")',
+                data: { SalaryIncentiveId: SalaryIncentiveId },
+                dataType: 'json',
+                async: false,
+                cache: false,
+                success: function (data) {
+                    $.alert.open(data);
+                    reloadGrid();
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+    function ApproveAllIncentive() {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("ApproveAllIncentive", "PRSalaryAllowance", "http")',
+            data: {},
+            dataType: 'json',
+            async: false,
+            cache: false,
+            success: function (data) {
+                $.alert.open(data);
+                reloadGrid();
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function LoadNotApprovedIntensiveList() {
+        //var startDate = '';
+        //var endDate = '';
+
+        // startDate = $("#StartDate").val();
+        // endDate = $("#EndDate").val();
+        $('#grid').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 20,
+            sorting: false,
+            //cache:false,
+            //defaultSorting: 'EmployeeCode ASC',
+            actions: {
+                listAction: '/PRSalaryAllowance/SalaryIncentiveList'//?startDate=' + startDate + '&endDate=' + endDate + ''
+            },
+            fields: {
+                SalaryIncentiveId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Code',
+                    width: '9%',
+
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '20%',
+
+                },
+                ComponentName: {
+                    title: 'Component Name',
+                    width: '15%'
+                },
+
+                StartDate: {
+                    title: 'Start Date',
+                    width: '10%'
+                },
+                EndDate: {
+                    title: 'End Date',
+                    width: '10%'
+                },
+                PRComponentAmount: {
+                    title: 'Amount',
+                    width: '10%'
+                },
+                PRComponentHour: {
+                    title: 'Overtime Hour',
+                    width: '10%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="Approve(' + data.record.SalaryIncentiveId + ')"><i class="fa fa-check"></i></a></div>';
+                    }
+                }
+            }
+        });
+        reloadGrid();
+
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+    }
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });//,
+
+    }
+    $(document).ready(function () {
+        LoadNotApprovedIntensiveList();
+      //  $("#StartDate").datepicker(
+      //  {
+      //      dateFormat: "dd-M-yy",
+      //      showAnim: "scale",
+      //      changeMonth: true,
+      //      changeYear: true,
+      //      yearRange: "1920:2100"
+
+      //  });
+      //  $("#StartDate").datepicker(
+      //'setDate', new Date());
+      //  $("#EndDate").datepicker(
+      //  {
+      //      dateFormat: "dd-M-yy",
+      //      showAnim: "scale",
+      //      changeMonth: true,
+      //      changeYear: true,
+      //      yearRange: "1920:2100"
+
+      //  });
+      //  $("#EndDate").datepicker(
+      //'setDate', new Date());
+
+        //$("#search").click(function () {
+        //    
+        //    var startDate = $("#StartDate").val();
+        //    var endDate = $("#EndDate").val();
+        //    if (startDate != "" && endDate != "") {
+        //        if ((MakeDate(startDate) <= MakeDate(endDate))) {
+        //            LoadNotApprovedIntensiveList();
+        //            $("#grid").show();
+        //        } else {
+        //            $.alert.open("Error", "Start date should not be greater than End date");
+        //            $("#grid").hide();
+        //        }
+
+        //    } else {
+        //        $("#StartDate").val("");
+        //    }
+        //});
+        $("#btnBulkApprove").click(function () {
+            
+                ApproveAllIncentive()
+            
+
+        });
+
+    });
+
+
+
+</script>
+
+<h2 class="page-title">Approve Allowance</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+
+
+            @*<div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-md-4 required">Start Date</label>
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-md-4 required">End Date</label>
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <div class="form-group">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Search" id="search" class="btn btn-success" />
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>*@
+
+            &nbsp;
+            <div id="grid">
+
+            </div>
+            <div class="row" id="bulkApproveBtnDiv">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Approve All" id="btnBulkApprove" class="btn btn-success" />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!--Main Container Fluid-->
+
+
+    </div> <!--Form Horizontal-->
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

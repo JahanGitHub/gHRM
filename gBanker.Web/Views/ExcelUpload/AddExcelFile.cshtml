@@ -1,0 +1,80 @@
+﻿@model gHRM.Web.ViewModels.Leave.ExcelFileUploadViewModel
+@{
+    ViewBag.Title = "Excel File Upload";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style type="text/css">
+    .import-error-container ul {
+        padding-left: 15px;
+        margin-top: 5px;
+    }
+</style>
+<h2 class="page-title">Import Earn Leave(EL) And Casual Leave</h2>
+&nbsp;
+@using (Html.BeginForm("AddExcelFile", "ExcelUpload", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div style="font-size:15px">You can upload an Excel (.xls or .xlsx) file containing earn leave and casual related information.</div>
+            </div>
+        </div>
+        <div class="panel panel-default panel-padding-import-imployee">
+            <div class="panel-body panel-body-import-imployee">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="control-group">
+                            <h3><i class="fa fa-cog light-gray"></i> Step 1 - Prepare Your Excel Import File</h3>
+                            <p>Click on the button below to download our sample file. </p>
+                            <h4>
+                                <a target="_blank" href="~/Assets/docs/leave/Leave_Opening_Data_Format.xlsx">
+                                    <i class="fa fa-download"></i> Click Here to Download a Sample Import File
+                                </a>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h3><i class="fa fa-folder light-gray"></i> Step 2 - Select & Upload Your File</h3>
+                        <p>Click the 'Choose File' button below to search for your contact list file in your computer.</p>
+                        <div class="control-group">
+                            <div class="controls">
+                                <div class="widget-main">
+                                    <input type="file" id="BatchFile" class="file-actions" required="true" name="BatchFile" />
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 style="margin-top: -12px;"><i class="fa fa-cogs light-gray"></i> Step 3 - Click Button Below to Run Import Process</h3>
+                    </div>
+                </div>
+                <div>
+                    <div class="alert alert-info"><i class="fa fa-info-circle"></i> Note: depending on your e/cl list file size, the import can take a couple minutes to process. Please do not refresh this page.</div>
+                    <button type="submit" id="btnSave" value="Save" class="btn btn-success"><i class="fa fa-cloud-upload"></i> Click Here to Import EL/Cl </button>
+                    <button type="reset" class="btn btn-danger" id="btnClear" value="Clear"><i class="fa fa-times"></i> Clear </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewBag.AllErrorMsg))
+                {
+                    if ("Success" == ViewBag.AllErrorMsg)
+                    {
+                        <div class="alert alert-success" role="alert" style="margin-top: 10px;">Data imported Successfully</div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger import-error-container" role="alert" style="margin-top: 10px;">
+                            <p style="font-weight: bold;">Some Data failed to import. Please import them in a seperate excel sheet.</p>
+                            @Html.Raw(ViewBag.AllErrorMsg)
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
+

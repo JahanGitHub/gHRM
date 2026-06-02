@@ -1,0 +1,771 @@
+﻿@model gHRM.Web.ViewModels.EmployeeTransferViewModel
+@{
+    ViewBag.Title = "Transfer Planning Entry";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeId = Model.OfficeTypeId;
+    pvOfficeNevigation.PVHeadOfficeId = Model.HeadOfficeId.ToString();
+    pvOfficeNevigation.PVProjectId = Model.ProjectId.ToString();
+    pvOfficeNevigation.ZoneId = Model.ZoneId.ToString();
+    pvOfficeNevigation.AreaId = Model.AreaId.ToString();
+    pvOfficeNevigation.UnitId = Model.UnitId.ToString();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        $('#NotificationId1').html('');
+
+        $('#NotificationId1').html(
+            "<option value=''>Please Select</option>" +
+            "<option value='8'>Md.Jashim Uddin</option>" +
+            "<option value='349'>Mohammad Faisal</option>" +
+            "<option value='427'>Md.Wahiduzaman</option>" +
+            "<option value='458'>Azizur Rahaman</option>" +
+            "<option value='525'>Md. Akther Hossain</option>" +
+            "<option value='593'>Shagar Barua</option>" +
+            "<option value='652'>Md Nayeem Uiddn</option>" +
+            "<option value='720'>MD.ARIFUL ISLAM</option>" +
+            "<option value='791'>Md.Jasim Uddin</option>" +
+            "<option value='911'>Nikash Das</option>" +
+            "<option value='11090'>Arup Das</option>" +
+            "<option value='11394'>Md. Saydur Rahman</option>" +
+            "<option value='11464'>Maimun Uddin</option>" +
+            "<option value='11477'>Tanbir Ahamed</option>" +
+            "<option value='11915'>Md. Nurul Islam</option>" +
+            "<option value='12148'>Md. Sowlieman</option>" +
+            "<option value='12637'>Sudham Kumar Dey</option>"
+        );
+
+
+        $('#NotificationId2').html('');
+
+        $('#NotificationId2').html(
+            "<option value=''>Please Select</option>" +
+            "<option value=''121''>Md. Safiul Alam Mridha</option>" +
+            "<option value=''463''>Mohammad Rashedul Alam</option>" +
+            "<option value=''640''>Iffat Ara Happy</option>" +
+            "<option value=''783''>Md. Riaz Uddin</option>" +
+            "<option value=''902''>Md. Faizul Karim</option>" +
+            "<option value=''11144''>Golam Mostafa Badsha</option>" +
+            "<option value=''11249''>Joynab Akter</option>" +
+            "<option value=''11312''>Md.Hanif Mia</option>" +
+            "<option value=''11451''>Zia Uddin</option>" +
+            "<option value=''11614''>Ala Uddin</option>" +
+            "<option value=''11784''>Rakib Hossain</option>" +
+            "<option value=''12131''>Mst. Salma Akter</option>" +
+            "<option value=''12385''>Delwar Hossain</option>"
+        );
+
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#SectionId");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value=''>Please Select</option>");
+                        }
+                    },
+                });
+
+                var office_id;
+                if ($("#PVHeadOfficeId").val() > 0) {
+
+                    office_id = $("#PVHeadOfficeId").val();
+                }
+                else if ($('#PVProjectId').val() > 0)
+                {
+                    office_id = $("#PVProjectId").val();
+                }
+
+                else {
+                    if ($("#ZoneId").val() > 0) {
+                        if ($("#AreaId").val() > 0) {
+                            if ($("#UnitId").val() > 0) {
+                                office_id = $("#UnitId").val();
+                                }
+                                else {
+                                office_id = $("#AreaId").val();
+                                }
+                            }
+                            else {
+                                office_id = $("#ZoneId").val();
+                            }
+                        }
+                        else {
+                        office_id = $("#PVHeadOfficeId").val();
+                        }
+                     
+                    }
+
+                console.log(office_id);
+
+            } else {
+
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+
+        var SectionId = '@Model.SectionId';
+        if(@Model.EmployeeId>0 && SectionId>0)
+        {
+            $("#DepartmentId").trigger('change');
+            $("#SectionId").val(@Model.SectionId);
+        }else{
+            $("#DepartmentId").trigger('change');
+        }
+
+
+        $("#OrderDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                yearRange: "1950:2050",
+                changeYear: true,
+
+            });
+
+        $("#PlannedReleaseDate").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    yearRange: "1950:2050",
+                    changeYear: true,
+                });
+
+        $("#PlannedJoiningDate").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    yearRange: "1950:2050",
+                    changeYear: true,
+                });
+
+
+        $("#OrderDateMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1950:2050",
+            changeYear: true,
+        });
+
+        $("#PlannedReleaseDateMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1950:2050",
+            changeYear: true,
+        });
+
+        $("#PlannedJoiningDateMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1950:2050",
+            changeYear: true,
+        });
+        $("#ReleaseDate").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               yearRange: "1950:2050",
+               changeYear: true,
+           });
+        $("#JoiningDate").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               yearRange: "1950:2050",
+               changeYear: true,
+           });
+
+        $("#actualDiv").hide();
+
+        var employeeId= @Model.EmployeeId;
+        if (employeeId) {
+
+            $("#IsMutual").val('@Model.IsMutual' == 'True' ? 'Y' : 'N');
+            $("#IsTADAApplicable").val('@Model.IsTADAApplicable' == 'True' ? 'Y' : 'N');
+            LoadPreviousDataList(@Model.EmployeeId);
+        }
+
+        if(@Model.Id>0 && '@Model.EntryType'==''){
+            $("#btnSave").val("Update");
+        }
+
+        if('@Model.EntryType'=="Approve"){
+            $("#btnSave").val("Approve");
+            $("#EmployeeCode").attr('disabled', true);
+            $("#OfficeTypeId").attr('disabled', true);
+            $("#PVHeadOfficeId").attr('disabled', true);
+            $("#PVProjectId").attr('disabled', true);
+            $("#ZoneId").attr('disabled', true);
+            $("#AreaId").attr('disabled', true);
+            $("#UnitId").attr('disabled', true);
+            $("#OrderNo").attr('disabled', true);
+            $("#OrderDate").attr('disabled', true);
+            $("#PlannedReleaseDate").attr('disabled', true);
+            $("#PlannedJoiningDate").attr('disabled', true);
+            $("#DepartmentId").attr('disabled', true);
+            $("#SectionId").attr('disabled', true);
+            $("#OfficeDesignationId").attr('disabled', true);
+            $("#IsMutual").attr('disabled', true);
+            $("#IsTADAApplicable").attr('disabled', true);
+            $("#actualDiv").show();
+        }
+
+        $("#EmployeeCode").blur(function (e) {
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+    });
+
+    function LoadPreviousDataList(EmployeeId) {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("LoadPreviousDataList", "EmployeeTransferNew", "http")',
+                    dataType: 'json',
+                    data: { EmployeeId: EmployeeId }
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "Id",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "RowSl",
+                    title: "Sl.",
+                    width: "15px",
+                    filterable: false,
+                },
+                {
+                    field: "OrderNo",
+                    title: "Order No",
+                    width: "35px",
+                    filterable: false,
+                },
+                {
+                    field: "PreviousOfficeType",
+                    title: "Office Type",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployeePreviousOfficeName",
+                    title: "Office Name",
+                    width: "70px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployeePreviousDepartmentName",
+                    title: "Department",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployeePreviousDesignation",
+                    title: "Responsibility",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "ReleaseDate",//"EmployeePreviousOfficeReleaseDate",
+                    title: "Release Date",
+                    width: "35px",
+                    filterable: false,
+                    template: "#= ReleaseDate==null?'':kendo.toString(kendo.parseDate(ReleaseDate, 'yyyy-MM-dd'), 'dd-MMM-yyyy') #"
+                },
+                {
+                    field: "JoiningDate",//"EmployeePreviousOfficeJoiningDate",
+                    title: "Joining Date",
+                    width: "35px",
+                    filterable: false,
+                    template: "#= JoiningDate==null?'':kendo.toString(kendo.parseDate(JoiningDate, 'yyyy-MM-dd'), 'dd-MMM-yyyy') #"
+                },
+
+            ]
+        });
+    }
+
+    function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeTransferNew", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+
+                if (data.result ==1) {
+                    $.each(data.data, function (index, data) {
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                    });
+                    LoadPreviousDataList( $("#EmployeeId").val());
+                }
+
+                else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+    function ChechkRequiredFieldValidate() {
+        var reqFieldsName = new Array(
+                                    '#EmployeeCode'
+                                  , '#OfficeTypeId'
+                                  , '#OfficeId'
+                                  , '#DepartmentId'
+                                  , '#OfficeDesignationId'
+                                  , '#OrderNo'
+                                  , '#OrderDate'
+                                  , '#PlannedJoiningDate'
+                                  , '#PlannedReleaseDate'
+                                  , '#IsMutual'
+                                  , '#IsTADAApplicable'
+                                  );
+        var fieldValidate = RequiredFieldValidate(reqFieldsName);
+        if (fieldValidate == 1) {
+            SaveTransferPlan();
+        }
+    }
+
+
+    function RequiredFieldValidate(reqFieldsName) {
+
+        var flag = 1;
+        for (var i = 0; i < reqFieldsName.length; i++) {
+            var fieldName = reqFieldsName[i];
+            $(fieldName).removeClass("errorClass");
+
+            if ($(fieldName).val() == '' || $(fieldName).val() == '0') {
+                $(fieldName).addClass("errorClass");
+                flag = 0;
+            }
+        }
+        return flag;
+    }
+
+    function SaveTransferPlan() {
+
+        var empTransferBackDateEntry = GenerateTransferBackDateEntry();
+        if (empTransferBackDateEntry.OfficeId > 0) {
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: '@Url.Action("SaveTransferPlanning", "EmployeeTransferNew")',
+                data: JSON.stringify({ model: empTransferBackDateEntry }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.result == 1) {
+                        LoadPreviousDataList($("#EmployeeId").val());
+                        // ClearControl();
+                        $.alert.open('Success', data.message);
+                        if ("Approve" == empTransferBackDateEntry.EntryType) {
+                            window.location.replace("/EmployeeTransferNew/TransferPlanningApproveIndex");
+                        } else {
+                            window.location.replace("/EmployeeTransferNew/TransferPlanningIndex");
+                        }
+                    }
+                    else {
+                        $.alert.open('Success', data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+            $.alert.open('Error', "Error Occured, Save denied");
+        }
+    }
+    function GenerateTransferBackDateEntry() {
+
+        var item = {};
+        item.Id=@Model.Id;
+        item.EntryType='@Model.EntryType';
+        item.EmployeeId = $("#EmployeeId").val();
+        //item.EntryType = $("#EntryType").val();
+        item.DepartmentId = $("#DepartmentId").val();
+        item.OfficeDesignationId = $("#OfficeDesignationId").val();
+        item.OrderNo = $("#OrderNo").val();
+        item.OrderDate = $("#OrderDate").val();
+        item.IsTADAApplicable = $("#IsTADAApplicable").val() == "Y" ? true : false;
+        item.IsMutual = $("#IsMutual").val() == "Y" ? true : false;
+        item.PlannedReleaseDate = $("#PlannedReleaseDate").val();
+        item.PlannedJoiningDate = $("#PlannedJoiningDate").val();
+        item.JoiningDate = $("#JoiningDate").val();
+        item.ReleaseDate = $("#ReleaseDate").val();
+        item.OfficeTypeId = $("#OfficeTypeId").val();
+        item.SectionId = $("#SectionId").val();
+        item.ChangingStatus = $("#ChangingStatus").val();
+        if ($("#OfficeTypeId").val() == 1) {
+            item.OfficeId = $("#PVHeadOfficeId").val();
+        }
+        else if ($("#OfficeTypeId").val() == 3) {
+            item.OfficeId = $("#PVProjectId").val();
+        }
+        else if ($("#OfficeTypeId").val() == 4) {
+            item.OfficeId = $("#ZoneId").val();
+        }
+        else if ($("#OfficeTypeId").val() == 5) {
+            item.OfficeId = $("#AreaId").val();
+        }
+        else if ($("#OfficeTypeId").val() == 6) {
+            item.OfficeId = $("#UnitId").val();
+        }
+        item.Id = $("#Id").val();
+
+        item.AreaId = $('#AreaId').val();
+        item.ZoneId = $('#ZoneId').val();
+        item.UnitId = $('#UnitId').val();
+        return item;
+    }
+    function ClearControl() {
+        //$("#EmployeeCode").focus();
+        //$("#EmployeeId").val();
+        //$("#EmployeeName").empty();
+        //$("#EmployeeCurrentDepartmentName").empty();
+        //$("#EmployeeCurrentDesignation").empty();
+        $("#OfficeTypeId").val('').trigger('change');
+        $("#DepartmentId").val('');
+        $("#OfficeDesignationId").val('');
+        $("#OrderNo").val('');
+        $("#OrderDate").val("");
+        $("#ReleaseDate").val("");
+        $("#JoiningDate").val("");
+        $("#IsTADAApplicable").val("");
+        $("#IsMutual").val("");
+        $("#OfficeId").val("");
+        $("#ZoneId").val('');
+        $("#AreaId").val('');
+        $("#UnitId").val('');
+        $("#PVProjectId").val('');
+        $("#SectionId").val('');
+    }
+
+
+</script>
+@Html.ActionLink("Back to list", "TransferPlanningIndex", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Transfer Planning Entry Form</h2>
+    &nbsp;
+
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.EmployeeId)
+        @Html.HiddenFor(mode => mode.EmployeeCurrentOfficeId)
+
+        <fieldset>
+            <legend>Current Office Info</legend>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset id="previousOfficeInfo">
+            <legend>Previous Office Info</legend>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <div id="gridKendo"></div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend id="transferredOfficeLegend">Transferred Office Info</legend>
+            @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentNameList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Section</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.SectionId, Model.SectionList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Notification From Office</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.NotificationId1, Model.NotificationList1, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Notification To Office</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.NotificationId2, Model.NotificationList2, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeDesignationId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.OfficeDesignationId, Model.RankList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OrderNo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.OrderNo, new { @class = "form-control required" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OrderDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OrderDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PlannedReleaseDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.PlannedReleaseDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PlannedJoiningDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.PlannedJoiningDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.IsMutual, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.IsMutual, Model.YesNoList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.IsTADAApplicable, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.IsTADAApplicable, Model.YesNoList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ChangingStatus, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.ChangingStatus, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="actualDiv" class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ReleaseDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.ReleaseDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.JoiningDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.JoiningDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> </label>
+                        <div class="col-sm-8">
+                            <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="ChechkRequiredFieldValidate()" />
+                        </div>
+                    </div>
+                </div>
+
+                @*<div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4"> </label>
+                    <div class="col-sm-8">
+                        <input type="button" value="Joining Letter" id="btnJoiningLetter" class="btn btn-success" />
+                    </div>
+                </div>
+            </div>*@
+
+            </div>
+        </fieldset>
+
+    </div>
+</div>

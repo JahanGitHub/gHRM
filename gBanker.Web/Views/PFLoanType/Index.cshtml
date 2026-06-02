@@ -1,0 +1,140 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanTypeViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    $(document).ready(function () {
+
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#LoanTypeId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $("#btnSearch").click(function () {
+            var loanTypeId = $("#LoanTypeId").val();
+            var loanTypeName = $("#LoanTypeName").val();
+
+            if (loanTypeId == "" && loanTypeName == "") {
+                $('#grid').jtable('load', {});
+            }
+            $('#grid2').jtable('load', { loanTypeId: loanTypeId, loanTypeName: loanTypeName });
+        });
+
+        $('#grid2').jtable({
+            //title: 'Loan Type List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFLoanType/GetLoanTypeList'
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                LoanTypeId: {
+                    title: 'Loan Type Id',
+                    width: '15%'
+                },
+                LoanTypeName: {
+                    title: 'Loan Type Name',
+                    width: '25%'
+                },
+                InterestRate: {
+                    title: 'Interest Rate',
+                    width: '15%'
+                },
+                InterestRateType: {
+                    title: 'Interest Rate Type',
+                    width: '20%'
+                },
+                LoanPercentage: {
+                    title: 'Loan Percent',
+                    width: '15%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '10%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFLoanType/Edit/" + data.record.Id + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            //$("#loading").show();
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            //$("#loading").hide();
+        }
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Add Loan Type", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Loan Type List</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+     <div class="form-horizontal">
+        <div class="row">
+            <div class="form-group">
+
+                @Html.LabelFor(model => model.LoanTypeId, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.LoanTypeId, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Loan Type Id" } })
+                </div>
+            </div>
+        </div>
+       
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanTypeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.LoanTypeName, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Loan Type Name" } })
+                </div>
+                <div class="col-sm-4">
+                    <input type="button" value="Search" id="btnSearch" class="btn btn-warning" />
+                </div>
+            </div>
+        </div>
+     
+        <div id="grid2">
+        </div>
+    </div>
+    <div id="grid2" style="width:80%;">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}

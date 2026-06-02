@@ -1,0 +1,390 @@
+﻿@model gHRM.Web.ViewModels.LeaveReportViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var employeeStatusList = Model == null ? null : Model.EmployeeStatusList;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+
+
+<h2 class="page-title">Leave Report</h2>
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<br />
+<br />
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Leave Report</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.ReportType, Model.ReportTypeList, new { @class = "form-control required" })
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<div id="officeNav">
+    @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+</div>
+
+
+<div class="row" id="empCode">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Employee Code</label>
+            <div class="col-sm-8">
+                @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row" id="yearDiv">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4 required">Year</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.LeaveStatusYear, Model.YearList, new { @class = "form-control required"})
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row" id="monthDiv">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Month</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.LeaveStatusMonth, Model.MonthList, new { @class = "form-control required" })
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+<div class="row" style="margin: 0;">
+    <div class="col-sm-6 emp-status-container">
+        <div class="form-group text-right">
+            <div class="col-md-4 ">
+
+            </div>
+            <div class="col-md-8">
+                <input type="radio" name="empStatus" id="empStatus" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="All"> All
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 emp-status-container">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeStatus, htmlAttributes: new { @class = "control-label col-sm-4 required", @style = "text-align: left;" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @id = "typeFilterColumn", @multiple = "multiple", @class = "selectpicker form-control" })
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row employeeStatus">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Employee Status</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmployeeStatus, Model.EmployeeStatusList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<br />
+
+
+
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-2">
+        <div class="form-group">
+            <div class="col-sm-8">
+                <input type="button" value="Print" id="btnPrint" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        $("#officeNav").hide();
+        $("#yearDiv").hide();
+        $("#monthDiv").hide();
+        $("#btnPrint").hide();
+        $("#empCode").hide();
+        $(".employeeStatus").hide();
+        $(".emp-status-container").hide();
+
+        $("#ReportType").change(function () {
+            var reportType = $("#ReportType").val();
+            if (reportType != "") {
+                if (reportType == "LSY") {
+                    $("#yearDiv").show();
+                    $("#monthDiv").hide();
+                    $("#empCode").hide();
+                    $("#btnPrint").show();
+                    $("#officeNav").show();
+                    $(".emp-status-container").show();
+                } else if (reportType == 'LSM') {
+                    $("#yearDiv").show();
+                    $("#monthDiv").show();
+                    $("#empCode").hide();
+                    $("#btnPrint").show();
+                    $("#officeNav").show();
+                    $(".emp-status-container").hide();
+                } else if (reportType == 'ELS') {
+                    $("#yearDiv").show();
+                    $("#monthDiv").hide();
+                    $("#empCode").show();
+                    $("#btnPrint").show();
+                    $("#officeNav").hide();
+                    $(".emp-status-container").hide();
+                } else if (reportType == 'EHDLS') {
+                    $("#yearDiv").show();
+                    $("#monthDiv").hide();
+                    $("#empCode").show();
+                    $("#btnPrint").show();
+                    $("#officeNav").hide();
+                    $(".emp-status-container").hide();
+                }
+                else if (reportType == 'EWLSUM' || reportType == 'EWLSUMALL' || reportType == 'EWLSUMD') {
+                    $("#yearDiv").hide();
+                    $("#monthDiv").hide();
+                    $("#empCode").hide();
+                    $("#officeNav").hide();
+                    $("#btnPrint").show();
+                    $(".emp-status-container").hide();
+                }
+                else if (reportType == 'ELE') {
+                    $("#yearDiv").hide();
+                    $("#monthDiv").hide();
+                    $("#empCode").hide();
+                    $("#btnPrint").show();
+                    $("#officeNav").hide();
+                    $(".emp-status-container").hide();
+                } else if (reportType == 'RLLB') {
+                    $("#yearDiv").hide();
+                    $("#monthDiv").hide();
+                    $("#empCode").show();
+                    $("#btnPrint").show();
+                    $("#officeNav").hide();
+                    $(".emp-status-container").hide();
+                }
+                else if (reportType == 'pidim_al' || reportType == 'pidim_sl') {
+                    $("#yearDiv,#monthDiv,#btnPrint,#officeNav").show();
+                }
+            } else {
+                $("#yearDiv").hide();
+                $("#monthDiv").hide();
+                $("#empCode").hide();
+                $("#btnPrint").hide();
+                $("#officeNav").hide();
+                $(".emp-status-container").hide();
+            }
+        });
+
+        $("#btnPrint").click(function () {
+            var reportType = $("#ReportType").val();
+            if (reportType != "") {
+
+                var officeId = "";
+                var officeTypeId = $("#OfficeTypeId").val();
+                if (officeTypeId != "") {
+                    if (officeTypeId == 1) {
+                        officeId = $("#PVHeadOfficeId").val();
+                    }
+                    else if (officeTypeId == 3) {
+                        officeId = $("#PVProjectId").val();
+                    }
+                    else if (officeTypeId == 4) {
+                        officeId = $("#ZoneId").val();
+                    }
+                    else if (officeTypeId == 5) {
+                        officeId = $("#AreaId").val();
+                    }
+                    else if (officeTypeId == 6) {
+                        officeId = $("#UnitId").val();
+                    }
+                }
+                if (officeId == "") { officeId = 0 };
+                if (officeTypeId == "") { officeTypeId = 0 };
+
+                var year = $("#LeaveStatusYear").val();
+                var month = $("#LeaveStatusMonth").val();
+                var status = $("#typeFilterColumn").val();
+
+
+
+
+                if (reportType == "LSY") {
+
+                    if (year != "") {
+                        url = '/LeaveReport/LeaveStatementYearlyReportPrint?Year=' + year + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&Status=' + status;
+                        PrintReport(url);
+                    } else {
+                        $.alert.open('error', "Please Select Year");
+                    }
+
+                } else if (reportType == 'LSM') {
+
+
+                    if (year != "" && month != "") {
+                        url = '/LeaveReport/LeaveStatementMonthlyReportPrint?Year=' + year + '&Month=' + month + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId;
+                        PrintReport(url);
+                    } else {
+                        $.alert.open('error', "Please Select Year And Month");
+                    }
+
+                }
+                else if (reportType == 'EWLSUM') {
+                    window.location.href = '/LeaveReport/EmployeeWiseLeave';
+                }
+                else if (reportType == 'EWLSUMD') {
+                    window.location.href = '/LeaveReport/EmployeeWiseLeave2';
+                }
+                else if (reportType == 'EWLSUMALL') {
+
+                    window.location.href = '/LeaveReport/EmployeeWiseLeaveList';
+                  
+                  //  url = '/LeaveReport/EmployeeWiseLeaveReportPrintALL?dateFrom=11-Jan-1996&dateTo=31-Dec-2023&employeeCode=0000';
+                      //  PrintReport(url);
+                   
+                }
+                else if (reportType == 'ELS') {
+
+                    var year = $("#LeaveStatusYear").val();
+                    var empCode = $("#EmployeeCode").val();
+                    if (empCode != "" && year != "") {
+                        url = '/LeaveReport/EmployeeWiseLeaveStatement?Year=' + year + '&EmployeeCode=' + empCode;
+                        PrintReport(url);
+                    } else {
+                        $.alert.open('error', "Please Select EmployeeCode And Year");
+                    }
+
+                }
+                else if (reportType == 'EHDLS') {
+
+                    var year = $("#LeaveStatusYear").val();
+                    var empCode = $("#EmployeeCode").val();
+                    if (empCode != "" && year != "") {
+                        url = '/LeaveReport/HalfDayLeaveEmployeeWise?Year=' + year + '&EmployeeCode=' + empCode;
+                        PrintReport(url);
+                    } else {
+                        $.alert.open('error', "Please Select EmployeeCode And Year");
+                    }
+
+                }
+                else if (reportType == 'ELE') {
+
+                    url = '/LeaveReport/EmployeeELEncashmentListReportPrint';
+                    PrintReport(url);
+
+                }
+                else if (reportType == 'RLLB') {
+                    var empCode = $("#EmployeeCode").val();
+                    if (![null, ""].includes(empCode)) {
+                        url = '/LeaveReport/RegisterOfLeaveAndLeaveBookPrint?EmployeeCode=' + empCode;
+                        PrintReport(url);
+                    } else {
+                        $.alert.open('error', "Please Select Employee Code");
+                    }
+                }
+                else if (reportType == 'pidim_al' || reportType == 'pidim_sl' ) {
+                    if (year != "" && month != "") {
+                        url = '/LeaveReport/LeaveStatementReportPrintForPidim?Year=' + year + '&Month=' + month + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&leavetype=' + (reportType == 'pidim_al' ? 'Earn Leave' : 'Sick Leave');
+                        PrintReport(url);
+                    } else {
+                        $.alert.open('error', "Please Select Year And Month");
+                    }
+                }
+            } else {
+                return false;
+            }
+        });
+    });
+    function PrintReport(PrintUrl) {
+        debugger;
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+     // Emp Ststus
+
+    InformationStatus(true);
+
+    $('input[name=empStatus]').click(function () {
+        $('.selectpicker').selectpicker('deselectAll');
+        let status_text = $('input[name=empStatus]:checked').val();
+
+        if (status_text == "Active") {
+            InformationStatus(true);
+        }
+        else if (status_text == "InActive") {
+            InformationStatus(false);
+        }
+        else {
+            $('.selectpicker').selectpicker('selectAll');
+            //$('.selectpicker').selectpicker('val', statusArray);
+            //$('.selectpicker').selectpicker('val', 'Probationary');
+            //$('#typeFilterColumn').val(['1', '2', '3', '4', '9']);
+            //$("#typeFilterColumn option:contains('Probationary')").val();
+            //$("#typeFilterColumn option:contains('Probationary')").attr('selected', true);
+            $('.selectpicker').selectpicker('refresh');
+        }
+    });
+
+
+      function InformationStatus(stsvalue) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("InformationStatus", "Employee", "http")',
+            data: { stsvalue: stsvalue },
+            dataType: 'json',
+            async: true,
+            success: function (response) {
+                $.each(response.Data, function (index, status) {
+                    if (status.Value) {
+                        $("#typeFilterColumn option").filter(function () {
+                            return $(this).text() == status.Text;
+                        }).prop("selected", true);
+                    }
+                });
+
+                $('.selectpicker').selectpicker('refresh');
+
+            },
+        });
+    }
+
+
+        // Emp Ststus End
+
+
+</script>

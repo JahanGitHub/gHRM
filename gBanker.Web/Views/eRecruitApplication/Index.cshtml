@@ -1,0 +1,906 @@
+﻿@model gHRM.Web.ViewModels.eRecruits.ApplicationInfoViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLTE_Recruitment.cshtml";
+    var genderList = Model == null ? null : Model.GenderList;
+    var maritalList = Model == null ? null : Model.MaritalList;
+    var religionList = Model == null ? null : Model.ReligionList;
+    var bloodGroupList = Model == null ? null : Model.BloodGroupList;   
+
+    //Address
+    var countryList = Model == null ? null : Model.CountryList;
+    var stateList = Model == null ? null : Model.StateOrProvinceList;
+    var districtList = Model == null ? null : Model.DistrictList;
+    var thanaList = Model == null ? null : Model.ThanaList;
+    var unionList = Model == null ? null : Model.UnionList;   
+
+    var GroupNameList = Model == null ? null : Model.GroupNameList;
+    var BoardNameList = Model == null ? null : Model.BoardNameList;
+    var AppliedPostList = Model == null ? null : Model.AppliedPostList;
+    var GradeTypeList = Model == null ? null : Model.GradeTypeList;
+    var applyID = Model == null ? 0 : Model.ApplicationId;
+}
+
+<div>
+
+    <style>
+        .center {
+            position: center;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            margin-top: -250px;
+            margin-left: -250px;
+        }
+    </style>
+
+    <div class="container-fluid">
+        
+        <div class="row">
+            
+            <center> <img src="~/Content/Images/Grameen-Bank.png" /> </center>            
+            <center><h3 class="page-title text-bold">Applied Post : <label id="lblAppliedPost"></label></h3></center>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                * Recommend internet browser Google Chrome &nbsp; | &nbsp;
+                <span style="color:red;"> * Support Email: gb.erecruitment2020@gmail.com</span> &nbsp; | &nbsp;
+                @*<font style="color:red;"> * If any difficulties, try alternate  </font> <a href="http://erecruitv1.nupms.com"> link </a>here.*@
+            <font style="color:red;"> * e-Recruitment Application FAQ   </font> <a target="_blank" href="~/Assets/mediacontent/e_Recruitment_Application_Guideline.pdf"> <i class="fa fa-file-pdf-o" aria-hidden="true"></i> </a>
+            </div>
+            <div class="text-right" style="padding-right:36px;"> Batch No: GBORC: 2020-01  </div>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("Recruitment", "ApplicationInfo", FormMethod.Post, new { enctype = "multipart/form-data", @role = "form", id = "Recruitment" }))
+    {
+        @Html.AntiForgeryToken()
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 col-sm-12">
+                    <div class="box col-md-12">
+                        <div class="row frmRow">
+                            <br>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4 required">Applied Post</label>
+                                    <div class="col-sm-8">
+                                        @Html.DropDownListFor(model => model.AppliedPostId, AppliedPostList, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @Html.HiddenFor(model => model.ApplicationId) 
+                        <div class="box-inner">
+                            <fieldset style="padding:0px 5px;">
+                                <legend class="text-info">Personal Information</legend>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Full Name of Candidate</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.ApplicantName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Full Name of Candidate", autocomplete = "off", @onkeypress = "return ISAplhabetCharacter(event);" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="" style="color:darkseagreen">As Per SSC Certificate</label>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Father's Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.FatherName, new { @class = "form-control required", @placeholder = "Father Name", @onkeypress = "return ISAplhabetCharacter(event);", autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Mother's Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.MotherName, new { @class = "form-control required", @placeholder = "Mother Name", @onkeypress = "return ISAplhabetCharacter(event);", autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Date Of Birth</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.DateOfBirth, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy", autocomplete = "off" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="" style="color:darkseagreen">Select (Age limit According to circular valid age candidate will allow )</label>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Age (YY:MM:DD)</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.Age, new { @class = "form-control required", @placeholder = "YY:MM:DD", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.Gender, genderList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Blood Group</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.BloodGroup, bloodGroupList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Marital Status</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.MaritalStatus, maritalList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.Religion, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.Religion, religionList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Nationality</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.Nationality, new { @class = "form-control required", @placeholder = "Nationality", @autocomplete = "off", @onkeydown = "app.checkOnlyCharacterInput()" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.NationalId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.NationalId, new { htmlAttributes = new { @class = "form-control", @placeholder = "National Id", autocomplete = "off" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow" style="display:none;">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Birth Registration No</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.BirthRegistrationNo, new { @class = "form-control", @placeholder = "Birth Registration No", @onkeypress = "return checkNumeric(event);", autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Height (in cm)</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.Height, new { @class = "form-control required", @placeholder = "Height (in cm)", @autocomplete = "off", @onkeydown = "app.checkOnlyNumericAndDecimalInput()" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Weight (in Kg)</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.Weight, new { @class = "form-control required", @placeholder = "Weight (in Kg)", @autocomplete = "off", @onkeydown = "app.checkOnlyNumericAndDecimalInput()" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                            <fieldset style="padding:0px 5px;">
+                                <legend class="text-info">Permanent Address</legend>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Country</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GuarantorPermanentCountryId, countryList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Division</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GuarantorPermanentDivisionId, stateList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Home District</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GuarantorPermanentDistrictId, districtList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Upazila/Thana</label>
+                                            <div class="col-sm-8">
+                                                @Html.HiddenFor(model => model.GuarantorPermanentThanaId)
+                                                @Html.DropDownList("ddlList", null, new { @ID = "ddlGuarantorPermanentThanaId", @class = "form-control" })
+                                                @*@Html.EditorFor(model => model.GuarantorPermanentThanaId, new { htmlAttributes = new { @class = "form-control", @placeholder = "Thana" } })*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Union/Ward</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPermanentUnionId, new { htmlAttributes = new { @class = "form-control", @placeholder = "Union/Ward" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Village/House No & Road</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPermanentStreetOrHouse, new { htmlAttributes = new { @class = "form-control", @placeholder = "Village/House No & Road" } })
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Post Office</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPermenantPostOffice, new { htmlAttributes = new { @class = "form-control", @placeholder = "Post Office" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Postal Code</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPermanentZipCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Postal Code", @onkeypress = "return checkNumeric(event);" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <hr />
+                            <label class="text-info" style="font-size:20px;"> If permanent and present address same, please click the box  </label> &nbsp;<input class="custom-control-input" type="checkbox" style="height:20px; width:20px; background-color:greenyellow; color:greenyellow;" id="SameAsAbove" name="SameAsAbove" onclick="checkBoxClicked();" height="450" width="450" value="Same As Above">
+                            <hr />
+                            <fieldset style="padding:0px 5px;">
+                                <legend class="text-info">Present/Mailing Address</legend>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Country</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GuarantorPresentCountryId, countryList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Division</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GuarantorPresentDivisionId, stateList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">District</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GuarantorPresentDistrictId, districtList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Upazila/Thana</label>
+                                            <div class="col-sm-8">
+                                                @Html.HiddenFor(model => model.GuarantorPresentThanaId)
+                                                @Html.DropDownList("ddlList", null, new { @ID = "ddlGuarantorPresentThanaId", @class = "form-control" })
+                                                @*@Html.EditorFor(model => model.GuarantorPresentThanaId, new { htmlAttributes = new { @class = "form-control", @placeholder = "Thana" } })*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Union/Ward</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPresentUnionId, new { htmlAttributes = new { @class = "form-control", @placeholder = "Union/Ward" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Village/House No & Road</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPresentStreetOrHouse, new { htmlAttributes = new { @class = "form-control", @placeholder = "Village/House No & Road" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Post Office</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPresentPostOffice, new { htmlAttributes = new { @class = "form-control", @placeholder = "Post Office" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Postal Code</label>
+                                            <div class="col-sm-8">
+                                                @Html.EditorFor(model => model.GuarantorPresentZipCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Postal Code", @onkeypress = "return checkNumeric(event);" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset style="padding:0px 5px;">
+                                <legend class="text-info">Educational Qualification</legend>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Degree Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.DegreeCode, Model.DegreeLevelList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Passing Year</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.PassingYear, new { @class = "form-control", @placeholder = "Passing Year", @onkeypress = "return checkNumeric(event);" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Group/Subject Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GroupName, Model.GroupNameList, new { @class = "form-control" })
+                                                @*@Html.TextBoxFor(model => model.GroupName, new { @class = "form-control", @placeholder = "Group/Subject Name" })*@
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*<div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Subject Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.SubjectName, new { @class = "form-control", @placeholder = "Subject Name" })
+                    </div>
+                </div>
+            </div>*@
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">School/College/Institution</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.Comment, new { @class = "form-control", @placeholder = "School/College/Institution", @onkeypress = "return ISAplhabetCharacter(event);" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-sm-6" id="dvUniversity">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">University Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.Comment2, new { @class = "form-control", @placeholder = "University Name", @onkeypress = "return ISAplhabetCharacter(event);" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6" id="dvBoard">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Board Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.BoardName, Model.BoardNameList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reg No</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.RegNo, new { @class = "form-control", @placeholder = "Reg No", @onkeypress = "return checkNumeric(event);" })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Roll No</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.RollNo, new { @class = "form-control", @placeholder = "Roll No", @onkeypress = "return applicationManager.checkNumeric(event);" })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Result Type</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.GradeTypeId, Model.GradeTypeList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Result</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.GPA, new
+                                           {
+                                               @class = "form-control",
+                                               @placeholder = "Result"@*, @onkeypress = "return checkDecimal(event);"*@})
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Obtained Marks (if any)</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ObtainedMarks, new { @class = "form-control", @placeholder = "Obtained Marks" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4"></label>
+                                            <div class="col-sm-8">
+                                                <button type="button" id="btnAddGrid" class="btn btn-success" data-toggle="tooltip" title="click add to put all educational qualification">
+                                                    <i class="fa fa-plus"></i> Add Educational Qualification
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br />
+                                <div class="row frmRow" id="EducationList">
+                                    <div class="col-sm-12">
+                                        <div id="DivTableView">
+                                            <div class="box-header" style="padding:0px 5px;">
+                                                <h4 class="text-info">Education List</h4>
+                                            </div>
+                                            <div class="box-body no-padding table-responsive">
+                                                <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblPostingProposal">
+                                                    <thead>
+                                                        <tr class="headings">
+                                                            <th class="column-title">Sl</th>
+                                                            <th class="column-title">Degree Name</th>
+                                                            <th class="column-title">School/College/Institution</th>
+                                                            <th class="column-title">University Name</th>
+                                                            <th class="column-title">Passing Year</th>
+                                                            <th class="column-title">Group/Subject</th>
+                                                            @*<th class="column-title">Subject</th>*@
+                                                            <th class="column-title">Board Name</th>
+
+                                                            <th class="column-title">Reg No</th>
+                                                            <th class="column-title">Roll No</th>
+
+                                                            <th class="column-title">Result Type</th>
+                                                            <th class="column-title">Result</th>
+
+                                                            <th class="column-title">Obtained Marks</th>
+                                                            <th class="column-title">Delete</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <br />
+
+                                    </div>
+                                </div>
+                            </fieldset><br />
+
+                            <div class="row frmRow">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Mobile No</label>
+                                        <div class="col-sm-8">
+                                            @Html.EditorFor(model => model.MobileNo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Mobile No", @onkeypress = "return checkNumeric(event);" } })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="" style="color:darkseagreen">Within Eleven Digit</label>
+                                </div>
+                            </div>
+                            <div class="row frmRow">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        @*@Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-sm-4 required" })*@
+                                        <label class="control-label col-sm-4  required">E-mail address</label>
+                                        <div class="col-sm-8">
+                                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @placeholder = "Email" } })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="" style="color:darkseagreen">In Small letter</label>
+                                </div>
+                            </div>
+                            <div class="row frmRow">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Experience</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.Expreience, new { @class = "form-control required", @placeholder = "Experience" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="" style="color:darkseagreen">Within Fifty Character. If you have no experience, enter "N/A".</label>
+                                </div>
+                            </div>
+                            <div class="row frmRow">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Extra Curricular Activities</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.ExtraCurriculum, new { @class = "form-control required", @placeholder = "Extra Curricular Activities" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="" style="color:darkseagreen">Within Fifty Character. If you do not have any Extra Curriculum Activities, enter "N/A".</label>
+                                </div>
+                            </div>
+
+                            <fieldset style="padding:0px 5px;">
+                                <legend class="text-info">References (Two Close Relatives/Others)</legend>
+                                <h4 style="margin-left:15px;font-weight:bold">First Reference</h4><br />
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ReferenceName, new { @class = "form-control required", @placeholder = "Reference Name" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Father Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ReferenceFatherName, new { @class = "form-control required", @placeholder = "Reference Father Name" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Mother Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ReferenceMotherName, new { @class = "form-control required", @placeholder = "Reference Mother Name" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Relation</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ReferenceRelation, new { @class = "form-control required", @placeholder = "Reference Relation" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Address</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ReferenceAddress, new { @class = "form-control required", @placeholder = "Reference Address" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Mobile No.</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.ReferenceContactNo, new { @class = "form-control required", @placeholder = "Reference Mobile No." })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h4 style="margin-left:15px;font-weight:bold">Second Reference</h4><br />
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.SecondReferenceName, new { @class = "form-control required", @placeholder = "Second Reference Name" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Father Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.SecondReferenceFatherName, new { @class = "form-control required", @placeholder = "Second Reference Father Name" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Mother Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.SecondReferenceMotherName, new { @class = "form-control required", @placeholder = "Second Reference Mother Name" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Relation</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.SecondReferenceRelation, new { @class = "form-control required", @placeholder = "Second Reference Relation" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Address</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.SecondReferenceAddress, new { @class = "form-control required", @placeholder = "Second Reference Address" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Reference Mobile No.</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.SecondReferenceContactNo, new { @class = "form-control required", @placeholder = "Second Reference Mobile No." })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+
+
+                            <fieldset>
+                                <br />
+                                <div class="row frmRow">
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-4 required">Candidate Image</label>
+                                            <div class="col-md-8 col-sm-8">
+                                                <img id="empImg" style="width:100px; height:100px;" src='/ApplicantImages/blank-headshot.jpg' alt="Employee Image" class="img-responsive" />
+                                                <input type="file" id="UploadImage" class="file-actions" required="true" name="UploadImage" onchange='showMyImage(this);' />
+                                                <label class="pull-right" style="color:indianred">Maximum 100 KB (jpeg format) | Height : 300 pixel | Weidth: 300 pixel</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-md-6 col-sm-6">
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-4 required">Candidate Signature</label>
+                                            <div class="col-md-8 col-sm-8">
+                                                <img id="empSignatureImg" style="width:100px; height:100px;" src='/ApplicantSignatures/blank-signature.jpg' alt="Signature Image" class="img-responsive" />
+                                                <input type="file" id="UploadSignatureImage" class="file-actions" required="true" name="UploadSignatureImage" onchange='showMySignature(this);' />
+                                                <label class="pull-right" style="color:indianred">Maximum 20 KB (jpeg format)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row frmRow">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-md-4 required">Date Of Application</label>
+                                            <div class="col-md-8">
+                                                @Html.EditorFor(model => model.ApplicationDate, new { htmlAttributes = new { @class = "form-control" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="row frmRow">
+                                <div class="col-md-12 col-sm-12" style="margin-left:18px">
+                                    <br />
+                                    @*&nbsp;
+                                    <button type="button" class="btn btn-success" id="CertificateAdd" value="Save"><i class="fa fa-info-circle"></i> Preview And Save</button>
+                                    &nbsp;*@
+                                    <p><i class="fa fa-info-circle"></i> <span class="text-danger"> Submit Application (সাবমিট অ্যাপ্লিকেশান) বাটন এ ক্লিক করার পূর্বে ভালভাবে নিশ্চিত হোন, কারন একবার Submit Application (সাবমিট অ্যাপ্লিকেশান) বাটনে ক্লিক করলে আর সংশোধনের সুযোগ থাকবে না </span></p>
+                                    <div>
+                                        <button type="button" class="btn btn-success" id="CertificateAddFinal" value="Save"><i class="fa fa-check-square" aria-hidden="true"></i> Submit Application </button> @*Final Save and Reload the Page.*@
+
+                                        &nbsp;
+                                        <button type="reset" class="btn btn-primary" id="btnClear" value="Clear"><i class="fa fa-refresh" aria-hidden="true"></i> Reset</button>
+                                        &nbsp;
+                                    </div>
+                                    <div class="col-sm-8">
+                                        @*<button type="button" class="btn btn-success" id="CertificateAdd" value="Save">Submit</button>*@
+                                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="exampleModalLabel"> <i class="glyphicon glyphicon-warning-sign" style="color:orangered;"></i> Precaution: Before Submit Information Candidate Can Edit. After Submitted There Have No Edit Option.</h5>
+                                                        <h5 class="modal-title" id="exampleModalLabel"> <i class="glyphicon glyphicon-warning-sign" style="color:orangered;"></i> After Click Submit Button, Applicant Get a PDF For Print PDF You Can Select Layout - Landscape and Paper Size - Legal </h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row frmRow">
+                                <div class="col-sm-8" style="visibility:hidden">
+                                    @Html.HiddenFor(model => model.ServerCurrentDate)
+                                    <input type="type" name="" value="" id="ApplicantEducationLevelID" />
+                                    <input type="type" name="" value="" id="ApplicantEducationLevel" />
+                                    @Html.HiddenFor(model => model.ApplicantProfileSettingId)
+                                </div>
+                            </div>
+
+
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title panel-title-2">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><i class="fa fa-check-circle"></i>&nbsp;Applicant Verification ( Here you can get/verify your application status(applied serial no.) by inserting your SSC Roll No. )</a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse2" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <div class="row" >
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label col-sm-4 required">Board Name</label>
+                                                        <div class="col-sm-8">
+                                                            @Html.DropDownListFor(model => model.vBoardName, Model.BoardNameList, new { @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label col-sm-4 required">Passing Year</label>
+                                                        <div class="col-sm-8">
+                                                            @Html.TextBoxFor(model => model.vPassingYear, new { @class = "form-control", @placeholder = "Passing Year", @onkeypress = "return checkNumeric(event);" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <br />
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <label class="control-label col-sm-4 required">SSC Roll No</label>
+                                                        <div class="col-sm-8">
+                                                            @Html.TextBoxFor(model => model.RollNoVerify, new { @class = "form-control", @placeholder = "SSC Roll No", @onkeypress = "return checkNumeric(event);" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <label class="" style="color:indianred">Please Provide SSC Certificate Roll Number</label>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="row frmRow">
+                                                <div class="col-md-6 col-sm-6">  
+                                                    <div class="form-group">
+                                                        <label class="control-label col-sm-4"></label>
+                                                        <div class="col-sm-8">
+                                                            <button type="button" class="btn btn-success" id="Verify" value="Verify" data-toggle="tooltip" title="Candidate Will Confirm His/Her Submission By Clicking Verify Button."><i class="fa fa-check-square" aria-hidden="true"></i> Verify</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" style="display:none;">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-md-4"></label>
+                                        <div class="col-md-4">
+                                            <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                                        </div>
+
+                                        <div class="exelPrint">
+                                            <input type="button" id="btnExelPrint" value="Print Exel" class="btn btn-primary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section scripts{
+    <script src="~/Scripts/Applicant.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/js/applicationinfos/applicationInfoManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}
+
+

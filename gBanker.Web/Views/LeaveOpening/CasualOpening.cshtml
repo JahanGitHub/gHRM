@@ -1,0 +1,332 @@
+﻿@model gHRM.Web.ViewModels.LeaveHistoryViewModel
+
+@{
+    ViewBag.Title = "Leave History";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+        $(".hideDIv").hide();
+
+        $("#EmployeeCode").blur(function () {
+            var empCode = $("#EmployeeCode").val();
+            $("#btnUpdate").hide();
+            $("#btnRestore").hide();
+            $("#btnSave").show();
+            if (empCode != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetEmpInfoByCode", "EmployeeCommonInformation", "http")',
+                    data: { employee_code: empCode },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            $("#DepartmentName").val(data[0].DepartmentName);
+                            $("#DesignationName").val(data[0].DesignationName);
+                            $("#EmployeeName").val(data[0].EmployeeName);
+                            $("#EmployeeId").val(data[0].EmployeeId);
+                            $("#EmployeeStatus").val(data[0].EmployeeStatus);
+
+                            GetCasualOpeningData();
+                        } else {
+                            $("#DepartmentName").val('');
+                            $("#DesignationName").val('');
+                            $("#EmployeeName").val('');
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+        });
+    });
+
+
+    function SaveCasualOpening() {
+        var empId = $("#EmployeeId").val();
+        var empCode = $("#EmployeeCode").val();
+        var days = $("#TotalDays").val();
+        var empStatus = $("#EmployeeStatus").val();
+        if (empCode != "" && days != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                TotalDays: days,
+                EmployeeId: empId,
+                EmployeeStatus: empStatus
+            }
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveCasualOpening", "LeaveOpening", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    $('#AjaxLoader').hide();
+
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetCasualOpeningData();
+                        $("#TotalDays").val('');
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+        }
+    }
+
+    function GetCasualOpeningData() {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        debugger;
+                        var empCode = $("#EmployeeCode").val();
+                        var empId = $("#EmployeeId").val();
+                        $.ajax({
+                            url: '/LeaveOpening/GetCasualOpeningData?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode + '&empId=' + empId,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                SlNo: {
+                    title: 'SlNo',
+                    width: '10%'
+                },
+                LeaveId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    //title: 'Employee Id',
+                    //width: '10%'
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                TotalDays: {
+                    title: 'TotalDays',
+                    width: '10%'
+                },
+                LeaveReason: {
+                    title: 'Leave Reason',
+                    width: '10%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditCasualOpening( ' + "'" + data.record.LeaveId + "'" + ',' + "'" + data.record.TotalDays + "'" + ' );"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteCasualOpening(' + data.record.LeaveId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                },
+            }
+        });
+        $('#grid').jtable('load');
+    }
+
+    function EditCasualOpening(leaveId, totalDays) {
+        $("#LeaveId").val(leaveId);
+        $("#TotalDays").val(totalDays);
+        $("#btnUpdate").show();
+        $("#btnRestore").show();
+        $("#btnSave").hide();
+    }
+
+    function ResetLeaveHistory() {
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+        $("#btnSave").show();
+        $("#EmployeeCode").val('');
+        $("#DepartmentName").val('');
+        $("#DesignationName").val('');
+        $("#EmployeeName").val('');
+        $("#TotalDays").val('');
+    }
+
+    function UpdateCasualOpening() {
+        var leaveId = $("#LeaveId").val();
+        var days = $("#TotalDays").val();
+        if (days != "") {
+            var obj = {
+                LeaveId: leaveId,
+                TotalDays: days
+            }
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateCasualOpening", "LeaveOpening", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    $('#AjaxLoader').hide();
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetCasualOpeningData();
+                        $("#TotalDays").val('');
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+        }
+    }
+
+    function DeleteCasualOpening(id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteCasualOpening", "LeaveOpening", "http")',
+                    data: { id: id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            GetCasualOpeningData();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+</script>
+
+<h2 class="page-title">Leave History Setup</h2> &nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.HiddenFor(model => model.LeaveId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Department</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.DepartmentName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Designation</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.DesignationName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Total Days</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.TotalDays, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row hideDIv">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Id</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeId, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Status</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeStatus, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-sm-offset-2">
+                <input type="button" id="btnSave" value="Save" class="btn btn-primary" onclick="SaveCasualOpening()" />
+                <input type="button" id="btnUpdate" value="Update" class="btn btn-primary" onclick="UpdateCasualOpening()" /> &nbsp;
+                <input type="button" id="btnRestore" value="Reset" class="btn btn-primary" onclick="ResetLeaveHistory()" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+</div>

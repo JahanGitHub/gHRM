@@ -1,0 +1,141 @@
+﻿@model gHRM.Web.ViewModels.CompanyViewModel
+
+@{ 
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+    function deleteConfirm(status) {
+        if (status == "true") {
+            return confirm('Are you sure you want to delete this record');
+        }
+        else {
+            alert("You cannot delete this record because it is already disabled.");
+            return false;
+        }
+    }
+    function CompanyDelete(companyId) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("CompanyDelete", "Company", "http")',
+            data: { companyId: companyId },
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+                $('#grid').jtable('load');
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    $(document).ready(function () {
+        $('#grid').jtable({
+            
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+
+                listAction: '/Company/GetCompanies'
+
+            },
+            fields: {
+                CompanyId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                CompanyType:{
+                    title: 'Company Type',
+                    width: '20%'
+                },
+                CompanyName: {
+                    title: 'Company Name',
+                    width: '20%'
+                },
+                CompanyAddress: {
+                    title: 'Company Address',
+                    width: '20%'
+                },
+                CompanyPhone: {
+                    title: 'Company Phone',
+                    width: '20%'
+                },                
+                               
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/Company/Edit/" + data.record.CompanyId  + "'><i class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+                Delete: {
+                    title: "Reject",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="CompanyDelete(' + data.record.CompanyId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        reloadGrid();
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+    });
+    function reloadGrid() {
+        //$("#loading").show();
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        //$("#loading").hide();
+    }
+
+
+</script>
+
+
+@*@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+@Html.ActionLink("Add New", "Upload", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Company List</h2>
+&nbsp;
+<div class="row">
+    <div class="col-md-2 text-right">
+        <label class="control-label" style="padding-top:8px;">Filter By:</label>
+    </div>
+    <div class="col-md-4">
+        <select id="filterColumn" class="form-control">
+            <option value="ViewAll">View All</option>
+            <option value="CompanyName">Company Name</option>
+            <option value="CompanyType">Company Type</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="text" id="filterValue" placeholder="Type Search Text" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" onclick="reloadGrid();" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+    &nbsp;
+    <div id="grid"></div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

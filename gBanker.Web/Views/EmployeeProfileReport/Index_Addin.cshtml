@@ -1,0 +1,770 @@
+﻿@model gHRM.Web.ViewModels.Basic.EmployeeProfileReportViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+        function GetHO(ddlVal) {
+        var ddlHO = $("#ddlHO");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetHOList", "EmployeeProfileReport", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlHO.html('');
+                $.each(data, function (id, option) {
+                    ddlHO.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null) {
+                    $('#ddlHO').val(ddlVal);
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function GetZone(HO_val, ddlVal, canLoadOfficeUser=true) {
+        var ddlZone = $("#ddlZone");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZoneList", "EmployeeProfileReport", "http")',
+            data: { HO_val: HO_val },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZone.html('');
+                $.each(data, function (id, option) {
+                    ddlZone.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null && canLoadOfficeUser) {
+                    $('#ddlZone').val(ddlVal);
+                    LoadOfficeWiseAssetUser(ddlVal);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetArea(HO_val, zone_val, ddlVal, canLoadOfficeUser = true) {
+        var ddlArea = $("#ddlArea");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAreaList", "EmployeeProfileReport", "http")',
+            data: { HO_val: HO_val, zone_val: zone_val },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlArea.html('');
+                $.each(data, function (id, option) {
+                    ddlArea.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null && canLoadOfficeUser) {
+                    $('#ddlArea').val(ddlVal);
+                    LoadOfficeWiseAssetUser(ddlVal);
+                }
+                else {
+                    $("#ddlArea").prop('selectedIndex', 0);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetOffice(HO_val, zone_val, area_val, ddlVal, canLoadOfficeUser = true) {
+        var ddlOffice = $("#ddlOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetOfficeList", "EmployeeProfileReport", "http")',
+            data: { HO_val: HO_val, zone_val: zone_val, area_val: area_val },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null && canLoadOfficeUser) {
+                    $('#ddlOffice').val(ddlVal);
+                    LoadOfficeWiseAssetUser(ddlVal);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function CheckOffcLevel() {
+        var offcLevel = $('#lblOffcLevel').html();
+        var firstLevel = $('#lblFirstLevel').html();
+        var secondLevel = $('#lblSecondLevel').html();
+        var thirdLevel = $('#lblThirdLevel').html();
+        var fourthLevel = $('#lblFourthLevel').html();
+        //alert(offcLevel);
+
+        if (offcLevel == 1) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel,false);
+            GetArea(firstLevel, secondLevel, thirdLevel, false);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, false);
+
+            //load users
+            LoadOfficeWiseAssetUser(firstLevel);
+
+            $("#ddlHO").prop("disabled", true);
+        }
+        if (offcLevel == 2) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel, false);
+            // GetArea(firstLevel, secondLevel, thirdLevel);
+            GetArea(firstLevel, secondLevel, null, false);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, false);
+
+            //load users
+            LoadOfficeWiseAssetUser(secondLevel);
+
+            $("#ddlHO").prop("disabled", true);
+            $("#ddlZone").prop("disabled", true);
+        }
+        if (offcLevel == 3) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel, false);
+            GetArea(firstLevel, secondLevel, thirdLevel, false);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, false);
+
+            //load users
+            LoadOfficeWiseAssetUser(thirdLevel);
+
+            $("#ddlHO").prop("disabled", true);
+            $("#ddlZone").prop("disabled", true);
+            $("#ddlArea").prop("disabled", true);
+        }
+        if (offcLevel == 4) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel, true);
+            GetArea(firstLevel, secondLevel, thirdLevel, true);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, true);
+
+            //load users
+            LoadOfficeWiseAssetUser(fourthLevel);
+
+            $("#ddlHO").prop("disabled", true);
+            $("#ddlZone").prop("disabled", true);
+            $("#ddlArea").prop("disabled", true);
+            $("#ddlOffice").prop("disabled", true);
+        }
+
+    }
+
+
+         function LoadOfficeWiseAssetUser(officeID) {
+        if (officeID != "") {
+            var ddlAssetUser = $("#EmployeeCode");
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetOfficeWiseAssetUserList", "EmployeeProfileReport", "http")',
+                data: { officeID: officeID },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        ddlAssetUser.html('');
+                        //$("#AssetUser").html("<option value='0'>Please Select</option>").selected;
+                        $.each(data, function (id, option) {
+                            ddlAssetUser.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        $("#AssetUser").html("<option value='0'>Please Select</option>");
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+        else {
+            $("#AssetUser").empty();
+        }
+    }
+    var IsEmployeeCodeEditAllowed = "True" == "@ViewBag.IsEmployeeCodeEditAllowed";
+
+    $(document).ready(function () {
+
+          CheckOffcLevel();
+        $("#ddlHO").change(function () {
+            var HO_val = $("#ddlHO").val();
+            if (HO_val > 0) {
+                var ddlZone = $("#ddlZone");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetZoneList", "EmployeeProfileReport", "http")',
+                    data: { HO_val: HO_val },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlZone.html('');
+                        $.each(data, function (id, option) {
+                            ddlZone.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                        //ClearForm();
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlZone").empty();
+                $("#ddlArea").empty();
+                $("#ddlOffice").empty();
+            }
+        });
+        $("#ddlZone").change(function () {
+            var HO_val = $("#ddlHO").val();
+            var zone_val = $("#ddlZone").val();
+            if (HO_val > 0 && zone_val > 0) {
+                var ddlArea = $("#ddlArea");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetAreaList", "EmployeeProfileReport", "http")',
+                    data: { HO_val: HO_val, zone_val: zone_val },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlArea.html('');
+                        $.each(data, function (id, option) {
+                            ddlArea.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                        $("#ddlOffice").empty();
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlArea").empty();
+                $("#ddlOffice").empty();
+            }
+        });
+        $("#ddlArea").change(function () {
+            var HO_val = $("#ddlHO").val();
+            var zone_val = $("#ddlZone").val();
+            var area_val = $("#ddlArea").val();
+            if (HO_val > 0 && zone_val > 0) {
+                var ddlOffice = $("#ddlOffice");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetOfficeList", "EmployeeProfileReport", "http")',
+                    data: { HO_val: HO_val, zone_val: zone_val, area_val: area_val },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlOffice.html('');
+                        $.each(data, function (id, option) {
+                            ddlOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                        //ClearForm();
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlOffice").empty();
+            }
+        });
+
+
+        // Office wise  user
+        $("#ddlHO").change(function () {
+            var office_id = GetWorkingOffice();
+            LoadOfficeWiseAssetUser(office_id);
+            //$("#AssetGroupID").val('');
+            //$("#AssetCode").val('');
+            //$("#AssetQuantity").val('');
+            //$("#AssetSerial").val('');
+            //$("#AssetQuantity").val(1).trigger('keyup');
+        });
+        $("#ddlZone").change(function () {
+
+            var office_id = GetWorkingOffice();
+            LoadOfficeWiseAssetUser(office_id);
+            GetChangedOffice();
+            //$("#AssetGroupID").val('');
+            //$("#AssetCode").val('');
+            //$("#AssetQuantity").val('');
+            //$("#AssetSerial").val('');
+           // $("#AssetQuantity").val(1).trigger('keyup');
+        });
+        $("#ddlArea").change(function () {
+
+            var office_id = GetWorkingOffice();
+            LoadOfficeWiseAssetUser(office_id);
+            GetChangedOffice();
+            //$("#AssetGroupID").val('');
+            //$("#AssetCode").val('');
+           // $("#AssetQuantity").val('');
+           // $("#AssetSerial").val('');
+           // $("#AssetQuantity").val(1).trigger('keyup');
+        });
+        $("#ddlOffice").change(function () {
+
+            var office_id = GetWorkingOffice();
+            LoadOfficeWiseAssetUser(office_id);
+            GetChangedOffice();
+            //$("#AssetGroupID").val('');
+            //$("#AssetCode").val('');
+            //$("#AssetQuantity").val('');
+            //$("#AssetSerial").val('');
+            //$("#AssetQuantity").val(1).trigger('keyup');
+        });
+        // Office wise  user
+
+
+      function GetChangedOffice() {
+        var office_id = GetWorkingOffice();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SelectOffice", "EmployeeProfileReport", "http")',
+            data: { officeId: office_id },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $("#OfficeName").val(data.OfficeName);
+                //location.reload();
+            }
+        });
+        return true;
+    }
+    function GetWorkingOffice() {
+        if ($("#ddlHO").val() > 0) {
+            var office_id;
+            if ($("#ddlZone").val() > 0) {
+                if ($("#ddlArea").val() > 0) {
+                    if ($("#ddlOffice").val() > 0) {
+                        office_id = $("#ddlOffice").val();
+                    }
+                    else {
+                        office_id = $("#ddlArea").val();
+                    }
+                }
+                else {
+                    office_id = $("#ddlZone").val();
+                }
+            }
+            else {
+                office_id = $("#ddlHO").val();
+            }
+        }
+        return office_id;
+    }
+
+
+
+        var employeeId = '@Model.EmployeeId';
+        if (employeeId) {
+
+            var userRole = @Html.Raw(Json.Encode(ViewData["UserRole"]));
+            if (userRole == 'Super Admin') {
+                $("#EmployeeCode").attr('readonly', false);
+            } else {
+                if (!IsEmployeeCodeEditAllowed) $("#EmployeeCode").attr('readonly', true);
+                $("#EmployeeCode").val('@Model.EmployeeCode');
+                LoadEmpInfoByCode('@Model.EmployeeCode');
+            }
+        }
+
+        $("#EmployeeCode").change(function (e) {
+            var EmployeeText = $('#EmployeeCode option:selected').text();
+            var EmployeeSplit = EmployeeText.split("-");
+            var employeeCode = EmployeeSplit[0];   //$("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+                $('#hidEmployeeCode').val(employeeCode);
+            }
+        });
+
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+        $("#DateTo").datepicker('setDate', new Date());
+
+        $("#EducationDegreeCode").change(function () {
+            var degreeCode = $("#EducationDegreeCode").val();
+            if (degreeCode != "") {
+                LoadDropDown('/CommonDropdown/GetEducationConcentrationListByDegreeCode', { DegreeCode: degreeCode }, '', "#ConcentrationCode");
+            }
+        });
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#Section");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value='0'>Please Select</option>");
+                        }
+                    },
+                });
+            } else {
+
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+
+        $("#EmployeeProfileId").change(function () {
+            var EmployeeProfileId = $("#EmployeeProfileId").val();
+
+            if (EmployeeProfileId != "") {
+                var rptname = $("#EmployeeProfileId option[value=" + EmployeeProfileId + "]").text();
+                $("#rpt_name").text(rptname);
+            }
+
+        });
+
+        $("#btnPrint").click(function () {
+            var EmployeeProfileId = $("#EmployeeProfileId").val();
+            var EmployeeCode = $("#hidEmployeeCode").val();
+
+            if (EmployeeCode != "") {
+                if (EmployeeProfileId == "1") {
+                    url = '/EmployeeProfileReport/OfficialInfoReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "2") {
+                    url = '/EmployeeProfileReport/EmployeeSupervisorInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "3") {
+                    url = '/EmployeeProfileReport/EmployeeEducationInfoReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "33") {
+                    url = '/EmployeeProfileReport/EmployeeEducationInfoReportMousumi?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+
+                if (EmployeeProfileId == "4") {
+                    url = '/EmployeeProfileReport/EmployeeBasicInfoReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "5") {
+                    url = '/EmployeeProfileReport/EmployeeAddressInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "6") {
+                    url = '/EmployeeProfileReport/EmployeeFamilyInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "7") {
+                    url = '/EmployeeProfileReport/EmployeeOtherQualification?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "8") {
+                    url = '/EmployeeProfileReport/EmergencyContactInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "9") {
+                    url = '/EmployeeProfileReport/EmployeeMedicalInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "10") {
+                    url = '/EmployeeProfileReport/EmployeeReferenceGuarantorInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "11") {
+                    url = '/EmployeeProfileReport/EmployeeCertificateInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "12") {
+                    url = '/EmployeeProfileReport/EmployeeTrainingInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "13") {
+                    url = '/EmployeeProfileReport/EmployeeOfficeVisitInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "14") {
+                    url = '/EmployeeProfileReport/RelationshipWithCurrentOrganizationEmployee?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "15") {
+                    url = '/EmployeeProfileReport/RelationshipWithInterOrganizationEmployee?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "16") {
+                    url = '/EmployeeProfileReport/WorkExperienceWithInterOrganization?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "17") {
+                    url = '/EmployeeProfileReport/PreviousWorkExperience?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "18") {
+                    url = '/EmployeeProfileReport/Publication?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "21") {
+                    url = '/EmployeeProfileReport/FullProfileReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+                if (EmployeeProfileId == "22") {
+                    url = '/EmployeeProfileReport/EmployeeReferenceGuarantorInfoForMousumi?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+                if (EmployeeProfileId == "44") {
+                    url = '/EmployeeProfileReport/GuarantorMoneyReportMousumi?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+
+            } else {
+                $.alert.open("Error", "Please Enter Employee code");
+            }
+
+        });
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeProfileReport", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                    });
+                    //LoadPreviousDataList($("#EmployeeId").val());
+                }
+
+                else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+</script>
+
+<h2 class="page-title">Employee Personal Report</h2>
+
+&nbsp;
+
+
+<div class="container-fluid">
+
+    <fieldset>
+        <legend class="text-info" id="rpt_name"></legend>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Head Office</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("HOList", null, new { @ID = "ddlHO", @class = "form-control" })
+                    </div>
+                    @Html.Label(ViewData["OfficeLevel"].ToString(), new { @ID = "lblOffcLevel", style = "display:none;" })
+                    @Html.Label(ViewData["FirstLevel"].ToString(), new { @ID = "lblFirstLevel", style = "display:none;" })
+                    @Html.Label(ViewData["SecondLevel"].ToString(), new { @ID = "lblSecondLevel", style = "display:none;" })
+                    @Html.Label(ViewData["ThirdLevel"].ToString(), new { @ID = "lblThirdLevel", style = "display:none;" })
+                    @Html.Label(ViewData["FourthLevel"].ToString(), new { @ID = "lblFourthLevel", style = "display:none;" })
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Zone Office</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("ZoneList", null, new { @ID = "ddlZone", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Area Office</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("AreaList", null, new { @ID = "ddlArea", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Branch Office</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("OfficeList", null, new { @ID = "ddlOffice", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee List", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @*@Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })*@
+
+                        @Html.DropDownList("EmployeeCode", Enumerable.Empty<SelectListItem>(), "--Select Employee --", new { @class = "form-control" })
+
+                        <input type="hidden" id="hidEmployeeCode" name="hidEmployeeCode" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Report Dropdown</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.EmployeeProfileId, Model.EmployeeProfileList, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6 ">
+                <div class="form-group col-sm-offset-4">
+                    <div class="col-md-6">
+                        <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

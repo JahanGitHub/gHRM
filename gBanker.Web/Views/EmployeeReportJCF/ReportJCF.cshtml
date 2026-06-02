@@ -1,0 +1,474 @@
+﻿@model gHRM.Web.ViewModels.EmployeeReportOptionJCFViewModel
+
+@{
+    ViewBag.Title = "ReportJCF";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var deptList = Model == null ? null : Model.DepartmentList;
+    var desgList = Model == null ? null : Model.DesignationList;
+    var empStatus = Model == null ? null : Model.EmployeeStatusList;
+    var genderList = Model == null ? null : Model.GenderList;
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#DepAndDes").hide();
+        $("#employeestatusandtype").hide();
+        $("#SectionAndResponsibility").hide();
+        $("#GenderPart").hide();
+        $("#YearPart").hide();
+        $("#ActiveAndInActive").hide();
+        var AgeStatus = ''
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+      
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+        $("#DateTo").datepicker('setDate', new Date());
+
+        $("#EducationDegreeCode").change(function () {
+            var degreeCode = $("#EducationDegreeCode").val();
+            if (degreeCode != "") {
+                LoadDropDown('/CommonDropdown/GetEducationConcentrationListByDegreeCode', { DegreeCode: degreeCode }, '', "#ConcentrationCode");
+            }
+        });
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#Section");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value='0'>Please Select</option>");
+                        }
+                    },
+                });
+            } else {
+
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+
+        $("#ReportType").change(function () {
+            var reportType = $("#ReportType").val();
+            var typeId = $("#ReportType").val();
+
+
+            if (typeId == "1") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").hide();
+                $("#YearPart").hide();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").show();
+            }
+
+            if (typeId == "2") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").hide();
+                $("#YearPart").hide();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").show();
+            }
+
+            if (typeId == "3") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").hide();
+                $("#YearPart").hide();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").show();
+             
+            }
+
+            if (typeId == "4") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").show();
+                $("#YearPart").hide();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").show();
+            }
+
+            if (typeId == "5") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").show();
+                $("#YearPart").show();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").show();
+            }
+
+            if (typeId == "6") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").hide();
+                $("#YearPart").hide();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").hide();
+            }
+
+            if (typeId == "7") {
+                var rptname = $("#ReportType option[value='" + typeId + "']").text();
+                $("#rpt_name").text(rptname);
+                $("#DepAndDes").show();
+                $("#SectionAndResponsibility").show();
+                $("#GenderPart").hide();
+                $("#YearPart").hide();
+                $("#EducationSection").hide();
+                $("#ActiveAndInActive").hide();
+            }
+
+        });
+
+        $("#btnPrint").click(function () {
+
+            var reportType = $("#ReportType").val();
+            var typeId = $("#ReportType").val();
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var degreeCode = $("#EducationDegreeCode").val();
+            var concentrationCode = $("#ConcentrationCode").val();
+            var responsibilityId = $("#ResponsibilityId").val();
+            var DepartmentId = $("#DepartmentId").val();
+            if (DepartmentId == '' || DepartmentId == null || DepartmentId == 0) { DepartmentId = '' };
+            var DesignationId = $("#DesignationId").val();
+            if (DesignationId == '' || DesignationId == null || DesignationId == 0) { DesignationId = '' };
+            var SectionId = $("#Section").val();
+            if (SectionId == '' || SectionId == null || SectionId == 0) { SectionId = '' };
+            var Gender = $("#Gender").val();
+            if (Gender == '' || Gender == null || Gender == 0) { Gender = '' }
+            var Age = $("#Age").val();
+            if (Age == '' || Age == null || Age == 0) { Age = '' }
+            var AgeStatus = $('input[name=AgeStatus]:checked').val();
+            if (AgeStatus == "Above") {
+                AgeStatus = "A";
+            } else if (AgeStatus == "Below") {
+                AgeStatus = "B";
+            } else {
+                AgeStatus = "E";
+            }
+
+
+            var status = $("#ActiveInactive").val();
+            if (status == 2) {
+                status = 0
+            }
+            else if (status == '' || status == null) {
+                status = '';
+            };
+
+            var empType = $("#EmploymentType").val();
+            if (empType == 0) {
+                empType = '';
+            }
+
+
+            var officeId = 0;
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    officeId = $("#PVHeadOfficeId").val();
+                }
+                else if (officeTypeId == 3) {
+                    officeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    officeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    officeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    officeId = $("#UnitId").val();
+                }
+            }
+
+
+            if (typeId == "1") {
+                url = '/EmployeeReportJCF/OfficeWiseEmployeeRecruitmentReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&Gender=' + Gender + '&DegreeCode=' + degreeCode + '&ConcentrationCode=' + concentrationCode + '&ResponsibilityId=' + responsibilityId;
+                    PrintReport(url);
+            }
+
+            if (typeId == "2") {
+                url = '/EmployeeReportJCF/DepartmentWiseEmployeeRecruitment?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&ResponsibilityId=' + responsibilityId;;
+                PrintReport(url);
+            }
+
+            if (typeId == "3") {
+                url = '/EmployeeReportJCF/DesignationWiseEmployeeRecruitment?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&Gender=' + Gender;
+                PrintReport(url);
+            }
+           
+
+            if (typeId == "4") {
+                url = '/EmployeeReportJCF/RecruitmentEmployeeDetailsReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&Gender=' + Gender + '&ResponsibilityId=' + responsibilityId;;
+                    PrintReport(url);
+            }
+
+            if (typeId == "5") {
+               
+                url = '/EmployeeReportJCF/EmployeeAgeInformationReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&Gender=' + Gender + '&Age=' + Age + '&AgeStatus=' + AgeStatus + '&ResponsibilityId=' + responsibilityId;
+                    PrintReport(url);
+            }
+
+            if (typeId == "6") {
+                url = '/EmployeeReportJCF/RecruitmentVSDropoutReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&ResponsibilityId=' + responsibilityId;
+                PrintReport(url);
+            }
+
+            if (typeId == "7") {
+                url = '/EmployeeReportJCF/DesignationWiseJoiningResign?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&ResponsibilityId=' + responsibilityId;
+                PrintReport(url);
+            }
+
+            if (typeId == "8") {
+                url = '/EmployeeReportJCF/EmployeeWiseGender?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&ResponsibilityId=' + responsibilityId;
+                PrintReport(url);
+            }
+           
+        });
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+<h2 class="page-title">Official Info Report</h2>
+
+&nbsp;
+<h4 class="text-info" id="rpt_name"></h4><br />
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Report Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.ReportType, Model.ReportList, new { @class = "form-control required" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="officenav">
+        <hr />
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+    </div>
+    <div class="row" id="DepAndDes">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DepartmentId, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DepartmentId, deptList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DesignationId, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DesignationId, desgList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="SectionAndResponsibility">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Section</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.Section, Model.SectionList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ResponsibilityId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.ResponsibilityId, Model.ResponsibilityList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6" id="GenderPart"><hr />
+            <div class="form-group">
+                @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.Gender, genderList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6"  id="YearPart"><hr />
+            <div class="form-group">
+                @Html.LabelFor(model => model.Age, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.Age, new { htmlAttributes = new { @class = "form-control", @placeholder = "Age" } })
+                </div>
+                <div class="col-md-3 custom-control "><input type="radio" name="AgeStatus" value="Above">Above</div>
+                <div class="col-md-3 custom-control "><input type="radio" name="AgeStatus" value="Below">Below</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" id="EducationSection">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Education Qualification </label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EducationDegreeCode, Model.EducationDegreeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Concentration </label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.ConcentrationCode, Model.EducationConcentrationList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="DateDuration">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date From </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date To </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateTo, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="row" id="ActiveAndInActive">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required">Activation Status</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.ActiveInactive, Model.ActiveInactiveList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group ">
+                <label class="control-label col-md-4">Employment Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmploymentType, Model.EmploymentTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @*<div class="row" id="employeestatusandtype">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeStatus, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmployeeStatus, Model.EmployeeStatusList, new { @class = "selectpicker form-control", @multiple = "multiple", @Id = "EmpStatusList", @Name = "EmpStatusList" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group ">
+                <label class="control-label col-md-4">Employment Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmploymentType, Model.EmploymentTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+    <div class="row">
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

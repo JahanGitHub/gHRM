@@ -1,0 +1,96 @@
+﻿@model gHRM.Web.ViewModels.Payroll.OvertimeExceptionViewModel
+
+@{
+    ViewBag.Title = "Overtime Exception";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+    &nbsp;
+<h2 class="page-title">Overtime Exception Config</h2>
+    &nbsp;
+<div class="container-fluid">
+    @using (Html.BeginForm("AddOvertimeException", "OvertimeException", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "add-or-edit-form" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.EmployeeId)
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ExceptionType, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(m => m.ExceptionType, DropdownListHelper.GetDropdownList(DropdownListTypes.OvertimeExceptionType, Model.ExceptionType), "-Select One-", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EffectiveStartDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EffectiveStartDate, new { @class = "form-control ddl-datepicker", @autocomplete = "off"  })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EffectiveEndDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EffectiveEndDate, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" id="btnSave" class="btn btn-success">Save</button>
+                        &nbsp;
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" onclick="overtimeExceptionManager.clearform()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h2 class="page-title">Overtime Exception Config List</h2><br>
+    <div id="grid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/overtimeExceptionManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

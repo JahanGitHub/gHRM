@@ -1,0 +1,163 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanTypeViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function UpdateLoanType(id, loanTypeId, loanTypeName, interestRate, interestRateTypeId, loanPercentage) {
+       
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateLoanType", "PFLoanType", "http")',
+            data: { id: id, loanTypeId: loanTypeId, loanTypeName: loanTypeName, interestRate: interestRate, interestRateTypeId: interestRateTypeId, loanPercentage: loanPercentage },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                setTimeout(function () {
+                    window.location.href = "/PFLoanType/Index";
+                }, 1500);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+            }
+        });
+    }
+
+    function Update() {
+        var id = $('#Id').val();
+        var loanTypeId = $("#LoanTypeId").val();
+        var loanTypeName = $("#LoanTypeName").val();
+        var interestRate = $('#InterestRate').val();
+        var interestRateTypeId = $('#InterestRateTypeList').val();
+        
+        var loanPercentage = $('#LoanPercentage').val();
+
+        if (loanTypeId == '') {
+            $.alert.open("Please enter loan type Id");
+            return false;
+        }
+        if (loanTypeName == '') {
+            $.alert.open("Please enter loan type");
+            return false;
+        }
+        if (interestRate == '') {
+            $.alert.open("Please enter interest rate");
+            return false;
+        }
+        if (interestRateTypeId == '') {
+            $.alert.open("Please select Interest rate type");
+            return false;
+        }
+        
+
+        UpdateLoanType(id, loanTypeId, loanTypeName, interestRate, interestRateTypeId, loanPercentage);
+    }
+
+    $(document).ready(function () {
+        
+        $('#InterestRateTypeList').val(@Model.InterestRateTypeId);
+
+        $("#LoanTypeName").first().focus();
+        $('#InterestRate').keypress(function (event) {
+            return isNumber(event, this)
+        });
+        $('#LoanPercentage').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+        $("#btnUpdateLoanType").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+            
+        });
+   // });
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Loan Type</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanTypeId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanTypeId, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, disabled = "disabled" } })
+                    @Html.HiddenFor(model => model.Id)
+                </div>
+                @Html.LabelFor(model => model.LoanTypeName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanTypeName, new { htmlAttributes = new { @class = "form-control" }, @tabindex = 2 })
+                </div>
+            </div>
+        </div>
+               
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InterestRate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InterestRate, new { htmlAttributes = new { @class = "form-control" }, @tabindex = 3 })
+                </div>
+                @Html.LabelFor(model => model.LoanPercentage, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanPercentage, new { htmlAttributes = new { @class = "form-control" }, @tabindex = 4 })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InterestRateTypeList, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.InterestRateTypeList, Model.InterestRateTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <hr />
+       
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Update" id="btnUpdateLoanType" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

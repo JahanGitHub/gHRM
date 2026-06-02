@@ -1,0 +1,152 @@
+﻿@model gHRM.Web.ViewModels.PF.OrganizationSetupViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnSaveOrgSetup").click(function (e) {
+            e.preventDefault();
+            var obj = {
+                Id:$("#Id").val(),
+                OfficeContribution_ComponentPayrollId:$("#OfficeContribution_ComponentPayrollId").val(),
+                SelfContribution_ComponentPayrollId:$("#SelfContribution_ComponentPayrollId").val(),
+            };
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: true,
+                cache: false,
+                url: '/PFOrganizationSetup/PFConfigurationSave',
+                data: JSON.stringify({ obj: obj }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $.alert.open("Info", data);
+                    reloadGrid();
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+
+            });
+        });
+        // loading organization
+        $('#grid').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFOrganizationSetup/GetOrganizationSetupList'
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                Self_ComponentName: {
+                    title: 'Component(Self)',
+                    width: '20%'
+                },
+                Office_ComponentName: {
+                    title: 'Component(Office)',
+                    width: '10%'
+                },
+
+                IsActive: {
+                    title: 'Active',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.IsActive == true)
+                            return "Yes";
+                        if (data.record.IsActive == false)
+                            return "No";
+                    }
+                },
+                //EditLink: {
+                //    title: "Edit",
+                //    width: '5%',
+                //    display: function (data) {
+                //        return "<div class='text-center'><a href='/PFOrganizationSetup/Edit/" + data.record.Id + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                //    }
+                //}
+            }
+        });
+        reloadGrid();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid() {
+            $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+
+    });
+</script>
+
+&nbsp;
+<h2 class="page-title">Provident Fund Configuration</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(model=>model.Id)
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OfficeContribution_ComponentPayrollId, new { @class = "control-label col-md-2 required" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(model => model.OfficeContribution_ComponentPayrollId, Model.ComponentLst, new { @class = "form-control", @tabindex = 3 })
+                </div>
+
+                @Html.LabelFor(model => model.SelfContribution_ComponentPayrollId, new { @class = "control-label col-md-2 required" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(model => model.SelfContribution_ComponentPayrollId, Model.ComponentLst, new { @class = "form-control", @tabindex = 3 })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnSaveOrgSetup" class="btn btn-success" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <div id="grid">
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

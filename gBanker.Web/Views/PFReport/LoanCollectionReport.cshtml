@@ -1,0 +1,556 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanCollectionViewModel
+
+@{
+    ViewBag.Title = "ContributionReport";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    function GetSearchZOOffice() {
+        var ddlZOOffice = $("#ddlSearchZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZOOfficeList", "Employee", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function getAreaOffice(zoneOfficeId) {
+
+        $('#AreaOfficeList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Area Office';
+        var selectedValue = '';
+
+
+        $('#AreaOfficeList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAreaOffice", "PFReport", "http")',
+            dataType: 'json',
+            data: { zoneOfficeId: zoneOfficeId },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#AreaOfficeList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#AreaOfficeList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function getBranchOffice(areaOfficeId) {
+
+        $('#BranchOfficeList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Area Office';
+        var selectedValue = '';
+
+
+        $('#BranchOfficeList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBranchOffice", "PFReport", "http")',
+            dataType: 'json',
+            data: { areaOfficeId: areaOfficeId },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#BranchOfficeList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#BranchOfficeList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function individualLoanLedger(employeeCode, loanId, toDate) {
+        var url = '/PFReport/IndividualLoanLedger?employeeCode=' + employeeCode + '&loanId=' + loanId + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function getLoanCollectionSummary(fromDate, toDate) {
+        var url = '/PFReport/GetLoanCollectionSummary?fromDate=' + fromDate + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function getLoanDisbursementSummary(fromDate, toDate) {
+        var url = '/PFReport/GetLoanDisbursementSummary?fromDate=' + fromDate + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function getLoanCollectionByVoucherNo(voucherNo) {
+        var url = '/PFReport/GetLoanCollectionByVoucherNo?voucherNo=' + voucherNo;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function getLoanWiseCollection(fromDate, toDate) {
+        var url = '/PFReport/GetLoanWiseCollectionList?fromDate=' + fromDate + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function getOfficeWiseLoanCollection(fromDate, toDate) {
+        var url = '/PFReport/GetOfficeWiseLoanCollection?fromDate=' + fromDate + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function getInterestSeparationByYear(fromDate, toDate) {
+        var url = '/PFReport/GetInterestSeparationByYear?fromDate=' + fromDate + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function getLoanStatistics(employeeCode, fromDate, toDate) {
+        var url = '/PFReport/GetLoanStatistics?employeeCode=' + employeeCode + '&fromDate=' + fromDate + '&toDate=' + toDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    
+
+    function getLoanListByEmployeeCode(employeeCode) {
+
+        $('#LoanList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Loan Number';
+        var selectedValue = '';
+        $('#LoanList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetLoanListByEmployeeCode", "PFReport", "http")',
+            dataType: 'json',
+            data: { employeeCode: employeeCode },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#LoanList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#LoanList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function initialSetup() {
+
+        $('#dvEmployeeCode').hide();
+        $('#dvLoanList').hide();
+        $('#dvFromDate').hide();
+        $('#dvToDate').hide();
+        $('#dvToDate').hide();
+        $('#dvVoucherNo').hide();
+    }
+
+    function reportTypeSetup(reportType) {
+              
+        var employeeCode = $('#EmployeeCode');
+        var loanId = $('#LoanList');
+        var toDate = $('#ToDate');
+        var fromDate = $('#FromDate');
+        var voucherNo = $('#VoucherNo');
+
+        var dvEmployeeCode = $('#dvEmployeeCode');
+        var dvLoanList = $('#dvLoanList');
+        var dvFromDate = $('#dvFromDate');
+        var dvToDate = $('#dvToDate');
+        var dvVoucherNo = $('#dvVoucherNo');
+
+        if (reportType === enumPFReportType.IndividualLoanLedger) {
+
+            dvEmployeeCode.show();
+            dvLoanList.show();
+            dvFromDate.hide();
+            dvToDate.show();
+            dvVoucherNo.hide();
+
+            employeeCode.val('');
+            loanId.val('');
+            toDate.val('');
+            employeeCode.focus();
+        }
+        if (reportType === enumPFReportType.LoanAndInterestCollectionfortheMonth
+            || reportType === enumPFReportType.LoanWiseCollectionList
+            || reportType === enumPFReportType.OfficeWiseLoanSummary
+            || reportType === enumPFReportType.LoanCollectionDetails
+            || reportType === enumPFReportType.LoanDisbursementSummary) {
+            dvEmployeeCode.hide();
+            dvLoanList.hide();
+            dvFromDate.show();
+            dvToDate.show();
+            dvVoucherNo.hide();
+
+            fromDate.val('');
+            toDate.val('');
+            fromDate.focus();
+        }
+        if (reportType === enumPFReportType.LoanVoucherDetails) {
+            dvEmployeeCode.hide();
+            dvLoanList.hide();
+            dvFromDate.hide();
+            dvToDate.hide();
+            dvVoucherNo.show();
+
+            voucherNo.val('');
+            voucherNo.focus();
+        }
+        if (reportType === enumPFReportType.LoanStatistics) {
+            dvEmployeeCode.show();
+            dvLoanList.hide();
+            dvFromDate.show();
+            dvToDate.show();
+            dvVoucherNo.hide();
+
+            employeeCode.val('');
+            toDate.val('');
+            employeeCode.focus();
+        }       
+    }
+
+    $(document).ready(function () {
+        initialSetup();
+        $("#FromDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: '1980:2050'
+          });
+
+        $("#ToDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: '1980:2050'
+          });
+
+
+        $('#ReportType').change(function () {
+            var reportType = $(this).val();
+            if (reportType == '') {
+                initialSetup();
+                return;
+            }
+
+            reportTypeSetup(reportType);
+        });
+
+        $('#EmployeeCode').change(function () {
+
+            var employeeCode = $('#EmployeeCode').val();
+            if (employeeCode != '')
+
+            getLoanListByEmployeeCode(employeeCode);
+        });
+
+        $("#btnPrintReport").click(function () {
+            var reportType = $('#ReportType option:selected').val();
+            if (reportType == '') {
+                $.alert.open('Message', 'Please Select Report Type');
+                return;
+            }
+
+            var employeeCode = '';
+            var loanId = '';
+            var toDate = '';
+
+            if (reportType === enumPFReportType.IndividualLoanLedger) {
+                employeeCode = $('#EmployeeCode').val();
+                loanId = $('#LoanList option:selected').val();
+                toDate = $('#ToDate').val();
+
+                //Srart: Validation
+                if (employeeCode == '' || loanId == '' || toDate == '') {
+                    $.alert.open('Info', 'Enter valid information');
+                    return;
+                }
+                //End
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+
+                        individualLoanLedger(employeeCode, loanId, toDate);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            if (reportType === enumPFReportType.LoanAndInterestCollectionfortheMonth) {
+                var fromDate = $('#FromDate').val();
+                var toDate = $('#ToDate').val();
+
+                //Validation
+                if (fromDate == '' || toDate == '') {
+                    $.alert.open('Info', 'Enter valid information');
+                    return;
+                }
+                var fDate = Date.parse(fromDate);
+                var tDate = Date.parse(toDate);
+                if (fDate > tDate) {
+                    $.alert.open('Info', 'From Date should not be greater than To Date');
+                    return;
+                }
+
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        getLoanCollectionSummary(fromDate, toDate);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            if (reportType === enumPFReportType.LoanVoucherDetails) {
+
+                var voucherNo = $('#VoucherNo').val();
+                if (voucherNo == '') {
+                    $.alert.open('Info', 'Enter Voucher Number');
+                    return;
+                }
+
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        getLoanCollectionByVoucherNo(voucherNo)
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            if (reportType === enumPFReportType.LoanWiseCollectionList) {
+                var fromDate = $('#FromDate').val();
+                var toDate = $('#ToDate').val();
+
+                //Validation
+                if (fromDate == '' || toDate == '') {
+                    $.alert.open('Info', 'Enter valid information');
+                    return;
+                }
+                var fDate = Date.parse(fromDate);
+                var tDate = Date.parse(toDate);
+                if (fDate > tDate) {
+                    $.alert.open('Info', 'From Date should not be greater than To Date');
+                    return;
+                }
+
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        getLoanWiseCollection(fromDate, toDate);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            if (reportType === enumPFReportType.OfficeWiseLoanSummary) {
+                var fromDate = $('#FromDate').val();
+                var toDate = $('#ToDate').val();
+
+                //Validation
+                if (fromDate == '' || toDate == '') {
+                    $.alert.open('Info', 'Enter valid information');
+                    return;
+                }
+                var fDate = Date.parse(fromDate);
+                var tDate = Date.parse(toDate);
+                if (fDate > tDate) {
+                    $.alert.open('Info', 'From Date should not be greater than To Date');
+                    return;
+                }
+
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        getOfficeWiseLoanCollection(fromDate, toDate);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            if (reportType === enumPFReportType.LoanCollectionDetails) {
+                var fromDate = $('#FromDate').val();
+                var toDate = $('#ToDate').val();
+
+                //Validation
+                if (fromDate == '' || toDate == '') {
+                    $.alert.open('Info', 'Enter valid information');
+                    return;
+                }
+                var fDate = Date.parse(fromDate);
+                var tDate = Date.parse(toDate);
+                if (fDate > tDate) {
+                    $.alert.open('Info', 'From Date should not be greater than To Date');
+                    return;
+                }
+            }
+            if (reportType === enumPFReportType.LoanStatistics) {
+                    employeeCode = $('#EmployeeCode').val();
+                    var fromDate = $('#FromDate').val();
+                    var toDate = $('#ToDate').val();
+
+                    //Validation
+                    if (fromDate == '' || toDate == '') {
+                        $.alert.open('Info', 'Enter valid information');
+                        return;
+                    }
+                    var fDate = Date.parse(fromDate);
+                    var tDate = Date.parse(toDate);
+                    if (fDate > tDate) {
+                        $.alert.open('Info', 'From Date should not be greater than To Date');
+                        return;
+                    }
+
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        getLoanStatistics(employeeCode, fromDate, toDate);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+            if (reportType === enumPFReportType.LoanDisbursementSummary) {                
+                var fromDate = $('#FromDate').val();
+                var toDate = $('#ToDate').val();
+
+                //Validation
+                if (fromDate == '' || toDate == '') {
+                    $.alert.open('Info', 'Enter valid information');
+                    return;
+                }
+                var fDate = Date.parse(fromDate);
+                var tDate = Date.parse(toDate);
+                if (fDate > tDate) {
+                    $.alert.open('Info', 'From Date should not be greater than To Date');
+                    return;
+                }
+
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        getLoanDisbursementSummary(fromDate, toDate);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+
+        });
+
+});
+</script>
+
+<h2 class="page-title">Loan Report</h2>
+&nbsp
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+        <div class="panel panel-default" style="width:90%;">
+            <div class="panel-heading">
+                <h2 class="panel-title">Loan Reports</h2>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        @Html.Label("Report Type", new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(m => m.ReportType, DropdownListHelper.GetDropdownList(DropdownListTypes.PFReportType, Model.ReportType), "-Select One-", new { @class = "form-control" })                                                       
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvEmployeeCode">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Employee Code" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvLoanList">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LoanList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.LoanList, new List<SelectListItem>(), new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvFromDate">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.FromDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.FromDate, new { htmlAttributes = new { @class = "form-control", @Placeholder = "From Date" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvToDate">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ToDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.ToDate, new { htmlAttributes = new { @class = "form-control", @Placeholder = "To Date" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvVoucherNo">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.VoucherNo, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.VoucherNo, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Voucher No" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-4">
+                            <button type="button" id="btnPrintReport" class="btn btn-success"><i class="fa fa-search"></i> Show</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

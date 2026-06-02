@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "CV and Experience Certificate";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement ?? "True";
+}
+<style>
+    .modal-backdrop {
+        z-index: 900;
+    }
+
+    .vertical-alignment-helper {
+        display: table;
+        height: 100%;
+        width: 100%;
+        pointer-events: none; /* This makes sure that we can still click outside of the modal to close it */
+    }
+
+    .vertical-align-center {
+        /* To center vertically */
+        display: table-cell;
+        vertical-align: middle;
+        pointer-events: none;
+    }
+
+    .modal-content {
+        /* Bootstrap sets the size of the modal in the modal-dialog class, we need to inherit it */
+        width: inherit;
+        max-width: inherit; /* For Bootstrap 4 - to avoid the modal window stretching full width */
+        height: inherit;
+        /* To center horizontally */
+        margin: 0 auto;
+        pointer-events: all;
+    }
+
+    .modal-header {
+        background: #008d4c;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .modal-header {
+        color: #fff;
+    }
+</style>
+
+<h2>CV Download </h2>
+
+<br />
+
+
+
+
+<div class="container-fluid">
+
+  
+
+    <div class="row">
+        &nbsp;
+        <div id="grid2">
+
+        </div>
+
+    </div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<script>
+    $('#EmployeeCode').val('@SessionHelper.LoggedInEmployee.EmployeeCode')
+
+
+    function DownloadLetters() {
+        var ddlList = $('#ddlLetters').val();
+        window.location.href = '@Url.Action("DownloadLetters", "EmployeeReport")?ddlList=' + ddlList +'+&EmployeeCode=@SessionHelper.LoggedInEmployee.EmployeeCode';
+        }
+
+        function GetDownloadFile(FileUploadId) {
+        //alert("Do");
+        window.location.href = '@Url.Action("DownloadFileAdmin", "EmployeeReport")?types=CV&FileUploadId=' + FileUploadId;
+    }
+
+      function GetDownloadFile2(FileUploadId) {
+        //alert("Do");
+          window.location.href = '@Url.Action("DownloadFile2Admin", "EmployeeReport")?types=EXP&FileUploadId=' + FileUploadId;
+    }
+
+    function GetPrintDataById(ID) {
+
+        url = '/FeedbackRegister/Print?Id=' + ID;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+    function GetDataGrid() {
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 25,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/EmployeeReport/GetFeedBackRegisterList?EmployeeCode=@SessionHelper.LoggedInEmployee.EmployeeCode'
+            },
+            fields: {
+                FeedbackRegisterID: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Employee ID',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '20%'
+                },
+                FeedbackDateSTR: {
+                    title: 'CV Upload Date',
+                    width: '15%'
+                },
+                ChkStatus: {
+                    title: 'CV Status',
+                    width: '10%'
+                },
+                SolvedStatus: {
+                    title: 'Exp Status',
+                    width: '10%'
+                },
+                DownloadLink1: {
+                    title: "CV Download",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' OnClick= GetDownloadFile('" + data.record.FeedbackRegisterID + "'" + ");><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+                DownloadLink2: {
+                    title: "Exp Download",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' OnClick= GetDownloadFile2('" + data.record.FeedbackRegisterID + "'" + ");><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+
+
+            }
+        });
+        $('#grid2').jtable('load');
+    }
+
+
+
+
+    $(document).ready(function () {
+
+        const fixedDate = new Date(2023, 7, 31);
+       
+      
+
+        GetDataGrid();
+
+
+    });
+
+    ////// Kendo Grid Integration
+
+
+
+</script>
+
+
+    @section Scripts {
+
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/jtable")
+        @Scripts.Render("~/bundles/alert")
+    }

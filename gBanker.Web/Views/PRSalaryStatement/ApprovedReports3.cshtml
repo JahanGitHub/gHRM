@@ -1,0 +1,235 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRSalaryStatement">SalaryReport</a></li>
+        <li><a href="/PRSalaryStatement/ApprovedReports">ApprovedReports</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Payroll Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    function PrintSalaryBankSummaryReportBeforeApproval(year, month, officeTypeId, officeId, bankName) {
+        url = '/PRSalaryStatement/PrintSalaryBankSummaryReportBeforeApproval2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&OfficeId=' + officeId + '&BankName=' + bankName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintSalaryBankSummaryReportAfterApproval(year, month, officeTypeId, officeId, bankName) {
+        url = '/PRSalaryStatement/PrintSalaryBankSummaryReportAfterApproval2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&OfficeId=' + officeId + '&BankName=' + bankName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintSalaryBankSummaryReportBeforeApprovalPDF(year, month, officeTypeId, officeId, bankName) {
+        url = '/PRSalaryStatement/PrintSalaryBankSummaryReportBeforeApprovalPDF2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&OfficeId=' + officeId + '&BankName=' + bankName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintSalaryBankSummaryReportAfterApprovalPDF(year, month, officeTypeId, officeId, bankName) {
+        url = '/PRSalaryStatement/PrintSalaryBankSummaryReportAfterApprovalPDF2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&OfficeId=' + officeId + '&BankName=' + bankName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+
+    function GetRelatedOfficeXOfficeType(OfficeTypeId) {
+        if (OfficeTypeId > 0) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '/PRProcess/GetRelatedOfficeXOfficeType',
+                data: { OfficeTypeId: OfficeTypeId },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    var htm = "";
+                    for (var i = 0; i < data.length; i++) {
+
+                        htm += "<option " + (data[1].Selected ? "Selected='Selected'" : "") + " value='" + data[i].Value + "'>" + data[i].Text + "</option>"
+                    }
+                    $("#OfficeId").html(htm)
+
+                },
+                error: function (request, status, error) {
+                    $.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        GetRelatedOfficeXOfficeType(1);
+        $("#btnSalayAtBankAfterApprovalExcel").click(function () {            
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#OfficeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintSalaryBankSummaryReportAfterApproval(year, month, officeTypeId, officeId, bankName );
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnSalayAtBankBeforeApprovalExcel").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            var officeId = $("#OfficeId").val();
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintSalaryBankSummaryReportBeforeApproval(year, month, officeTypeId, officeId, bankName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnSalayAtBankBeforeApprovalPDF").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            var officeId = $("#OfficeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            var officeId = $("#OfficeId").val();
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintSalaryBankSummaryReportBeforeApprovalPDF(year, month, officeTypeId, officeId,bankName );
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnSalayAtBankAfterApprovalPDF").click(function () {
+            debugger;
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            var officeId = $("#OfficeId").val();
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintSalaryBankSummaryReportAfterApprovalPDF(year, month, officeTypeId, officeId, bankName );
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+
+        $("#OfficeTypeId").change(function () {
+
+            var OfficeTypeId = $("#OfficeTypeId").val();
+
+            GetRelatedOfficeXOfficeType($(this).val())
+        });
+    });
+
+</script>
+
+<h2 class="page-title">Salary at Bank</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Office Type</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Office</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(
+                                 model => model.OfficeId,
+                                 Enumerable.Empty<SelectListItem>(),
+                                 new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> Year</label>
+                        <div class="col-md-8">
+                            @*<input type="number" id="SalaryYear" value="1987" class="form-control" />*@
+                            @Html.DropDownList("Years", null, new { @ID = "Year1", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> Month</label>
+                        <div class="col-md-8">
+                            @*<input type="number" id="SalaryMonth" value="1" class="form-control" />*@
+                            @Html.DropDownList("Months", null, new { @ID = "Month1", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Bank Name</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.BankCode, Model.BankList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                            &nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Salary At Bank Before Approval (Excel)" id="btnSalayAtBankBeforeApprovalExcel" class="btn btn-primary" />
+                            &nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Salary At Bank Before Approval (PDF)" id="btnSalayAtBankBeforeApprovalPDF" class="btn btn-primary" />
+                            &nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Salary At Bank After Approval (Excel)" id="btnSalayAtBankAfterApprovalExcel" class="btn btn-primary" />
+                            &nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Salary At Bank After Approval (PDF)" id="btnSalayAtBankAfterApprovalPDF" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <!--Main Container Fluid-->
+    <!--Form Horizontal-->
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

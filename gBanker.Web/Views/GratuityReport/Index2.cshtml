@@ -1,0 +1,297 @@
+﻿@model gHRM.Web.ViewModels.GratuityReportViewModel
+
+@{
+    ViewBag.Title = "Gratuity Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".EmpCodeDiv").hide();
+        $(".EMPDeptSection").hide();
+
+        $("#AttenDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1950:2050"
+
+          });
+        $("#AttenDate").datepicker(
+      'setDate', new Date());
+        $("#DateFrom").datepicker(
+        {
+        dateFormat: "dd-M-yy",
+        showAnim: "scale",
+        changeMonth: true,
+        changeYear: true,
+        yearRange: "1950:2050"
+
+        });
+        $("#DateFrom").datepicker(
+     'setDate', new Date());
+
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+        $("#DateTo").datepicker(
+     'setDate', new Date());
+
+        $("#ReportType").change(function () {
+            var reportType = $("#ReportType").val();
+            if (reportType != "") {
+                if (reportType == "SM") {
+                    $(".EmpCodeDiv").hide();
+                    $(".EMPDeptSection").hide();
+                } else if (reportType=="EC") {
+                    $(".EMPDeptSection").hide();
+                    $(".EmpCodeDiv").show();
+                }
+            } else {
+                $(".EmpCodeDiv").hide();
+                $(".EMPDeptSection").hide();
+            }
+        });
+
+        $("#btnPrint").click(function () {
+            debugger;
+
+              var reportType = $("#ReportType").val();
+              var empCode = $("#EmployeeCode").val();
+              var departmentId = "";// $("#DepartmentId").val();
+              var sectionId = "";// 0$("#SectionId").val();
+
+              var OfficeId = 0;
+              var officeTypeId = $("#OfficeTypeId").val();
+              if (officeTypeId != "") {
+                  if (officeTypeId == 1) {
+                      OfficeId = $("#PVHeadOfficeId").val();
+                  } else if (officeTypeId == 3) {
+                      OfficeId = $("#PVProjectId").val();
+                  } else if (officeTypeId == 4) {
+                      OfficeId = $("#ZoneId").val();
+                  } else if (officeTypeId == 5) {
+                      OfficeId = $("#AreaId").val();
+                  } else if (officeTypeId == 6) {
+                      OfficeId = $("#UnitId").val();
+                  }
+              }
+
+              if (reportType != "") {
+
+                  if (reportType == "SM") {
+                      officeTypeId = [null, ""].includes(officeTypeId) ? 0 : officeTypeId;
+                      OfficeId = [null, ""].includes(OfficeId) ? 0 : OfficeId;
+                      url = '/GratuityReport/GratuitySummaryReport2?OfficeTypeId=' + officeTypeId + "&OfficeId=" + OfficeId;
+                      PrintReport(url);
+                  } else if (reportType == "EC" && empCode != "") {
+                      url = '/GratuityReport/GratuityIndividualReport?EmpCode=' + empCode;
+                      PrintReport(url);
+                  }
+              }
+          });
+
+        $("#btnExcelPrint").click(function () {
+            debugger;
+            console.log('Hi')
+
+            var reportType = $("#ReportType").val();
+            var date = $("#AttenDate").val();
+            var month = $("#Month").val();
+            var empCode = $("#EmployeeCode").val();
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var departmentId = $("#DepartmentId").val();
+            var sectionId = $("#SectionId").val();
+
+            var OfficeId = 0;
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    OfficeId = $("#PVHeadOfficeId").val();
+                } else if (officeTypeId == 3) {
+                    OfficeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    OfficeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    OfficeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    OfficeId = $("#UnitId").val();
+                }
+
+            }
+
+            if (reportType != "") {
+
+                if (reportType == "DATT" && date != "") {
+                    url = '/AttendanceReport/DailyAttendanceReportExcelPrint?Date=' + date + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "DATTWG" && date != "") {
+                    url = '/AttendanceReport/DailyAttendanceReportExcelPrintWithoutGroup?Date=' + date + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "MATT" && dateFrom != "" && dateTo != "") {
+                    url = '/AttendanceReport/MonthlyAttendanceReportExcelPrint?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&OfficeId=' + OfficeId + '&departmentId=' + departmentId + '&sectionId=' + sectionId;
+                    ExcelReport(url);
+                } else if (reportType == "EC" && empCode != "" && dateFrom != "" && dateTo != "") {
+                    url = '/AttendanceReport/EmployeeCodeReportExcel?EmpCode=' + empCode + '&DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "PR" && dateFrom != "" && dateTo != "") {
+                    url = '/AttendanceReport/DailyPresentReportExcelPrint?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&ReportType=' + reportType + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "A" && dateFrom != "" && dateTo != "") {
+                    url = '/AttendanceReport/DailyPresentReportExcelPrint?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&ReportType=' + reportType + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "LT" && dateFrom != "" && dateTo != "") {
+                    url = '/AttendanceReport/DailyPresentReportExcelPrint?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&ReportType=' + reportType + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "MDU" && date != "") {
+                    url = '/AttendanceReport/ManuallyDailyUpdatedReportExeclPrint?Date=' + date + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                } else if (reportType == "MMU" && month != "") {
+                    url = '/AttendanceReport/ManuallyMonthlyUpdatedReportExcelPrint?Month=' + month + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                }
+                else if (reportType == "TR" && date != "") {
+                    url = '/AttendanceReport/DailyTourReportPrint?Date=' + date + '&OfficeId=' + OfficeId;
+                    ExcelReport(url);
+                }
+
+            }
+        });
+
+        $("#DepartmentId").change(function () {
+            GetDepartmentWiseSection();
+        });
+
+    });
+
+    function GetDepartmentWiseSection() {
+        var deptId = $("#DepartmentId").val();
+        var ddlSection = $("#SectionId");
+        if (deptId != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                data: { deptId: deptId },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.length > 0) {
+                        ddlSection.html("");
+                        $.each(data, function (id, option) {
+                            ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        ddlSection.html("<option value='0'>Please Select</option>");
+                    }
+                },
+            });
+        } else {
+
+            ddlSection.html("<option value='0'>Please Select</option>");
+        }
+    }
+    function ExcelReport(PrintUrl) {
+        debugger;
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintReport(PrintUrl) {
+        debugger;
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+</script>
+
+
+
+<h2 class="page-title">Gratuity Report</h2>
+&nbsp;
+
+<div class="container-fluid">
+   
+    @Html.Partial("~/Views/Shared/_OfficeNevigationPanePartial.cshtml", pvOfficeNevigation)
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Report Type</label>
+                <div class="col-sm-8">                       
+                    @Html.DropDownListFor(model => model.ReportType,Model.ReportTypeList, new { @class = "form-control" } )
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 EMPDeptSection">
+            <div class="form-group">
+                <label class="control-label col-md-4">Department</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    &nbsp;
+    <div class="row">        
+        <div class="col-sm-6 EMPDeptSection">
+            <div class="form-group">
+                <label class="control-label col-md-4">Section</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.SectionId, Model.SectionList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+  <div class="row EmpCodeDiv">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    &nbsp;
+    <div class="row">
+        <div class="form-group col-md-offset-5">              
+            <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+        </div>
+    </div>
+        @*</div>*@
+
+        <div class="row">
+            <div class="col-md-12">
+                &nbsp;
+            </div>
+            &nbsp;
+            <div id="grid">
+
+            </div>
+
+        </div>
+    </div>
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

@@ -1,0 +1,215 @@
+﻿@model gHRM.Web.ViewModels.PF.PFWithdrawanViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">
+    PF Withdrwan
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.IsOpen)
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-3">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Employee Code" } })
+                    @Html.HiddenFor(model => model.EmployeeId)
+                </div>
+
+                <div class="col-md-3">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+
+                <div class="col-md-4">
+                    @Html.LabelFor(model => model.CalculationDate, htmlAttributes: new { @class = "control-label col-md-1" })
+                    @Html.EditorFor(model => model.CalculationDate, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                <div class="col-md-1">
+                    <button type="button" id="btnSearch" class="btn btn-warning"><span class="glyphicon glyphicon-search"></span></button>
+                </div>
+
+            </div>
+        </div>
+
+        <hr style="margin:10px;padding:0;" />
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SelfContribution, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.SelfContribution, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.OrgContribution, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.OrgContribution, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.Contribution, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.Contribution, new { htmlAttributes = new { @class = "form-control", disabled = "disabled", @style = "background:#CBE067;" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SelfInterestUptoInterim, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.SelfInterestUptoInterim, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.OrgInterestUptoInterim, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.OrgInterestUptoInterim, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.InterestUptoInterim, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.InterestUptoInterim, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SelfInterestAftInterim, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.SelfInterestAftInterim, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.OrgInterestAftInterim, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.OrgInterestAftInterim, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.InterestAftInterim, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.InterestAftInterim, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-8">
+                </div>
+                @Html.LabelFor(model => model.InterestIncome, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.InterestIncome, new { htmlAttributes = new { @class = "form-control", disabled = "disabled", @style = "background:#CBE067;" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-8">
+                </div>
+                @Html.LabelFor(model => model.Fund, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.Fund, new { htmlAttributes = new { @class = "form-control", disabled = "disabled", @style = "background:#CBE067;" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.PrincipalBalance, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.PrincipalBalance, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.InterestBalance, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.InterestBalance, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+                @Html.LabelFor(model => model.OutStanding, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.OutStanding, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-8">
+                </div>
+                @Html.LabelFor(model => model.Payable, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.EditorFor(model => model.Payable, new { htmlAttributes = new { @class = "form-control", disabled = "disabled", @style = "background:#CBE067;" } })
+                </div>
+            </div>
+        </div>
+
+        @*<div class="row">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    </div>
+                    @Html.LabelFor(model => model.OrgContribution, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.OrgContribution, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalPayable, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.TotalPayable, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    </div>
+                    @Html.LabelFor(model => model.SelfInterestAmount, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.SelfInterestAmount, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LoanDue, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.LoanDue, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    </div>
+                    @Html.LabelFor(model => model.OrgInterestAmount, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.OrgInterestAmount, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    </div>
+                </div>
+            </div>*@
+
+        <hr style="margin:10px;padding:0;" />
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-10">
+                <div class="form-group" style="margin-left:-10px;">
+                    <input type="button" value="Withdraw" id="btnWithdrawanPF" class="btn btn-success" tabindex="2" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Assets/js/app/pf/pfWithdrawanManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

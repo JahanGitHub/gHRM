@@ -1,0 +1,230 @@
+﻿@model gHRM.Web.ViewModels.PRWorkAreaViewModel
+
+@{
+    ViewBag.Title = "Payroll Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+
+    //Monthly Salary Process Process1(emptype,Month1);
+    function Process1(empType, month ) {
+
+        var Year1 = $("#Year1 option:selected").val();// $("#Year1").val();
+        var Process1Date = $("#Process1Date").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("DailyDataPosting", "PRProcess", "http")', //Process1(string empType, string month, string Year1, string Process1Date )
+            data: { empType: empType, month: month,Year1: Year1, Process1Date: Process1Date },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Process Not Completed.");
+            }
+
+        });
+
+    }// End of Function
+
+
+
+
+
+
+
+
+
+
+    function clear()
+    {
+        //$("#WorkAreaName").val('');
+        //$("#PRWorkAreaID").val('');
+    }
+
+
+
+    $(document).ready(function () {
+
+        $("#radProcess1EMP").attr('checked', 'checked');
+
+        $("#Process1Date").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2100"
+
+           });
+        $("#Process1Date").datepicker(
+      'setDate', new Date());
+
+
+        $("#btnProcess1").click(function () {
+
+            var Year1 = $("#Year1 option:selected").val(); // $('#Year1').val();
+
+            var Month1 = $('#Month1 option:selected').val();  // $('#Month1').val();
+            var Process1Date = $('#Process1Date').val();
+            var emptype = 0;
+            if ($('#radProcess1EMP').is(':checked')) { emptype = $('#radProcess1EMP').val(); }
+            if ($('#radProcess1EMP2').is(':checked')) { emptype = $('#radProcess1EMP2').val(); }
+
+            if (Year1 == "" ||
+                    Month1 == 0 ||
+                    Process1Date == "" ||
+                    emptype == 0
+               ) {
+                $.alert.open("Message", "Please Fill All required Data.");
+                return false;
+            }
+
+            //Process1
+            Process1(emptype, Month1);
+
+            //clear();
+        });// End Of Process1
+
+
+
+        ////Partial Salary PROCESS
+
+        $("#Process2StartDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+
+          });
+        $("#Process2StartDate").datepicker(
+      'setDate', new Date());
+        $("#Process2EndDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+
+          });
+        $("#Process2EndDate").datepicker(
+      'setDate', new Date());
+
+
+
+
+        /// Process 3
+        $("#Process3Date").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2100"
+
+          });
+        $("#Process3Date").datepicker(
+      'setDate', new Date());
+
+        $("#Process4Date").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2100"
+
+         });
+        $("#Process4Date").datepicker(
+      'setDate', new Date());
+
+
+
+
+
+
+
+
+    });// End Document Rready
+</script>
+
+<h2 class="page-title">Daily Posting</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+
+            <div class="row">
+
+                <div class="col-sm-6" style="display:none;">
+                    <div class="form-group">
+                        <label class="checkbox-inline"><input type="radio" name="Employee1" id="radProcess1EMP" value="1" checked="checked"> <font size="3.5px">Parmanent Employee </font></label>
+                        &nbsp;
+                        <label class="checkbox-inline"><input type="radio" name="Employee1" id="radProcess1EMP2" value="2"><font size="3.5px">Temporary Employee</font></label>
+
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> Year</label>
+                        <div class="col-md-8">
+                            @*<input type="number" id="SalaryYear" value="1987" class="form-control" />*@
+                            @Html.DropDownList("Years", null, new { @ID = "Year1", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> Month</label>
+                        <div class="col-md-8">
+                            @*<input type="number" id="SalaryMonth" value="1" class="form-control" />*@
+                            @Html.DropDownList("Months", null, new { @ID = "Month1", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="Process1Date" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                                <input type="button" value="Day Closing" id="btnProcess1" class="btn btn-success" />
+                            </div>
+                        </div>
+                    </div>
+                </div> <!--New Div-->
+
+            </div>
+
+        </div> <!--Main Container Fluid-->
+
+
+    </div> <!--Form Horizontal-->
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

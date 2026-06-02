@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "Report Signature";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var Edit_ReportName = ViewData.ContainsKey("ReportName") ? ViewData["ReportName"] : "";
+    var Edit_SignEmp_Id1 = ViewData.ContainsKey("SignEmp_Id1") ? ViewData["SignEmp_Id1"] : "";
+    var Edit_SignEmp_Id2 = ViewData.ContainsKey("SignEmp_Id2") ? ViewData["SignEmp_Id2"] : "";
+    var Edit_SignEmp_Id3 = ViewData.ContainsKey("SignEmp_Id3") ? ViewData["SignEmp_Id3"] : "";
+    var Edit_SignEmp_Id4 = ViewData.ContainsKey("SignEmp_Id4") ? ViewData["SignEmp_Id4"] : "";
+    var Edit_SignEmp_Id5 = ViewData.ContainsKey("SignEmp_Id5") ? ViewData["SignEmp_Id5"] : "";
+    var Edit_SignEmp_Id6 = ViewData.ContainsKey("SignEmp_Id6") ? ViewData["SignEmp_Id6"] : "";
+
+
+}
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Report Signature</h2>&nbsp;
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Report Name</label>
+                <div class="col-sm-7">
+                    <select id="ReportName" class="form-control">
+                        <option value="">Please Select</option>
+                        <option value="FTAA">Fund Transfer Application And Advice To Bank</option>
+                        <option value="EMSS">Employee Monthly Salary Sheet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    @for (int i = 1; i <= 6; i++)
+    {
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <input id="@("SignEmp_Id" + i)" type="hidden"/>
+                <label class="control-label col-sm-4 @(i == 1 ? "required" : "")" aria-required="true">@("Signature " + i + " Employee Code")</label>
+                <div class="col-sm-8">
+                    <input id="@("SignEmp_Code" + i)" class="form-control" type="text" placeholder="Employee Code" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <span id="@("SignEmp_Detail" + i)" style="font-size: 13px;"></span>
+        </div>
+    </div>
+    }
+    <div class="page-title"></div>&nbsp;
+    <div class="row">
+        <div class="col-sm-12">
+            <input type="button" value="Save" id="btnSave" class="btn btn-success" onclick="Page.Save()" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        var Edit_Id = @ViewBag.Id;
+        var Edit_ReportName = "@Edit_ReportName";
+        var Edit_SignEmp_Id1 = "@Edit_SignEmp_Id1";
+        var Edit_SignEmp_Id2 = "@Edit_SignEmp_Id2";
+        var Edit_SignEmp_Id3 = "@Edit_SignEmp_Id3";
+        var Edit_SignEmp_Id4 = "@Edit_SignEmp_Id4";
+        var Edit_SignEmp_Id5 = "@Edit_SignEmp_Id5";
+        var Edit_SignEmp_Id6 = "@Edit_SignEmp_Id6";
+
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/basic/report-signature-create.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

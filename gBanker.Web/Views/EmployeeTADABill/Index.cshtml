@@ -1,0 +1,356 @@
+﻿@model gHRM.Web.ViewModels.LeaveSellViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 40px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    var ApprovalStatus = "N";
+
+    function EncashmentComplete(LeaveSellId) {
+
+        $.alert.open('confirm', 'Are you sure you want to update this record?', function (button) {
+            if (button == 'yes') {
+                debugger;
+                var remarks = $("#txtRemarks" + LeaveSellId).val();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("EncashmentComplete", "LeaveSell", "http")',
+                    data: { LeaveSellId: LeaveSellId, Remarks: remarks },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result == 1) {
+
+                            reloadGrid();
+                            $.alert.open("Success", "Encashment status Changed successfully");
+                        } else {
+                            $.alert.open("Error", "Error Occured");
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function leaveSellApprove(LeaveSellId) {
+        $.alert.open('confirm', 'Are you sure you want to approve this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("leaveSellApprove", "LeaveSell", "http")',
+                    data: { LeaveSellId: LeaveSellId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result.Result == 1) {
+                            reloadGrid();
+
+                        } else {
+                            $.alert.open("Error", Result.Message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+
+    function GetWaitingTADABillList(filterBy, filterValue, Filter_Valuedate, ApprovalStatus) {
+
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            //defaultSorting: 'EmployeeCode ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeTADABill/GetWaitingTADABillList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&FilterBy=' + filterBy + '&FilterValue=' + filterValue + '&FilterValuedate=' + Filter_Valuedate + '&ApprovalStatus=' + ApprovalStatus,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                TADABillId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                rowSl: {
+                    title: 'SL',
+                    width: '5%'
+                },
+                EmployeeCode: {
+                    title: 'Code',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'Name',
+                    width: '20%'
+                },
+
+                MemoNo: {
+                    title: 'MemoNo',
+                    width: '10%'
+                },
+
+                TravelDateMsg: {
+                    title: 'Travel Date',
+                    width: '10%'
+                },
+                TravelPlace: {
+                    title: 'Travel Place',
+                    width: '10%'
+                },
+                TravelPurpose: {
+                    title: 'Travel Purpose',
+                    width: '10%'
+                },
+                ApproveDateMsg: {
+                    title: 'Approve Date',
+                    width: '10%'
+                },
+                ClaimAmount: {
+                    title: 'Claim Amount',
+                    width: '10%'
+                },
+                ApproveAmount: {
+                    title: 'Approved Amount',
+                    width: '10%'
+                },
+                Remark: {
+                    title: 'Remark',
+                    display: function (data) {
+                        debugger;
+                        if (data.record.IsAmountPaid==true) {
+                            return '<div class="text-center"><label>' + data.record.Remark + '</label></div>';
+                        } else {
+                            return '<div class="text-center"><input type="text" id="txtRemarks' + data.record.TADABillId + '"></input></div>';
+                        }
+                    }
+                },
+                Approve: {
+                    title: "Action",
+                    display: function (data) {
+                        if (data.record.IsAmountPaid != true) {
+                            return '<div class="text-center"><a title="Provide TADA Bill" href="#" OnClick="ProvideTADABill(' + data.record.TADABillId + ');"><i class="fa fa-check"></i></a></div>';
+                        }
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        if (data.record.IsAmountPaid != true) {
+                            return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.TADABillId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                        }
+                    }
+                }
+            }
+        });
+
+        reloadGrid();
+    }
+
+    function ProvideTADABill(TADABillId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                var remark = $("#txtRemarks" + TADABillId).val();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("ProvideTADABill", "EmployeeTADABill", "http")',
+                    data: { TADABillId: TADABillId,Remark:remark },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data== 1) {
+                            $.alert.open("Success", "Status Changed Successfully");
+                            GetWaitingTADABillList();
+                        } else {
+                            $.alert.open("Error", "Error Occired");
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+    function InformationDelete(TADABillId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteTADABill", "EmployeeTADABill", "http")',
+                    data: { TADABillId: TADABillId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Success", "TADA Bill deleted Successfully");
+                            GetWaitingTADABillList();
+                        } else {
+                            $.alert.open("Error", "Error Occured");
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $("#chkNotPaid").prop('checked', true);
+
+        GetWaitingTADABillList("", "", "", ApprovalStatus);
+
+        $("#chkNotPaid").click(function () {
+
+            var checkVal = $("#chkNotPaid").is(":checked");
+            if (checkVal == true) {
+                $("#chkPaid").prop('checked', false);
+
+                ApprovalStatus = "N";
+                reloadGrid();
+            }
+            else {
+                $("#chkPaid").prop('checked', true);
+
+                ApprovalStatus = "A";
+                reloadGrid();
+            }
+
+        });
+        $("#chkPaid").click(function () {
+            var checkVal = $("#chkPaid").is(":checked");
+            if (checkVal == true) {
+                $("#chkNotPaid").prop('checked', false);
+
+                ApprovalStatus = "A";
+                reloadGrid();
+            }
+            else {
+                $("#chkNotPaid").prop('checked', true);
+
+                ApprovalStatus = "N";
+                reloadGrid();
+            }
+
+        });
+
+
+
+
+    });
+
+    function reloadGrid() {
+        var filterBy = $("#filterColumn option:selected").val();
+        var filterValue = $("#filterValue").val();
+        var Filter_Valuedate = $("#filterValueDate").val();
+        $('#grid').jtable('load', { filterBy: filterBy, filterValue: filterValue, FilterValuedate: Filter_Valuedate, ApprovalStatus: ApprovalStatus });
+    }
+
+
+</script>
+<style type="text/css">
+    .jtable thead th {
+        height: 50px;
+    }
+</style>
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">TADA Bill List</h2>
+&nbsp;
+<div class="row">
+    <div class="col-md-12" style="float:left">
+        <div class="col-md-2" style="float:left">
+            <input type="checkbox" name="app" id="chkNotPaid" />&nbsp;&nbsp;&nbsp;<label>TADA Not Paid</label><br />
+            <input type="checkbox" name="app" id="chkPaid" />&nbsp;&nbsp;&nbsp;<label>TADA Paid</label><br />
+
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+    <div id="divPrint">
+        <div id="grid"></div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+

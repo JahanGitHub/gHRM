@@ -1,0 +1,310 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Nobin Equity Program";
+}
+
+<div class="form-horizontal">
+    <h2 class="page-title">Salary Voucher Send in NEP</h2>&nbsp;
+    <div class="container-fluid">
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+        <div class="row form-group">
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Salary Year</label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("SalaryYear", new SelectList(ViewBag.SalaryYear, "SalaryYear"), new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Salary Month</label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("SalaryMonth", new SelectList(""), new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <button class="btn btn-danger" onclick="Report()">Search</button>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Voucher date</label>
+                <div class="col-sm-8">
+                    <input type="text" id="VoucherDate" class="form-control" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Company Bank</label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("CompanyBank", (IEnumerable<SelectListItem>)ViewBag.CompanyBank, new { @class = "form-control" })
+                </div>
+            </div>
+
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-8">
+                <label class="control-label col-sm-2 required" style="text-align: left;">Refference No.</label>
+                <div class="col-sm-10">
+                    <input type="text" id="RefferenceNo" name="RefferenceNo" class="form-control" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <button class="btn btn-success" id="btnSend">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<br />
+
+<div class="form-horizontal">
+    <h2 class="page-title">Bonus Voucher Send in NEP</h2>&nbsp;
+    <div class="container-fluid">
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+        <div class="row form-group">
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Bonus Year</label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("BonusYear", new SelectList(ViewBag.SalaryYear, "BonusYear"), new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Bonus Month</label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("BonusMonth", new SelectList("")  , new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <button class="btn btn-warning" onclick="BonusReport()">Search</button>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Bonus Voucher date</label>
+                <div class="col-sm-8">
+                    <input type="text" id="BonusVoucherDate" class="form-control" autocomplete="off" />
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="control-label col-sm-4 required" style="text-align: left;">Company Bank</label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("BonusCompanyBank", (IEnumerable<SelectListItem>)ViewBag.CompanyBank, new { @class = "form-control" })
+                </div>
+            </div>
+
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-8">
+                <label class="control-label col-sm-2 required" style="text-align: left;">Refference No.</label>
+                <div class="col-sm-10">
+                    <input type="text" id="BonusRefferenceNo" name="BonusRefferenceNo" class="form-control" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <button class="btn btn-github" id="btnSendBonus">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+    function GetBonusMonth() {
+        
+        var ddlComponentD = $("#BonusMonth");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '/SalaryVoucherPost/GetBonusMonth',
+            data: {
+                BonusYear: $('#BonusYear :selected').val()
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlComponentD.html('');
+                $.each(data, function (id, option) {
+                    ddlComponentD.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+         
+    }
+
+
+    function GetSalaryMonth() {
+
+        var ddlComponentD = $("#SalaryMonth");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '/SalaryVoucherPost/GetSalaryMonth',
+            data: {
+                SalaryYear: $('#SalaryYear :selected').val()
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlComponentD.html('');
+                $.each(data, function (id, option) {
+                    ddlComponentD.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+    }
+
+
+
+    $("#SalaryYear").change(function () {
+
+        GetSalaryMonth();
+
+    });// End Change Function
+
+    
+    $("#BonusYear").change(function () {
+        
+        GetBonusMonth();
+         
+    });// End Change Function
+
+
+    function Report() {
+        var salaryMonth = $("#SalaryMonth").val()
+        var salaryYear = $("#SalaryYear").val()
+        var url = '/SalaryVoucherPost/OfficeXSalaryData?salaryMonth=' + salaryMonth + '&salaryYear=' + salaryYear
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function BonusReport() {
+        var bonusMonth = $("#BonusMonth").val()
+        var bonusYear = $("#BonusYear").val()
+        var url = '/SalaryVoucherPost/OfficeXBonusData?bonusMonth=' + bonusMonth + '&bonusYear=' + bonusYear
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    $(document).ready(function () {
+
+        GetBonusMonth();
+        GetSalaryMonth();
+
+        $("#VoucherDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "@DateTime.Now.AddYears(-5).Year:@DateTime.Now.AddYears(1).Year"
+        });
+
+         $("#BonusVoucherDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "@DateTime.Now.AddYears(-5).Year:@DateTime.Now.AddYears(1).Year"
+         });
+
+        $("#btnSend").click(function (e) {
+            e.preventDefault();
+            if (!$("#VoucherDate").val() || !$("#CompanyBank").val())
+                $.alert.open("Message", "Please check all Required field.");
+            else {
+                $("#AjaxLoader").show();
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/SalaryVoucherPost/SendSalaryVoucherData',
+                    data: JSON.stringify( {
+                        salaryMonth: $("#SalaryMonth").val(),
+                        salaryYear: $("#SalaryYear").val(),
+                        voucherDate: $("#VoucherDate").val(),
+                        CompanyBankId: $("#CompanyBank").val(),
+                        refferenceNo: $("#RefferenceNo").val()
+                    }),
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.statuscode == 200) {
+                            $.alert.open("Success", data.Message);
+                            $("input,textarea,select").not(':input[type=button], :input[type=submit]').val('');
+                        }
+
+                        else if (data.statuscode == 0)
+                            $.alert.open("Message", data.Message);
+                        else
+                            $.alert.open("error", "Error", data.Message);
+                        $("#AjaxLoader").hide();
+                    },
+                    error: function (request, status, error) {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("error", "Error", error);
+                    }
+                });
+            }
+        });
+    });
+
+
+
+    $("#btnSendBonus").click(function (e) {
+        alert("KKK");
+        e.preventDefault();
+        if (!$("#BonusVoucherDate").val() || !$("#BonusCompanyBank").val())
+            $.alert.open("Message", "Please check all Required field.");
+        else {
+            $("#AjaxLoader").show();
+
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '/SalaryVoucherPost/SendBonusVoucherData',
+                data: JSON.stringify({
+                    bonusMonth: $("#BonusMonth").val(),
+                    bonusYear: $("#BonusYear").val(),
+                    voucherDate: $("#BonusVoucherDate").val(),
+                    CompanyBankId: $("#BonusCompanyBank").val(),
+                    refferenceNo: $("#BonusRefferenceNo").val()
+                }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.statuscode == 200) {
+                        $.alert.open("Success", data.Message);
+                        $("input,textarea,select").not(':input[type=button], :input[type=submit]').val('');
+                    }
+                    else if (data.statuscode == 0)
+                        $.alert.open("Message", data.Message);
+                    else
+                        $.alert.open("error", "Error", data.Message);
+                    $("#AjaxLoader").hide();
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    $.alert.open("error", "Error", error);
+                }
+            });
+
+        }
+    });
+    
+    
+
+</script>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

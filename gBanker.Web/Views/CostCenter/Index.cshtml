@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Cost Center";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2>ADD Cost Center</h2>
+
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Cost Center Name -->
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Cost Center Name", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        <input type="text" id="CostCenterName" class="form-control" placeholder="Enter Cost Center Name" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Type -->
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Type for costcenter", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        <select id="Type" class="form-control"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <input type="button" id="btnSave" value="Save" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="row">
+            <h3>Saved Cost Centers</h3>
+            <div id="gridCostCenter"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+
+    // Load dropdowns
+    @*$.ajax({
+        url: '@Url.Action("GetCostCenters", "CostCenter")',
+        type: 'GET',
+        success: function (data) {
+            $("#CostCenterName").empty();
+            $.each(data, function (i, item) {
+                $("#CostCenterName").append('<option value="' + item.Id + '">' + item.CostCenterName + '</option>');
+            });
+        }
+    });*@
+
+    $.ajax({
+        url: '@Url.Action("GetCostCenterTypes", "CostCenter")',
+        type: 'GET',
+        success: function (data) {
+            $("#Type").empty();
+            $.each(data, function (i, item) {
+                $("#Type").append('<option value="' + item + '">' + item + '</option>');
+            });
+        }
+    });
+
+    // Save button click
+    $("#btnSave").click(function () {
+    var costCenterName = $("#CostCenterName").val();
+    var type = $("#Type").val();
+
+    if (!costCenterName || !type) {
+        alert("Please enter Cost Center Name and select Type.");
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: '@Url.Action("SaveCostCenter", "CostCenter")',
+        data: { CostCenterName: costCenterName, Type: type },
+        success: function (res) {
+            if (res.result == 1) {
+                alert("Saved successfully!");
+                loadGrid();
+                $("#CostCenterName").val(""); // clear textbox
+            } else {
+                alert(res.Message || "Error saving data.");
+            }
+        }
+    });
+});
+
+
+    // Load grid
+    function loadGrid() {
+        $("#gridCostCenter").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: '@Url.Action("GetSavedCostCenters", "CostCenter")',
+                        dataType: 'json'
+                    }
+                },
+                schema: {
+                    model: { id: "Id" },
+                    data: "data"
+                },
+                pageSize: 2000
+            },
+            pageable: true,
+            columns: [
+                { field: "CostCenterName", title: "Cost Center" },
+                { field: "Type", title: "Type" }
+            ]
+        });
+    }
+
+    loadGrid();
+});
+</script>

@@ -1,0 +1,413 @@
+@model gHRM.Web.ViewModels.IncomeTax.IncomeTaxViewModel
+
+@{
+    ViewBag.Title = "Edit Income Tax";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@if (TempData["Success"] != null)
+{
+    <script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '@TempData["Success"]',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK'
+    });
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: '@TempData["Error"]',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Try Again'
+    });
+    </script>
+}
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="http://momentjs.com/downloads/moment.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
+
+<script type="text/javascript">
+
+    function reloadGrid() {
+        $('#grid').jtable('load');
+    }
+
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetEmployeeData", "IncomeTax")',
+            data: { EmpId: employee_code },
+            dataType: 'json',
+            success: function (data) {
+                if (data.length > 0) {
+                    let emp = data[0];
+                    $("#EmployeeName").val(emp.EmployeeName);
+                    $("#EmployeeID").val(emp.EmployeeID);
+                    $("#OfficeID").val(emp.OfficeID);
+                } else {
+                    $("#EmployeeName").val('');
+                    $("#EmployeeID").val('');
+                    $("#OfficeID").val('');
+                    alert("Wrong Employee Code");
+                    $("#txtEmpName").focus();
+                }
+            },
+            error: function (request, status, error) {
+                alert("Error: " + error);
+            }
+        });
+    }
+
+    function clearForm() {
+        $("#txtEmpName").val('');
+        $("#EmployeeName").val('');
+        $("#EmployeeID").val('');
+        $("#OfficeID").val('');
+        $("#NationalID").val('');
+        $("#TIN").val('');
+        $("#ReturnRegisterSlNo").val('');
+        $("#ReturnRegisterVolNo").val('');
+        $("#ReturnFillingDate").datepicker('setDate', new Date());
+        $("#FiscalYear").val('');
+        $("#Circle").val('');
+        $("#TaxArea").val('');
+        $("#TotalIncome").val('');
+        $("#TotalTaxPaid").val('');
+        $("#FileLocation").val('');
+    }
+
+    $(document).ready(function () {
+
+        // Reset
+        $("#btnReset").click(function () {
+            clearForm();
+        });
+
+        // Submit
+        $("#btnSubmit").click(function () {
+            let empName = $("#EmployeeName").val();
+            let empId = $("#EmployeeID").val();
+            let officeId = $("#OfficeID").val();
+            let fiscalYear = $("#FiscalYear").val();
+            let fillingDate = $("#ReturnFillingDate").val();
+
+            if (empName === '' || empId === '' || officeId === '' || fiscalYear === '' || fillingDate === '') {
+                $.alert.open("Message", "Please fill in all required fields.");
+                return false;
+            }
+
+            reloadGrid(); // Optional, if form submits normally
+        });
+
+        // Datepicker
+        $("#ReturnFillingDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "slideDown",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1990:2050"
+        }).datepicker('setDate', new Date());
+
+        // Load employee data on blur
+        $("#txtEmpName").blur(function () {
+            var code = $(this).val();
+            if (code !== '') {
+                LoadEmpInfoByCode(code);
+            } else {
+                $("#EmployeeName").val('');
+                $("#EmployeeID").val('');
+                $("#OfficeID").val('');
+            }
+        });
+
+        // Grid
+       /* $('#grid').jtable({
+            paging: true,
+            pageSize: 100,
+            sorting: true,
+            defaultSorting: 'Id ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/IncomeTax/GetIncomeTaxList/Create',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                ...postData,
+                                jtStartIndex: jtParams.jtStartIndex,
+                                jtPageSize: jtParams.jtPageSize,
+                                jtSorting: jtParams.jtSorting || 'Id ASC'
+                            },
+                            success: function (data) {
+                                console.log("Grid Loaded", data);
+                                console.log("Employee Code: ", data.EmployeeID);
+                                console.log("Employee Name: ", data.EmployeeName);
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                console.log("Grid Not Loaded", data);
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false
+                },
+                EmployeeID: {
+                    title: 'Employee ID',
+                    width: '8%'
+                },
+                OfficeID: {
+                    title: 'Office ID',
+                    width: '8%'
+                },
+                NationalID: {
+                    title: 'NID',
+                    width: '10%'
+                },
+                TIN: {
+                    title: 'TIN',
+                    width: '10%'
+                },
+                FiscalYear: {
+                    title: 'Fiscal Year',
+                    width: '10%'
+                },
+                ReturnFillingDate: {
+                    title: 'Filing Date',
+                    width: '10%'
+                },
+                TotalIncome: {
+                    title: 'Total Income',
+                    width: '10%'
+                },
+                TotalTaxPaid: {
+                    title: 'Tax Paid',
+                    width: '10%'
+                },
+                FileLocation: {
+                    title: 'File',
+                    width: '10%'
+                },
+                DownloadLink: {
+                    title: "Download",
+                    sorting: false,
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' onClick='GetDownloadFile(" + data.record.Id + ");'><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/IncomeTax/Edit/" + data.record.Id + "'><i class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    sorting: false,
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' onClick='Delete(" + data.record.Id + ");'><i class='fa fa-trash-o'></i></a></div>";
+                    }
+                }
+            }
+        });*/
+
+        reloadGrid();
+    });
+
+</script>
+
+
+<h2>Income Tax Edit</h2>
+
+@using (Html.BeginForm("Edit", "IncomeTax", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.EmployeeID)
+    @Html.HiddenFor(model => model.OfficeID)
+
+<fieldset>
+    <legend>Edit Income Tax Info</legend>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control", @readonly = "readonly", id = "txtEmpName" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly", id = "EmployeeName" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.NationalID, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.NationalID, new { @class = "form-control", id = "NationalID" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TIN, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.TIN, new { @class = "form-control", id = "TIN" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.FiscalYear, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.FiscalYear, new { @class = "form-control", id = "FiscalYear" })
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ReturnFillingDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.ReturnFillingDate, new { @class = "form-control", id = "ReturnFillingDate" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ReturnRegisterSlNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.ReturnRegisterSlNo, new { @class = "form-control", id = "ReturnRegisterSlNo" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ReturnRegisterVolNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.ReturnRegisterVolNo, new { @class = "form-control", id = "ReturnRegisterVolNo" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TotalIncome, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.TotalIncome, new { @class = "form-control", id = "TotalIncome" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TotalTaxPaid, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.TotalTaxPaid, new { @class = "form-control", id = "TotalTaxPaid" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Circle, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.Circle, new { @class = "form-control", id = "Circle" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                @Html.LabelFor(model => model.FileLocation, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(m => m.FileLocationU, new { type = "file", @class = "form-control" })
+
+                    @*@Html.TextBoxFor(model => model.FileLocation, new { @class = "form-control", @readonly = "readonly", id = "FileLocation" })
+                    @Html.HiddenFor(model => model.FileLocation)*@
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    &nbsp;
+                    @*<input type="button" value="Save" id="btnSave" class="btn btn-success" />*@
+                    <input type="submit" value="Submit" id="btnSubmit" class="btn btn-success" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<!-- MESSAGE -->
+<!--<div class="row">
+    <div class="panel-body">
+        <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">File Uploaded Successfully.</p>
+        </div>
+    </div>
+
+    <div class="danger">
+        <div class="create-content create-content alert alert-error alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">Error </p>
+        </div>
+    </div>
+
+</div>-->
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

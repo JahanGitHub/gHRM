@@ -1,0 +1,65 @@
+﻿@model gHRM.Web.ViewModels.Employee.EmployeeTranningDropDownViewModel
+
+@{
+    ViewBag.Title = "Employee Tranning DropDown";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeTranningDropDown">Employee Tranning DropDown</a></li>
+    </ol>
+</div>
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+    &nbsp;
+<h2 class="page-title">Employee Tranning DropDown</h2>
+    &nbsp;
+<div class="container-fluid">
+    @using (Html.BeginForm("AddNew", "EmployeeTranningDropDown", FormMethod.Post,new {@role = "form",@class = "form-horizontal", @id = "add-or-edit-form"}))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.EmployeeTrainingDropDownId)
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeTrainingDropDownName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeTrainingDropDownName, new { htmlAttributes = new { @class = "form-control" } })                     
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" class="btn btn-success">Save</button> 
+                        &nbsp;                      
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" onclick="employeeTranningDropDownManager.clearform()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h2 class="page-title">Employee Tranning DropDown  List</h2><br>
+    <!--To view Listings-->
+    <div id="grid"></div>
+</div>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/employeeTranningDropDown/employeeTranningDropDownManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

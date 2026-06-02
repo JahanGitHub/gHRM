@@ -1,0 +1,256 @@
+﻿@model gHRM.Web.ViewModels.PF.TransactionCategoryViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    function SaveTransactionCategory(transCatId, TransCatName, transGroup, accountId, transType, particulars, revAccountId, revTransType, revParticulars) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveTransactionCategory", "PFTransactionCategory", "http")',
+            data: {
+                transCatId:     transCatId,
+                TransCatName:   TransCatName,
+                transGroup:     transGroup,
+                accountId:      accountId,
+                transType:      transType,
+                particulars:    particulars,
+                revAccountId:   revAccountId,
+                revTransType:   revTransType,
+                revParticulars: revParticulars
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                if (data.status == 'ok') {
+                    clear();
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+            }
+        });
+    }
+
+    function clear() {
+
+        $("#TransCategoryId").val('');
+        $("#TransCategoryName").val('');
+        $("#TransactionGroupList").val('');
+
+        $("#AccountChartList").val('');     
+        $("#TransactionTypeList").val('');
+        $("#Particulars").val('');
+
+        $("#ReverseAccountChartList").val('');
+        $("#ReverseTransactionType").val('');
+        $("#ReverseParticulars").val('');     
+    }
+
+    function GetAccountTypeByAccountCode(accountCode) {
+        var accountName = '';
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAccountTypeByAccountCode", "PFTransactionCategory", "http")',
+            data: { accountCode: accountCode },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                accountName = data.AccountName;
+            },
+            error: function (request, status, error) {
+            }
+        });
+        return accountName;
+    }
+
+    function Add() {
+        var transCatId = $("#TransCategoryId").val();
+        var TransCatName = $("#TransCategoryName").val();
+        var transGroup = $("#TransactionGroupList option:selected").val();
+
+        var accountId = $("#AccountChartList option:selected").val();
+        var transType = $("#TransactionTypeList option:selected").val();
+        var particulars = $("#Particulars").val();
+
+        var revAccountId = $("#ReverseAccountChartList option:selected").val();
+        var revTransType = $("#ReverseTransactionType").val();
+        var revParticulars = $("#ReverseParticulars").val();
+
+
+        var transGroupName = $("#TransGroupName option:selected").val();
+        var transGroupName = $("#TransGroupName option:selected").val();
+
+
+        if (revTransType == 'Credit') {
+            revTransType = 'Cr'
+        }
+        if (revTransType == 'Debit') {
+            revTransType = 'Dr'
+        }
+
+
+        if(transCatId == '' || TransCatName == '' || transGroup == '' ||  accountId == '' || transType == '' || particulars == '' ||  revAccountId == '' ||  revTransType == '' || revParticulars == ''){
+            alert('Enter valid data');
+            return;
+        }
+
+        if (accountId == revAccountId) {
+            alert('Select different account');
+            return;
+        }
+        SaveTransactionCategory(transCatId, TransCatName, transGroup, accountId, transType, particulars, revAccountId, revTransType, revParticulars);
+    }
+
+    //End Save Work Area
+    $(document).ready(function () {
+
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#TransCategoryId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $('#TransactionTypeList').change(function () {
+            var transType = $('#TransactionTypeList option:selected').val();
+            if (transType == '') {
+                $('#ReverseTransactionType').val('');
+            }
+            if (transType == 'Cr') {
+                $('#ReverseTransactionType').val('Debit');
+            }
+            if (transType == 'Dr') {
+                $('#ReverseTransactionType').val('Credit');
+            }
+        });
+
+       
+
+        $("#btnReset").click(function () {
+            clear();
+        });
+
+
+        $("#btnSaveTransCategory").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to add?', function (button) {
+                if (button == 'yes') {
+                    Add();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Create Transaction Category</h2>
+&nbsp;
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+        
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransCategoryId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransCategoryId, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Transaction Category ID" } })
+                </div>
+                @Html.LabelFor(model => model.TransCategoryName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransCategoryName, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Transaction Category Name" } })
+                </div>
+            </div>
+        </div>
+       
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransGroupName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.TransactionGroupList, Model.TransactionGroupList, new { @class = "form-control", @Placeholder = "Transaction Group" })
+                </div>
+                @Html.LabelFor(model => model.AccountId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.AccountChartList, Model.AccountChartList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransactionType, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.TransactionTypeList, Model.TransactionTypeList, new { @class = "form-control" })
+                </div>
+                @Html.LabelFor(model => model.Particulars, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Particulars, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Particulars" } })
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ReverseAccountId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.ReverseAccountChartList, Model.ReverseAccountChartList, new { @class = "form-control", @Placeholder = "Reverse Account Id" })
+                </div>
+                @Html.LabelFor(model => model.ReverseParticulars, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ReverseParticulars, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Reverse Particulars" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">                
+                @Html.LabelFor(model => model.ReverseTransactionType, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ReverseTransactionType, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-2"></div>
+                <div class="col-md-6">
+                    <input type="button" value="Save" id="btnSaveTransCategory" class="btn btn-success" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+              
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

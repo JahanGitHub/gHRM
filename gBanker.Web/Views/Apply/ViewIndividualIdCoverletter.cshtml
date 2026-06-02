@@ -1,0 +1,43 @@
+﻿
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Apply/Step_01">JobApply</a></li>
+    </ol>
+</div>
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
+
+@{
+    ViewBag.Title = "ViewIndividualIdCoverletter";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+
+
+@using (Html.BeginForm("ViewIndividualIdCoverletter", "Apply", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "ApplyJobs" }))
+{
+    @Html.AntiForgeryToken()
+
+    if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                Swal.fire({
+                    icon: 'error',
+                    html: '<b> Do not have details PDF for this Job</b>',
+                    type: "success"
+                }).then(function () {
+                    window.location = "/Apply/ApplyJobs";
+                });
+            };
+        </script>
+
+    }
+    <div>
+
+        <fieldset>
+            <object id="PdfViewer" type="application/pdf" width="100%" data="@ViewBag.PDF" height="1400px"></object>
+        </fieldset>
+    </div>
+}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+

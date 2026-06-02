@@ -1,0 +1,104 @@
+﻿@model gHRM.Web.ViewModels.LeaveReportViewModel
+@{
+    ViewBag.Title = "EmployeeWiseLeave";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2>Employee Wise Leave</h2>
+<div class="row" style="display:none;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.DateFrom, htmlAttributes: new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.DateTo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="button" id="btnPrint" value="View" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+   <script>
+
+
+       var employeeWiseLeaveReportManager = {
+           init: function () {
+               this.initDate();
+           },
+
+           initDate: function () {
+               $("#DateFrom").datepicker({
+                   dateFormat: "dd-M-yy",
+                   showAnim: "scale",
+                   changeMonth: true,
+                   changeYear: true,
+                   yearRange: "1920:2100"
+
+               });
+               $("#DateFrom").datepicker('setDate', new Date());
+
+               $("#DateTo").datepicker({
+                   dateFormat: "dd-M-yy",
+                   showAnim: "scale",
+                   changeMonth: true,
+                   changeYear: true,
+                   yearRange: "1920:2100"
+
+               });
+               $("#DateTo").datepicker('setDate', new Date());
+           },
+       }
+
+       $(document).ready(function () {
+           employeeWiseLeaveReportManager.init();
+
+           $("#btnPrint").click(function () {
+               debugger;
+               var url;
+               var dateFrom = $("#DateFrom").val();
+               var dateTo = $("#DateTo").val();
+               var employeeCode = $("#EmployeeCode").val();
+
+               if (dateFrom == "" || dateTo == "" ) {
+                   alert("Please enter Required fields");
+                   return false;
+               }
+               else {
+                   url = '/LeaveReport/EmployeeWiseLeaveReportPrint2?dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&employeeCode=' + employeeCode;
+                   PrintReport(url);
+               }
+           });
+       });
+       function PrintReport(printUrl) {
+           window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+       }
+
+    </script>
+}

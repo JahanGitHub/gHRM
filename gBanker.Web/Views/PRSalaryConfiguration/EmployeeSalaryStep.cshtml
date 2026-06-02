@@ -1,0 +1,84 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRSalaryConfigurationViewModel
+
+@{
+    ViewBag.Title = "Employee Salary Step";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Employee Salary Step List Configuration</h2>
+    &nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model=>model.Id)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Grade Name </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.GradeId, Model.GradeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">From</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.StepFrom, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">To</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.StepTo, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Ratio On </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.RatioOn, DropdownListHelper.GetDropdownList(DropdownListTypes.GradeRatioOn, Model.RatioOn), new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Amt. or Percent</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.AmountOrPercent, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <input type="button" id="btnSave" value="Save" class="btn btn-default" />
+        <input type="button" id="btnUpdate" value="Update" class="btn btn-default" /> &nbsp;
+        <input type="button" id="btnRestore" value="Restore" class="btn btn-default" />
+    </div>
+</div>
+<br />
+<br />
+
+<div id="grid"></div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/employeeSalaryStepListManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()+@DateTime.Now"></script>
+}
+
+

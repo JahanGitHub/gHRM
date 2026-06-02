@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "Resign Notice";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    List<Dictionary<string, object>> BankList = ViewBag.BankList;
+}
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Resign Notice</h2>&nbsp;
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="row form-group">
+        <div class="col-sm-6">
+            <label class="control-label col-sm-4 required" style="text-align: left;">Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)</label>
+            <div class="col-sm-8">
+                <input id="EmployeeCode" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label class="control-label col-md-4" for="EmployeeName" style="text-align: left;">Name(নাম)</label>
+            <div class="col-sm-8">
+                <input class="form-control text-box single-line" id="EmployeeName" name="EmployeeName" readonly="true" type="text" value="" />
+            </div>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-6">
+            <label class="control-label col-md-4" for="OfficeName" style="text-align: left;">Office(অফিস)</label>
+            <div class="col-sm-8">
+                <input class="form-control text-box single-line" id="OfficeName" name="OfficeName" readonly="true" type="text" value="" />
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label class="control-label col-md-4" for="DepartmentName" style="text-align: left;">Department(বিভাগ)</label>
+            <div class="col-sm-8">
+                <input class="form-control text-box single-line" id="DepartmentName" name="DepartmentName" readonly="true" type="text" value="" />
+            </div>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-6">
+            <label class="control-label col-md-4" for="DesignationName" style="text-align: left;">Payroll Designation (পদবী)</label>
+            <div class="col-sm-8">
+                <input class="form-control text-box single-line" id="DesignationName" name="DesignationName" readonly="true" type="text" value="" />
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label class="control-label col-md-4" for="OffcDesignName" style="text-align: left;">Responsibility (অফিস পদবী)</label>
+            <div class="col-sm-8">
+                <input class="form-control text-box single-line" id="OffcDesignName" name="OffcDesignName" readonly="true" type="text" value="" />
+            </div>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-6">
+            <label class="control-label col-sm-4 required" style="text-align: left;">Inform Date (জানান তারিখ)</label>
+            <div class="col-sm-8">
+                <input id="InformDate" name="InformDate" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label class="control-label col-sm-4 required" style="text-align: left;">Resign Date (পদত্যাগ তারিখ)</label>
+            <div class="col-sm-8">
+                <input id="ResignDate" name="ResignDate" type="text" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-6">
+            <label class="control-label col-sm-4" style="text-align: left;">Remark (মন্তব্য)</label>
+            <div class="col-sm-8">
+                <textarea id="Remark" name="Remark" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-title"></div>&nbsp;
+    <div class="row">
+        @Html.AntiForgeryToken()
+        <div class="col-sm-12">
+            <input type="button" value="Save" id="btnSave" class="btn btn-success" onclick="Page.Save()" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/employee/resign-notice-create.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

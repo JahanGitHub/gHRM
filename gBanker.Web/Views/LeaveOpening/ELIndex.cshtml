@@ -1,0 +1,128 @@
+﻿@model gHRM.Web.ViewModels.LeaveOpeningViewModel
+@{
+    ViewBag.Title = "Leave Opening";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        loadEarnLeaveOpening();
+    });
+
+    function loadEarnLeaveOpening() {
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetEarnLeaveOpeningList", "LeaveOpening", "http")',
+                    dataType: 'json',
+                    //data: { FilterBy: filterBy, FilterValue: filterValue }OfficeDesignation/DesignationList
+                }
+            }
+        });
+
+        $("#gridEarnLeaveOpening").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "ELOpeningId",
+                     hidden: true,
+                     filterable: false
+                 },
+
+                 {
+                     field: "rowSl",
+                     title: "Sl No.",
+                     width: "30px",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false
+                 },
+
+                 {
+                     width: "40px",
+                     field: "EmployeeCode",
+                     filterable: true,
+                     title: "Code",
+                 },
+
+                 {
+                     width: "80px",
+                     field: "EmployeeName",
+                     title: "Emp. Name",
+                 },
+
+                 {
+                     width: "40px",
+                     field: "StatusName",
+                     title: "Status"
+                 },
+
+                 {
+                     width: "40px",
+                     field: "ELFull",
+                     title: "EL Sold",
+                 },
+
+                 {
+                     width: "50px",
+                     field: "EnjoyFull",
+                     title: "EL Taken (Enjoyed)",
+                 },
+
+                 {
+                     width: "40px",
+                     field: "BalanceFull",
+                     title: "EL Balance",
+                 },
+                 //{
+                 //    width: "40px",
+                 //    field: "BalanceHalf",
+                 //    title: "Balance Half",
+                 //    //locked: true
+                 //},
+                 {
+                     width: "50px",
+                     field: "LastSaleDate",
+                     title: "Last Sale Date",
+                 },
+            ]
+        });
+    }
+
+</script>
+
+@Html.ActionLink("Add New", "ELOpening", null, new { @class = "btn btn-success btn-sm pull-right" })
+
+<h2 class="page-title">Earn Leave Opening List</h2> &nbsp;
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="gridEarnLeaveOpening"></div>
+    </div>
+</div>

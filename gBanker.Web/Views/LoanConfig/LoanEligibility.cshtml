@@ -1,0 +1,220 @@
+﻿@model gHRM.Web.ViewModels.Loan.LoanEligibilityViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Loan Eligibility";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("#dvShow").toggle(($("#LoanType").val() == 'PFL' ? true : false));
+        $("#LoanType").change(function () {
+            $("#dvShow").toggle(($(this).val() == 'PFL' || $(this).val() == 'COL' ? true : false));
+            $("#dvPFContribution").toggle(($(this).val() == 'COL' ? false: true));
+            
+            $("#LoanEligibleInPercent").val(0)
+            getPopose($(this).val(), 0);
+        });
+        $("#LoanType").trigger('change');
+        function getPopose(type, id) {
+            $("#PurposeId").html("");
+            var data = GenerateAjaxRequist('/LoanConfig/GetProposeXLoanType', JSON.stringify({ loanType: type, id: id }), "POST");
+            var htm = "";
+            $.each(data, function (index, row) {
+                htm += "<option value=" + row.Value + ">" + row.Text + "</option>";
+            });
+            $("#PurposeId").html(htm);
+        }
+        $('#btnSave').click(function (e) {
+            e.preventDefault();
+
+            var dataObject = {
+                Id: $("#Id").val(),
+                LoanType: $("#LoanType").val(),
+                PurposeId: $("#PurposeId").val(),
+                MinmumJobAge: $("#MinmumJobAge").val(),
+                MaximumJobAge: $("#MaximumJobAge").val(),
+                LoanEligibleInPercent: $("#LoanEligibleInPercent").val(),
+                PFContribution: $("#PFContribution").val(),
+                IsActive: true
+            };
+            var data = GenerateAjaxRequist('/LoanConfig/PostLoanEligibility', JSON.stringify({ model: dataObject }), "POST");
+            if (data.Result == 1) {
+                $("#Id").val(0);
+                $("#LoanEligibleInPercent").val('');
+                $("#MinmumJobAge").val('');
+                $("#MaximumJobAge").val('');
+            }
+                
+            $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+            reloadGrid();
+        });
+
+        $('#grid').jtable({
+            // title: 'Product List',
+            paging: false,
+            //pageSize: 10,
+            sorting: false,
+            //defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/LoanConfig/GetAllLoanEligibility',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+            },
+            fields: {
+                LoanType: {
+                    title: "Loan Type",
+                    width: "35px",
+                    display: function (dataItem) {
+                        return dataItem.record.LoanType == "PFL" ? "PF Loan" : dataItem.record.LoanType == "COL" ? "Co-Operative Loan" : dataItem.record.LoanType == "CL"? "Company Loan":"";
+                    }
+                },
+                PurposeName: {
+                    title: "Purpose Name",
+                    width: "25%",
+                },
+                PurposeName: {
+                    title: "Purpose Name",
+                    width: "30%",
+                },
+                MinmumJobAge: {
+                    title: "Min. Job Age",
+                    width: "9%",
+                },
+                MaximumJobAge: {
+                    title: "max. Job Age",
+                    width: "9%",
+                },
+                LoanEligibleInPercent: {
+                    title: "Loan Elig.(%)",
+                    width: "9%",
+
+                },
+                PFContribution: {
+                    title: "Contribution",
+                    width: "10%",
+
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return `<div class="text-center"><a href="#" OnClick="Edit(${data.record.Id},'${data.record.LoanType}',${data.record.PurposeId},${data.record.MinmumJobAge},${data.record.MaximumJobAge},'${data.record.PFContribution}',${data.record.LoanEligibleInPercent});"><i class="fa fa-pencil-square-o"></i></a></div>`;
+                    }
+                },
+            }
+        });
+        reloadGrid();
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+    function Edit(Id, LoanType, PurposeId, MinmumJobAge, MaximumJobAge, PFContribution, LoanEligibleInPercent) {
+        $("#Id").val(Id);
+        $("#LoanType").val(LoanType).trigger('change');
+        $("#PurposeId").val(PurposeId);
+        $("#MinmumJobAge").val(MinmumJobAge);
+        $('#MaximumJobAge').val(MaximumJobAge);
+        $("#PFContribution").val(PFContribution);
+        $("#LoanEligibleInPercent").val(LoanEligibleInPercent);
+        
+    }
+</script>
+<h2 class="page-title">Loan Eligibility</h2>
+@using (Html.BeginForm("LoanEligibility", "LoanConfig", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "LoanEligibility" }))
+{
+    @Html.AntiForgeryToken()
+<div class="">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.LoanType, Model.LoanTypeLst, new { @class = "form-control", @required = "true" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.PurposeId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.PurposeId, Model.PurposeLst, new { @class = "form-control", @required = "true" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row frmRow">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.MinmumJobAge, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.MinmumJobAge, new { @class = "form-control", @required = "true" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.MaximumJobAge, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.MaximumJobAge, new { @class = "form-control", @required = "true" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="dvShow">
+        <div class="col-md-6" id="dvPFContribution">
+            <div class="form-group">
+                @Html.LabelFor(model => model.PFContribution, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.PFContribution, Model.PFContributionLst, new { @class = "form-control", @required = "true" })
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanEligibleInPercent, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.LoanEligibleInPercent, new { @class = "form-control", @required = "true" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <div class="row frmRow">
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <button type="button" class="btn btn-success col-sm-offset-5" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+}
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+}

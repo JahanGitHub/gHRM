@@ -1,0 +1,180 @@
+﻿@model gHRM.Web.ViewModels.DistrictViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var countryList = Model == null ? null : Model.CountryList;
+    var stateList = Model == null ? null : Model.StateOrProvinceList;
+}
+
+<script type="text/javascript">
+
+    function LoadState(country_id) {
+        var ddlState = $("#division_Id");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetStateList", "District", "http")',
+            data: { country_id: country_id },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlState.html('');
+                $.each(data, function (id, option) {
+                    ddlState.append($('<option></option>').val(option.Value).html(option.Text));                 
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+      
+        $("#CountrtyId").change(function () {
+            var country_id = $("#CountrtyId").val();
+            if (country_id > 0) {
+                LoadState(country_id);
+            }
+            else {
+                $("#division_Id").empty();
+            }
+        });
+
+        //Validartion
+        $("#btnDistrictSave").click(function (e) {
+            if ($("#CountrtyId").val() == '0' && $("#division_Id").val() == '0' && $("#district_name_eng").val() == '') {
+                $("#CountrtyId").addClass("errorClass");
+                $("#division_Id").addClass("errorClass");
+                $("#district_name_eng").addClass("errorClass");
+                if ($("#division_Id").val() == '') {
+                    $("#division_Id").addClass("errorClass");
+                }
+                return false;
+            }
+
+            else if ($("#CountrtyId").val() == '0' && $("#division_Id").val() == '0' && $("#district_name_eng").val() != '') {
+                $("#CountrtyId").addClass("errorClass");
+                $("#division_Id").addClass("errorClass");
+                if ($("#division_Id").val() == '') {
+                    $("#division_Id").addClass("errorClass");
+                }
+                return false;
+            }
+
+            else if ($("#CountrtyId").val() == '0' && $("#division_Id").val() != '0' && $("#district_name_eng").val() == '') {
+                $("#CountrtyId").addClass("errorClass");
+                $("#district_name_eng").addClass("errorClass");
+                if ($("#division_Id").val() == '') {
+                    $("#division_Id").addClass("errorClass");
+                }
+                return false;
+            }
+
+            else if ($("#CountrtyId").val() != '0' && $("#division_Id").val() == '0' && $("#district_name_eng").val() == '') {
+                $("#division_Id").addClass("errorClass");
+                $("#district_name_eng").addClass("errorClass");
+                return false;
+            }
+
+            else if ($("#CountrtyId").val() == '0' && $("#division_Id").val() != '0' && $("#district_name_eng").val() != '') {
+                $("#CountrtyId").addClass("errorClass");
+                if ($("#division_Id").val() == '') {
+                    $("#division_Id").addClass("errorClass");
+                    if ($("#division_Id").val() == '') {
+                        $("#division_Id").addClass("errorClass");
+                    }
+                }
+                return false;
+            }
+
+            else if ($("#CountrtyId").val() != '0' && $("#division_Id").val() != '0' && $("#district_name_eng").val() == '') {
+                $("#district_name_eng").addClass("errorClass");
+                return false;
+            }
+
+            else if ($("#CountrtyId").val() == '0' && $("#division_Id").val() != '0' && $("#district_name_eng").val() != '') {
+                $("#division_Id").addClass("errorClass");
+                $("#district_name_eng").addClass("errorClass");
+                if ($("#division_Id").val() == '') {
+                    $("#division_Id").addClass("errorClass");
+                }
+                return false;
+            }
+            else return true;
+        });
+    });
+
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Edit District</h2>
+
+@using (Html.BeginForm("Edit", "District", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.HiddenFor(model => model.district_id, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.HiddenFor(model => model.district_id, new { htmlAttributes = new { @class = "form-control", @placeholder = "District ID" } })
+                        @Html.ValidationMessageFor(model => model.district_id)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CountrtyId, new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.DropDownListFor(model => model.CountrtyId, countryList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.division_Id, new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.DropDownListFor(model => model.division_Id, stateList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.district_code, new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.district_code, new { htmlAttributes = new { @class = "form-control", @placeholder = "District Code", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.district_name_eng, new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.district_name_eng, new { htmlAttributes = new { @class = "form-control", @placeholder = "District Name" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <input type="submit" value="Save" id="btnDistrictSave" class="btn btn-primary" />
+                    <input type="hidden" value="" id="hdnDistrictSave" />
+                    <input type="hidden" value="" id="hdnDistrictIdId" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

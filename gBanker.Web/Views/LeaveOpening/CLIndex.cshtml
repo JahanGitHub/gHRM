@@ -1,0 +1,123 @@
+﻿@model gHRM.Web.ViewModels.LeaveOpeningViewModel
+@{
+    ViewBag.Title = "Leave Opening";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        loadCasualLeaveOpening();
+
+    });
+
+    function loadCasualLeaveOpening() {
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetCasualLeaveOpeningList", "LeaveOpening", "http")',
+                    dataType: 'json',
+                    //data: { FilterBy: filterBy, FilterValue: filterValue }OfficeDesignation/DesignationList
+                }
+            }
+        });
+
+        $("#gridCasualLeaveOpening").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                
+                 {
+                     field: "rowSl",
+                     title: "Sl No.",
+                     width: "50px",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false                   
+                 },
+                 {
+                     width: "100px",
+                     field: "EmployeeCode",
+                     filterable: true,
+                     title: "Employee Code",
+                     
+                 },
+                 {
+                     width: "100px",
+                     field: "EmployeeName",
+                     title: "Employee Name",
+                     
+                 },
+                {
+                    width: "100px",
+                    field: "StatusName",
+                    title: "Status"
+                },
+                 {
+                     width: "50px",
+                     field: "TotalRemainingDays", //TotalDays
+                     title: "CL Enjoyed",
+                     //locked: true
+                 },
+                  {
+                      width: "50px",
+                      field: "TotalDays", //TotalRemainingDays
+                      title: "CL Balance",
+                      //locked: true
+                  },
+                   
+                 //{
+                 //    width: "50px",
+                 //    title: 'Edit',
+                 //    template: function (dataItem) {
+                 //        return "<a href='#' OnClick='EditGrid(" + dataItem.OfficeDesignationId + ",\"" + dataItem.OffcType + "\",\"" + dataItem.OffcDesignName + "\",\"" + dataItem.OffcDesignNameBn + "\",\"" + dataItem.DesignationOrder + "\",\"" + dataItem.IsSectionDependent + "\");'><i class='fa fa-pencil-square-o'></i></a>";///Office/Create/?OfficeId=" + dataItem.EntrepreneurId + "
+                 //    }
+                 //},
+                 //{
+                 //    width: "50px",
+                 //    title: 'Delete',
+                 //    template: function (dataItem) {
+                 //        return "<a href='#' OnClick='InformationDelete(" + dataItem.OfficeDesignationId + ");'><i class='fa fa-trash-o'></i></a>";///Office/Create/?OfficeId=" + dataItem.EntrepreneurId + "
+                 //    }
+                 //}
+            ]
+        });
+    }
+
+
+</script>
+
+@Html.ActionLink("Add New", "CasualOpening", null, new { @class = "btn btn-success btn-sm pull-right" })
+
+<h2 class="page-title">Casual Leave Opening List</h2> &nbsp;
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="gridCasualLeaveOpening"></div>
+    </div>
+</div>

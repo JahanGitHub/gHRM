@@ -1,0 +1,315 @@
+﻿@model gHRM.Web.ViewModels.AttAttendanceViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/AttendanceReport">AttendanceReport</a></li>
+        <li><a href="/AttendanceReport/AttendanceDetail">AttendanceDetails</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Monthly Attendance Details";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<script type="text/javascript">
+
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "Attendance", "http")',
+            data: { employeeID: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        $("#EmployeeCode").val(data.EmployeeCode);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                    }
+                    else {
+                        $("#EmployeeName").val('');
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                        $("#EmployeeId").val('');
+                        
+                    }
+                });
+            },
+            error: function (request, status, error) {
+                //$.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+                $.alert.open("Message", "Not found.");
+
+            }
+        });
+    }
+
+
+    function rptValidation() {
+
+        
+        var Option = $("#filterColumn option:selected").val();
+
+        if (Option == 'ViewAll')
+        {
+            $("#EmployeeId").val('');
+            $("#filterValue").val('');
+
+            $("#EmployeeName").val('');
+             
+            $("#EmployeeCode").val('');
+            $("#txtEmpName").focus();
+           
+        }
+        else if (Option == 'EmployeeCode')
+        {
+            var EmpCod = $("#EmployeeId").val();
+            if (EmpCod == "")
+            {
+                $.alert.open("Message", "Please Select Employee Code.");
+            }
+        }
+        else if (Option == 'EmployeeName')
+        {
+            var EmployeeName = $("#filterValue").val();
+            if (EmployeeName == "") {
+                $.alert.open("Message", "Please Enter Employee Name.");
+            }
+        }
+
+        return true;
+
+    }
+
+    function clear()
+    {
+        $("#EmployeeId").val('');
+        $("#filterValue").val('');
+        $("#EmployeeName").val('');
+        $("#txtEmpName").focus();
+
+        $("#filterValue").prop('selectedIndex', 0);
+
+        $("#FromDate").datepicker(
+     'setDate', new Date());
+
+        $("#ToDate").datepicker(
+     'setDate', new Date());
+
+
+    }
+
+    $(document).ready(function () {
+
+        $("#EmployeeCode").blur(function (e) {
+            var employee_code = $("#EmployeeCode").val();
+            if ($("#EmployeeCode").val() != '') {
+                LoadEmpInfoByCode(employee_code);
+            }
+            else {
+                $("#EmployeeName").val('');
+            }
+        });
+
+        $("#FromDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2050"
+
+        });
+        $("#FromDate").datepicker(
+      'setDate', new Date());
+
+        $("#ToDate").datepicker(
+      {
+          dateFormat: "dd-M-yy",
+          showAnim: "scale",
+          changeMonth: true,
+          changeYear: true,
+          yearRange: "1920:2050"
+
+      });
+        $("#ToDate").datepicker(
+      'setDate', new Date());
+
+        $("#filterColumn").change(function () {
+            $("#EmployeeId").val('');
+            $("#filterValue").val('');
+
+            var Option = $("#filterColumn option:selected").val();
+            if (Option == 'ViewAll') {
+
+                $("#EmployeeId").val('');
+                $("#filterValue").val('');
+
+                $("#EmployeeName").val('');
+                
+                $("#EmployeeCode").val('');
+                $("#txtEmpName").focus();
+
+
+                $("#NameDiv").hide();
+                $("#codeDiv").hide();
+
+
+
+            }
+            else if (Option == 'EmployeeCode') {
+                $("#NameDiv").hide();
+                $("#codeDiv").show();
+            }
+            if (Option == 'EmployeeName') {
+                $("#NameDiv").show();
+                $("#codeDiv").hide();
+            }
+
+
+        });
+
+        ////////
+        $("#reportView").click(function (e) {
+
+            var FromDate = $("#FromDate").val();
+            var ToDate = $("#ToDate").val();
+
+            var EmpId = $("#EmployeeId").val();
+            var EmployeeName = $("#filterValue").val();
+
+            // var EmployeeCode = $("#EmployeeID").val();
+            //var qType = $("#qType").val();
+            if (rptValidation() == true) {//GenerateAttendanceRegister(string FromDate = "", string ToDate = "")
+                url = '/AttendanceReport/AttendanceDetailRpt?FromDate=' + FromDate + '&ToDate=' + ToDate + '&EmpId=' + EmpId + '&EmployeeName=' + EmployeeName;
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+            clear();
+            
+        });//// End of Button
+
+    });
+</script>
+
+<h2 class="page-title">Monthly Attendance Details</h2>
+<br />
+<div class="row">
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-2 text-right">
+                    <label class="control-label" style="padding-top:8px;">
+                        Search By(Code/Name):
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <select id="filterColumn" class="form-control">
+                        <option value="ViewAll">View All</option>
+                        <option value="EmployeeCode">Employee Code</option>
+                        <option value="EmployeeName">Employee Name</option>
+                    </select>
+                </div>
+              
+            </div> <br />
+            <div id="NameDiv" class="row" style="display:none;">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="filterValue" placeholder="Type Employee Name." class="form-control" />
+                        </div>
+                    </div>
+                </div>
+ 
+            </div>
+            <div class="row" id="codeDiv" style="display:none;">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Code</label>
+                        <div class="col-sm-8">
+                            @*@Html.DropDownListFor(model => model.EmployeeId, empList, new { @class = "form-control" })*@
+                            @*@Html.TextBox("txtEmpName", "", new { @class = "form-control" })*@
+                            @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.HiddenFor(model => model.EmployeeId)
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Name</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Attendance From Date</label>
+                        <div class="col-md-8">
+                            <input type="text" id="FromDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Attendance To Date</label>
+                        <div class="col-md-8">
+                            <input type="text" id="ToDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-8">
+        <input type="submit" id="reportView" value="View" class="btn btn-warning" />
+    </div>
+</div>
+ 
+<div class="row">
+    <div class="panel-body">
+        <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">Report Generated Successfully.</p>
+        </div>
+    </div>
+
+    <div class="danger">
+        <div class="create-content create-content alert alert-error alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content" id="messageErr"> @Html.Raw(TempData["Error"])  </p>
+            <input type="hidden" id="hdnMessage" value=@Html.Raw(TempData["Error"])></div>
+    </div>
+
+</div>
+
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        $(".panel-body .create-success").show(700).fadeToggle(2000);
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+       // $(".danger .create-content").show(700).fadeToggle(4000);
+        var hdnMessage = $("#hdnMessage").val();
+        $.alert.open("Message", hdnMessage);
+    </script>
+}

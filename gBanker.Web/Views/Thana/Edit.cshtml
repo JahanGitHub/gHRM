@@ -1,0 +1,347 @@
+﻿@model gHRM.Web.ViewModels.ThanaViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var countryList = Model == null ? null : Model.CountryList;
+    var stateList = Model == null ? null : Model.StateOrProvinceList;
+    var districtList = Model == null ? null : Model.DistrictList;
+}
+
+
+
+<script type="text/javascript">
+    function LoadState(country_id) {
+        var ddlState = $("#StateOrProvinceId");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetStateList", "Thana", "http")',
+            data: { country_id: country_id },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+                ddlState.html('');
+                $.each(data, function (id, option) {
+                    ddlState.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function LoadDistrict(state_id) {
+        var ddlDistrict = $("#district_id");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetDistrictList", "Thana", "http")',
+            data: { state_id: state_id },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlDistrict.html('');
+                $.each(data, function (id, option) {
+                    ddlDistrict.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+            //Countrywise State
+            $("#CountryId").change(function () {
+                var country_id = $("#CountryId").val();
+
+                if (country_id > 0) {
+                    LoadState(country_id);
+                }
+            });
+
+            //Statewise District
+            $("#StateOrProvinceId").change(function () {
+                var state_id = $("#StateOrProvinceId").val();
+                if (state_id > 0) {
+                    LoadDistrict(state_id);
+                }
+            });
+
+            $("#btnThanaSave").click(function (e) {
+                if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() == '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    $("#district_id").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() != '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    $("#district_id").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() == '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+                    return false;
+
+                }
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() != '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() == '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#district_id").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() != '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#district_id").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    return false;
+
+                }
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() == '') {
+                    $("#CountryId").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+                    return false;
+                }
+
+                else if ($("#CountryId").val() == '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() != '') {
+                    $("#CountryId").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() == '') {
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    $("#district_id").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() != '') {
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    $("#district_id").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() == '') {
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() == '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() != '') {
+                    $("#StateOrProvinceId").addClass("errorClass");
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() == '') {
+                    $("#district_id").addClass("errorClass");
+                    $("#thana_name_eng").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() == '0' && $("#thana_name_eng").val() != '') {
+                    $("#district_id").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    return false;
+                }
+                else if ($("#CountryId").val() != '' && $("#StateOrProvinceId").val() != '0' && $("#district_id").val() != '0' && $("#thana_name_eng").val() == '') {
+                    $("#thana_name_eng").addClass("errorClass");
+                    if ($("#StateOrProvinceId").val() == '') {
+                        $("#StateOrProvinceId").addClass("errorClass");
+                    }
+                    if ($("#district_id").val() == '') {
+                        $("#district_id").addClass("errorClass");
+                    }
+
+                    return false;
+                }
+
+
+                else
+                    return true;
+            });
+        });
+
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+
+<h2 class="page-title">Edit Thana (থানা পরিবর্তন করুন)</h2>
+@using (Html.BeginForm("Edit", "Thana", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "ThanaProfile" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.HiddenFor(model => model.thana_id , new { @class = "control-label col-md-2" })
+                    <div class="col-md-8">
+                        @Html.HiddenFor(model => model.thana_id , new { htmlAttributes = new { @class = "form-control", @placeholder = "District ID" } })
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            @*<div class="col-sm-6">
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.thana_code, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.thana_code, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.thana_name_eng, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>*@
+
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CountryId, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CountryId, countryList, new { @class = "form-control" })
+                        @*@Html.ValidationMessageFor(model => model.CountryId, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.StateOrProvinceId, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.StateOrProvinceId, stateList, new { @class = "form-control" })
+                        @*@Html.ValidationMessageFor(model => model.StateOrProvinceId, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.district_id, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.district_id, districtList, new { @class = "form-control" })
+                        @*@Html.ValidationMessageFor(model => model.district_id, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.thana_name_eng, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.thana_name_eng, new { htmlAttributes = new { @class = "form-control" } })
+                        @*@Html.ValidationMessageFor(model => model.thana_name_eng, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-sm-6">
+        @*<div class="form-group">
+                @Html.LabelFor(model => model.StateOrProvinceId , htmlAttributes: new { @class = "control-label  col-sm-4" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.StateOrProvinceId, countryList, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.StateOrProvinceId, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+    </div>
+
+    <div class="col-sm-6">
+        @*<div class="form-group">
+                @Html.LabelFor(model => model.district_id, htmlAttributes: new { @class = "control-label  col-sm-4" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.district_id, countryList, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.district_id, "", new { @class = "text-danger" })
+                </div>
+            </div>*@
+    </div>
+
+
+
+    <div class="row">
+        @*<div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.district_id , htmlAttributes: new { @class = "control-label  col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.district_id, countryList, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.district_id, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>*@
+        @*<div class="col-sm-6">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.thana_name_eng, htmlAttributes: new { @class = "control-label col-sm-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.thana_name_eng, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.thana_name_eng, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="submit" value="Save" id="btnThanaSave" class="btn btn-primary" />
+                <input type="hidden" value="" id="btnThanaSave" />
+                <input type="hidden" value="" id="btnThanaSave" />
+            </div>
+        </div>
+    </div>
+
+
+}
+
+
+
+

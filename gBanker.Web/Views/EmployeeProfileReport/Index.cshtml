@@ -1,0 +1,360 @@
+﻿@model gHRM.Web.ViewModels.Basic.EmployeeProfileReportViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+    var IsEmployeeCodeEditAllowed = "True" == "@ViewBag.IsEmployeeCodeEditAllowed";
+
+    $(document).ready(function () {
+
+        var employeeId = '@Model.EmployeeId';
+        if (employeeId) {
+
+            var userRole = @Html.Raw(Json.Encode(ViewData["UserRole"]));
+            if (userRole == 'Super Admin') {
+                $("#EmployeeCode").attr('readonly', false);
+            } else {
+                if (!IsEmployeeCodeEditAllowed) $("#EmployeeCode").attr('readonly', true);
+                $("#EmployeeCode").val('@Model.EmployeeCode');
+                LoadEmpInfoByCode('@Model.EmployeeCode');
+            }
+        }
+
+        $("#EmployeeCode").blur(function (e) {
+            debugger;
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+        $("#DateTo").datepicker('setDate', new Date());
+
+        $("#EducationDegreeCode").change(function () {
+            var degreeCode = $("#EducationDegreeCode").val();
+            if (degreeCode != "") {
+                LoadDropDown('/CommonDropdown/GetEducationConcentrationListByDegreeCode', { DegreeCode: degreeCode }, '', "#ConcentrationCode");
+            }
+        });
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#Section");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value='0'>Please Select</option>");
+                        }
+                    },
+                });
+            } else {
+
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+         
+        $("#EmployeeProfileId").change(function () {
+            var EmployeeProfileId = $("#EmployeeProfileId").val();
+
+            if (EmployeeProfileId != "") {
+                var rptname = $("#EmployeeProfileId option[value=" + EmployeeProfileId + "]").text();
+                $("#rpt_name").text(rptname);
+            }
+
+        });
+
+        $("#btnPrint").click(function () {
+            var EmployeeProfileId = $("#EmployeeProfileId").val();
+            var EmployeeCode = $("#EmployeeCode").val();
+
+            if (EmployeeCode != "") {
+                if (EmployeeProfileId == "1") {
+                    url = '/EmployeeProfileReport/OfficialInfoReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "2") {
+                    url = '/EmployeeProfileReport/EmployeeSupervisorInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "3") {
+                    url = '/EmployeeProfileReport/EmployeeEducationInfoReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "33") {
+                    url = '/EmployeeProfileReport/EmployeeEducationInfoReportMousumi?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+
+                if (EmployeeProfileId == "4") {
+                    url = '/EmployeeProfileReport/EmployeeBasicInfoReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "5") {
+                    url = '/EmployeeProfileReport/EmployeeAddressInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "6") {
+                    url = '/EmployeeProfileReport/EmployeeFamilyInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "7") {
+                    url = '/EmployeeProfileReport/EmployeeOtherQualification?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "8") {
+                    url = '/EmployeeProfileReport/EmergencyContactInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "9") {
+                    url = '/EmployeeProfileReport/EmployeeMedicalInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "10") {
+                    url = '/EmployeeProfileReport/EmployeeReferenceGuarantorInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "11") {
+                    url = '/EmployeeProfileReport/EmployeeCertificateInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "12") {
+                    url = '/EmployeeProfileReport/EmployeeTrainingInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "13") {
+                    url = '/EmployeeProfileReport/EmployeeOfficeVisitInfo?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "14") {
+                    url = '/EmployeeProfileReport/RelationshipWithCurrentOrganizationEmployee?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "15") {
+                    url = '/EmployeeProfileReport/RelationshipWithInterOrganizationEmployee?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "16") {
+                    url = '/EmployeeProfileReport/WorkExperienceWithInterOrganization?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "17") {
+                    url = '/EmployeeProfileReport/PreviousWorkExperience?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "18") {
+                    url = '/EmployeeProfileReport/Publication?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+                if (EmployeeProfileId == "21") {
+                    url = '/EmployeeProfileReport/FullProfileReport?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+                if (EmployeeProfileId == "22") {
+                    url = '/EmployeeProfileReport/EmployeeReferenceGuarantorInfoForMousumi?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+                if (EmployeeProfileId == "44") {
+                    url = '/EmployeeProfileReport/GuarantorMoneyReportMousumi?EmployeeCode=' + EmployeeCode;
+                    PrintReport(url);
+                }
+
+
+            } else {
+                $.alert.open("Error", "Please Enter Employee code");
+            }
+
+        });
+
+        var system = '@SessionHelper.CompanyName';
+        console.log(system);
+        if (system != 'Mousumi') {
+            var selectElement = document.getElementById("EmployeeProfileId");
+            var options = selectElement.options;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].value == "33" || options[i].value == "44" || options[i].value == "22"  ) {
+                    selectElement.remove(i);
+                    //break;
+                }
+            }
+        }
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeProfileReport", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                debugger;
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                    });
+                    //LoadPreviousDataList($("#EmployeeId").val());
+                }
+
+                else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+</script>
+
+<h2 class="page-title">Employee Personal Report</h2>
+
+&nbsp;
+
+
+<div class="container-fluid">
+
+    <fieldset>
+        <legend class="text-info" id="rpt_name"></legend>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Report Dropdown</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.EmployeeProfileId, Model.EmployeeProfileList, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6 ">
+                <div class="form-group col-sm-offset-4">
+                    <div class="col-md-6">
+                        <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

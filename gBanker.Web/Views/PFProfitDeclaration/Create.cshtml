@@ -1,0 +1,178 @@
+﻿@model gHRM.Web.ViewModels.PF.ProfitDeclarationViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    function SaveProfitDeclaration(orgaId, declarationYear, profitRate, induceRate) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveProfitDeclaration", "PFProfitDeclaration", "http")',
+            data: { orgaId: orgaId, declarationYear: declarationYear, profitRate: profitRate, induceRate: induceRate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Saved Successfully");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+    }
+
+    function clear() {
+        $('#DeclararionId').val('');
+        $("#DeclarationYear").val('');
+        $("#ProfitRate").val('');
+        $("#InduceRate").val('');
+    }
+
+
+    $(document).ready(function () {
+
+        $("#btnReset").click(function () { // Reset form
+            clear();
+        });
+
+        $("#btnSaveProfitDeclaration").click(function () {
+
+           var declararionId = $('#DeclararionId').val();
+           var orgaId = $('#OrgaId').val();
+           var declarationYear = $("#DeclarationYear").val();
+           var profitRate = $("#ProfitRate").val();
+           var induceRate = $("#InduceRate").val();
+
+           if (declarationYear == '') {
+                $.alert.open("Please enter Declare year");
+                return;
+           }
+           SaveProfitDeclaration(orgaId, declarationYear, profitRate, induceRate);
+           clear();
+        });
+
+        //loading single pf
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFProfitDeclaration/GetProfitDeclarationList'
+            },
+            fields: {
+                DeclararionId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                DeclararionId: {
+                    title: 'ID',
+                    width: '20%'
+                },
+                DeclarationYear: {
+                    title: 'Year',
+                    width: '25%'
+                },
+                ProfitRate: {
+                    title: 'Profit Rate',
+                    width: '25%'
+                },
+                InduceRate: {
+                    title: 'Induce Rate',
+                    width: '25%'
+                }
+            }
+        });
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+    });
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Create Profit Declaration</h2>
+&nbsp
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+          
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OrgName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.OrgName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                </div>
+            </div>
+        </div>
+      
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ProfitRate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ProfitRate, new { htmlAttributes = new { @class = "form-control", @tabindex = 2, @Placeholder = "Profit Rate" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InduceRate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InduceRate, new { htmlAttributes = new { @class = "form-control", @tabindex = 3, @Placeholder = "Induce Rate" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnSaveProfitDeclaration" class="btn btn-success" tabindex="4" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" tabindex="5" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div id="grid2">
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

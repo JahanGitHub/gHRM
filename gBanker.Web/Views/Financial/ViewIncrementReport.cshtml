@@ -1,0 +1,151 @@
+﻿@{
+    ViewBag.Title = "Increment Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    function radioSearchChk() {
+        if ($("#radSearchHO").is(":checked")) {
+            //loaddept
+            $("#SearchHO").show();
+            $("#SearchZO").hide();
+            $("#SearchZAO").hide();
+            GetSearchHOOffice();
+        }
+        else if ($("#radSearchZO").is(":checked")) {
+            //load zone,area,branch
+            $("#SearchHO").hide();
+            $("#SearchZO").show();
+            $("#SearchZAO").hide();
+
+            GetSearchZOOffice();
+        }
+        else if ($("#radSearchZAO").is(":checked")) {
+            //load zonal audit
+            $("#SearchHO").hide();
+            $("#SearchZO").hide();
+            $("#SearchZAO").show();
+
+            GetSearchZAOOffice();
+
+        }
+        else {
+            $("#SearchHO").hide();
+            $("#SearchZO").hide();
+            $("#SearchZAO").hide();
+
+        }
+    }
+
+      function ExcelReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    $(document).ready(function () {
+        // buttons Action
+        $("#btnReportView").click(function (e) {
+            var OfficeTypeId = "0";
+            var SelectedDate = $("#SelectedDate").val();
+
+            if ($('#HO').is(':checked')) {
+                OfficeTypeId = "1";
+                } else if($('#FO').is(':checked')) {
+                    OfficeTypeId = "2";
+                }
+
+            var url;
+            url = '/Financial/GenerateIncrementListReport?OfficeTypeId=' + OfficeTypeId + '&SelectedDate=' + SelectedDate + '&SoftwareName=' + $("#Software").val();
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        });
+       
+     $("#btnExcelPrint").click(function () {
+    var OfficeTypeId = "0";
+            var SelectedDate = $("#SelectedDate").val();
+
+            if ($('#HO').is(':checked')) {
+                OfficeTypeId = "1";
+                } else if($('#FO').is(':checked')) {
+                    OfficeTypeId = "2";
+                }
+
+        var url;
+         url = '/Financial/GenerateIncrementListReport?OfficeTypeId=' + OfficeTypeId + '&SelectedDate=' + SelectedDate + '&DownloadExcel=' + 1 + '&SoftwareName=' + $("#Software").val();
+        //ExcelReport(url);
+    window.open(url);
+
+    });
+
+
+    $("#SelectedDate").datepicker(
+                     {
+                         dateFormat: "dd-M-yy",
+                         showAnim: "scale",
+                     });
+
+        $("#SelectedDate").datepicker('setDate', new Date());
+    
+    });// edn of document ready
+
+</script>
+
+<h2>List of Employee Who is Elegible for Increment</h2>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group checkbox">
+            <div class="col-md-4">
+                <label class="radio-inline">   <input type="radio" id="HO" value="1" name="optPostingHistory" checked="checked"><font size="3.5px"> Head Office </font> </label>
+            </div>
+            <div class="col-sm-4">
+                <label class="radio-inline">  <input type="radio" id="FO" value="2" name="optPostingHistory"><font size="3.5px"> Field Office</font></label>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Date</label>
+            <div class="col-sm-8">
+                <input type="text" id="SelectedDate" class="form-control ddl-datepicker" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Software</label>
+            <div class="col-sm-8">
+                <select id="Software" class="form-control">
+                    <option value="ghrmplus">gHRM+</option>
+                    <option value="paperless">Paperless</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<hr />
+<div id="btns">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <button type="button" id="btnReportView" class="btn btn-success "><i class="fa fa-print"> </i> View Report</button>
+                    &nbsp;
+                    <button type="button" id="btnExcelPrint" class="btn btn-success "><i class="fa fa-download"> </i> Excel Download</button>
+
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            &nbsp;
+        </div>
+    </div>
+
+</div>
+

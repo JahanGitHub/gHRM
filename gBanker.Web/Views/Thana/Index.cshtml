@@ -1,0 +1,161 @@
+﻿@model IEnumerable<gHRM.Web.ViewModels.ThanaViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+}
+
+<script type="text/javascript">
+    function deleteConfirm(status) {
+        if (status == "true") {
+            return confirm('Are you sure you want to delete this record');
+        }
+        else {
+            alert("You cannot delete this record because it is already disabled.");
+            return false;
+        }
+    }
+    function GetDistrict() {
+        var ddlDistrict = $("#ddlDistrict");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetDistrictList", "Thana", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlDistrict.html('');
+                $.each(data, function (id, option) {
+                    ddlDistrict.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function reloadGrid() {     
+        $('#grid').jtable('load', { distId: $('#ddlDistrict').val(), filterColumnName: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+    $(document).ready(function () {
+        GetDistrict();
+        $('#grid').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                title: "Edit",
+                listAction: '/Thana/GetThana',
+                updateAction: '/Thana/Edit',
+                //deleteAction: '/Thana/Delete'
+            },
+            fields: {
+                thana_id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                district_name_eng: {
+                    title: 'District Name (জেলার নাম)',
+                    width: '20%',
+                    edit: false,
+                    type: 'label'
+                },
+                thana_code: {
+                    title: 'Thana Code (থানা কোড)',
+                    width: '40%',
+                    edit: false,
+                    type: 'label'
+                },
+
+                thana_name_eng: {
+                    title: 'Thana Name (থানার নাম)',
+                    width: '20%',
+                    edit:true
+                },
+
+              //  EditLink: {
+                    //title: "Edit",
+                   // sorting: false,
+                 // display: function (data) {
+                      // return "<div class='text-center'><a href='/Thana/Edit/" + data.record.thana_id + "'><i class='fa fa-pencil-square-o'></i></a></div>";
+                   // }
+                //},
+                //DeleteLink: {
+                //    title: "Delete",
+                //    edit: false,
+                //    display: function (data) {
+                //        //return '<div class="text-center delete-link"><a href="/Employee/Delete/' + data.record.EmployeeId + '"' + 'onclick="return confirm("Are you sure you want to delete this item?");"' + '><i class="fa fa-trash-o"></i></a></div>';
+                //        return '<div class="text-center delete-link"><a href="/Thana/Delete/' + data.record.thana_id + '" ' + ' OnClick="return confirm(' + "'" + 'Are you sure you want to delete this item?' + "'" + ');"' + '><i class="fa fa-trash-o"></i></a></div>';
+
+                //    }
+                //}
+
+
+               
+            }
+        });
+
+        reloadGrid();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+    });
+
+</script>
+
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Thana List(থানার তালিকা)</h2>
+&nbsp;
+<br />
+<div class="row">
+    <div class="col-md-2 text-right">
+        <label class="control-label" style="padding-top:8px;">District (জেলার নাম) :</label>
+    </div>
+    <div class="col-md-3"> 
+       @Html.DropDownList("DistList", null, new { @ID = "ddlDistrict", @class = "form-control" })
+    </div>
+    <div class="col-md-2 text-right">
+        <label class="control-label" style="padding-top:8px;">Filter By(ফিল্টার করুন):</label>
+    </div>
+    <div class="col-md-2">
+        <select id="filterColumn" class="form-control">
+            <option value="ViewAll">View All(সকল)</option>
+            <option value="thana_name_eng">Thana Name(থানার নাম)</option>
+            <option value="thana_code">Thana Code(থানা কোড)</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="text" id="filterValue" placeholder="Type Search Text(খুজুন)" class="form-control" />
+    </div>
+    <div class="col-md-1">
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" onclick="reloadGrid();" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+
+@*<div id="grid"></div>*@
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

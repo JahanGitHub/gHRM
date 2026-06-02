@@ -1,0 +1,2093 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+
+    /* KHALID : Make Check Box Big */
+    input[type="checkbox"] {
+        -webkit-appearance: checkbox;
+        width: 20px;
+        height: 20px;
+        background: #3d404e;
+        box-shadow: 0 0 1px 3px yellow;
+    }
+
+        input[type="checkbox"]:checked {
+            box-shadow: 0 0 0 3px green;
+        }
+
+
+</style>
+
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script type="text/javascript">
+
+    function rptValidation()
+    {
+        var ReportType = $("#filterColumn option:selected").val();
+        var DateFrom = $("#txtDateFrom").val();
+        var DateTo = $("#txtDateTo").val();
+
+        var EmployeeCode = $("#txtEmpCode").val();
+        var kMessage = $("#KMessage").val();
+        if (ReportType == "cddzwcc" && DateFrom == "") {
+            $.alert.open("error", "Insert Date");
+            return false;
+        }
+        else if (ReportType == "eddzwe" && DateFrom == "" && DateTo == "") {
+            $.alert.open("error", "Insert Date from and date to");
+            return false;
+        }
+        else if (ReportType == "eddzwe" && DateFrom != "" && DateTo == "") {
+            $.alert.open("error", "Insert  date to");
+            return false;
+        }
+        else if (ReportType == "eddzwe" && DateFrom == "" && DateTo != "") {
+            $.alert.open("error", "Insert  From date");
+            return false;
+        }
+        else if (ReportType == "rddmywrcc" && DateFrom == "") {
+            $.alert.open("error", "Insert Date");
+            return false;
+        }
+        else if (ReportType == "mddmywccc" && DateFrom == "") {
+            $.alert.open("error", "Insert Date");
+            return false;
+        }
+        else if (ReportType == "yddmywcrcc" && DateFrom == "") {
+            $.alert.open("error", "Insert Date");
+            return false;
+        }
+        else if (ReportType == "ddemppun" && EmployeeCode == "") {
+            $.alert.open("error", "Insert employee code");
+            return false;
+        }
+        else if (ReportType == "ddemppun" && kMessage == "No Punishment") { //khalid
+            $.alert.open("Message", "No Punishment");
+            return false;
+        }
+            //else if (ReportType == "ddemppun" && DateFrom != "" && EmployeeCode == "") {
+            //    $.alert.open("error", "Insert  employee code");
+            //    return false;
+            //}
+            //else if (ReportType == "ddemppun" && DateFrom == "" && EmployeeCode != "") {
+            //    $.alert.open("error", "Insert Date");
+            //    return false;
+            //}
+        else if (ReportType == "ddpunishEmp" && DateFrom == "" && DateTo == "") {
+            $.alert.open("error", "Insert Date from and date to");
+            return false;
+        }
+        else if (ReportType == "ddpunishEmp" && DateFrom != "" && DateTo == "") {
+            $.alert.open("error", "Insert  date to");
+            return false;
+        }
+        else if (ReportType == "ddpunishEmp" && DateFrom == "" && DateTo != "") {
+            $.alert.open("error", "Insert  From date");
+            return false;
+        }
+        else if (ReportType == "ddpunishEmp" && $("#ddPunishmentList").val() == "0") {
+            $.alert.open("error", "Selct punishment");
+            return false;
+        }
+
+        else {
+            return true;
+        }
+    }
+
+    function LoadEmpInfoByCode(PFEmployeeStatusID) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "DiscReports", "http")',
+            data: { employee_code: PFEmployeeStatusID },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+
+                        if (data.EmployeeName == "") {
+                            $("#EmployeeName").val('');
+                            //$("#EmployeeID").val('');EmployeeId
+                        }
+
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#KMessage").val(data.kMessage);
+
+                        if( data.kMessage == 'Punishment Exist')
+                        {
+                            $("#KMessage").css("background-color","red");
+                            $("#KMessage").css("color","white");
+
+
+                        }
+                        else
+                        {
+                            $("#KMessage").css("background-color","green");
+                            $("#KMessage").css("color","white");
+
+                        }
+
+
+
+                    } // End of if data found
+                    else {
+
+                        $("#txtEmpCode").val('');
+                        $("#KMessage").val('');
+                        //$("#EmployeeID").val('');
+
+                        alert("Something went Wrong.");
+                        $("#txtEmpName").focus();
+                    }
+                });
+            },
+            error: function (request, status, error) {
+
+                $("#EmployeeName").val('');
+                $("#KMessage").val('');
+                $("#txtEmpName").focus();
+                alert("Employee Not Found." + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function LoadPunishment() {
+
+        var ddPunishment = $("#ddPunishmentList")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPunishmentList", "DiscCaseEntry", "http")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                ddPunishment.html("");
+                ddPunishment.append($('<option></option>').val("0").html("Please Select"));
+                $.each(data.Options, function () {
+                    ddPunishment.append($('<option></option>').val(this.Value).text(this.DisplayText));
+                });
+            },
+            failure: function () {
+                alert("Failed!");
+            }
+        });
+    }
+
+
+    function LoadPunishments() {
+
+        var ddPunishment = $("#ddlPunishmentLis")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPunishmentList", "DiscCaseEntry", "http")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                ddPunishment.html("");
+                ddPunishment.append($('<option></option>').val("0").html("Please Select"));
+                $.each(data.Options, function () {
+                    ddPunishment.append($('<option></option>').val(this.Value).text(this.DisplayText));
+                });
+            },
+            failure: function () {
+                alert("Failed!");
+            }
+        });
+    }
+
+
+
+
+    function SETDisPatchOption()// When HO Not ReadOnly OtherWise ReadOnly and set the Dispatch in input field.
+    {
+
+        //ViewData["Dispatch"] = Officeinfo.Dispatch;
+        //ViewData["OfficeTypeId"] = Officeinfo.OfficeTypeId;
+
+        var Dispatch =  @Html.Raw(Json.Encode(ViewData["Dispatch"]));
+        var OfficeTypeId =  @Html.Raw(Json.Encode(ViewData["OfficeTypeId"]));
+
+        if(OfficeTypeId == 1)
+        { // Head Office Establishment
+
+            /*
+            $('#txtIssueingOffice').val(Dispatch);
+            $('#txtddIssueingOffice').val(Dispatch);
+            $('#txtddRENL').val(Dispatch);
+            $('#txtddSuspendOffice').val(Dispatch);
+            $('#txtddPECOffice').val(Dispatch);
+            $('#txtddlPunishmentWiseEmpOffice').val(Dispatch);
+            $('#txtddRunningOffice').val(Dispatch);
+            */
+
+            if(Dispatch == "est")
+            {
+                $('#txtIssueingOffice').prop('readonly', false);
+                $('#txtddIssueingOffice').prop('readonly', false);
+                $('#txtddRENL').prop('readonly', false);
+                $('#txtddSuspendOffice').prop('readonly', false);
+                $('#txtddPECOffice').prop('readonly', false);
+                $('#txtddRunningOffice').prop('readonly', false);
+                $('#txtddlPunishmentWiseEmpOffice').prop('readonly', false);
+
+            }
+            else
+            {
+                $('#txtIssueingOffice').prop('readonly', true);
+                $('#txtddIssueingOffice').prop('readonly', true);
+                $('#txtddRENL').prop('readonly', true);
+                $('#txtddSuspendOffice').prop('readonly', true);
+                $('#txtddPECOffice').prop('readonly', true);
+                $('#txtddRunningOffice').prop('readonly', true);
+                $('#txtddlPunishmentWiseEmpOffice').prop('readonly', true);
+
+            }
+
+            //kk Dispatch = "est";
+            $('#txtIssueingOffice').val(Dispatch);
+            $('#txtddIssueingOffice').val(Dispatch);
+            $('#txtddRENL').val(Dispatch);
+            $('#txtddSuspendOffice').val(Dispatch);
+            $('#txtddPECOffice').val(Dispatch);
+            $('#txtddlPunishmentWiseEmpOffice').val(Dispatch);
+            $('#txtddRunningOffice').val(Dispatch);
+
+
+        }
+        else
+        {
+            // Other Office. Zone, Area Branch
+
+            $('#txtIssueingOffice').val(Dispatch);
+            $('#txtddIssueingOffice').val(Dispatch);
+            $('#txtddRENL').val(Dispatch);
+            $('#txtddSuspendOffice').val(Dispatch);
+            $('#txtddPECOffice').val(Dispatch);
+            $('#txtddlPunishmentWiseEmpOffice').val(Dispatch);
+
+
+
+            $('#txtIssueingOffice').prop('readonly', true);
+            $('#txtddIssueingOffice').prop('readonly', true);
+            $('#txtddRENL').prop('readonly', true);
+            $('#txtddSuspendOffice').prop('readonly', true);
+            $('#txtddPECOffice').prop('readonly', true);
+            $('#txtddlPunishmentWiseEmpOffice').prop('readonly', true);
+
+
+          //  $("#reportPostingHistory").hide();
+
+        }
+
+
+
+    }
+
+    function LoadZOOffice(){
+        var ddlZOOffice = $("#ddlSearchZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZoneName", "DiscCaseEntry", "http")', //GetZOOfficeList
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+
+
+    function LoadZOOfficeIssuing() {
+        var ddlZOOffice = $("#ddlSearchZOOfficeIssuing");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZoneName", "DiscCaseEntry", "http")', //GetZOOfficeList
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }// End Load Zone
+
+    function LoadZOOfficePunishmentWise() {
+        var ddlZOOffice = $("#ddlSearchZOOfficePunishmentWise");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+             @*url: '@Url.Action("GetZOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetZOOfficeList", "EmployeePromotion", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                var Offi = "";
+                $.each(data, function (id, option) {
+                    var str = option.Text;
+                    if (str != "Please Select") {
+                        var res = str.split(" ");
+                        Offi = res[0] + res[1] + res[4];
+                    }
+                    else {
+                        Offi = "Please Select";
+                    }
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(Offi));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }// End Load Zone
+
+
+
+
+
+
+    $(document).ready(function () {
+
+        SETDisPatchOption(); // Option FOR issue settle
+        LoadPunishments(); // Load Punishment in DDL
+        LoadZOOffice(); // Load Zone Office
+        LoadZOOfficeIssuing();// Load Zone Office
+
+
+        @*$("#reportPostingHistory").click(function (e) {
+            var url = '@Url.Action( "PostingHistory" , "StaffEmployee")';
+            window.location.href = url.replace();
+
+        });*@
+
+        //Khalid
+        var LoggedInOfficeID  = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+
+        if (LoggedInOfficeID  == 2664 || LoggedInOfficeID  == 2673) //Establishment
+        {
+            $("#dkDateFrom").hide();
+            $("#dkDateTo").hide();
+            $("#dkDateTo").hide();
+            $("#txtDateTo").hide();
+            $("#txtDateFrom").hide();
+            $("#DivEmp").hide();
+            $("#reportView").hide();
+            $("#Divpunishment").hide();
+            $("#DVddEIL").hide();
+            $("#DVddIssueing").hide();
+            $("#DVddRENL").hide();
+            $("#DVddSuspendedList").hide();
+            $("#DVddddPEC").hide();
+            $("#DVddddRunning").hide();
+            $("#DVddPunishmentWiseEmp").hide();
+
+        }
+        else
+        {
+            //filterColumn
+
+            $("#dkDateFrom").hide();
+            $("#dkDateTo").show();
+            $("#dkDateTo").html("");
+            $("#txtDateFrom").hide();
+            $("#txtDateTo").hide();
+            $("#DivEmp").show();
+            $("#reportView").show();
+            $("#Divpunishment").hide();
+            $("#DVddEIL").hide();
+            $("#DVddIssueing").hide();
+            $("#DVddRENL").hide();
+            $("#DVddSuspendedList").hide();
+            $("#DVddPunishmentWiseEmp").hide();
+
+            $("#DVorderByZone").hide();
+            $("#DVSearchByZone").hide();
+
+            $("#DVddddPEC").hide();
+            $("#DVddddRunning").hide();
+            $("#filterColumn option[value='ddemppun']").prop('selected', 'selected');
+
+            $("#DVSearchByZoneIssuing").hide();
+
+
+        }
+
+        $("#txtEmpCode").blur(function (e) {
+            var employee_code = $("#txtEmpCode").val();
+            if ($("#txtEmpCode").val() != '') {
+                LoadEmpInfoByCode(employee_code);
+            }
+            else {
+                $("#txtEmpCode").val('');
+                $("#EmployeeName").val('');
+                $("#KMessage").val('');
+            }
+        });
+
+        $("#txtDateFrom").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2025"
+           });
+        $("#txtDateTo").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2025"
+           });
+
+        $("#txtddEILDateFrom").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+          });
+        $("#txtddEILDateTo").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+          });
+
+        $("#txtddIssueingDateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2050"
+        });
+        $("#txtddIssueingDateTo").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+          });
+
+
+        ///
+        $("#txtddPunishmentWiseEmpDateFrom").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2050"
+       });
+        $("#txtddPunishmentWiseEmpDateTo").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+          });
+
+        ///
+
+
+        $("#txtddRENLDateFrom").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+          });
+
+        $("#txtddRENLDateTo").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2050"
+         });
+
+        $("#txtddSuspendedDateFrom").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2050"
+       });
+
+        $("#txtddSuspendedDateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2050"
+        });
+
+        $("#txtddPECContinuingDate").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2050"
+       });
+
+        $("#txtddRunningContinuingDate").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2050"
+       });
+
+
+        $("#reportView").click(function (e) {
+
+            //string ReportType,string DateFrom,string DateTo,string EmployeeCode
+            var ReportType = $("#filterColumn option:selected").val();
+            var DateFrom = $("#txtDateFrom").val();
+            var DateTo = $("#txtDateTo").val();
+            var EmployeeCode = $("#txtEmpCode").val();
+            var PunishmentId = $("#ddPunishmentList").val();
+            if (rptValidation() == true)
+            {
+                url = '/DiscReports/GenerateDisciplinaryReport?ReportType=' + ReportType + '&DateFrom=' + DateFrom + '&DateTo=' + DateTo + '&EmployeeCode=' + EmployeeCode + '&PunishmentId=' + PunishmentId;
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+
+        });
+
+
+        $("#ddEILreportView").click(function (e) {
+
+            //Start validation
+
+            var ddEILDateFrom = $("#txtddEILDateFrom").val();
+            var ddEILDateTo = $("#txtddEILDateTo").val();
+
+            if ( ddEILDateFrom == "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert Date from and date to");
+                return false;
+            }
+            else if (ddEILDateFrom != "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert  date to");
+                return false;
+            }
+            else if (ddEILDateFrom == "" && ddEILDateTo != "") {
+                $.alert.open("error", "Insert  From date");
+                return false;
+            }
+            // End Validation
+
+            var ddEILDateFrom            = $("#txtddEILDateFrom").val()                       ;
+            var ddEILDateTo              = $("#txtddEILDateTo").val()                         ;
+
+            var CaseType            = $("#ddCaseTypeList option:selected").val()    ;
+            var IssueingOffice      = $("#txtIssueingOffice").val()                 ;
+
+            //ExplanationIssuingList(string CaseType,string DateFrom,string DateTo,string IssueingOffice)
+            url = '/DiscReports/ExplanationIssuingList?CaseType=' + CaseType + '&DateFrom=' + ddEILDateFrom + '&DateTo=' + ddEILDateTo + '&IssueingOffice=' + IssueingOffice;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#ddEILExcel").click(function (e) {
+
+            //Start validation
+
+            var ddEILDateFrom = $("#txtddEILDateFrom").val();
+            var ddEILDateTo = $("#txtddEILDateTo").val();
+
+            if ( ddEILDateFrom == "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert Date from and date to");
+                return false;
+            }
+            else if (ddEILDateFrom != "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert  date to");
+                return false;
+            }
+            else if (ddEILDateFrom == "" && ddEILDateTo != "") {
+                $.alert.open("error", "Insert  From date");
+                return false;
+            }
+            // End Validation
+
+            var ddEILDateFrom            = $("#txtddEILDateFrom").val()                       ;
+            var ddEILDateTo              = $("#txtddEILDateTo").val()                         ;
+
+            var CaseType            = $("#ddCaseTypeList option:selected").val()    ;
+            var IssueingOffice      = $("#txtIssueingOffice").val()                 ;
+
+            //ExplanationIssuingList(string CaseType,string DateFrom,string DateTo,string IssueingOffice)
+            url = '/DiscReports/ExplanationIssuingList?CaseType=' + CaseType + '&DateFrom=' + ddEILDateFrom + '&DateTo=' + ddEILDateTo + '&IssueingOffice=' + IssueingOffice  + '&IsExcel=' + 'Yes' ;
+            window.open(url);
+
+
+        });
+
+
+
+
+        $("#DVddIssueingreportView").click(function (e) {
+
+
+
+                //Start validation
+
+                var ddEILDateFrom = $("#txtddIssueingDateFrom").val();
+                var ddEILDateTo = $("#txtddIssueingDateTo").val();
+
+                if ( ddEILDateFrom == "" && ddEILDateTo == "") {
+                    $.alert.open("error", "Insert Date from and date to");
+                    return false;
+                }
+                else if (ddEILDateFrom != "" && ddEILDateTo == "") {
+                    $.alert.open("error", "Insert  date to");
+                    return false;
+                }
+                else if (ddEILDateFrom == "" && ddEILDateTo != "") {
+                    $.alert.open("error", "Insert  From date");
+                    return false;
+                }
+                // End Validation
+
+
+            var SelectedZoneOfficeID = "";
+
+            if ($("#chkSearchByZoneIssuing").is(':checked'))
+            {
+                SelectedZoneOfficeID = $("#SelectedZoneOfficeIDIssuing").val();
+
+                if(SelectedZoneOfficeID == "" || SelectedZoneOfficeID == 0)
+                {
+                    $.alert.open("Warning", "Please Select Zone.");
+                    return false;
+                }
+
+            }// if SELECT By Zone Selected
+
+
+            var SearchPunishment = 0;
+
+            if ($("#chkPunishmentSelected").is(':checked'))
+            {
+                SearchPunishment = 1;
+
+            }// if SELECT By Zone Selected
+
+
+
+
+
+            //  var CaseType                = $("#txtEmpCode").val()                        ;
+            var CaseType                = $("#ddIssueingList option:selected").val()    ;
+            var IssueingOffice          = $("#txtddIssueingOffice").val()                 ;
+
+            url = '/DiscReports/IssuingList?CaseType=' + CaseType + '&DateFrom=' + ddEILDateFrom + '&DateTo=' + ddEILDateTo + '&IssueingOffice=' + IssueingOffice + '&SelectedZoneOfficeID=' + SelectedZoneOfficeID + '&SearchPunishment=' + SearchPunishment ;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#DVddIssueingExcel").click(function (e) {
+
+
+                //Start validation
+
+                var ddEILDateFrom = $("#txtddIssueingDateFrom").val();
+                var ddEILDateTo = $("#txtddIssueingDateTo").val();
+
+                if ( ddEILDateFrom == "" && ddEILDateTo == "") {
+                    $.alert.open("error", "Insert Date from and date to");
+                    return false;
+                }
+                else if (ddEILDateFrom != "" && ddEILDateTo == "") {
+                    $.alert.open("error", "Insert  date to");
+                    return false;
+                }
+                else if (ddEILDateFrom == "" && ddEILDateTo != "") {
+                    $.alert.open("error", "Insert  From date");
+                    return false;
+                }
+                // End Validation
+
+
+            var SelectedZoneOfficeID = "";
+
+            if ($("#chkSearchByZoneIssuing").is(':checked'))
+            {
+                SelectedZoneOfficeID = $("#SelectedZoneOfficeIDIssuing").val();
+
+                if(SelectedZoneOfficeID == "" || SelectedZoneOfficeID == 0)
+                {
+                    $.alert.open("Warning", "Please Select Zone.");
+                    return false;
+                }
+
+            }// if SELECT By Zone Selected
+
+
+            var SearchPunishment = 0;
+
+            if ($("#chkPunishmentSelected").is(':checked'))
+            {
+                SearchPunishment = 1;
+
+            }// if SELECT By Zone Selected
+
+
+            //  var CaseType                = $("#txtEmpCode").val()                        ;
+            var CaseType                = $("#ddIssueingList option:selected").val()    ;
+            var IssueingOffice          = $("#txtddIssueingOffice").val()                 ;
+
+            url = '/DiscReports/IssuingList?CaseType=' + CaseType + '&DateFrom=' + ddEILDateFrom + '&DateTo=' + ddEILDateTo + '&IssueingOffice=' + IssueingOffice +'&IsExcel=' + 'Yes' + '&SelectedZoneOfficeID=' + SelectedZoneOfficeID + '&SearchPunishment=' + SearchPunishment ;;
+            window.open(url);
+
+        });
+
+
+
+
+
+        /// Start Punishment Wise Employee
+
+        $("#DVddPunishmentWiseEmpreportView").click(function (e) {
+
+            //Start validation
+
+            var ddEILDateFrom = $("#txtddPunishmentWiseEmpDateFrom").val();
+            var ddEILDateTo = $("#txtddPunishmentWiseEmpDateTo").val();
+
+            if ( ddEILDateFrom == "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert Date from and date to");
+                return false;
+            }
+            else if (ddEILDateFrom != "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert  date to");
+                return false;
+            }
+            else if (ddEILDateFrom == "" && ddEILDateTo != "") {
+                $.alert.open("error", "Insert  From date");
+                return false;
+            }
+            // End Validation
+
+            //  var CaseType                = $("#txtEmpCode").val()                        ;
+            var PunishmentId                = $("#ddlPunishmentLis option:selected").val()    ;
+            var IssueingOffice              = $("#txtddlPunishmentWiseEmpOffice").val() ;
+            var ZoneOfficeId                = $("#SelectedZoneOfficeIDPunishmentWise").val() ;
+
+
+
+
+            url = '/DiscReports/PunishmentWiseEmp?PunishmentId=' + PunishmentId + '&DateFrom=' + ddEILDateFrom + '&DateTo=' + ddEILDateTo + '&IssueingOffice=' + IssueingOffice +'&ZoneOfficeId=' + ZoneOfficeId ;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#DVddPunishmentWiseEmpExcel").click(function (e) {
+
+            //Start validation
+
+            var ddEILDateFrom = $("#txtddPunishmentWiseEmpDateFrom").val();
+            var ddEILDateTo = $("#txtddPunishmentWiseEmpDateTo").val();
+
+            if ( ddEILDateFrom == "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert Date from and date to");
+                return false;
+            }
+            else if (ddEILDateFrom != "" && ddEILDateTo == "") {
+                $.alert.open("error", "Insert  date to");
+                return false;
+            }
+            else if (ddEILDateFrom == "" && ddEILDateTo != "") {
+                $.alert.open("error", "Insert  From date");
+                return false;
+            }
+            // End Validation
+
+            //  var CaseType                = $("#txtEmpCode").val()                        ;
+            var PunishmentId                = $("#ddlPunishmentLis option:selected").val()    ;
+            var IssueingOffice              = $("#txtddlPunishmentWiseEmpOffice").val()                 ;
+
+            url = '/DiscReports/PunishmentWiseEmp?PunishmentId=' + PunishmentId + '&DateFrom=' + ddEILDateFrom + '&DateTo=' + ddEILDateTo + '&IssueingOffice=' + IssueingOffice +'&IsExcel=' + 'Yes';
+            window.open(url);
+
+        });
+
+
+
+
+
+
+        ///End Punishment Wise Employee
+
+
+
+
+
+
+
+
+        // Start Suspended List
+
+        $("#DVddSuspendedeportView").click(function (e) {
+
+            //Start validation
+
+            var ddRENLDateFrom = $("#txtddSuspendedDateFrom").val();
+            var ddRENLDateTo = $("#txtddSuspendedDateTo").val();
+            var IssueingOffice          = $("#txtddSuspendOffice").val()                 ;
+
+            url = '/DiscReports/SuspendedList?DateFrom=' + ddRENLDateFrom + '&DateTo=' + ddRENLDateTo + '&IssueingOffice=' + IssueingOffice;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#DVddRENLSaveExcel").click(function (e) {
+
+            //Start validation
+
+            var ddRENLDateFrom = $("#txtddSuspendedDateFrom").val();
+            var ddRENLDateTo = $("#txtddSuspendedDateTo").val();
+            var IssueingOffice          = $("#txtddSuspendOffice").val();
+
+            url = '/DiscReports/IssuingList?DateFrom=' + ddRENLDateFrom + '&DateTo=' + ddRENLDateTo + '&IssueingOffice=' + IssueingOffice + '&IsExcel='+ 'Yes'  ;
+            window.open(url);
+
+        });
+
+        // End Suspended List
+
+
+
+        // Start Punishment wise Case Settled Through Explanation & Chargesheet
+
+        $("#DVddPECeportView").click(function (e) {
+
+            //Start validation
+
+            var ddPECContinuingDate = $("#txtddPECContinuingDate").val();
+
+            if(ddPECContinuingDate == "")
+            {
+                $.alert.open("error", "Insert Continuing Date.");
+                return false;
+            }
+
+            var IssueingOffice          = $("#txtddPECOffice").val();
+            var CaseType  =  $("#ddddPEC option:selected").val()    ;
+            //RunningChargeSheetExp(string CaseType, string ContinuingDate, string IssueingOffice, string IsExcel = "")
+            url = '/DiscReports/RunningChargeSheetExp?CaseType=' + CaseType + '&ContinuingDate=' + ddPECContinuingDate + '&IssueingOffice=' + IssueingOffice;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#DVddPECExcel").click(function (e) {
+
+            //Start validation
+
+            var ddPECContinuingDate = $("#txtddPECContinuingDate").val();
+
+            if(ddPECContinuingDate == "")
+            {
+                $.alert.open("error", "Insert Continuing Date.");
+                return false;
+            }
+
+            var IssueingOffice          = $("#txtddPECOffice").val();
+            var CaseType  =  $("#ddddPEC option:selected").val()    ;
+            //RunningChargeSheetExp(string CaseType, string ContinuingDate, string IssueingOffice, string IsExcel = "")
+            url = '/DiscReports/RunningChargeSheetExp?CaseType=' + CaseType + '&ContinuingDate=' + ddPECContinuingDate + '&IssueingOffice=' + IssueingOffice + '&IsExcel='+ 'Yes';
+            window.open(url);
+
+        });
+
+        // End Punishment wise Case Settled Through Explanation & Chargesheet
+
+        //Start RunningChargeSheetExpZoneWise
+        $("#DVddRunningReportView").click(function (e) {
+
+            //Start validation
+
+            var ddRunningContinuingDate = $("#txtddRunningContinuingDate").val();
+
+            if(ddRunningContinuingDate == "")
+            {
+                $.alert.open("error", "Insert Continuing Date.");
+                return false;
+            }
+
+            var IssueingOffice          = $("#txtddRunningOffice").val();
+            var CaseType                =  $("#ddddRunning option:selected").val()    ;
+
+            url = '/DiscReports/RunningChargeSheetExpZoneWise?CaseType=' + CaseType + '&ContinuingDate=' + ddRunningContinuingDate + '&IssueingOffice=' + IssueingOffice;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#DVddRunningExcel").click(function (e) {
+
+            //Start validation
+
+            var ddRunningContinuingDate = $("#txtddRunningContinuingDate").val();
+
+            if(ddRunningContinuingDate == "")
+            {
+                $.alert.open("error", "Insert Continuing Date.");
+                return false;
+            }
+
+            var IssueingOffice          = $("#txtddRunningOffice").val();
+            var CaseType                =  $("#ddddRunning option:selected").val()    ;
+
+            url = '/DiscReports/RunningChargeSheetExpZoneWise?CaseType=' + CaseType + '&ContinuingDate=' + ddPECContinuingDate + '&IssueingOffice=' + IssueingOffice + '&IsExcel='+ 'Yes';
+            window.open(url);
+
+        });
+
+
+        // End RunningChargeSheetExpZoneWise
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $("#DVddRENLreportView").click(function (e) {
+
+            //Start validation
+
+            var ddRENLDateFrom = $("#txtddRENLDateFrom").val();
+            var ddRENLDateTo = $("#txtddRENLDateTo").val();
+
+            var orderByZone = "";
+
+            if ($("#chkOrderByZone").is(':checked'))
+            {
+                orderByZone = "Yes";
+            }
+
+            if ($("#chkSearchByDateRange").is(':checked'))
+            {
+
+
+                if ( ddRENLDateFrom == "" && ddRENLDateTo == "") {
+                    $.alert.open("error", "Insert Date from and date to");
+                    return false;
+                }
+                else if (ddRENLDateFrom != "" && ddRENLDateTo == "") {
+                    $.alert.open("error", "Insert  date to");
+                    return false;
+                }
+                else if (ddRENLDateFrom == "" && ddRENLDateTo != "") {
+                    $.alert.open("error", "Insert  From date");
+                    return false;
+                }
+
+            }// if Date between is Checked.
+
+            // If SELECT By Zone Selected
+
+            var SelectedZoneOfficeID = "";
+
+            if ($("#chkSearchByZone").is(':checked'))
+            {
+                SelectedZoneOfficeID = $("#SelectedZoneOfficeID").val();
+
+                if(SelectedZoneOfficeID == "" || SelectedZoneOfficeID == 0)
+                {
+                    $.alert.open("Warning", "Please Select Zone.");
+                    return false;
+                }
+
+            }// if SELECT By Zone Selected
+
+
+
+
+
+
+            // End Validation
+
+            //  var CaseType                = $("#txtEmpCode").val()                        ;
+            var CaseType                =   $("#ddDVddRENL option:selected").val()    ;
+            var IssueingOffice          = $("#txtddRENL").val()                 ;
+
+            url = '/DiscReports/RunningCaseList?CaseType=' + CaseType + '&DateFrom=' + ddRENLDateFrom + '&DateTo=' + ddRENLDateTo + '&IssueingOffice=' + IssueingOffice + '&orderByZone=' + orderByZone + '&SelectedZoneOfficeID=' + SelectedZoneOfficeID;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+        });
+
+        $("#DVddRENLSaveExcel").click(function (e) {
+
+            //Start validation
+
+            var ddRENLDateFrom = $("#txtddRENLDateFrom").val();
+            var ddRENLDateTo = $("#txtddRENLDateTo").val();
+
+            var orderByZone = "";
+
+            if ($("#chkOrderByZone").is(':checked'))
+            {
+                orderByZone = "Yes";
+            }
+
+
+            if ( ddRENLDateFrom == "" && ddRENLDateTo == "") {
+                $.alert.open("error", "Insert Date from and date to");
+                return false;
+            }
+            else if (ddRENLDateFrom != "" && ddRENLDateTo == "") {
+                $.alert.open("error", "Insert  date to");
+                return false;
+            }
+            else if (ddRENLDateFrom == "" && ddRENLDateTo != "") {
+                $.alert.open("error", "Insert  From date");
+                return false;
+            }
+
+            // End Validation
+
+            // If SELECT By Zone Selected
+
+            var SelectedZoneOfficeID = "";
+
+            if ($("#chkSearchByZone").is(':checked'))
+            {
+                if(SelectedZoneOfficeID == "" || SelectedZoneOfficeID == 0)
+                {
+                    $.alert.open("Warning", "Please Select Zone.");
+                    return false;
+                }
+
+            }// if SELECT By Zone Selected
+
+
+            //  var CaseType                = $("#txtEmpCode").val()                        ;
+            var CaseType                =   $("#ddDVddRENL option:selected").val()    ;
+            var IssueingOffice          = $("#txtddRENL").val()                 ;
+
+            url = '/DiscReports/RunningCaseList?CaseType=' + CaseType + '&DateFrom=' + ddRENLDateFrom + '&DateTo=' + ddRENLDateTo + '&IssueingOffice=' + IssueingOffice + '&IsExcel='+ 'Yes' + '&orderByZone=' + orderByZone + '&SelectedZoneOfficeID=' + SelectedZoneOfficeID ;
+            window.open(url);
+
+        });
+
+
+        $("#ddlSearchZOOffice").change(function () {
+            //ddlSearchZOOffice
+            var SelectedZoneId = $("#ddlSearchZOOffice option:selected").val();
+            $("#SelectedZoneOfficeID").val(SelectedZoneId);
+
+        });
+
+        $("#ddlSearchZOOfficeIssuing").change(function () {
+            //ddlSearchZOOffice
+            var SelectedZoneId = $("#ddlSearchZOOfficeIssuing option:selected").val();
+            $("#SelectedZoneOfficeIDIssuing").val(SelectedZoneId);
+
+        });
+
+        $("#ddlSearchZOOfficePunishmentWise").change(function () {
+
+            var SelectedZoneId = $("#ddlSearchZOOfficePunishmentWise option:selected").val();
+            $("#SelectedZoneOfficeIDPunishmentWise").val(SelectedZoneId);
+
+        });
+
+
+
+        $("#filterColumn").change(function () {
+            if ($("#filterColumn option:selected").val() == "cddzwcc")
+            {
+                $("#dkDateFrom").show();
+                $("#dkDateFrom").html("Date");
+                $("#txtDateFrom").show();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#DivEmp").hide();
+                $("#Divpunishment").hide();
+                $("#reportView").show();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "eddzwe") {
+                $("#dkDateFrom").show();
+                $("#dkDateFrom").html("Date From");
+                $("#dkDateTo").html("Date To");
+                $("#dkDateTo").show();
+                $("#txtDateTo").show();
+                $("#Divpunishment").hide();
+                $("#txtDateFrom").show();
+                $("#DivEmp").hide();
+                $("#reportView").show();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "rddmywrcc") {
+                $("#dkDateFrom").show();
+                $("#dkDateFrom").html("Date");
+                $("#txtDateFrom").show();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#DivEmp").hide();
+                $("#Divpunishment").hide();
+                $("#reportView").show();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "mddmywccc") {
+                $("#dkDateFrom").show();
+                $("#dkDateFrom").html("Counting Date");
+                $("#txtDateFrom").show();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#DivEmp").hide();
+                $("#Divpunishment").hide();
+                $("#reportView").show();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "yddmywcrcc") {
+                $("#dkDateFrom").show();
+                $("#dkDateFrom").html("Date");
+                $("#txtDateFrom").show();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#DivEmp").hide();
+                $("#Divpunishment").hide();
+                $("#reportView").show();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "ddemppun") {
+                // $("#dkDateFrom").show();
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").show();
+                $("#dkDateTo").html("");
+                $("#txtDateFrom").hide();
+                $("#txtDateTo").hide();
+                $("#DivEmp").show();
+                $("#reportView").show();
+                $("#Divpunishment").hide();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "ddpunishEmp") {
+                $("#dkDateFrom").show();
+                $("#dkDateFrom").html("Date From");
+                $("#dkDateTo").html("Date To");
+                $("#dkDateTo").show();
+                $("#txtDateTo").show();
+                $("#txtDateFrom").show();
+                $("#DivEmp").hide();
+                $("#DVddEIL").hide();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#reportView").show();
+                $("#Divpunishment").show();
+                LoadPunishment();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+            }
+            else if ($("#filterColumn option:selected").val() == "ddEIL") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddEIL").show();
+                $("#DVddIssueing").hide();
+                $("#DVddRENL").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+            }
+            else if ($("#filterColumn option:selected").val() == "ddIssueing") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").hide();
+                $("#DVddEIL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddIssueing").show();
+                $("#DVddPunishmentWiseEmp").hide();
+            }
+            else if ($("#filterColumn option:selected").val() == "ddRENL") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").show();
+                $("#DVddEIL").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+                $("#DVddIssueing").hide();
+            }
+            else if ($("#filterColumn option:selected").val() == "ddTSL") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").hide();
+                $("#DVddEIL").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddSuspendedList").show();
+                $("#DVddPunishmentWiseEmp").hide();
+
+                $("#DVddIssueing").hide();
+            }
+
+            else if ($("#filterColumn option:selected").val() == "ddPEC") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").hide();
+                $("#DVddEIL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").show();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+                $("#DVddIssueing").hide();
+            }
+
+            else if ($("#filterColumn option:selected").val() == "ddRunn") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").hide();
+                $("#DVddEIL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddPunishmentWiseEmp").hide();
+
+                $("#DVddddRunning").show();
+
+
+                $("#DVddIssueing").hide();
+            }
+
+            else if ($("#filterColumn option:selected").val() == "ddlPunishmentWiseEmp") {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").hide();
+                $("#DVddEIL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+                $("#DVddPunishmentWiseEmp").show();
+
+
+                $("#DVddIssueing").hide();
+
+
+                LoadZOOfficePunishmentWise();
+
+
+
+            }
+
+            else
+            {
+                $("#dkDateFrom").hide();
+                $("#dkDateTo").hide();
+                $("#dkDateTo").hide();
+                $("#txtDateTo").hide();
+                $("#txtDateFrom").hide();
+                $("#DivEmp").hide();
+                $("#reportView").hide();
+                $("#Divpunishment").hide();
+                $("#DVddRENL").hide();
+                $("#DVddEIL").hide();
+                $("#DVddSuspendedList").hide();
+                $("#DVddddPEC").hide();
+                $("#DVddddRunning").hide();
+
+            }
+
+        });
+
+
+
+
+    }); // END of Document Ready
+
+
+    function handleClick(cb) {
+
+        $("#txtddRENLDateFrom").val("");
+        $("#txtddRENLDateTo").val("");
+
+        if (cb.checked) {
+            $("#DVSearchDate").show();
+        }
+        else
+        {
+            $("#DVSearchDate").hide();
+        }
+    }
+
+    function handleClick2(cb) {
+
+        $("#SelectedZoneOfficeID").val("");
+
+        if (cb.checked) {
+            $("#DVZoneOffice").show();
+        }
+        else
+        {
+            $("#DVZoneOffice").hide();
+        }
+    }
+
+
+    function handleClick2Issuing(cb) {
+
+        $("#SelectedZoneOfficeIDIssuing").val("");
+
+        if (cb.checked) {
+            $("#DVZoneOfficeIssuing").show();
+        }
+        else
+        {
+            $("#DVZoneOfficeIssuing").hide();
+        }
+    }
+
+
+
+
+
+</script>
+<h2 class="page-title">Disciplinary Reports</h2>
+ 
+<br />
+
+@*<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group">
+
+            <input type="button" id="reportPostingHistory" value="View Posting History" class="btn btn-success" />
+
+        </div>
+    </div>
+
+</div>*@
+
+
+
+<br />
+    <div class="row">
+        <div class="col-md-10">
+            <div class="form-group">
+                <label class="control-label col-sm-2">Report Name</label>
+                <div class="col-sm-9">
+                    @Html.DropDownList("ReportsType", null, new { @ID = "filterColumn", @class = "form-control" })
+                    @*<select id="filterColumn" class="form-control">
+                        <option value="0">Please Select</option>
+                        <option value="cddzwcc">Zone wise current case</option>
+                        <option value="eddzwe">Zone wise emblezzle</option>
+                        <option value="rddmywrcc">Month and year wise running case comparison</option>
+                        <option value="mddmywccc">Month and year wise closed case comparison</option>
+                        <option value="yddmywcrcc">Month and year wise closed and running case comparison</option>
+                        <option value="ddemppun">Employee wise punishment</option>
+                        <option value="ddpunishEmp">Punishmentwise employee</option>
+                    </select>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="form-group">
+                <label class="control-label col-sm-2" id="dkDateFrom"><b class="required"></b></label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtDateFrom" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+<div class="row">
+    <div class="col-sm-8">
+        <div class="form-group">
+            <label class="control-label col-sm-2" id="dkDateTo"><b class="required"></b></label>
+            <div class="col-sm-8">
+                <input type="text" id="txtDateTo" class="form-control" />
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="DivEmp">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee ID</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtEmpCode" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="EmployeeName" class="form-control" readonly="true" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    <br />
+    <div class="row" >
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">&nbsp;</label>
+                <div class="col-sm-8">
+                    <input type="text" id="KMessage" class="form-control" readonly="readonly" />
+                </div>
+            </div>
+        </div>
+  
+    </div>
+    </div>  @*END oF DivEmp*@
+
+    <br />
+    <div class="row" id="Divpunishment">
+        <div class="col-sm-8" id="idpunishment">
+            <div class="form-group">
+                <label class="control-label col-sm-2">Punishment<b class="required"></b></label>
+                <div class="col-md-8">
+                    @Html.DropDownList("PunishmentList", null, new { @ID = "ddPunishmentList", @class = "form-control" })
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="reportView" value="View" class="btn btn-info" />
+        </div>
+    </div>
+
+
+<div id="DVddEIL">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issuing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtIssueingOffice" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Case Type </label>
+                <div class="col-sm-8">
+                    <select id="ddCaseTypeList" class="form-control">
+                        <option value="Explanation" selected="selected"> Explanation </option>
+                        <option value="Charge Sheet">Charge Sheet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">From Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddEILDateFrom" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">To Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddEILDateTo" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+   <hr />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="ddEILreportView" value="View Report" class="btn btn-facebook" />
+            &nbsp;
+            <input type="button" id="ddEILExcel" value="Save As Excel" class="btn btn-warning" />
+
+        </div>
+    </div>
+
+</div>  @* END oF DVddEIL *@
+
+
+
+<div id="DVddIssueing">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issuing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddIssueingOffice" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Case Type </label>
+                <div class="col-sm-8">
+                    <select id="ddIssueingList" class="form-control">
+                        <option value="Explanation" selected="selected"> Explanation </option>
+                        <option value="Charge Sheet">Charge Sheet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    
+    <br />
+    <div class="row" id="DVSearchDateIssuing">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">From Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddIssueingDateFrom" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">To Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddIssueingDateTo" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <div class="row" id="DVSearchByZoneIssuing">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Search By Zone</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" onclick="handleClick2Issuing(this);" id="chkSearchByZoneIssuing" title="Search By Zone" class="checkbox" />
+                  
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row" id="DVZoneOfficeIssuing" style="display:none;">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.Label("Zone Office", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlSearchZOOfficeIssuing", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <input type="hidden" value="" id="SelectedZoneOfficeIDIssuing" />
+
+    </div>
+
+    <br />
+    <div class="row" id="DVSearchByZoneIssuing">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Search By Punishment</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" id="chkPunishmentSelected" title="Search By Punishment" class="checkbox" />
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="DVddIssueingreportView" value="View Report" class="btn btn-facebook" />
+            &nbsp;
+            <input type="button" id="DVddIssueingExcel" value="Save As Excel" class="btn btn-warning" />
+
+        </div>
+    </div>
+
+</div>  @* END oF DVddIssueing *@
+
+
+
+
+
+<div id="DVddPunishmentWiseEmp">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issuing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddlPunishmentWiseEmpOffice" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Punishment </label>
+                <div class="col-sm-8">
+                    <select id="ddlPunishmentLis" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">From Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddPunishmentWiseEmpDateFrom" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">To Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddPunishmentWiseEmpDateTo" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row"> 
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.Label("Zone Office", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlSearchZOOfficePunishmentWise", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <input type="hidden" value="0" id="SelectedZoneOfficeIDPunishmentWise" />
+
+    </div>
+
+    <hr />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="DVddPunishmentWiseEmpreportView" value="View Report" class="btn btn-facebook" />
+            &nbsp;
+            <input type="button" id="DVddPunishmentWiseEmpExcel" value="Save As Excel" class="btn btn-warning" />
+
+        </div>
+    </div>
+
+</div>  @* END oF DVddPunishmentWiseEmp *@
+
+
+
+<div id="DVddRENL">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issueing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddRENL" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Case Type </label>
+                <div class="col-sm-8">
+                    <select id="ddDVddRENL" class="form-control">
+                        <option value="Explanation" selected="selected"> Explanation </option>
+                        <option value="Charge Sheet">Charge Sheet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row" id="DVSearchByDate">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Search By Date Range</label>
+                <div class="col-sm-8">
+                   <input type="checkbox" onclick="handleClick(this);" id="chkSearchByDateRange" title="Search By Date Range" class="checkbox" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row" id="DVSearchDate" style="display:none;">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">From Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddRENLDateFrom" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">To Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddRENLDateTo" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row" id="DVSearchByZone">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Search By Zone</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" onclick="handleClick2(this);" id="chkSearchByZone" title="Search By Zone" class="checkbox" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row" id="DVZoneOffice" style="display:none;"  >
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.Label("Zone Office", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlSearchZOOffice", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <input type="hidden" value="" id="SelectedZoneOfficeID" />
+
+    </div>
+
+
+
+
+    <hr />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="DVddRENLreportView" value="View Report" class="btn btn-facebook" />
+            &nbsp;
+            <input type="button" id="DVddRENLSaveExcel" value="Save As Excel" class="btn btn-warning" />
+        </div>
+    </div>
+
+</div>  @* END oF DVddRENL *@
+
+
+
+
+@* Start oF DVddSuspendedList *@
+<div id="DVddSuspendedList">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issuing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddSuspendOffice" class="form-control" />
+                </div>
+            </div>
+        </div>
+       
+    </div>
+    <br />
+    <div class="row" style="display:none;">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">From Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddSuspendedDateFrom" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">To Date </label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddSuspendedDateTo" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="DVddSuspendedeportView" value="View Report" class="btn btn-facebook" />
+            &nbsp;
+            <input type="button" id="DVddSuspendedExcel" value="Save As Excel" class="btn btn-warning" />
+
+        </div>
+    </div>
+
+</div>
+@* END oF DVddSuspendedList *@
+
+@* Start oF Punishment wise Case Settled Through Explanation & Chargesheet *@
+<div id="DVddddPEC">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issuing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddPECOffice" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Counting Date</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddPECContinuingDate" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Case Type </label>
+                <div class="col-sm-8">
+                    <select id="ddddPEC" class="form-control">
+                        <option value="Both" > Charge Sheet & Explanation  </option>
+                        <option value="Explanation" selected="selected">Explanation</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+      
+    </div>
+    <hr />
+     
+     
+    <hr />
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-8">
+                <input type="button" id="DVddPECeportView" value="View Report" class="btn btn-facebook" />
+                &nbsp;
+                <input type="button" id="DVddPECExcel" value="Save As Excel" class="btn btn-warning" />
+
+            </div>
+        </div>
+
+    </div>
+@* END oF DVddSuspendedList *@
+
+
+
+<div id="DVddddRunning">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Issuing Office</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddRunningOffice" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Counting Date</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtddRunningContinuingDate" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Case Type </label>
+                <div class="col-sm-8">
+                    <select id="ddddRunning" class="form-control">
+                        <option value="Explanation" selected="selected">Explanation</option>
+                        <option value="Charge Sheet"> Charge Sheet</option>
+                        
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-8">
+            <input type="button" id="DVddRunningReportView" value="View Report" class="btn btn-facebook" />
+            &nbsp;
+            <input type="button" id="DVddRunningExcel" value="Save As Excel" class="btn btn-warning" />
+
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/gbUtility")
+        @Scripts.Render("~/bundles/alert")
+    }

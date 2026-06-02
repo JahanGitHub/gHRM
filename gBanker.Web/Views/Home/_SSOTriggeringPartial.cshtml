@@ -1,0 +1,7 @@
+﻿@model gHRM.Web.ViewModels.Dashboard.HomePageViewModel
+
+@foreach (var item in Model.SSOInstances)
+{
+    <iframe style="display:none" width="0px" height="0px" frameborder="0" scrolling="no"
+            src="@item.BaseUrl/account/tracksinglesignon?ecu=@item.EncryptedCredential"></iframe>
+}

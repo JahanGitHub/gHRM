@@ -1,0 +1,213 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+@{
+    ViewBag.Title = "Payroll Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var tt = SessionHelper.CompanyInfo.CompanyShortName;
+}
+
+
+
+
+<script type="text/javascript">
+
+    function GetFirstDate(year, month) {
+        var firstDayOfMonth = new Date(year, month - 1, 2);
+     //   var lastDayOfMonth = new Date(year, month, 1);
+
+        return `${firstDayOfMonth.toISOString().substring(0, 10)}`;
+
+    };
+
+   //console.log( GetFirstDate(2023, 4));
+
+    function GetLastDate(year, month) {
+       // var firstDayOfMonth = new Date(year, month - 1, 2);
+        var lastDayOfMonth = new Date(year, month, 1);
+
+        return `${lastDayOfMonth.toISOString().substring(0, 10)}`;
+
+    };
+
+
+   // console.log( GetLastDate(2023, 4));
+
+    $(document).ready(function () {
+
+        $("#DepartmentId").change(function () {
+            var DesignationId = $("#DesignationId").val();
+            if (DesignationId != "" || DesignationId != null) {
+                LoadInfo();
+            }
+        });
+        $("#DesignationId").change(function () {
+            LoadInfo();
+        });
+
+        //$("#DateFrom").datepicker(
+        //{
+        //    dateFormat: "dd-M-yy",
+        //    showAnim: "scale",
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    yearRange: "1950:2050"
+        //});
+
+        //$("#DateTo").datepicker(
+        //{
+        //    dateFormat: "dd-M-yy",
+        //    showAnim: "scale",
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    yearRange: "1950:2050"
+
+        //});
+
+        $("#Month, #Year").change(function () {
+            let month = $("#Month").val();
+            let year = $("#Year").val();
+
+            //if (month === "" || year === "") {
+            //    $.alert.open("Warning", "From/To Date is Required");
+            //    return false;
+            //}
+
+          //  else {
+                let fromDate = GetFirstDate(year, month);
+                $("#DateFrom").val(fromDate);
+
+                let toDate = GetLastDate(year, month);
+                $("#DateTo").val(toDate);
+         //   }
+
+        });
+
+
+        $("#btnPrint").click(function () {
+
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+            if (month === "" || year === "") {
+                $.alert.open("Warning", "From/To Date is Required");
+                return false;
+            }
+
+            var fromDate = GetFirstDate(year, month);
+            var toDate = GetLastDate(year, month);
+
+            if (month != "" && year != "") {
+               /* url = '/PRSalaryStatement/EmployeeSalaryStatementReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&EmployeeCode=' + EmployeeCode + '&EmployeeNameSig=' + EmployeeNameSig + '&DepartmentNameSig=' + DepartmentNameSig + '&DesignationNameSig=' + DesignationNameSig;*/
+                /*url = '/PRSalaryStatement/AllEmployeeSalaryStatementReport?month=' + month + '&year=' + year;*/
+                url = `/PRSalaryStatement/AllEmployeeSalaryStatementReport?month=${month}&year=${year}&fromDate=${fromDate}&toDate=${toDate}`;
+                PrintReport(url);
+            }
+            else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+        });
+
+
+
+        // End Script
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    @*function LoadInfo() {
+        var DepartmentId = $("#DepartmentId").val();
+        var DesignationId = $("#DesignationId").val();
+        var EmployeeId = $("#EmployeeId");
+        if (DepartmentId != "" || DepartmentId != null || DesignationId != "" || DesignationId != null) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetDepartmentAndDesignationByEmployee", "PRSalaryStatement", "http")',
+                data: { DepartmentId: DepartmentId, DesignationId: DesignationId },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.length > 0) {
+                        EmployeeId.html("");
+                        EmployeeId.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            EmployeeId.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        EmployeeId.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            EmployeeId.html('<option value="">Please Select</option>');
+        }
+    }*@
+
+</script>
+
+
+<h2 class="page-title">All Employee Salary Statement Report</h2>
+<div class="container-fluid">
+
+    <div class="row" id="DateDuration">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DateFrom, new { @class = "control-label col-sm-4" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.DateFrom, new { @readonly = "readonly", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DateTo, new { @class = "control-label col-sm-4" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.DateTo, new { @readonly = "readonly", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <br>
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">
+                    <button type="button" id="btnPrint" class="btn btn-success"><i class="fa fa-print"></i> Print</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

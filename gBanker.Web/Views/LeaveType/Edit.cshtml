@@ -1,0 +1,366 @@
+﻿@model gHRM.Web.ViewModels.LeaveTypeViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var eligible = Model == null ? null : Model.EligibleFromList;
+    var status = Model == null ? null : Model.LeaveStatusList;
+    var gender = Model == null ? null : Model.LeaveGenderList;
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveType">LeaveType</a></li>
+        <li><a href="/LeaveType">LeaveTypedit</a></li>
+    </ol>
+</div>
+<script type="text/javascript">
+
+    function LeaveCategoryChange(leaveCategory) {
+        if (leaveCategory != "") {
+            if (leaveCategory == "AL") {
+                $("#MaxLeaveDays").val(0);
+                $("#MaxLeaveDays").attr('Disabled', true);
+                $("#DaysPerEL").removeAttr('Disabled');
+                $("#MaxAvailDays").removeAttr('Disabled');
+            } else if (leaveCategory == "CL" || leaveCategory == "ML" || leaveCategory == "PL" || leaveCategory == "OL" || leaveCategory == "LWP" || leaveCategory == "MEL") {
+                $("#MaxLeaveDays").removeAttr('Disabled');
+                $("#MaxAvailDays").removeAttr('Disabled');
+                $("#DaysPerEL").val(0)
+                $("#DaysPerEL").attr('Disabled', true);
+            } else if (leaveCategory == "LWP") {
+                $("#MaxLeaveDays").val(0);
+                $("#MaxLeaveDays").attr('Disabled', true);
+                $("#MaxAvailDays").val(0);
+                $("#MaxAvailDays").attr('Disabled', true);
+                $("#DaysPerEL").val(0)
+                $("#DaysPerEL").attr('Disabled', true);
+            }
+        } else {
+            $("#MaxLeaveDays").removeAttr('Disabled');
+            $("#DaysPerEL").removeAttr('Disabled');
+            $("#MaxAvailDays").removeAttr('Disabled');
+        }
+    }
+
+    function validation() {
+
+        if ($("#LeaveTypeName").val() == '' && $("#MaxLeaveDays").val() == '') {
+            $("#LeaveTypeName").addClass("errorClass");
+            $("#MaxLeaveDays").addClass("errorClass");
+            return false;
+        }
+        else if ($("#LeaveTypeName").val() == '' && $("#MaxLeaveDays").val() != '') {
+            $("#LeaveTypeName").addClass("errorClass");
+            return false;
+        }
+        else if ($("#LeaveTypeName").val() != '' && $("#MaxLeaveDays").val() == '') {
+            $("#MaxLeaveDays").addClass("errorClass");
+            return false;
+        }
+        if ($("#LeaveCategory").val() == '') {
+            $.alert.open("Error", "Please Provide Leave Category");
+            return false;
+        }
+
+        var employeeStatusId = $("#EmployeeStatusId").val();
+        if (employeeStatusId == null || employeeStatusId == "") {
+            $.alert.open("Error", "Please Provide Employee Status");
+            return false;
+        }
+
+        var EligibleFrom = $("#EligibleFrom").val();
+        if (EligibleFrom == "") {
+            $.alert.open("Error", "Please Eligible From Type");
+            return false;
+        }
+
+        var LeaveGender = $("#LeaveGender").val();
+        if (LeaveGender == "") {
+            $.alert.open("Error", "Please Leave Gender Type");
+            return false;
+        }
+
+        var LeaveStatus = $("#LeaveStatus").val();
+        if (LeaveStatus == "") {
+            $.alert.open("Error", "Please Leave Status Type");
+            return false;
+        }
+
+        var maxLeaveDays = $("#MaxLeaveDays").val();
+        var maxAvailDays = $("#MaxAvailDays").val();
+        var daysPerEl = $("#DaysPerEL").val();
+        var leaveCategory = $("#LeaveCategory").val();
+        if (leaveCategory == "AL") {
+            if (maxAvailDays > 0 && daysPerEl > 0) {
+                return true;
+            } else {
+                $.alert.open("Error", "Please Insert max Avail Days and Days per EL");
+                return false;
+            }
+
+        } else if (leaveCategory == "CL" || leaveCategory == "ML" || leaveCategory == "PL" || leaveCategory == "OL" || leaveCategory == "MEL") {
+            if (maxAvailDays > 0 && maxLeaveDays > 0) {
+                return true;
+            } else {
+                $.alert.open("Error", "Please Insert Max Leave Days and Max Avail Days");
+                return false;
+            }
+        } else if (leaveCategory == "LWP") {
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    //create
+    function GenerateUpdateLeaveType() {
+        var item = {};
+        item.LeaveTypeId = $("#LeaveTypeId").val();
+        item.LeaveTypeName = $("#LeaveTypeName").val();
+        item.LeaveCategory = $("#LeaveCategory").val();
+        item.EmployeeStatusId = $("#EmployeeStatusId").val();
+        item.EmployeeStatusIdList = $("#EmployeeStatusIdList").val();
+        item.EligibleFrom = $("#EligibleFrom").val();
+        item.MaxLeaveDays = $("#MaxLeaveDays").val();
+        item.MaxAvailDays = $("#MaxAvailDays").val();
+        item.LeaveStatus = $("#LeaveStatus").val();
+        item.LeaveGender = $("#LeaveGender").val();
+        item.LeaveTypeRank = $("#LeaveTypeRank").val();
+        item.DaysPerEL = $("#DaysPerEL").val();
+        item.leaveQty = $("#leaveQty").val();
+        item.CountWeeklyHolidaysInBetween = $("#CountWeeklyHolidaysInBetween").val();
+        item.CountOtherHolidaysInBetween = $("#CountOtherHolidaysInBetween").val();
+        item.TotalMaxLeaveDays = $("#TotalMaxLeaveDays").val();
+        return item;
+    }
+
+    function ClearControl() {
+        $("#LeaveTypeId").val('');
+        $("#LeaveTypeName").val('');
+        $("#LeaveCategory").val('');
+        $("#EmployeeStatusId").val('');
+        $("#EmployeeStatusIdList").val('');
+        $("#EligibleFrom").val('');
+        $("#MaxLeaveDays").val('');
+        $("#MaxAvailDays").val('');
+        $("#LeaveStatus").val('');
+        $("#LeaveGender").val('');
+        $("#LeaveTypeRank").val('');
+        $("#DaysPerEL").val('');
+        $("#leaveQty").val('');
+        $("#CountWeeklyHolidaysInBetween").val('');
+        $("#CountOtherHolidaysInBetween").val('');
+    }
+
+
+    function UpdateLeaveType() {
+        debugger;
+        var result = validation();
+        if (result) {
+            var leaveType = GenerateUpdateLeaveType();
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: true,
+                cache: false,
+                url: '@Url.Action("UpdateLeaveType", "LeaveType")',
+                data: JSON.stringify({ leaveType: leaveType }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data == "Update Successfull") {
+                        $.alert.open('Success', data);
+                        ClearControl();
+                    } else {
+                        $.alert.open('Error', data);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        }
+    }
+
+
+
+    $(document).ready(function () {
+
+        $("#btnUpdate").click(function () {
+            UpdateLeaveType();
+        });
+
+        debugger;
+
+        var leaveCategory='@(!string.IsNullOrWhiteSpace(Model.LeaveCategory) ? Model.LeaveCategory.Trim() : "null")';
+        if (leaveCategory != "null" && leaveCategory != "") {
+            var leaveCategory = leaveCategory;
+            LeaveCategoryChange(leaveCategory);
+        }
+
+        $("#LeaveCategory").change(function () {
+            var leaveCategory = $("#LeaveCategory").val();
+            LeaveCategoryChange(leaveCategory);
+        });
+
+        $("#LeaveStatus").change(function () {
+            var LeaveStatus = $(this).val();
+            if ("C" == LeaveStatus) $("#TotalMaxLeaveDaysContainer").show();
+            else $("#TotalMaxLeaveDaysContainer").hide();
+        });
+        $("#LeaveStatus").trigger("change");
+    });
+
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Leave Type</h2>
+&nbsp;
+@using (Html.BeginForm("Edit", "LeaveType", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LeaveTypeName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.LeaveTypeName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Leave Type Name" } })
+                    @Html.HiddenFor(model => model.LeaveTypeId, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LeaveCategory, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.LeaveCategory, Model.LeaveCategoryList, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeStatusId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @class = "form-control" })
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EligibleFrom, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EligibleFrom, eligible, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.MaxLeaveDays, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.MaxLeaveDays, new { htmlAttributes = new { @class = "form-control", @placeholder = "Max Leave Days", @onkeypress = "return checkNumeric(event)" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.MaxAvailDays, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.MaxAvailDays, new { htmlAttributes = new { @class = "form-control", @placeholder = "Max Avail Days", @onkeypress = "return checkNumeric(event)" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LeaveStatus, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.LeaveStatus, status, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LeaveGender, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.LeaveGender, gender, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LeaveTypeRank, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.LeaveTypeRank, new { htmlAttributes = new { @class = "form-control", @placeholder = "Leave Type Rank", @onkeypress = "return checkNumeric(event)" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DaysPerEL, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DaysPerEL, new { htmlAttributes = new { @class = "form-control", @onkeypress = "return checkNumeric(event)" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.leaveQty, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.leaveQty, new { htmlAttributes = new { @class = "form-control", @placeholder = "Leave Quantity" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div id="TotalMaxLeaveDaysContainer" class="form-group" style="display: none;">
+                @Html.LabelFor(model => model.TotalMaxLeaveDays, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.TotalMaxLeaveDays, new { htmlAttributes = new { @class = "form-control", @placeholder = "Total Max Leave Days" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CountWeeklyHolidaysInBetween, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.CountWeeklyHolidaysInBetween, Model.YesNoList, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CountOtherHolidaysInBetween, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.CountOtherHolidaysInBetween, Model.YesNoList, null, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

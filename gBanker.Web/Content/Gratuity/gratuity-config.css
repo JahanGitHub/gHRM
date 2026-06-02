@@ -1,0 +1,17 @@
+﻿.page-radio-container {
+    padding-top: 10px;
+}
+
+.page-radio-container label {
+    margin: 0 10px;
+}
+
+.page-radio-container label span {
+    padding-left: 6px;
+}
+
+#gratuity-grid input[type="text"].form-control,
+#gratuity-grid select.form-control {
+    padding: 0 12px;
+    width: auto;
+}

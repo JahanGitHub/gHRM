@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Unauthorize Access Error";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    int IsLoggedUser = @gHRM.Web.Helpers.SessionHelper.LoggedInUserId;
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var IsLoggedUser = '@IsLoggedUser';
+        if (IsLoggedUser==null || IsLoggedUser.length==0 || IsLoggedUser =='') {
+            window.location.replace('/Account/Login');
+            }
+    });
+</script>
+<h2>Something went wrong!</h2>
+<br />
+<div style="width:100%; height:500px; color:red; font-size:x-large; text-align:left;">
+     
+
+        
+
+
+    
+</div>

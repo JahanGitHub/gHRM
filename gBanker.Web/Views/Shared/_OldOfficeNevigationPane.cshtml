@@ -1,0 +1,372 @@
+﻿@model gHRM.Web.ViewModels.OfficeNevigationPartialOldOfficeViewModel
+
+@{
+    var pleaseSelect = new SelectListItem() { Text = "Please Select", Value = "" };
+}
+<script>
+    function GenerateDropDownList(dorpDownFieldId, controllerName, functionName) {
+        var ddlName = $("#'" + dorpDownFieldId + "");
+        var dataUrl = '/' + controllerName + '/' + functionName + '';
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: dataUrl, // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+    function GetOldHeadOfficeByOfficeType() {
+        var ddlName = $("#OldPVHeadOfficeId");
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/GetHeadOfficeByOfficeType', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            async: false,
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetOldProjectsByOfficeType() {
+        var ddlName = $("#OldPVProjectId");
+
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/GetProjectsByOfficeType', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            async:false,
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlName.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlName.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetAllOfficeType() {
+        debugger;
+        var ddlOfficeType = $("#OldOfficeTypeId");
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/OfficeTypeList_JS', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlOfficeType.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlOfficeType.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function GetOldAllZoneOffice() {
+        var ddlZone = $("#OldZoneId");
+        $.ajax({
+            type: "GET", //GET or POST or PUT or DELETE verb
+            url: '/Office/getAllZoneId', // Location of the service
+            data: {}, //Data sent to server
+            dataType: "json", //Expected data format from server
+            processdata: false, //True or False
+            success: function (data) { //On Successful service call
+                $('#AjaxLoader').hide();
+                ddlZone.html('');
+                if (data.length > 0) {
+                    $.each(data, function (i, option) {
+                        ddlZone.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                    });
+                }
+            },
+            error: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open('error', 'Error');
+            }
+        });
+    }
+
+    function ChangeOfficeType() {
+
+    }
+
+    $(document).ready(function () {
+        debugger;
+        $("#OldHeadOfficeDiv").hide();
+        $("#OldProjectDiv").hide();
+        $("#OldZoneDiv").hide();
+        $("#OldAreaDiv").hide();
+        $("#OldUnitDiv").hide();
+
+       // GetAllOfficeType();
+        //GetAllZoneOffice();
+        
+
+
+
+        $("#OldOfficeTypeId").change(function () {
+            debugger;
+            var officeType = $("#OldOfficeTypeId").val();
+            if (officeType != "") {
+                $("#OldZoneId").val('');
+                $("#OldAreaId").html('<option value="">Please Select</option>');
+                $("#OldUnitId").html('<option value="">Please Select</option>');
+                if (officeType == 1) {
+                    GetOldHeadOfficeByOfficeType();
+                    $("#OldHeadOfficeDiv").show();
+
+                    $("#OldProjectDiv").hide();
+                    $("#OldZoneDiv").hide();
+                    $("#OldAreaDiv").hide();
+                    $("#OldUnitDiv").hide();
+                } else if (officeType == 3) { //project
+                    $("#OldHeadOfficeDiv").hide();
+
+                    GetOldProjectsByOfficeType();
+                    $("#OldProjectDiv").show();
+                    $("#OldZoneDiv").hide();
+                    $("#OldAreaDiv").hide();
+                    $("#OldUnitDiv").hide();
+
+                } else if (officeType == 4) { //zone
+                    $("#OldHeadOfficeDiv").hide();
+                    $("#OldProjectDiv").hide();
+
+                    $("#OldAreaDiv").hide();
+                    $("#OldUnitDiv").hide();
+                    $("#OldZoneDiv").show();
+                } else if (officeType == 5) { //area
+                    $("#OldHeadOfficeDiv").hide();
+                    $("#OldProjectDiv").hide();
+                    $("#OldUnitDiv").hide();
+
+                    $("#OldZoneDiv").show();
+                    $("#OldAreaDiv").show();
+                } else if (officeType == 6) { //field
+                    $("#OldHeadOfficeDiv").hide();
+                    $("#OldProjectDiv").hide();
+                    $("#OldUnitDiv").show();
+                    $("#OldZoneDiv").show();
+                    $("#OldAreaDiv").show();
+                }
+            } else {
+                $("#OldHeadOfficeDiv").hide();
+                $("#OldProjectDiv").hide();
+                $("#OldZoneDiv").hide();
+                $("#OldAreaDiv").hide();
+                //$("#AreaId").html('<option value="">Please Select</option>');
+                $("#OldUnitDiv").hide();
+                //$("#UnitId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#OldZoneId").change(function () {
+            
+            var zoneId = $("#OldZoneId").val();
+            var ddlArea = $("#OldAreaId");
+            var officeTypeId = $("#OldOfficeTypeId").val();
+
+            if (zoneId != "" && (officeTypeId == 5 || officeTypeId == 6)) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllAreaIdByZoneCode', // Location of the service
+                    data: { ZoneId: zoneId }, //Data sent to server
+                    dataType: "json",
+                    async:false,//Expected data format from server
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlArea.html('');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlArea.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                        $("#OldUnitId").html('<option value="">Please Select</option>');
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                ddlArea.html('<option value="">Please Select</option>');
+                $("#UnitId").html('<option value="">Please Select</option>');
+
+            }
+        });
+
+        $("#OldAreaId").change(function () {
+            
+            var areaId = $("#OldAreaId").val();
+            var ddlUnit = $("#OldUnitId");
+            var officeTypeId = $("#OldOfficeTypeId").val();
+
+            if (areaId != "" && (officeTypeId == 6)) {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "GET", //GET or POST or PUT or DELETE verb
+                    url: '/Office/getAllUnitIdByAreaCode', // Location of the service
+                    data: { AreaId: areaId }, //Data sent to server
+                    dataType: "json", //Expected data format from server
+                    async:false,
+                    processdata: false, //True or False
+                    success: function (data) { //On Successful service call
+                        $('#AjaxLoader').hide();
+                        ddlUnit.html('');
+                        if (data.length > 0) {
+                            $.each(data, function (i, option) {
+                                ddlUnit.append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', 'Error');
+                    }
+                });
+            } else {
+                $("#OldUnitId").html('<option value="">Please Select</option>');
+
+            }
+        });
+
+        var _OfficeTypeId = '@Model.OldOfficeTypeId';
+        if (parseInt(_OfficeTypeId) > 0) {
+
+            $("#OldOfficeTypeId").val(_OfficeTypeId);
+            $('#OldOfficeTypeId').val(_OfficeTypeId).trigger('change');
+            $('#OldOfficeTypeId').change();
+            if (parseInt(_OfficeTypeId) == 1) {
+                $("#OldPVHeadOfficeId").val('@Model.OldPVHeadOfficeId');
+            }
+            else if (parseInt(_OfficeTypeId) == 3) {
+                $("#OldPVProjectId").val(@Model.OldPVProjectId);
+            }
+            else if (parseInt(_OfficeTypeId) == 4) {
+                $("#OldZoneId").val(@Model.OldZoneId);
+            }
+            else if (parseInt(_OfficeTypeId) == 5) {
+                $("#OldZoneId").val(@Model.OldZoneId);
+                $("#OldZoneId").val(@Model.OldZoneId).trigger('change');
+
+                $("#OldAreaId").val('@Model.OldAreaId');
+            }else if (parseInt(_OfficeTypeId) == 6) {
+                $("#OldZoneId").val(@Model.OldZoneId);
+                $("#OldZoneId").val(@Model.OldZoneId).trigger('change');
+                $("#OldAreaId").val(@Model.OldAreaId);
+                $("#OldAreaId").val(@Model.OldAreaId).trigger('change');
+                $("#OldUnitId").val(@Model.OldUnitId);
+            }
+
+        } else {
+            $("#OldOfficeTypeId").val("");
+        }
+    });
+</script>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.OldOfficeTypeId, htmlAttributes: new { @class = "control-label col-sm-4" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OldOfficeTypeId, Model.OldOfficeTypeList, new { @class = "form-control", @required = "true" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" id="OldHeadOfficeDiv">
+        <div class="item form-group">
+            @Html.LabelFor(model => model.OldPVHeadOfficeId, new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OldPVHeadOfficeId, Model.OldAreaList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" id="OldProjectDiv">
+        <div class="item form-group">
+            @Html.LabelFor(model => model.OldPVProjectId, new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OldPVProjectId, Model.OldAreaList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" id="OldZoneDiv">
+        <div class="item form-group">
+            @Html.LabelFor(model => model.OldZoneId, new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OldZoneId, Model.OldZoneList, new { @class = "form-control", @required = "required" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row frmRow">
+
+    <div class="col-sm-6" id="OldAreaDiv">
+        <div class="item form-group">
+            @Html.LabelFor(model => model.OldAreaId, new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OldAreaId, Model.OldAreaList, new { @class = "form-control", @required = "required" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6" id="OldUnitDiv">
+        <div class="item form-group">
+            @Html.LabelFor(model => model.OldUnitId, new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OldUnitId, Model.OldUnitList, new { @class = "form-control", @required = "required" })
+            </div>
+        </div>
+    </div>
+</div>
+
+

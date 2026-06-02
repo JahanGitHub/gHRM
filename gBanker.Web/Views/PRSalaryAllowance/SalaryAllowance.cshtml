@@ -1,0 +1,346 @@
+﻿@model gHRM.Web.ViewModels.Payroll.EmployeeSalaryIncentiveViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRSalaryAllowance">PRSalaryAllowance</a></li>
+        <li><a href="/PRSalaryAllowance/SalaryAllowance">SalaryAllowance</a></li>
+    </ol>
+</div>
+
+<style>
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }EmployeeCode
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+
+</style>
+
+
+&nbsp;
+<h2 class="page-title"> Allowance And Deduction</h2>
+&nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.HiddenFor(model => model.EmployeeId)
+                        @Html.HiddenFor(model => model.EmployeeTypeId)
+                        @Html.HiddenFor(model => model.MaxOvertimePerMonth)
+                        @Html.HiddenFor(model => model.OvertimeRate)
+                        @Html.HiddenFor(model => model.EmployeeStatusId)
+                        @Html.Hidden("salaryAmount")
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Salary Year </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryYear, Model.YearList, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Salary Month </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryMonth, Model.MonthList, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Start Date</label>
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @class = "form-control dt-datepicker", @autocomplete = "off" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">End Date</label>
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control dt-datepicker", @autocomplete = "off" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ComponentCategory, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.ComponentCategory, Model.ComponentCategoryList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Remark</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.Remark, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PRComponentId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.PRComponentId, Model.ComponentList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6" id="OvertimeDiv">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OvertimeHour, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.OvertimeHour, new { htmlAttributes = new { @class = "form-control", @onkeypress = "return checkDecimal(event);" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6" id="DeductionDaysDiv">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DeductionDays, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DeductionDays, new { htmlAttributes = new { @class = "form-control", @onkeypress = "return checkNumeric(event);" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PRComponentAmount, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.PRComponentAmount, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="visibilityComponent">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ProductGroup, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ProductGroup, Model.ProductGroupList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ProductType, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ProductType, Model.productType_List, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ProductName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ProductName, Model.productList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SerialId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.SerialId, Model.serialList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label id="TotalSalaryPayable" style="color:red"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="DivTableView">
+                    <div class="box-header">
+                        <h3 class="box-title">Allowance List for Current Month</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblAllowanceConfiguration">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Sl</th>
+                                    <th class="column-title">Component Name</th>
+                                    <th class="column-title">Amount</th>
+                                    <th class="column-title">Start Date</th>
+                                    <th class="column-title">End Date</th>
+                                    <th class="column-title">Remark</th>
+                                    <th class="column-title">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr class="headings">
+                                    <th class="column-title"></th>
+                                    <th class="column-title">Total Amount</th>
+                                    <th class="column-title"><label id="totalAllowance">0</label></th>
+                                    <th class="column-title"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="DivTableView">
+                    <div class="box-header">
+                        <h3 class="box-title">Deduction List for Current Month</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblDeductionConfiguration">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Sl</th>
+                                    <th class="column-title">Component Name</th>
+                                    <th class="column-title">Amount</th>
+                                    <th class="column-title">Start Date</th>
+                                    <th class="column-title">End Date</th>
+                                    <th class="column-title">Remark</th>
+                                    <th class="column-title">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr class="headings">
+                                    <th class="column-title"></th>
+                                    <th class="column-title">Total Amount</th>
+                                    <th class="column-title"><label id="totalDeduction">0</label></th>
+                                    <th class="column-title"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="DivTableView">
+                    <div class="box-header">
+                        <h3 class="box-title">Regular Salary Configuration</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblSalaryConfiguration">
+                            <thead>
+                                <tr class="headings">
+                                    <th class="column-title">Sl</th>
+                                    <th class="column-title">Component Name</th>
+                                    <th class="column-title">Transaction Type</th>
+                                    <th class="column-title">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr class="headings">
+                                    <th class="column-title"></th>
+                                    <th class="column-title"></th>
+                                    <th class="column-title">Total Amount</th>
+                                    <th class="column-title"><label id="totalConfiguredSalary">0</label></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/salaryAllowanceDeductionManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

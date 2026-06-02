@@ -1,0 +1,169 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRDepositViewModel
+@{
+    ViewBag.Title = "PR Deposit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    @*<link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />*@
+}
+
+<h2 class="page-title"> PR Deposit </h2> <br />
+@using (Html.BeginForm("SavePRDeposit", "PRDeposit", FormMethod.Post, new { @class = "form-horizontal", @id = "add-or-edit-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="row">
+       
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Component</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.PRComponentId, Model.ComponentList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>  
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Component Group</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ComponentGroupId, Model.ComponentGroupList, new { @class = "form-control", @disabled = "disabled" })
+                </div>
+            </div>
+        </div>
+              
+    </div>
+    <div class="row">
+       
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Transaction Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.TransactionType, Model.TransactionTypeList, new { @class = "form-control",@disabled= "disabled" })
+                </div>
+            </div>
+        </div>       
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 no-of-salary-days">No Of Salary Days</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.NoOfSalaryDays, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>      
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Employee Status</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusIdList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Employee Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.EmployeeType, Model.EmployeeTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>        
+    </div>
+    <div class="row">
+        <!--TODO: do not need for now-->
+        @*<div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Return On</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ReturnDepositeOnEmployeeStatusId, Model.EmployeeStatusIdList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>*@
+       
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 deposite-type">Deposit Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.DepositeType, Model.DepositeTypeList, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div> 
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Is Deposit Required</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.IsDepositRequired, Model.IsDepositRequiredList, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>        
+    </div>   
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Effective Start Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.EffectiveStartDate, new { htmlAttributes = new { @class = "form-control" ,@autocomplete="off" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Effective End Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.EffectiveEndDate, new { htmlAttributes = new { @class = "form-control", @autocomplete = "off" } })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Office Location</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.OfficeLocationId, Model.OfficeLocationList, new { @class = "selectpicker form-control" })
+                </div>
+            </div>
+        </div>       
+    </div>
+
+    <div class="row hideLimit">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Maximum Limit</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.MaximumLimit, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Minimum Limit</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.MinimumLimit, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>  
+   
+    <div class="row">
+        <div class="col-md-10 col-md-offset-2">
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <button type="submit" class="btn btn-primary">Save</button>                    
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-primary" onclick="ResetPRDeposit()" />
+                </div>
+            </div>
+        </div>
+    </div>    
+    <div class="row">
+        <div id="grid"></div>
+    </div>
+}
+
+@section Scripts {   
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    <script src="~/Assets/js/app/payroll/prDepositManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

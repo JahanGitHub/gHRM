@@ -1,0 +1,190 @@
+﻿@model gHRM.Web.ViewModels.Loan.CollectionMethodViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Collection Method";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#dvShow").toggle(($("#CollectionFormat").val() == 'PI' ? false : true));
+        $("#CollectionFormat").change(function () { $("#dvShow").toggle(($(this).val() == 'PI' ? false : true)); });
+
+        $('#btnSave').click(function (e) {
+            e.preventDefault();
+
+            var dataObject = {
+                Id: $("#Id").val(),
+                LoanType: $("#LoanType").val(),
+                MethodType: $("#MethodType").val(),
+                CollectionFormat: $("#CollectionFormat").val(),
+                Principal: $("#Principal").val(),
+                Interest: $("#Interest").val(),
+                IsActive: true
+            };
+            var data = GenerateAjaxRequist('/LoanConfig/PostCollectionMethod', JSON.stringify({ model: dataObject }), "POST");
+            if (data.Result == 1)
+                $("#Id").val(0);
+            $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+            reloadGrid();
+        });
+
+        $('#grid').jtable({
+            // title: 'Product List',
+            paging: false,
+            //pageSize: 10,
+            sorting: false,
+            //defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/LoanConfig/GetAllCollectionMethod',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+            },
+            fields: {
+                LoanType: {
+                    title: "Loan Type",
+                    width: "30px",
+                    display: function (dataItem) {
+                        return dataItem.record.LoanType == "PFL" ? "PF Loan" : "Company Loan";
+                    }
+                },
+                MethodType: {
+                    title: "Method Type",
+                    width: "30px",
+                    display: function (dataItem) {
+                        return dataItem.record.MethodType == "D" ? "Decline" : "Flat";
+                    }
+                },
+                CollectionFormat: {
+                    title: "Collection Format",
+                    width: "100px",
+                    display: function (dataItem) {
+                        return dataItem.record.CollectionFormat == "PI" ? "First Principal then Interest Collection" : "Installment wise Collection";
+                    }
+                },
+                Principal: {
+                    title: "Principal",
+                    width: "20px",
+
+                },
+                Interest: {
+                    title: "Interest",
+                    width: "20px",
+
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="Edit(' + data.record.Id + ',' + "'" + data.record.MethodType + "'" + ',' + "'" + data.record.CollectionFormat + "'" + ',' + "'" + data.record.LoanType + "'" + ',' + data.record.Principal + ',' + data.record.Interest + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+            }
+        });
+        reloadGrid();
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+
+    function Edit(Id, MethodType, CollectionFormat, LoanType, Principal, Interest) {
+        $("#Id").val(Id);
+        $("#MethodType").val(MethodType);
+        $("#CollectionFormat").val(CollectionFormat).trigger('change');
+        $("#LoanType").val(LoanType);
+        $('#CollectionFormat').trigger('change');
+        $("#Principal").val(Principal);
+        $("#Interest").val(Interest);
+    }
+</script>
+
+<h2 class="page-title">Collection Method</h2>
+
+@using (Html.BeginForm("CollectionMethod", "LoanConfig", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "CollectionMethod" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+        <br />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LoanType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.LoanType, Model.LoanTypeLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MethodType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.MethodType, Model.MethodTypeLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row frmRow">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CollectionFormat, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CollectionFormat, Model.CollectionFormatLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row frmRow" id="dvShow" style="display:none;">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Principal, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Principal, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Interest, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Interest, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row frmRow">
+            <div class="col-md-6"></div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <button type="button" class="btn btn-success col-sm-offset-5" id="btnSave">Save</button>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+    @*@Scripts.Render("~/bundles/jqueryui")*@
+}

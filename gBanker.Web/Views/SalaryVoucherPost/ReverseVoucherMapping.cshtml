@@ -1,0 +1,134 @@
+﻿@model IEnumerable<gHRM.Data.DBDetailModels.NobinAccMapper.AccountMappingWithNobinViewModel>
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Nobin Equity Program";
+}
+<style type="text/css">
+    #tbSalaryMapping {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #tbSalaryMapping td, #tbSalaryMapping th {
+            border: 1px solid #ddd;
+            padding: 4px 7px;
+        }
+
+        #tbSalaryMapping tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("[name='ReverseNobinAccCodeForDR'],[name='ReverseNobinAccCodeForCR']").blur(function (e) {
+            var id_obj = $(this);
+            $.ajax({
+                type: "POST",
+                url: '/SalaryVoucherPost/NobinAccountHead', // Location of the service
+                data: { acccode: id_obj.val() },
+                dataType: "json",
+                async: false,
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    if (data)
+                        id_obj.closest("td").next("td").text(data)
+                    else id_obj.val('')
+                },
+                error: function (data) {
+                }
+            });
+        });
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+            jsonObj = [];
+            $("#tbSalaryMapping tbody tr").each(function () {
+                item = {
+                    OfficeCode: $(this).closest('tr').find('td').eq(0).text(),
+                    ReverseNobinAccCodeForDR: $(this).closest('tr').find('td').eq(3).find('input:text').val(),
+                    ReverseNobinAccCodeForCR: $(this).closest('tr').find('td').eq(5).find('input:text').val(),
+                    ReverseVoucherNaration: $("#ReverseVoucherNaration").val(),
+                    IsActive: true
+                };
+                jsonObj.push(item);
+            });
+            console.log(jsonObj)
+            $.ajax({
+                type: "POST",
+                url: '/SalaryVoucherPost/PostReverseVoucherMapping', // Location of the service
+                data: { obj: jsonObj },
+                dataType: "json",
+                async: false,
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $.alert.open(data == "Save Successfully" ? "Success" : "Error", data);
+                },
+                error: function (data) {
+                }
+            });
+
+        });
+    });
+</script>
+<h2 class="page-title">Account Mapping with nobin</h2>
+<div class="container-fluid">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Reverse vo Naration</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="ReverseVoucherNaration" value="@Model.First().ReverseVoucherNaration" autocomplete="off" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="tbSalaryMapping">
+                <thead>
+                    <tr>
+                        <th>Office ID</th>
+                        <th style="width:14%">hrm office </th>
+                        <th>NEP Office</th>
+                        <th style="width:14%">Reverse Dr. Acc. Code</th>
+                        <th>Reverse Dr. Acc. Name</th>
+                        <th style="width:14%">Reverse Cr. Acc. Code</th>
+                        <th>Reverse Cr. Acc. Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model)
+                    {
+                        <tr>
+                            <td>@m.OfficeCode</td>
+                            <td>@m.OfficeName</td>
+                            <td>@m.UnitName</td>
+                            <td>
+                                <input type="text" value="@m.ReverseNobinAccCodeForDR" name="ReverseNobinAccCodeForDR" />
+                            </td>
+                            <td>@m.ReverseNobinAccNameForDR</td>
+                            <td>
+                                <input type="text" value="@m.ReverseNobinAccCodeForCR" name="ReverseNobinAccCodeForCR" />
+                            </td>
+                            <td>@m.ReverseNobinAccNameForCR</td>
+                        </tr>
+}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-8"></div>
+        <div class="col-sm-1">
+            <button type="button" id="btnSave" class="btn btn-primary">Save</button>
+        </div>
+
+        @section Scripts {
+            @Scripts.Render("~/bundles/jqueryval")
+            @Scripts.Render("~/bundles/jqueryui")
+            @Scripts.Render("~/bundles/gbUtility")
+        }

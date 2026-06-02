@@ -1,0 +1,383 @@
+﻿@model gHRM.Web.ViewModels.TransferReportViewModel
+
+@{
+    ViewBag.Title = "Transfer Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+
+    function dateConvert(txtDate) {
+
+        var date = txtDate.split("-");
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        for (var j = 0; j < months.length; j++) {
+            if (date[1] == months[j]) {
+                date[1] = months.indexOf(months[j]) + 1;
+            }
+        }
+        if (date[1] < 10) {
+            date[1] = '0' + date[1];
+        }
+        var formattedDate = date[0] + "/" + date[1] + "/" + date[2];
+
+        return formattedDate;
+
+    }
+
+    function dateIsValid(dateStr) {
+        const regex = /^\d{2}\/\d{2}\/\d{4}$/;
+
+        if (dateStr.match(regex) === null) {
+            return false;
+        }
+
+        const [day, month, year] = dateStr.split('/');
+
+        // 👇️ format Date string as `yyyy-mm-dd`
+        const isoFormattedStr = `${year}-${month}-${day}`;
+
+        const date = new Date(isoFormattedStr);
+        console.log(date); // 👉️ Invalid Date
+
+        const timestamp = date.getTime();
+        console.log(timestamp); // 👉️ NaN
+
+        if (typeof timestamp !== 'number' || Number.isNaN(timestamp)) {
+            // 👇️ this runs
+            return false;
+        }
+
+        return date.toISOString().startsWith(isoFormattedStr);
+    }
+
+
+
+
+
+     function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeProfileReport", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                debugger;
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                    });
+                    //LoadPreviousDataList($("#EmployeeId").val());
+                }
+
+                else {
+                    $("#OrderNo").val("");
+                    $("#EmployeeName").val("");
+                    $("#CurrentOfficeType").val("");
+                    $("#EmployeeCurrentOfficeName").val("");
+                    $("#EmployeeCurrenOfficeId").val("");
+                    $("#EmployeeCurrentDepartmentName").val("");
+                    $("#EmployeeCurrentDesignation").val("");
+
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+
+
+
+
+    var Page = {
+        ControlList: ["DateContainer", "BasicOfficeTypeContainer", "DesignationContainer", "TotalServiceYearContainer", "ServiceYearFromLastPromotionContainer"],
+        ReportControlConfig: {
+            EFPOD: ["DateContainer", "BasicOfficeTypeContainer", "DesignationContainer", "TotalServiceYearContainer", "ServiceYearFromLastPromotionContainer"]
+        },
+        ReportControlConfigMousumiCode: {
+            EPRCode: ["EmployeeCodeContainer"]
+        },
+
+        ReportControlConfigMousumiDate: {
+            EPRDate: ["DateContainer", "DateToContainer"]
+        },
+
+        IsNumber: function (Value) {
+            return ![null, ""].includes(Value) && !isNaN(Value);
+        },
+        Load: function () {
+            this.BindEvents();
+        },
+        BindEvents: function () {
+            $("#DateFrom").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true
+                });
+          //  $("#DateFrom").datepicker('setDate', new Date());
+
+
+            $("#DateTo").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true
+                });
+        //    $("#DateTo").datepicker('setDate', new Date());
+
+
+
+            $("#ReportType").change(function () {
+                var ReportType = $(this).val();
+                //  alert(ReportType);
+
+                if (Page.ReportControlConfig.hasOwnProperty(ReportType)) {
+                    Page.ControlList.forEach(function (x) { $("." + x).hide(); });
+                    Page.ReportControlConfig[ReportType].forEach(function (x) {
+                        $("." + x).show();
+                    });
+                }
+
+                if (Page.ReportControlConfigMousumiCode.hasOwnProperty(ReportType)) {
+                    Page.ControlList.forEach(function (x) { $("." + x).hide(); });
+                    Page.ReportControlConfigMousumiCode[ReportType].forEach(function (x) {
+                        $("." + x).show();
+                    });
+                }
+
+                if (Page.ReportControlConfigMousumiDate.hasOwnProperty(ReportType)) {
+                    Page.ControlList.forEach(function (x) { $("." + x).hide(); });
+                    Page.ReportControlConfigMousumiDate[ReportType].forEach(function (x) {
+                        $("." + x).show();
+                    });
+                }
+
+            });
+        },
+        PrintReport: function (DownloadExcel) {
+
+           
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+
+
+            if (DateFrom != "") {
+                $("#OrderNo").val('');
+
+                try {
+                    var dd = dateConvert(DateFrom);
+                   // alert(dd);
+                }
+                catch (ex) {
+                    alert('From Date is invalid');
+                    $('#DateFrom').val('');
+                }
+
+                if (dateIsValid(dd) == false) {
+                    alert('From Date is invalid');
+                    $('#DateFrom').val('');
+                    return false; 
+
+                }
+              
+            }
+
+            if (DateTo != "")
+            {
+                try {
+                    var tt = dateConvert(DateTo);
+                }
+                catch (ex) {
+                    alert('To date is invalid');
+                    $('#DateTo').val('');
+                }
+
+                if (dateIsValid(tt) == false) {
+                    alert('To Date is invalid');
+                    $('#DateTo').val('');
+                    return false;
+
+                }
+
+            }
+            var EmployeeCode = $("#OrderNo").val();
+
+
+            if (EmployeeCode == '' && DateFrom == '' && DateTo == '') {
+                alert('please fill up employee code or date from and date to');
+                return false; 
+            }
+
+          //  alert(ReportType);
+
+           // alert(EmployeeCode);
+         //   alert(DateFrom);
+          //  alert(DateTo);
+
+            if (EmployeeCode == "" )  {
+                var url = '/TransferReport/TransferReportDateWiseForStaf?'+
+                    '&Date=' + $("#DateFrom").val() +
+                    '&DateTo=' + $("#DateTo").val() +
+                    '&EmployeeCode=' + $("#OrderNo").val() +
+                    '&DownloadExcel=' + (DownloadExcel ? "true" : "false");
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+            else {
+                var url = '/TransferReport/TransferReportEmpCodeForStaf?' +
+                    '&EmployeeCode=' + $("#OrderNo").val() +
+                    '&DownloadExcel=' + (DownloadExcel ? "true" : "false");
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+        }
+    };
+
+    $(function () {
+        Page.Load();
+    });
+
+</script>
+
+
+<script type="text/javascript">
+    var IsEmployeeCodeEditAllowed = "True" == "@ViewBag.IsEmployeeCodeEditAllowed";
+
+    $(document).ready(function () {
+
+        $("#OrderNo").blur(function (e) {
+            debugger;
+            var employeeCode = $("#OrderNo").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+
+
+    });
+
+  
+</script>
+
+
+<h2 class="page-title">Transfer  Report</h2>
+<h6>If you type employee code then employee code wise report came , if you blank employee code and fill up from date and to date then date wise report came  </h6>
+<br />
+
+<div class="row">
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+
+            <div class="row ordno">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">EmployeeCode </label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.OrderNo, new { @class = "form-control required" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div><br>
+
+
+            <div class="row reportDate">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date From</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date To</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="form-group col-md-offset-5">
+        <input type="button" value="Print" class="btn btn-success" onclick="Page.PrintReport(false)" />
+        <!--
+        <input type="button" value="Excel" class="btn btn-success" onclick="Page.PrintReport(true)" style="margin-left: 10px;" />
+    -->
+    </div>
+</div>
+

@@ -1,0 +1,92 @@
+﻿@model gHRM.Web.ViewModels.PF.ProcessLogViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('#grid2').jtable({
+            //title: 'Process Log List',
+            paging: true,
+            pageSize: 25,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFProcessLog/GetProcessLogList'
+            },
+            fields: {
+                ProcessLogId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                StartDate: {
+                    title: 'Start Date',
+                    width: '30%'
+                },
+                SystemDateAtDayStart: {
+                    title: 'System Date [Day Open]',
+                    width: '30%'
+                },
+                SystemDateAtDayEnd: {
+                    title: 'System Date [Day Close]',
+                    width: '30%'
+                },
+                IsOpen: {
+                    title: 'Day Status',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.IsOpen == true)
+                            return "Open";
+                        if (data.record.IsOpen == false)
+                            return "Closed";
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            //$("#loading").show();
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            //$("#loading").hide();
+        }
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Initialize Day", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Day Initialization List</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div id="grid2" style="width:100%;">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}
+
+
+
+

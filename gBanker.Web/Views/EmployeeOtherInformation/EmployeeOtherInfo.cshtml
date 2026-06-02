@@ -1,0 +1,3991 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOtherInformationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeOtherInformation/EmployeeOtherInfo">EmployeeOtherInfo</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Employee Other Information";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var countryList = Model == null ? null : Model.CountryList;
+    var employeeTranningDropDownList = Model == null ? null : Model.EmployeeTranningDropDownList;
+    var instituteNameDropDownList = Model == null ? null : Model.InstituteNameDropDownList;
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    pvOfficeNevigation.OfficeTypeId = Convert.ToInt32(Model.OfficeTypeId);
+    if (Convert.ToInt32(Model.OfficeTypeId) == 1)
+    {
+        pvOfficeNevigation.PVHeadOfficeId = Model.HeadOfficeId.ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 3)
+    {
+        pvOfficeNevigation.PVProjectId = Model.ProjectId.ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 4)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 5)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+        pvOfficeNevigation.AreaId = (Model.AreaId).ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 6)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+        pvOfficeNevigation.AreaId = (Model.AreaId).ToString();
+        pvOfficeNevigation.UnitId = Model.UnitId.ToString();
+    }
+
+}
+
+<style type="text/css">
+    .ui-autocomplete {
+        overflow: auto;
+        max-height: 100px;
+    }
+</style>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script>
+    function MakeDate(stringDate) {
+        var monName = stringDate.substring(3, 6);
+        var dd = stringDate.substring(0, 2);
+        var yy = stringDate.substring(11, 7);
+        var makeDt = '';
+        var monSl;
+        switch (monName) {
+            case 'Jan':
+                monSl = '01';
+                break;
+            case 'Feb':
+                monSl = '02';
+                break;
+            case 'Mar':
+                monSl = '03';
+                break;
+            case 'Apr':
+                monSl = '04';
+                break;
+            case 'May':
+                monSl = '05';
+                break;
+            case 'Jun':
+                monSl = '06';
+                break;
+            case 'Jul':
+                monSl = '07';
+                break;
+            case 'Aug':
+                monSl = '08';
+                break;
+            case 'Sep':
+                monSl = '09';
+                break;
+            case 'Oct':
+                monSl = '10';
+                break;
+            case 'Nov':
+                monSl = '11';
+                break;
+            case 'Dec':
+                monSl = '12';
+                break;
+            default:
+                monSl = '0';
+        }
+        if (monSl != '0') {
+            makeDt = yy + ' ' + monSl + ' ' + dd;
+        }
+        return makeDt;
+    }
+    function CheckJoiningAndReleaseDate() {
+        var JoiningDate = $("#JoiningDate").val();
+        var ReleaseDate = $("#ReleaseDate").val();
+        if (JoiningDate != null || JoiningDate != "" && ReleaseDate != null || ReleaseDate != "") {
+            var Joining = new Date(JoiningDate);
+            var Release = new Date(ReleaseDate);
+            if (Joining > Release) {
+                $("#JoiningDate").empty();
+                var Msg = 'You Cannot Enter JoiningDate Large then ReleaseDate!';
+                $.alert.open("Success", Msg);
+                return false;
+            }
+            return true;
+        }
+    }
+
+    $(document).ready(function () {
+
+
+        $(function () {
+            $("#CountryName").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: '/EmployeeOtherInformation/AutoComplete/',
+                        data: "{ 'prefix': '" + request.term + "'}",
+                        dataType: "json",
+                        type: "POST",
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return item;
+                            }))
+                        },
+                        error: function (response) {
+                            alert(response.responseText);
+                        },
+                        failure: function (response) {
+                            alert(response.responseText);
+                        }
+                    });
+                },
+                select: function (e, i) {
+                    $("#CountryId").val(i.item.val);
+                },
+                minLength: 0
+            })
+        });
+
+
+
+        //change Employee Training DropDown
+        $("#EmployeeTrainingDropDownId").change(function () {
+            var employeeTrainingDropDowntext = $("#EmployeeTrainingDropDownId option:selected").text();
+            if (employeeTrainingDropDowntext != "Please Select") {
+                $("#TrainingTitle").val(employeeTrainingDropDowntext);
+            }
+        });
+
+        //change Employee InstituteName DropDown
+        $("#InstituteNameDropDownId").change(function () {
+            var instituteNameDropDowntext = $("#InstituteNameDropDownId option:selected").text();
+            if (instituteNameDropDowntext != "Please Select") {
+                $("#InstituteName").val(instituteNameDropDowntext);
+            }
+        });
+
+        $('.TrainingTitle').hide();
+        $("#customControlAutosizing").click(function () {
+            if ($("#customControlAutosizing").prop('checked') == true) {
+                $('#TrainingTitle').prop('readonly', true);
+                $('.TrainingTitle').show();
+            } else {
+                $('#TrainingTitle').prop('readonly', false);
+                $('.TrainingTitle').hide();
+            }
+
+        });
+
+
+        $('.InstituteName').hide();
+        $("#customControlAutosizingInstituteName").click(function () {
+            if ($("#customControlAutosizingInstituteName").prop('checked') == true) {
+                $('#InstituteName').prop('readonly', true);
+                $('.InstituteName').show();
+            } else {
+                $('#InstituteName').prop('readonly', false);
+                $('.InstituteName').hide();
+            }
+
+        });
+
+
+
+
+        $("#COEDesignationId").change(function () {
+
+            var departmentId = $("#COEDepartmentId").val();
+            var designationId = $("#COEDesignationId").val();
+
+            var officeType = $("#OfficeTypeId").val();
+            var officeId = 0;
+            if (officeType == 1) {
+                officeId = $("#PVHeadOfficeId").val();
+            } else if (officeType == 3) {
+                officeId = $("#PVProjectId").val();
+            }
+            else if (officeType == 4) {
+                officeId = $("#ZoneId").val();
+            }
+            else if (officeType == 5) {
+                officeId = $("#AreaId").val();
+            } else if (officeType == 6) {
+                officeId = $("#UnitId").val();
+            }
+            LoadDropDown('/CommonDropdown/GetEmployeeListByOffice_Department_OfficeDesignation', { OfficeId: officeId, DepartmentId: departmentId, OfficeDesignationId: designationId }, '', '#COEmployeeName');
+
+        });
+
+        $("#EmployeeCode").blur(function () {
+
+            var empCode = $("#EmployeeCode").val();
+            if (empCode != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetEmployeeInfoByCode", "EmployeeOtherInformation", "http")',
+                    data: { empCode: empCode },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.Result == "OK") {
+                            $("#Department").val(data.dataList[0].Department);
+                            $("#Designation").val(data.dataList[0].Designation);
+                            $("#EmployeeName").val(data.dataList[0].EmployeeName);
+
+                            $("#ZoneOfficeName").val(data.dataList[0].ZoneOfficeName);
+                            $("#AreaOfficeName").val(data.dataList[0].AreaOfficeName);
+                            $("#UnitOfficeName").val(data.dataList[0].UnitOfficeName);
+                            getEmployeeOfficeVisitInfo();
+                            getEmployeeRelativeInfo();
+                            getWorkExperienceInfo();
+                            getEmployeeTraning();
+                            $("#btnOfficeVisitSave").show();
+                            $("#btnEmployeeLinkSave").show();
+                            $("#btnExpSave").show();
+                            $("#btnSave").show(); //training
+                            $("#btnEmpFamilyInfoSave").show();
+                            $("#btnMaritalStatusSave").show();
+                            getEmployeeFamilyInfo();
+                            getEmployeeMaritalStatus();
+                            GetEmployeePreviousWorkExperience();
+                            GetEmployeePublicationInfo();
+                            GetCurrentOfficeEmployeeRelationInfo();
+                        }
+                        else {
+                            $("#Department").val('');
+                            $("#Designation").val('');
+                            $("#EmployeeName").val('');
+                            $("#btnOfficeVisitSave").hide();
+                            $("#btnEmployeeLinkSave").hide();
+                            $("#btnExpSave").hide();
+                            $("#btnSave").hide(); //training
+                            $("#btnEmpFamilyInfoSave").hide();
+                            $("#btnMaritalStatusSave").hide();
+
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+        });
+
+        var EmpCode = '@Model.EmployeeCode';
+        if (EmpCode != "") {
+            $("#EmployeeCode").val(EmpCode).trigger("blur");
+        }
+        $("#CurrentOfficeProvided").val('');
+        $("#PrevJoiningDate").val('');
+        $("#PrevReleaseDate").val('');
+        $("#FamilyMemberDateOfBirth").val('');
+        $("#btnOfficeVisitUpdate").hide();
+        $("#btnOfficeVisitRestore").hide();
+
+        $("#btnEmployeeLinkUpdate").hide();
+        $("#btnEmployeeLinkReset").hide();
+
+        $("#collapseTraining #btnUpdate").hide();
+        $("#collapseTraining #btnReset").hide();
+
+        $("#btnExpUpdate").hide();
+        $("#btnExpReset").hide();
+
+        $("#JoiningDate").val('');
+        $("#ReleaseDate").val('');
+
+        $("#btnEmpFamilyInfoUpdate").hide();
+        $("#btnEmpFamilyInfoReset").hide();
+
+        $("#btnMaritalStatusUpdate").hide();
+        $("#btnMaritalStatusReset").hide();
+
+        $("#btnPrevWorkExperienceUpdate").hide();
+        $("#btnPrevWorkExperienceReset").hide();
+
+        $("#btnPublicationUpdate").hide();
+        $("#btnPublicationReset").hide();
+
+        $("#JoiningDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1980:2050",
+            changeYear: true
+        });
+        $("#ReleaseDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1980:2050",
+            changeYear: true
+        });
+
+        $("#FamilyMemberDateOfBirth").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1980:2050",
+            changeYear: true
+        });
+
+        $("#PrevJoiningDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1980:2050",
+            changeYear: true
+        });
+
+        $("#PrevReleaseDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "1980:2050",
+            changeYear: true
+        });
+
+        $("#PrevReleaseDate").change(function () {
+
+            var joiningDate = MakeDate($("#PrevJoiningDate").val());
+            var releaseDate = MakeDate($("#PrevReleaseDate").val());//new Date(
+            if (joiningDate != "" && releaseDate != "") {
+                if (joiningDate <= releaseDate) {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetWorkingExperience", "EmployeeOtherInformation", "http")',
+                        data: { joiningDate: joiningDate, releaseDate: releaseDate },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $("#ExperienceYear").val(data.Year);
+                                $("#ExperienceMonth").val(data.Month);
+
+                            } else {
+                                $.alert.open("Error", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(error);
+                        }
+                    });
+                }
+                else {
+                    $.alert.open("error", " Joining Date can not be greater than Release Date.");
+                    $("#PrevReleaseDate").val('');
+                }
+            } else {
+                $.alert.open("error", "Please insert required fields");
+            }
+
+
+        });
+
+        //for training information start
+
+        $("#isapproved").change(function () {
+            $("#isrejected").hide();
+        });
+        $("#isrejected").change(function () {
+            $("#isapproved").hide();
+        });
+
+        $("#TrainingDateTo").change(function () {
+            var TrainingDateTo = $("#TrainingDateTo").val();
+            var TrainingDateFrom = $("#TrainingDateFrom").val();
+            if (TrainingDateTo != "" && TrainingDateFrom == "") {
+                $.alert.open("Please select Also Training Date From");
+            } else if (TrainingDateTo != "" && TrainingDateFrom != "") {
+                GETTraningTimeTrainingDateTos(TrainingDateTo);
+            }
+        });
+
+        $("#TrainingDateFrom").change(function () {
+            var TrainingDateTo = $("#TrainingDateTo").val();
+            var TrainingDateFrom = $("#TrainingDateFrom").val();
+            if (TrainingDateTo != "" && TrainingDateFrom == "") {
+            } else if (TrainingDateTo != "" && TrainingDateFrom != "") {
+                GETTraningTimeTrainingDateTos(TrainingDateTo);
+            }
+        });
+        $("#TrainingDateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1900:2025"
+        });
+        $("#TrainingDateFrom").datepicker(
+            'setDate', new Date());
+
+        $("#TrainingDateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1900:2025"
+        });
+        $("#TrainingDateTo").datepicker(
+            'setDate', new Date());
+
+        //for training information end
+
+
+        $("#collapse1").on("hide.bs.collapse", function () {
+            $(".panel-title-1").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><i class="fa fa-plus"></i>&nbsp; Visit Information</a>');
+        });
+        $("#collapse1").on("show.bs.collapse", function () {
+            $(".panel-title-1").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><i class="fa fa-minus"></i>&nbsp; Visit Information</a>');
+        });
+
+        $("#collapseSelfOrgRelation").on("hide.bs.collapse", function () {
+            $(".panel-title-SelfOrgRelation").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseSelfOrgRelation"><i class="fa fa-plus"></i>&nbsp; Relation With Current Organization Employee</a>');
+        });
+        $("#collapseSelfOrgRelation").on("show.bs.collapse", function () {
+            $(".panel-title-SelfOrgRelation").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseSelfOrgRelation"><i class="fa fa-minus"></i>&nbsp;Relation With Current Organization Employee</a>');
+        });
+
+        $("#collapse2").on("hide.bs.collapse", function () {
+            $(".panel-title-2").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><i class="fa fa-plus"></i>&nbsp; Relation With Inter Organizations Employee</a>');
+        });
+        $("#collapse2").on("show.bs.collapse", function () {
+            $(".panel-title-2").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><i class="fa fa-minus"></i>&nbsp; Relation With Inter Organizations Employee</a>');
+        });
+        $("#collapse3").on("hide.bs.collapse", function () {
+            $(".panel-title-3").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse3"><i class="fa fa-plus"></i>&nbsp; Work Experience With Inter Organizations</a>');
+        });
+        $("#collapse3").on("show.bs.collapse", function () {
+            $(".panel-title-3").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse3"><i class="fa fa-minus"></i>&nbsp; Work Experience With Inter Organizations</a>');
+        });
+
+        $("#collapseTraining").on("hide.bs.collapse", function () {
+            $(".panel-title-Training").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseTraining"><i class="fa fa-plus"></i>&nbsp; Employee Training Info</a>');
+        });
+        $("#collapseTraining").on("show.bs.collapse", function () {
+            $(".panel-title-Training").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapseTraining"><i class="fa fa-minus"></i>&nbsp;Employee Training Info</a>');
+        });
+        //$("#collapse4").on("hide.bs.collapse", function () {
+        //    $(".panel-title-4").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse4"><i class="fa fa-plus"></i>&nbsp; Employee Family Info</a>');
+        //});
+        //$("#collapse4").on("show.bs.collapse", function () {
+        //    $(".panel-title-4").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse4"><i class="fa fa-minus"></i>&nbsp; Employee Family Info</a>');
+
+        $("#collapse5").on("hide.bs.collapse", function () {
+            $(".panel-title-5").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse5"><i class="fa fa-plus"></i>&nbsp; Employee Marital Status</a>');
+        });
+        $("#collapse5").on("show.bs.collapse", function () {
+            $(".panel-title-5").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse5"><i class="fa fa-minus"></i>&nbsp; Employee Marital Status</a>');
+        });
+        $("#collapse6").on("hide.bs.collapse", function () {
+            $(".panel-title-6").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse6"><i class="fa fa-plus"></i>&nbsp; Employee Previous Work Experience</a>');
+        });
+        $("#collapse6").on("show.bs.collapse", function () {
+            $(".panel-title-6").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse6"><i class="fa fa-minus"></i>&nbsp; Employee Previous Work Experience</a>');
+        });
+        $("#collapse7").on("hide.bs.collapse", function () {
+            $(".panel-title-7").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse7"><i class="fa fa-plus"></i>&nbsp; Employee Publication</a>');
+        });
+        $("#collapse7").on("show.bs.collapse", function () {
+            $(".panel-title-7").html('<a data-toggle="collapse" data-parent="#accordion" href="#collapse7"><i class="fa fa-minus"></i>&nbsp; Employee Publication</a>');
+        });
+
+    });
+
+    //});
+
+    // starts Visit Information functions//
+
+    function ChechkRequiredFieldValidate() {
+
+        var reqFieldsName = new Array(
+                                    '#EmployeeCode'
+                                  , '#VisitType'
+                                  , '#Location'
+                                  , '#Reason'
+                                  , '#CurrentOfficeProvided'
+                                  );
+
+        var fieldValidate = RequiredFieldValidate(reqFieldsName);
+
+        if (fieldValidate == 1) {
+            SaveOfficeVisitInfo();
+        }
+    }
+
+
+    function RequiredFieldValidate(reqFieldsName) {
+
+        var flag = 1;
+        for (var i = 0; i < reqFieldsName.length; i++) {
+            var fieldName = reqFieldsName[i];
+            $(fieldName).removeClass("errorClass");
+            if ($(fieldName).val() == '' //|| $(fieldName).val() == '0'
+                ) {
+                $(fieldName).addClass("errorClass");
+                flag = 0;
+            }
+        }
+        return flag;
+    }
+
+
+    function SaveOfficeVisitInfo() {
+
+        var empCode = $("#EmployeeCode").val();
+        var visitType = $("#VisitType").val();
+        var location = $("#Location").val();
+        var reason = $("#Reason").val();
+        var currentOfficeProvided = $("#CurrentOfficeProvided").val();
+        if (visitType != "" && location != "" && reason != "" && currentOfficeProvided != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                VisitType: visitType,
+                Location: location,
+                Reason: reason,
+                CurrentOfficeProvided: currentOfficeProvided
+            }
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveOfficeVisitInfo", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Success", data.message);
+                        getEmployeeOfficeVisitInfo();
+                        //ClearVisitInfoform();
+
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function ClearVisitInfoform() {
+        $("#EmployeeCode").val('');
+        $("#Department").val('');
+        $("#Designation").val('');
+        $("#EmployeeName").val('');
+        $("#VisitType").val('');
+        $("#Location").val('');
+        $("#Reason").val('');
+        $("#CurrentOfficeProvided").val('');
+    }
+
+
+    function getEmployeeOfficeVisitInfo() {
+        $('#gridOfficeVisit').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeeOfficeVisitInformation?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                EmpOfficeVisitId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                //EmployeeId: {
+                //    title: 'EmployeeId',
+                //    width: '3%'
+                //},
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                VisitType: {
+                    title: 'Visit Type',
+                    width: '5%'
+                },
+                Location: {
+                    title: 'Location',
+                    width: '5%'
+                },
+                Reason: {
+                    title: 'Reason',
+                    width: '5%'
+                },
+                CurrentOfficeProvidedVal: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                CurrentOfficeProvided: {
+                    title: 'CurrentOfficeProvided',
+                    width: '5%'
+                },
+                VisitStatus: {
+                    title: 'VisitStatus',
+                    width: '3%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditOfficeVisitInformation( ' + data.record.EmpOfficeVisitId + ',' + "'" + data.record.VisitType + "'" + ',' + "'" + data.record.Location + "'" + ',' + "'" + data.record.Reason + "'" + ',' + data.record.CurrentOfficeProvidedVal + ' );"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteOfficeVisitInfo(' + data.record.EmpOfficeVisitId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridOfficeVisit').jtable('load');
+    }
+
+    function EditOfficeVisitInformation(EmpOfficeVisitId, VisitType, Location, Reason, CurrentOfficeProvided) {
+        $("#EmpOfficeVisitId").val(EmpOfficeVisitId);
+        if (VisitType == 'Local') {
+            $("#VisitType").val('L');
+        } else if (VisitType == 'International') {
+            $("#VisitType").val('IN');
+        }
+        $("#Location").val(Location);
+        $("#Reason").val(Reason);
+        $("#CurrentOfficeProvided").val(CurrentOfficeProvided);
+
+        $("#btnOfficeVisitUpdate").show();
+        $("#btnOfficeVisitRestore").show();
+        $("#btnOfficeVisitSave").hide();
+    }
+
+    function UpdateOfficeVisitInfo() {
+        var empCode = $("#EmployeeCode").val();
+        var empVisitId = $("#EmpOfficeVisitId").val();
+        var visitType = $("#VisitType").val();
+        var location = $("#Location").val();
+        var reason = $("#Reason").val();
+        var currentOfficeProvided = $("#CurrentOfficeProvided").val();
+
+        var obj = {
+            EmployeeCode: empCode,
+            EmpOfficeVisitId: empVisitId,
+            VisitType: visitType,
+            Location: location,
+            Reason: reason,
+            CurrentOfficeProvided: currentOfficeProvided
+        }
+
+        if (visitType != "" && location != "" && reason != "" && currentOfficeProvided != "") {
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateOfficeVisitInfo", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeOfficeVisitInfo();
+                        ClearVisitInfoform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function ResetOfficeVisitInfo() {
+        $("#btnOfficeVisitSave").show();
+        $("#btnOfficeVisitUpdate").hide();
+        $("#btnOfficeVisitRestore").hide();
+        ClearVisitInfoform();
+    }
+
+    function DeleteOfficeVisitInfo(EmpOfficeVisitId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteOfficeVisitInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: EmpOfficeVisitId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            getEmployeeOfficeVisitInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+    // ends Visit Information functions//
+    
+    // starts Employee Relation functions//
+    function ChechkRequiredFieldValidateEmployeeLink() {
+
+        var reqFieldsName = new Array(
+                                    '#OrganizationCode'
+                                  , '#EmployeeCode'
+                                  , '#RelativeDepartmentName'
+                                  , '#RelativeDesignationName'
+                                  , '#RelativeEmployeeName'
+                                  , '#Relation'
+                                  );
+
+        var fieldValidate = RequiredFieldValidate(reqFieldsName);
+
+        if (fieldValidate == 1) {
+            SaveEmployeeLink();
+        }
+    }
+
+
+    function SaveEmployeeLink() {
+
+        var orgCode = $("#OrganizationCode").val();
+        var empCode = $("#EmployeeCode").val();
+        var deptname = $("#RelativeDepartmentName").val();
+        var desigName = $("#RelativeDesignationName").val();
+        var empName = $("#RelativeEmployeeName").val();
+        var relation = $("#Relation").val();
+
+
+        if (orgCode != "" && empCode != "" && deptname != "" && desigName != "" && empName != "" && relation != "") {
+            var dataObject = {
+                OrganizationCode: orgCode,
+                RelativeEmployeeCode: empCode,
+                RelativeDepartmentName: deptname,
+                RelativeDesignationName: desigName,
+                RelativeEmployeeName: empName,
+                Relation: relation,
+                EmployeeCode: empCode
+            };
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveEmployeeLink", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: dataObject }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Success", data.message);
+                        getEmployeeRelativeInfo();
+                        Clearform();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+
+    function Clearform() {
+        $("#OrganizationCode").val('');
+        $("#RelativeEmployeeCode").val('');
+        $("#RelativeDepartmentName").val('');
+        $("#RelativeDesignationName").val('');
+        $("#RelativeEmployeeName").val('');
+        $("#Relation").val('');
+    }
+
+
+    function getEmployeeRelativeInfo() {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeeRelativeInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                LinkId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationCode: {
+                    title: 'OrganizationCode',
+                    width: '3%'
+                },
+                RelativeEmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                RelativeDepartmentName: {
+                    title: 'DepartmentName',
+                    width: '5%'
+                },
+                RelativeDesignationName: {
+                    title: 'DesignationName',
+                    width: '5%'
+                },
+                RelativeEmployeeName: {
+                    title: 'EmployeeName',
+                    width: '5%'
+                },
+                Relation: {
+                    title: 'Relation',
+                    width: '5%'
+                },
+                RelativeStatus: {
+                    title: 'RelativeStatus',
+                    width: '3%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditEmpRelativeInfo( ' + data.record.LinkId + ',' + "'" + data.record.OrganizationCode + "'" + ',' + "'" + data.record.RelativeEmployeeCode + "'" + ',' + "'" + data.record.RelativeDepartmentName + "'" + ',' + "'" + data.record.RelativeDesignationName + "'" + ',' + "'" + data.record.RelativeEmployeeName + "'" + ',' + "'" + data.record.Relation + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteEmpRelativeInfo(' + data.record.LinkId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#grid').jtable('load');
+    }
+
+    function EditEmpRelativeInfo(LinkId, OrganizationCode, RelativeEmployeeCode, RelativeDepartmentName, RelativeDesignationName, RelativeEmployeeName, Relation) {
+        $("#LinkId").val(LinkId);
+        $("#OrganizationCode").val(OrganizationCode);
+        $("#EmployeeCode").val(RelativeEmployeeCode);
+        $("#RelativeDepartmentName").val(RelativeDepartmentName);
+        $("#RelativeDesignationName").val(RelativeDesignationName);
+        $("#RelativeEmployeeName").val(RelativeEmployeeName);
+        $("#Relation").val(Relation);
+
+        $("#btnEmployeeLinkUpdate").show();
+        $("#btnEmployeeLinkReset").show();
+        $("#btnEmployeeLinkSave").hide();
+    }
+
+    function UpdateEmployeeLink() {
+        var linkId = $("#LinkId").val();
+        var orgCode = $("#OrganizationCode").val();
+        var empCode = $("#EmployeeCode").val();
+        var deptname = $("#RelativeDepartmentName").val();
+        var desigName = $("#RelativeDesignationName").val();
+        var empName = $("#RelativeEmployeeName").val();
+        var relation = $("#Relation").val();
+
+        if (orgCode != "" && empCode != "" && deptname != "" && desigName != "" && empName != "" && relation != "") {
+            var dataObject = {
+                LinkId: linkId,
+                OrganizationCode: orgCode,
+                RelativeEmployeeCode: empCode,
+                RelativeDepartmentName: deptname,
+                RelativeDesignationName: desigName,
+                RelativeEmployeeName: empName,
+                Relation: relation
+            };
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateEmployeeLink", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: dataObject }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeRelativeInfo();
+                        Clearform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+
+    function DeleteEmpRelativeInfo(LinkId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeeRelativeInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: LinkId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            getEmployeeRelativeInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function ResetEmployeeLinks() {
+        $("#btnEmployeeLinkUpdate").hide();
+        $("#btnEmployeeLinkReset").hide();
+        $("#btnEmployeeLinkSave").show();
+        Clearform();
+    }
+
+
+    // ends Employee Relation functions//
+
+
+    //starts Work Experience
+
+    function ChechkRequiredFieldValidateWorkExperience() {
+
+        var reqFieldsName = new Array(
+                                    '#OrgCode'
+                                  , '#EmployeeCode'
+                                  , '#PrevDepartment'
+                                  , '#PrevDesignation'
+                                  , '#JoiningDate'
+                                  , '#ReleaseDate'
+                                  );
+
+        var fieldValidate = RequiredFieldValidate(reqFieldsName);
+
+        if (fieldValidate == 1) {
+            SaveWorkExperience();
+        }
+    }
+
+    function SaveWorkExperience() {
+
+        var orgCode = $("#OrgCode").val();
+        var empCode = $("#EmployeeCode").val();
+        var deptname = $("#PrevDepartment").val();
+        var desigName = $("#PrevDesignation").val();
+        var joiningDate = $("#JoiningDate").val();
+        var releaseDate = $("#ReleaseDate").val();
+
+        if (orgCode != "" && empCode != "" && deptname != "" && desigName != "" && joiningDate != "" && releaseDate != "") {
+            var dataObject = {
+                OrganizationCode: orgCode,
+                EmployeeCode: empCode,
+                RelativeDepartmentName: deptname,
+                RelativeDesignationName: desigName,
+                JoiningDate: joiningDate,
+                ReleaseDate: releaseDate
+            };
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveWorkExperience", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: dataObject }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Success", data.message);
+                        getWorkExperienceInfo();
+                        ClearExperienceform();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+
+    function ClearExperienceform() {
+        $("#OrgCode").val('');
+        $("#PrevDepartment").val('');
+        $("#PrevDesignation").val('');
+        $("#JoiningDate").val('');
+        $("#ReleaseDate").val('');
+
+    }
+
+    function getWorkExperienceInfo() {
+        $("#btnExpUpdate").hide();
+        $("#btnExpReset").hide();
+        $("#btnExpSave").show();
+
+        $('#gridExperience').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetWorkExperienceInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                WorkExpId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationCode: {
+                    title: 'OrganizationName',
+                    width: '3%'
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+                RelativeDepartmentName: {
+                    title: 'DepartmentName',
+                    width: '5%'
+                },
+                RelativeDesignationName: {
+                    title: 'DesignationName',
+                    width: '5%'
+                },
+                JoiningDateView: {
+                    title: 'JoiningDate',
+                    width: '5%'
+                },
+                ReleaseDateView: {
+                    title: 'ReleaseDate',
+                    width: '5%'
+                },
+                ExperienceStatus: {
+                    title: 'ExperienceStatus',
+                    width: '3%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditWorkExperienceInfo( ' + data.record.WorkExpId + ',' + "'" + data.record.OrganizationCode + "'" + ',' + "'" + data.record.EmployeeCode + "'" + ',' + "'" + data.record.RelativeDepartmentName + "'" + ',' + "'" + data.record.RelativeDesignationName + "'" + ',' + "'" + data.record.JoiningDateView + "'" + ',' + "'" + data.record.ReleaseDateView + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteWorkExperienceInfo(' + data.record.WorkExpId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridExperience').jtable('load');
+    }
+
+    function EditWorkExperienceInfo(WorkExpId, OrganizationCode, EmployeeCode, PrevDepartment, PrevDesignation, JoiningDate, ReleaseDate) {
+
+        $("#WorkExpId").val(WorkExpId);
+        $("#OrgCode").val(OrganizationCode);
+        $("#EmployeeCode").val(EmployeeCode);
+        $("#PrevDepartment").val(PrevDepartment);
+        $("#PrevDesignation").val(PrevDesignation);
+        $("#JoiningDate").val(JoiningDate);
+        $("#ReleaseDate").val(ReleaseDate);
+
+        $("#btnExpUpdate").show();
+        $("#btnExpReset").show();
+        $("#btnExpSave").hide();
+    }
+
+
+    function ResetWorkExperience() {
+        $("#btnExpUpdate").hide();
+        $("#btnExpReset").hide();
+        $("#btnExpSave").show();
+        ClearExperienceform();
+    }
+
+
+    function UpdateWorkExperience() {
+        var expId = $("#WorkExpId").val();
+        var orgCode = $("#OrgCode").val();
+        var empCode = $("#EmployeeCode").val();
+        var deptname = $("#PrevDepartment").val();
+        var desigName = $("#PrevDesignation").val();
+        var joiningDate = $("#JoiningDate").val();
+        var releaseDate = $("#ReleaseDate").val();
+
+        if (orgCode != "" && empCode != "" && deptname != "" && desigName != "" && joiningDate != "" && releaseDate != "") {
+            var dataObject = {
+                WorkExpId: expId,
+                OrganizationCode: orgCode,
+                EmployeeCode: empCode,
+                RelativeDepartmentName: deptname,
+                RelativeDesignationName: desigName,
+                JoiningDate: joiningDate,
+                ReleaseDate: releaseDate
+            };
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateWorkExperience", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: dataObject }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getWorkExperienceInfo();
+                        ClearExperienceform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+
+    function DeleteWorkExperienceInfo(WorkExpId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteWorkExperienceInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: WorkExpId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            getWorkExperienceInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+
+    //ends Work Experience
+
+
+    //employee tranning informatio
+    function getEmployeeTraning() {
+
+        $("#collapseTraining #btnUpdate").hide();
+        $("#collapseTraining #btnReset").hide();
+        var RowNumber = 0;
+        //var empCode = $("#EmployeeCode").val();
+        $('#gridTraining').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            //defaultSorting: 'InventoryId ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    var RowNumber = 0;
+
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/ListTraning?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                //RowNumber: {
+                //    title: 'Sl. No',
+                //    sorting: false,
+                //    display: function () {
+                //        RowNumber++;
+                //        return RowNumber;
+                //    }
+                //},
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeName: {
+                    title: 'EmployeeName',
+                    width: '5%'
+                },
+                TrainingTitle: {
+                    title: 'TrainingTitle',
+                    width: '5%'
+                },
+                InstituteName: {
+                    title: 'InstituteName',
+                    width: '5%'
+                },
+                CountryName: {
+                    title: 'CountryName',
+                    width: '3%'
+                },
+                TrainingTopics: {
+                    title: 'Topics',
+                    width: '5%'
+                },
+                Result: {
+                    title: 'Result',
+                    width: '5%'
+                },
+                TDF: {
+                    title: 'DateFrom',
+                    width: '5%'
+                },
+                TDT: {
+                    title: 'DateTo',
+                    width: '5%'
+                },
+                CurrentOfficeTraining: {
+                    title: 'OfficeProvided',
+                    width: '2%',
+                    display: function (data) {
+                        if (data.record.CurrentOfficeTraining == "1") {
+                            return "Yes";
+                        } else if (data.record.CurrentOfficeTraining == "0") {
+                            return "No";
+                        }
+                    }
+                },
+                AR: {
+                    title: 'App/Rej Date',
+                    width: '5%'
+                },
+                EmployeeTrainingStatus: {
+                    title: 'TrainingStatus',
+                    width: '1%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '1%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditTraning(' + "'" + data.record.EmployeeCode + "'" + ',' + "'" + data.record.EmployeeTrainingId + "'" + ',' + "'" + data.record.TrainingTitle + "'" + ',' + "'" + data.record.InstituteName + "'" + ',' + "'" + data.record.TrainingCountryId + "'" + ',' + "'" + data.record.CountryName + "'" + ',' + "'" + data.record.TrainingTopics + "'" + ',' + "'" + data.record.OrganisedBy + "'" + ',' + "'" + data.record.SupportedBy + "'" + ',' + "'" + data.record.Result + "'" + ',' + "'" + data.record.TDF + "'" + ',' + "'" + data.record.TDT + "'" + ',' + "'" + data.record.CurrentOfficeTraining + "'" + ',' + "'" + data.record.isapproved + "'" + ',' + "'" + data.record.isrejected + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '1%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDeleteTraning(' + data.record.EmployeeTrainingId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridTraining').jtable('load');
+    }
+
+
+    function GenerateEmployeeTraning() {
+        var item = {};
+        item.EmployeeId = '@Model.EmployeeId';
+        item.EmployeeCode = $("#EmployeeCode").val();
+        item.TrainingTitle = $("#TrainingTitle").val();
+        item.InstituteName = $("#InstituteName").val();
+        item.TrainingCountryId = $("#CountryId").val();
+        item.TrainingTopics = $("#TrainingTopics").val();
+        item.OrganisedBy = $("#OrganisedBy").val();
+        item.SupportedBy = $("#SupportedBy").val();
+        item.Result = $("#Result").val();
+        item.TrainingDateFrom = $("#TrainingDateFrom").val();
+        item.TrainingDateTo = $("#TrainingDateTo").val();
+        item.CurrentOfficeTraining = $("#CurrentOfficeTraining").val();
+        item.isapproved = $("#isapproved").val();
+        item.isrejected = $("#isrejected").val();
+        return item;
+    }
+
+    function GenerateUpdateEmployeeTraning() {
+        var employeeTrainingDropDowntext = $("#EmployeeTrainingDropDownId option:selected").text();
+        if (employeeTrainingDropDowntext != "Please Select") {
+            $("#TrainingTitle").val(employeeTrainingDropDowntext);
+        }
+
+        var instituteNameDropDowntext = $("#InstituteNameDropDownId option:selected").text();
+        if (instituteNameDropDowntext != "Please Select") {
+            $("#InstituteName").val(instituteNameDropDowntext);
+        }
+
+        var item = {};
+        item.EmployeeTrainingId = $("#EmployeeTrainingId").val();
+        item.TrainingTitle = $("#TrainingTitle").val();
+        item.InstituteName = $("#InstituteName").val();
+        item.TrainingCountryId = $("#CountryId").val();
+        item.TrainingTopics = $("#TrainingTopics").val();
+        item.OrganisedBy = $("#OrganisedBy").val();
+        item.SupportedBy = $("#SupportedBy").val();
+        item.Result = $("#Result").val();
+        item.TrainingDateFrom = $("#TrainingDateFrom").val();
+        item.TrainingDateTo = $("#TrainingDateTo").val();
+        item.CurrentOfficeTraining = $("#CurrentOfficeTraining").val();
+        item.isapproved = $("#isapproved").val();
+        item.isrejected = $("#isrejected").val();
+        item.EmployeeCode = $("#EmployeeCode").val();
+        return item;
+    }
+
+    function ClearControlTraining() {
+        //$("#EmployeeCode").val('');
+        $("#EmployeeTrainingId").val('');
+        $("#TrainingTitle").val('');
+        $("#InstituteName").val('');
+        $("#CountryId").val('');
+        $("#TrainingTopics").val('');
+        $("#OrganisedBy").val('');
+        $("#SupportedBy").val('');
+        $("#Result").val('');
+        $("#TrainingDateFrom").val('');
+        $("#TrainingDateTo").val('');
+        $("#CurrentOfficeTraining").val('');
+        $("#CountryName").val('');
+        $("#CountryId").val('');
+        $(".TrainingTitle").hide();
+        $(".InstituteName").hide();
+        $("#isapproved").val('').show();
+        $("#isrejected").val('').show();
+    }
+
+    function SaveTraining() {//job
+        var employeeTraining = GenerateEmployeeTraning();
+        if (employeeTraining.TrainingTitle != "" && employeeTraining.InstituteName != "" && employeeTraining.TrainingTopics != "") {
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: '@Url.Action("SaveTraining", "EmployeeOtherInformation")',
+                data: JSON.stringify({ employeeTraining: employeeTraining }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    //$.alert.open("Info", data.result);
+
+                    if (data.result == 1) {
+                        $("#AjaxLoader").hide();
+                        $.alert.open('Success', "Saved successfully");
+                        $('#gridTraining').jtable('load');
+                        ClearControlTraining();
+
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open('Error', data.message);
+                        //ClearControlTraining();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+
+            });
+        } else {
+            $.alert.open("Error", "Please insert the required field");
+        }
+    }
+
+    function UpdateTraining() {
+
+        var employeeTraining = GenerateUpdateEmployeeTraning();
+        if (employeeTraining.TrainingTitle != "" && employeeTraining.InstituteName != "" && employeeTraining.TrainingTopics != "") {
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: true,
+                cache: false,
+                url: '@Url.Action("UpdateTraining", "EmployeeOtherInformation")',
+                data: JSON.stringify({ employeeTraining: employeeTraining }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $('#gridTraining').jtable('load');
+                    if (data.result>0) {
+                        ClearControlTraining();
+                        $('#gridTraining').jtable('load');
+                        $.alert.open('Success', "Update successfully");
+                    }
+                    else {
+                        $.alert.open('Warning', data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+
+            });
+        } else {
+            $.alert.open("Error", "Please insert the required field");
+        }
+
+    }
+
+
+    function InformationDeleteTraning(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationDeleteTraning", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridTraining').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    function ResetTraining() {
+        $("#collapseTraining #btnUpdate").hide();
+        $("#collapseTraining #btnSave").show();
+        $("#collapseTraining #btnReset").hide();
+        ClearControlTraining();
+    }
+
+    function EditTraning(EmployeeCode, EmployeeTrainingId, TrainingTitle, InstituteName, CountryName, TrainingCountryId, TrainingTopics, OrganisedBy, SupportedBy, Result, TrainingDateFrom,
+        TrainingDateTo, CurrentOfficeTraining, isapproved, isrejected) {
+        debugger;
+        $("#EmployeeCode").val(EmployeeCode);
+        $("#EmployeeTrainingId").val(EmployeeTrainingId);
+        $("#TrainingTitle").val(TrainingTitle);
+        $("#InstituteName").val(InstituteName);
+        $("#CountryName").val(TrainingCountryId);
+        $("#CountryId").val(CountryName);
+        $("#TrainingTopics").val(TrainingTopics);
+        $("#OrganisedBy").val(OrganisedBy);
+        $("#SupportedBy").val(SupportedBy);
+        $("#Result").val(Result);
+        $("#TrainingDateFrom").val(TrainingDateFrom);
+        $("#TrainingDateTo").val(TrainingDateTo);
+        $("#CurrentOfficeTraining").val(CurrentOfficeTraining);
+        $("#isapproved").val(isapproved);
+        $("#isrejected").val(isrejected);
+        $("#isapproved").show();
+        $("#isrejected").show();
+        $("#btnUpdate").show();
+        $("#btnReset").show();
+        $("#btnSave").hide();
+
+    }
+
+    function GETTraningTimeTrainingDateTos(TrainingDateTo) {
+        var TrainingDateFrom = $("#TrainingDateFrom").val();
+        if (TrainingDateTo != "" && TrainingDateFrom != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GETTraningTimeTrainingDateTo", "Training", "http")',
+                data: { TrainingDateFrom: TrainingDateFrom, TrainingDateTo: TrainingDateTo },
+                dataType: 'json',
+                success: function (data) {
+                    //console.log(data);
+
+                    if (data.result == "1") {
+                        //$.alert.open('Success', "Now Date Perfect");
+                    } else {
+                        $("#TrainingDateFrom").val('');
+                        $("#TrainingDateTo").val('');
+                        $.alert.open('Error', "Please Select Form Date Less then To Date");
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+    //employeetranninginformationend
+
+
+
+    //starts employee family info
+
+
+    function SaveEmployeeFamilyInfo() {
+        var empCode = $("#EmployeeCode").val();
+        var name = $("#FamilyMemberName").val();
+        var relation = $("#RelationWithFamilyMember").val();
+        var gender = $("#FamilyMemberGender").val();
+        var dateOfBirth = $("#FamilyMemberDateOfBirth").val();
+        var eduQualif = $("#EducationalQualification").val();
+        var occupation = $("#FamilyMemberOccupation").val();
+
+        if (name != "" && relation != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                FamilyMemberName: name,
+                RelationWithFamilyMember: relation,
+                FamilyMemberGender: gender,
+                FamilyMemberDateOfBirth: dateOfBirth,
+                EducationalQualification: eduQualif,
+                FamilyMemberOccupation: occupation
+            }
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveEmployeeFamilyInfo", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $("#AjaxLoader").hide();
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeFamilyInfo();
+                        ClearEmployeeFamilyInfoform();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+
+        } else {
+            $.alert.open("Error", "Please insert the required field");
+        }
+    }
+
+    function ClearEmployeeFamilyInfoform() {
+        $("#FamilyMemberName").val('');
+        $("#RelationWithFamilyMember").val('');
+        $("#FamilyMemberGender").val('');
+        $("#FamilyMemberDateOfBirth").val('');
+        $("#EducationalQualification").val('');
+        $("#FamilyMemberOccupation").val('');
+    }
+
+
+    function getEmployeeFamilyInfo() {
+        $('#gridFamilyInfo').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeeFamilyInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                //EmployeeId: {
+                //    title: 'EmployeeId',
+                //    width: '3%'
+                //},
+                FamilyMemberName: {
+                    title: 'FamilyMemberName',
+                    width: '5%'
+                },
+                RelationWithFamilyMember: {
+                    title: 'Relation',
+                    width: '3%'
+                },
+                FamilyMemberGender: {
+                    title: 'Gender',
+                    width: '3%',
+                },
+                FamilyMemberDateOfBirthShow: {
+                    title: 'DateOfBirth',
+                    width: '5%'
+                },
+                EducationalQualification: {
+                    title: 'EducationalQualification',
+                    width: '5%'
+                },
+                FamilyMemberOccupation: {
+                    title: 'Occupation',
+                    width: '5%'
+                },
+                FamilyInfoStatus: {
+                    title: 'FamilyInfoStatus',
+                    width: '3%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditEmployeeFamilyInfo( ' + data.record.Id + ',' + "'" + data.record.FamilyMemberName + "'" + ',' + "'" + data.record.RelationWithFamilyMember + "'" + ',' + "'" + data.record.FamilyMemberGender + "'" + ',' + "'" + data.record.FamilyMemberDateOfBirthShow + "'" + ',' + "'" + data.record.EducationalQualification + "'" + ',' + "'" + data.record.FamilyMemberOccupation + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteEmployeeFamilyInfo(' + data.record.Id + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridFamilyInfo').jtable('load');
+    }
+
+
+    function EditEmployeeFamilyInfo(Id, FamilyMemberName, RelationWithFamilyMember, FamilyMemberGender, FamilyMemberDateOfBirthShow, EducationalQualification, FamilyMemberOccupations) {
+
+        $("#Id").val(Id);
+        $("#FamilyMemberName").val(FamilyMemberName);
+        $("#RelationWithFamilyMember").val(RelationWithFamilyMember);
+        $("#FamilyMemberGender").val(FamilyMemberGender);
+        $("#FamilyMemberDateOfBirth").val(FamilyMemberDateOfBirthShow);
+        $("#EducationalQualification").val(EducationalQualification);
+        $("#FamilyMemberOccupation").val(FamilyMemberOccupations);
+
+        $("#btnEmpFamilyInfoSave").hide();
+        $("#btnEmpFamilyInfoUpdate").show();
+        $("#btnEmpFamilyInfoReset").show();
+    }
+
+
+    function UpdateEmployeeFamilyInfo() {
+        var empCode = $("#EmployeeCode").val();
+        var id = $("#Id").val();
+        var name = $("#FamilyMemberName").val();
+        var relation = $("#RelationWithFamilyMember").val();
+        var gender = $("#FamilyMemberGender").val();
+        var dateOfBirth = $("#FamilyMemberDateOfBirth").val();
+        var eduQualif = $("#EducationalQualification").val();
+        var occupation = $("#FamilyMemberOccupation").val();
+
+        if (name != "" && relation != "" && gender != "" && dateOfBirth != "" && eduQualif != "" && occupation != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                Id: id,
+                FamilyMemberName: name,
+                RelationWithFamilyMember: relation,
+                FamilyMemberGender: gender,
+                FamilyMemberDateOfBirth: dateOfBirth,
+                EducationalQualification: eduQualif,
+                FamilyMemberOccupation: occupation
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateEmployeeFamilyInfo", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeFamilyInfo();
+                        ClearEmployeeFamilyInfoform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+        } else {
+            $.alert.open("Error", "Please insert the required field");
+        }
+    }
+
+    function DeleteEmployeeFamilyInfo(Id) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeeFamilyInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            getEmployeeFamilyInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function ResetEmployeeFamilyInfo() {
+        $("#btnEmpFamilyInfoSave").show();
+        $("#btnEmpFamilyInfoUpdate").hide();
+        $("#btnEmpFamilyInfoReset").hide();
+        ClearEmployeeFamilyInfoform();
+    }
+
+
+
+    //Ends employee family info
+
+
+
+    //starts marital status
+
+    function SaveMaritalStatus() {
+        var empCode = $("#EmployeeCode").val();
+        var maritalStatus = $("#MaritalStatus").val();
+        if (maritalStatus != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                MaritalStatus: maritalStatus,
+            }
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveMaritalStatus", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $("#AjaxLoader").hide();
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeMaritalStatus();
+                        ClearMaritalform();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function ClearMaritalform() {
+        $("#MaritalStatus").val('');
+    }
+
+    function getEmployeeMaritalStatus() {
+        $('#gridMaritalStatus').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeeMaritalStatus?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                MaritalId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Employee Code',
+                    width: '20%'
+                },
+                MaritalStatus: {
+                    title: 'Marital Status',
+                    width: '20%',
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditEmployeeMaritalStatus( ' + data.record.MaritalId + ',' + "'" + data.record.MaritalStatus + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteEmployeeMaritalStatus(' + data.record.MaritalId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridMaritalStatus').jtable('load');
+    }
+
+    function EditEmployeeMaritalStatus(MaritalId, MaritalStatus) {
+        $("#MaritalId").val(MaritalId);
+        $("#MaritalStatus").val(MaritalStatus);
+
+        $("#btnMaritalStatusUpdate").show();
+        $("#btnMaritalStatusReset").show();
+        $("#btnMaritalStatusSave").hide();
+    }
+
+    function UpdateMaritalStatus() {
+        var empCode = $("#EmployeeCode").val();
+        var maritalId = $("#MaritalId").val();
+        var maritalStatus = $("#MaritalStatus").val();
+        if (maritalStatus != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                MaritalId: maritalId,
+                MaritalStatus: maritalStatus,
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateMaritalStatus", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeMaritalStatus();
+                        ClearMaritalform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function DeleteEmployeeMaritalStatus(MaritalId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeeMaritalStatus", "EmployeeOtherInformation", "http")',
+                    data: { Id: MaritalId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            getEmployeeMaritalStatus();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function ResetMaritalStatus() {
+        $("#btnMaritalStatusUpdate").hide();
+        $("#btnMaritalStatusReset").hide();
+        $("#btnMaritalStatusSave").show();
+        ClearMaritalform();
+    }
+
+    //ends marital status
+
+
+
+    //starts previous work experience
+
+    function ChechkRequiredFieldValidateForPreviousWorkExperience() {
+
+        var reqFieldsName = new Array(
+                                    '#EmployeeCode'
+                                  , '#OrganizationName'
+                                  , '#PreviousDepartment'
+                                  , '#PreviousDesignation'
+                                  , '#PrevJoiningDate'
+                                  , '#PrevReleaseDate'
+                                  , '#ExperienceYear'
+                                  , '#ExperienceMonth'
+                                  , '#PreSupervisorName'
+                                  , '#PreSupervisorMobileNo'
+                                  , '#PreLeaveReason'
+                                  );
+
+        var fieldValidate = RequiredFieldValidate(reqFieldsName);
+
+        if (fieldValidate == 1) {
+            SavePrevWorkExperience();
+        }
+    }
+
+    function SavePrevWorkExperience() {
+        var empCode = $("#EmployeeCode").val();
+        var orgName = $("#OrganizationName").val();
+        var department = $("#PreviousDepartment").val();
+        var designation = $("#PreviousDesignation").val();
+        var joiningDate = $("#PrevJoiningDate").val();
+        var releaseDate = $("#PrevReleaseDate").val();
+        var expYear = $("#ExperienceYear").val();
+        var expMonth = $("#ExperienceMonth").val();
+        var supervisorName = $("#PreSupervisorName").val();
+        var supervisorContact = $("#PreSupervisorMobileNo").val();
+        var levReson = $("#PreLeaveReason").val();
+
+
+        if (orgName != "" && department != "" && designation != "" && joiningDate != "" && releaseDate != "" && expYear != "" && expMonth != "" && supervisorName != "" && supervisorContact != "" && levReson != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                OrganizationName: orgName,
+                PreviousDepartment: department,
+                PreviousDesignation: designation,
+                PrevJoiningDate: joiningDate,
+                PrevReleaseDate: releaseDate,
+                ExperienceYear: expYear,
+                ExperienceMonth: expMonth,
+                PreSupervisorName: supervisorName,
+                PreSupervisorMobileNo: supervisorContact,
+                PreLeaveReason: levReson
+            }
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SavePrevWorkExperience", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $("#AjaxLoader").hide();
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetEmployeePreviousWorkExperience();
+                        ClearPrevExpForm();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function ClearPrevExpForm() {
+        $("#OrganizationName").val('');
+        $("#PreviousDepartment").val('');
+        $("#PreviousDesignation").val('');
+        $("#PrevJoiningDate").val('');
+        $("#PrevReleaseDate").val('');
+        $("#ExperienceYear").val('');
+        $("#ExperienceMonth").val('');
+        $("#PreSupervisorName").val('');
+        $("#PreSupervisorMobileNo").val('');
+        $("#PreLeaveReason").val('');
+    }
+
+
+    function GetEmployeePreviousWorkExperience() {
+
+        $('#gridPrevWrokExperience').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeePreviousWorkExperience?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                OrgId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrganizationName: {
+                    title: 'Organization Name',
+                    width: '5%',
+                },
+                PreviousDepartment: {
+                    title: 'Department',
+                    width: '5%',
+                },
+                PreviousDesignation: {
+                    title: 'Designation',
+                    width: '5%',
+                },
+                PrevJoiningDateView: {
+                    title: 'Joining Date',
+                    width: '5%',
+                },
+
+                PreSupervisorName: {
+                    title: 'SupervisorName',
+                    width: '5%',
+                },
+
+                PreSupervisorMobileNo: {
+                    title: 'Supervisor Contact',
+                    width: '5%',
+                },
+
+
+                PrevReleaseDateView: {
+                    title: 'Release Date',
+                    width: '5%',
+                },
+                ExperienceYear: {
+                    title: 'Experience Year',
+                    width: '5%',
+                },
+                ExperienceMonth: {
+                    title: 'ExperienceMonth',
+                    width: '5%',
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditEmployeePreviousWorkExperience( ' + data.record.OrgId + ',' + "'" + data.record.OrganizationName + "'" + ',' + "'" + data.record.PreviousDepartment + "'" + ',' + "'" + data.record.PreviousDesignation + "'" + ',' + "'" + data.record.PrevJoiningDateView + "'" + ',' + "'" + data.record.PrevReleaseDateView + "'" + ',' + "'" + data.record.ExperienceYear + "'" + ',' + "'" + data.record.ExperienceMonth + "'" + ',' + "'" + data.record.PreSupervisorName + "'" + ',' + "'" + data.record.PreSupervisorMobileNo + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteEmployeePreviousWorkExperience(' + data.record.OrgId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridPrevWrokExperience').jtable('load');
+    }
+
+    function EditEmployeePreviousWorkExperience(OrgId, OrganizationName, PreviousDepartment, PreviousDesignation, PrevJoiningDateView, PrevReleaseDateView, ExperienceYear, ExperienceMonth, SupervisorName, SupervisorContact, LevReason) {
+        $("#OrgId").val(OrgId);
+        $("#OrganizationName").val(OrganizationName);
+        $("#PreviousDepartment").val(PreviousDepartment);
+        $("#PreviousDesignation").val(PreviousDesignation);
+        $("#PrevJoiningDate").val(PrevJoiningDateView);
+        $("#PrevReleaseDate").val(PrevReleaseDateView);
+        $("#ExperienceYear").val(ExperienceYear);
+        $("#ExperienceMonth").val(ExperienceMonth);
+        $("#PreSupervisorName").val(SupervisorName);
+        $("#PreSupervisorMobileNo").val(SupervisorContact);
+        $("#PreLeaveReason").val(LevReason);
+
+        $("#btnPrevWorkExperienceUpdate").show();
+        $("#btnPrevWorkExperienceReset").show();
+        $("#btnPrevWorkExperienceSave").hide();
+    }
+
+    function ResetPrevWorkExperience() {
+        $("#btnPrevWorkExperienceUpdate").hide();
+        $("#btnPrevWorkExperienceReset").hide();
+        $("#btnPrevWorkExperienceSave").show();
+        ClearPrevExpForm();
+    }
+
+    function UpdatePrevWorkExperience() {
+        var empCode = $("#EmployeeCode").val();
+        var orgId = $("#OrgId").val();
+        var orgName = $("#OrganizationName").val();
+        var department = $("#PreviousDepartment").val();
+        var designation = $("#PreviousDesignation").val();
+        var joiningDate = $("#PrevJoiningDate").val();
+        var releaseDate = $("#PrevReleaseDate").val();
+        var expYear = $("#ExperienceYear").val();
+        var expMonth = $("#ExperienceMonth").val();
+
+        var supervisorName = $("#PreSupervisorName").val();
+        var supervisorContact = $("#PreSupervisorMobileNo").val();
+        var levReson = $("#PreLeaveReason").val();
+
+        if (orgName != "" && department != "" && designation != "" && joiningDate != "" && releaseDate != "" && expYear != "" && expMonth != "" && supervisorName != "" && supervisorContact != "" && levReson != "" ) {
+            var obj = {
+                EmployeeCode: empCode,
+                OrgId: orgId,
+                OrganizationName: orgName,
+                PreviousDepartment: department,
+                PreviousDesignation: designation,
+                PrevJoiningDate: joiningDate,
+                PrevReleaseDate: releaseDate,
+                ExperienceYear: expYear,
+                ExperienceMonth: expMonth,
+                PreSupervisorName: supervisorName,
+                PreSupervisorMobileNo: supervisorContact,
+                PreLeaveReason: levReson
+
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdatePrevWorkExperience", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetEmployeePreviousWorkExperience();
+                        ClearPrevExpForm();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+
+    function DeleteEmployeePreviousWorkExperience(Id) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeePreviousWorkExperience", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            GetEmployeePreviousWorkExperience();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    //ends previous work experience
+
+
+    //starts publication
+
+    function SavePublication() {
+        var empCode = $("#EmployeeCode").val();
+        var publicationName = $("#PublicationName").val();
+        var publicationDetail = $("#PublicationDetail").val();
+        if (publicationName != "" && publicationDetail != "") {
+            var obj = {
+                EmployeeCode: empCode,
+                PublicationName: publicationName,
+                PublicationDetail: publicationDetail
+            }
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SavePublication", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Success", data.message);
+                        GetEmployeePublicationInfo();
+                        ClearPublicationForm();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+        }
+    }
+
+    function ClearPublicationForm() {
+        $("#PublicationName").val('');
+        $("#PublicationDetail").val('');
+    }
+
+
+    function GetEmployeePublicationInfo() {
+        $('#gridPublication').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetEmployeePublicationInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                PublicationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                PublicationName: {
+                    title: 'Publication Name',
+                    width: '10%',
+                },
+                PublicationDetail: {
+                    title: 'Publication Detail',
+                    width: '10%',
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditEmployeePublicationInfo( ' + data.record.PublicationId + ',' + "'" + data.record.PublicationName + "'" + ',' + "'" + data.record.PublicationDetail + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteEmployeePublicationInfo(' + data.record.PublicationId + ' );"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridPublication').jtable('load');
+    }
+
+    function EditEmployeePublicationInfo(PublicationId, PublicationName, PublicationDetail) {
+        $("#PublicationId").val(PublicationId);
+        $("#PublicationName").val(PublicationName);
+        $("#PublicationDetail").val(PublicationDetail);
+
+        $("#btnPublicationUpdate").show();
+        $("#btnPublicationReset").show();
+        $("#btnPublicationSave").hide();
+
+    }
+
+    function ResetPublication() {
+        $("#btnPublicationUpdate").hide();
+        $("#btnPublicationReset").hide();
+        $("#btnPublicationSave").show();
+        ClearPublicationForm();
+    }
+
+    function UpdatePublication() {
+        var pubId = $("#PublicationId").val();
+        var empCode = $("#EmployeeCode").val();
+        var publicationName = $("#PublicationName").val();
+        var publicationDetail = $("#PublicationDetail").val();
+        if (publicationName != "" && publicationDetail != "") {
+            var obj = {
+                PublicationId: pubId,
+                EmployeeCode: empCode,
+                PublicationName: publicationName,
+                PublicationDetail: publicationDetail
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdatePublication", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetEmployeePublicationInfo();
+                        ClearPublicationForm();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+        }
+    }
+
+
+    function DeleteEmployeePublicationInfo(PublicationId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteEmployeePublicationInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: PublicationId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            GetEmployeePublicationInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    //ends publication
+
+
+    //starts relation current org emp
+
+    function ChechkRequiredFieldValidateCurrentOfficeEmployeeRelation() {
+
+        var reqFieldsName = new Array(
+                                    '#COEDepartmentId'
+                                  , '#COEDesignationId'
+                                  , '#COERelationId'
+                                  , '#COEmployeeName'
+                                  , '#EmployeeCode'
+                                  );
+
+        var fieldValidate = RequiredFieldValidate(reqFieldsName);
+
+        if (fieldValidate == 1) {
+            SaveCurrentOfficeEmployeeRelation();
+        }
+    }
+
+    function SaveCurrentOfficeEmployeeRelation() {
+
+        var coeDepartment = $("#COEDepartmentId").val();
+        var coeDesignation = $("#COEDesignationId").val();
+        var coeRelation = $("#COERelationId").val();
+        var coeEmployeeName = $("#COEmployeeName option:selected").text();
+        var employeeCode = $("#EmployeeCode").val();
+
+        var officeType = $("#OfficeTypeId").val();
+        var officeId = 0;
+        if (officeType == 1) {
+            officeId = $("#PVHeadOfficeId").val();
+        } else if (officeType == 3) {
+            officeId = $("#PVProjectId").val();
+        }
+        else if (officeType == 4) {
+            officeId = $("#ZoneId").val();
+        }
+        else if (officeType == 5) {
+            officeId = $("#AreaId").val();
+        } else if (officeType == 6) {
+            officeId = $("#UnitId").val();
+        }
+
+
+        if (officeId != "" && coeDepartment != "" && coeDesignation != "" && coeRelation != "" && coeEmployeeName != "") {
+            var obj = {
+                COEDepartmentId: coeDepartment,
+                COEDesignationId: coeDesignation,
+                COERelationId: coeRelation,
+                COEmployeeName: coeEmployeeName,
+                OfficeId: officeId,
+                EmployeeCode: employeeCode
+            }
+            $("#AjaxLoader").show();
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveCurrentOfficeEmployeeRelation", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetCurrentOfficeEmployeeRelationInfo();
+                        ClearCOEForm();
+                        $("#AjaxLoader").hide();
+                    } else {
+                        $("#AjaxLoader").hide();
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    $("#AjaxLoader").hide();
+                    alert(error);
+                }
+            });
+        }
+    }//here
+    function UpdateCurrentOfficeEmployeeRelation() {
+        var SelfOrgRelationId = $("#SelfOrgRelationId").val();
+
+        var coeDepartment = $("#COEDepartmentId").val();
+        var coeDesignation = $("#COEDesignationId").val();
+        var coeRelation = $("#COERelationId").val();
+        var coeEmployeeName = $("#COEmployeeName option:selected").text();
+
+        var officeType = $("#OfficeTypeId").val();
+        var officeId = 0;
+        if (officeType == 1) {
+            officeId = $("#PVHeadOfficeId").val();
+        } else if (officeType == 3) {
+            officeId = $("#PVProjectId").val();
+        }
+        else if (officeType == 4) {
+            officeId = $("#ZoneId").val();
+        }
+        else if (officeType == 5) {
+            officeId = $("#AreaId").val();
+        } else if (officeType == 6) {
+            officeId = $("#UnitId").val();
+        }
+
+        if (SelfOrgRelationId != "" && coeDepartment != "" && coeDesignation != "" && coeEmployeeName != "" && officeId != "" && coeRelation != "") {
+            var obj = {
+                SelfOrgRelationId: SelfOrgRelationId,
+                COEDepartmentId: coeDepartment,
+                COEDesignationId: coeDesignation,
+                COERelationId: coeRelation,
+                COEmployeeName: coeEmployeeName,
+                OfficeId: officeId,
+
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",//
+                url: '@Url.Action("UpdateCurrentOfficeEmployeeRelation", "EmployeeOtherInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetCurrentOfficeEmployeeRelationInfo();
+                        Clearform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please insert the required fields");
+        }
+    }
+    function ClearCOEForm() {
+        $("#COEDepartmentId").val('');
+        $("#COEDesignationId").val('');
+        $("#COERelationId").val('');
+        $("#COEmployeeName").html("<select><option value=''>Please Select</option></select>")
+        $("#OfficeTypeId").val('');
+        $("#PVHeadOfficeId").val('');
+        $("#PVProjectId").val('');
+        $("#ZoneId").val('');
+        $("#AreaId").val('');
+        $("#UnitId").val('');
+
+        $("#btnCOEUpdate").hide();
+        $("#btnCOEReset").hide();
+        $("#btnCOESave").show();
+    }
+
+    function GetCurrentOfficeEmployeeRelationInfo() {
+        $("#btnCOESave").show();
+        $("#btnCOEUpdate").hide();
+        $("#btnCOEReset").hide();
+
+
+        $('#gridSelfOrgRelation').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var empCode = $("#EmployeeCode").val();
+                        $.ajax({
+                            url: '/EmployeeOtherInformation/GetCurrentOfficeEmployeeRelationInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&empCode=' + empCode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                SelfOrgRelationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OfficeTypeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OfficeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OfficeName: {
+                    title: 'Office Name',
+                    width: '5%',
+                },
+                COEDepartmentId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                COEDepartmentName: {
+                    title: 'Department',
+                    width: '5%'
+                },
+                COEDesignationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                COEDesignationName: {
+                    title: 'Designation',
+                    width: '5%'
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '5%'
+                },
+                COERelationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                COERelationName: {
+                    title: 'Relation',
+                    width: '5%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditCurrentOfficeEmployeeRelationInfo( ' + data.record.SelfOrgRelationId + ',' + "'" + data.record.OfficeTypeId + "'" + ',' + "'" + data.record.OfficeId + "'" + ',' + "'" + data.record.COEDepartmentId + "'" + ',' + "'" + data.record.COEDesignationId + "'" + ',' + "'" + data.record.COERelationId + "'" + ',' + "'" + data.record.EmployeeName + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteCurrentOfficeEmployeeRelationInfo(' + data.record.SelfOrgRelationId + ' );"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridSelfOrgRelation').jtable('load');
+    }
+    function EditCurrentOfficeEmployeeRelationInfo(SelfOrgRelationId, OfficeTypeId, OfficeId, COEDepartmentId, COEDesignationId, COERelationId, EmployeeName) {
+        debugger;
+        $("#SelfOrgRelationId").val(SelfOrgRelationId);
+        $("#OfficeTypeId").val(OfficeTypeId).trigger('change');
+
+        if (OfficeTypeId == 1) {
+            $("#PVHeadOfficeId").val(OfficeId);
+        } else if (OfficeTypeId == 3) {
+            $("#PVProjectId").val(OfficeId);
+        }
+        else if (OfficeTypeId == 4) {
+            $("#ZoneId").val(OfficeId);
+        }
+        else if (OfficeTypeId == 5) {
+            $("#AreaId").val(OfficeId);
+        }
+        else if (OfficeTypeId == 6) {
+            $("#UnitId").val(OfficeId);
+        }
+        $("#COEDepartmentId").val(COEDepartmentId);
+        $("#COEDesignationId").val(COEDesignationId).trigger('change');
+
+        // $("#COEmployeeName").text(EmployeeName);
+        //$('#COEmployeeName').find('option[text="' + EmployeeName + '"]').val();
+        $("#COERelationId").val(COERelationId);
+        $("#COEmployeeName option:contains('" + EmployeeName + "')").attr('selected', true);
+
+        $("#btnCOEUpdate").show();
+        $("#btnCOEReset").show();
+        $("#btnCOESave").hide();
+    }
+
+
+    function ResetCurrentOfficeEmployeeRelation() {
+        $("#btnCOEUpdate").hide();
+        $("#btnCOEReset").hide();
+        $("#btnCOESave").show();
+        ClearCOEForm();
+    }
+
+
+    function DeleteCurrentOfficeEmployeeRelationInfo(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteCurrentOfficeEmployeeRelationInfo", "EmployeeOtherInformation", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Error", data.message);
+                            GetCurrentOfficeEmployeeRelationInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    //ends relation current org emp
+
+
+
+</script>
+
+<h2> Employee Other Information </h2> &nbsp;
+<div class="form-group form-action" style="padding:10px;margin:5px;">
+    <br />
+
+    <div class="form-horizontal">
+        @Html.HiddenFor(model => model.EmpOfficeVisitId)
+        @Html.HiddenFor(model => model.EmployeeId)
+        @Html.HiddenFor(model => model.LinkId)
+        @Html.HiddenFor(model => model.WorkExpId)
+        @Html.HiddenFor(model => model.OrgId)
+        @Html.HiddenFor(model => model.PublicationId)
+        @Html.HiddenFor(model => model.SelfOrgRelationId)
+        <div class="container-fluid">
+            <div id="AjaxLoader" class="ajaxLoader"></div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 required">Employee Code</label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4"> Employee Name </label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4"> Department </label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.Department, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Designation</label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.Designation, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4"> Zone </label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.ZoneOfficeName, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Area</label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.AreaOfficeName, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4"> Branch </label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.UnitOfficeName, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="accordion">
+    <div class="panel-group" id="accordion">
+        @*collapse1 starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-1">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"><i class="fa fa-plus"></i>&nbsp; Visit Information</a>
+                </h4>
+            </div>
+            <div id="collapse1" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Visit Type </label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.VisitType, Model.VisitTypeList, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Location </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.Location, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Reason </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextAreaFor(model => model.Reason, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Current Office Provided </label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.CurrentOfficeProvided, Model.OfficeProvidedList, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                                    <div class="col-sm-12 col-sm-offset-2">
+                                        @*<input type="button" id="btnOfficeVisitSave" value="Save" class="btn btn-primary" onclick="SaveOfficeVisitInfo()" />*@
+                                        <input type="button" id="btnOfficeVisitSave" value="Save" class="btn btn-primary" onclick="ChechkRequiredFieldValidate()" />
+                                        <input type="button" id="btnOfficeVisitUpdate" value="Update" class="btn btn-primary" onclick="UpdateOfficeVisitInfo()" /> &nbsp;
+                                        <input type="button" id="btnOfficeVisitRestore" value="Reset" class="btn btn-primary" onclick="ResetOfficeVisitInfo()" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="gridOfficeVisit"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapse1 ends*@
+
+
+        @*collapseSelfOrgRelation starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-SelfOrgRelation ">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseSelfOrgRelation"><i class="fa fa-plus"></i>&nbsp; Relation With Current Organization Employee</a>
+                </h4>
+            </div>
+            <div id="collapseSelfOrgRelation" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+                            @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Department Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.COEDepartmentId, Model.DepartmentList, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Designation Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.COEDesignationId, Model.DesignationList, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Employee Name</label>
+                                        <div class="col-sm-8">
+                                            @*@Html.TextBoxFor(model => model.COEmployeeName, new { @class = "form-control required" })*@
+                                            @Html.DropDownListFor(model => model.COEmployeeName, Model.EmployeeList, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Relation</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.COERelationId, Model.RelationshipList, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-4">
+                                            @*<input type="button" value="Save" id="btnCOESave" class="btn btn-primary" onclick="SaveCurrentOfficeEmployeeRelation()" />*@
+                                            <input type="button" id="btnCOESave" value="Save" class="btn btn-primary" onclick="ChechkRequiredFieldValidateCurrentOfficeEmployeeRelation()" />
+                                            <input type="button" value="Update" id="btnCOEUpdate" class="btn btn-primary" onclick="UpdateCurrentOfficeEmployeeRelation()" />
+                                            <input type="button" value="Reset" id="btnCOEReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetCurrentOfficeEmployeeRelation()" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="gridSelfOrgRelation"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*collapseSelfOrgRelation ends*@
+
+
+
+
+
+
+
+
+
+
+
+
+        @*collapse2 starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-2">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"><i class="fa fa-plus"></i>&nbsp; Relation With Inter Organizations Employee</a>
+                </h4>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Organization Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.OrganizationCode, Model.OrganizationList, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Department Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.RelativeDepartmentName, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Designation Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.RelativeDesignationName, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Employee Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.RelativeEmployeeName, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Relation</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.Relation, Model.RelationshipList, new { @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-4">
+                                            @*<input type="button" value="Save" id="btnEmployeeLinkSave" class="btn btn-primary" onclick="SaveEmployeeLink()" />*@
+                                            <input type="button" id="btnEmployeeLinkSave" value="Save" class="btn btn-primary" onclick="ChechkRequiredFieldValidateEmployeeLink()" />
+                                            <input type="button" value="Update" id="btnEmployeeLinkUpdate" class="btn btn-primary" onclick="UpdateEmployeeLink()" />
+                                            <input type="button" value="Reset" id="btnEmployeeLinkReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetEmployeeLinks()" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="grid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*collapse2 ends*@
+
+
+        @*collapse3 starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-3">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"><i class="fa fa-plus"></i>&nbsp; Work Experience With Inter Organizations</a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Organization Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.OrganizationCode, Model.OrganizationList, new { @id = "OrgCode", @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Department Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.RelativeDepartmentName, new { @id = "PrevDepartment", @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Designation Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.RelativeDesignationName, new { @id = "PrevDesignation", @class = "form-control required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Joining Date</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.JoiningDate, new { @class = "form-control required", @onChange = "return CheckJoiningAndReleaseDate(event);" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Release Date</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.ReleaseDate, new { @class = "form-control required", @onChange = "return CheckJoiningAndReleaseDate(event);" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-4">
+                                            @*<input type="button" value="Save" id="btnExpSave" class="btn btn-primary" onclick="SaveWorkExperience()" />*@
+                                            <input type="button" id="btnExpSave" value="Save" class="btn btn-primary" onclick="ChechkRequiredFieldValidateWorkExperience()" />
+                                            <input type="button" value="Update" id="btnExpUpdate" class="btn btn-primary" onclick="UpdateWorkExperience()" />
+                                            <input type="button" value="Reset" id="btnExpReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetWorkExperience()" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="gridExperience"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*collapse3 ends*@
+
+
+        @*collapseTraining starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-Training">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTraining">
+                        <i class="fa fa-plus"></i>&nbsp;Employee Training Info
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTraining" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <h4 class="text-info">Training Info</h4>
+                    <br /><br />
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Training Title</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.TrainingTitle, new { @class = "form-control required", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="custom-control custom-checkbox mr-sm-3">
+                                        <input type="checkbox" id="customControlAutosizing">
+                                        <label for="customControlAutosizing">Check For Dropdown Value</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group TrainingTitle">
+                                        <label class="control-label col-sm-4 required ">Training Title Dropdown</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.EmployeeTrainingDropDownId, employeeTranningDropDownList, new { @class = "form-control", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*<div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4 required">Institute Name</label>
+                                            <div class="col-sm-8">
+                                                @Html.TextBoxFor(model => model.InstituteName, new { @class = "form-control required", @autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                    </div>*@
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Institute Name</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.InstituteName, new { @class = "form-control required", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="custom-control custom-checkbox mr-sm-3">
+                                        <input type="checkbox" id="customControlAutosizingInstituteName">
+                                        <label for="customControlAutosizingInstituteName">Check For Dropdown Value</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group InstituteName">
+                                        <label class="control-label col-sm-4 required ">Institute Name Dropdown</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.InstituteNameDropDownId, instituteNameDropDownList, new { @class = "form-control", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+
+
+                            <div class="row">
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Country</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="CountryName" name="CountryName" value="" class="form-control" autocomplete="off" />
+                                        </div>
+                                        <input type="hidden" id="CountryId" name="CountryId" />
+                                    </div>
+                                </div>
+
+                                @*<div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="control-label col-sm-4">Country</label>
+                                            <div class="col-sm-8">
+                                                @Html.DropDownListFor(model => model.TrainingCountryId, countryList, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                    </div>*@
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Training Topics</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextAreaFor(model => model.TrainingTopics, new { @class = "form-control required", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Organised By</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.OrganisedBy, new { @class = "form-control", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Supported By</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.SupportedBy, new { @class = "form-control", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Mark</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.Result, new { @class = "form-control", @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.TrainingDateFrom, htmlAttributes: new { @class = "control-label col-sm-4" })
+                                        <div class="col-sm-8">
+                                            @Html.EditorFor(model => model.TrainingDateFrom, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy", @autocomplete = "off" } })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.TrainingDateTo, htmlAttributes: new { @class = "control-label col-sm-4" })
+                                        <div class="col-sm-8">
+                                            @Html.EditorFor(model => model.TrainingDateTo, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy", @autocomplete = "off" } })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4">Current Office Training</label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownListFor(model => model.CurrentOfficeTraining, Model.CurrentOfficeTrainingList, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <div class="col-sm-8">
+                                            <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveTraining()" />
+                                            <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdateTraining()" />
+                                            <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetTraining()" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    @Html.HiddenFor(model => model.EmployeeTrainingId)
+                                </div>
+                            </div>
+                            &nbsp;
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <div id="gridTraining"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*collapseTraining ends*@
+
+
+        @*collapse4 starts*@
+
+
+        @*<div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title panel-title-4">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse4"><i class="fa fa-plus"></i>&nbsp;Employee Family Info</a>
+                    </h4>
+                </div>
+                <div id="collapse4" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FamilyMemberName, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                                    <div class="col-sm-8">
+                                        @Html.EditorFor(model => model.FamilyMemberName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Family Member's Name" } })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.RelationWithFamilyMember, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                                    <div class="col-sm-8">
+                                        @Html.DropDownListFor(model => model.RelationWithFamilyMember, Model.relationWithEmployeeList, new { @class = "form-control", @placeholder = "Relation With Member" })
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FamilyMemberGender, htmlAttributes: new { @class = "control-label col-sm-4" })
+                                    <div class="col-sm-8">
+                                        @Html.DropDownListFor(model => model.FamilyMemberGender, Model.GenderList, new { @class = "form-control" })
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FamilyMemberDateOfBirth, htmlAttributes: new { @class = "control-label  col-sm-4" })
+                                    <div class="col-sm-8">
+                                        @Html.EditorFor(model => model.FamilyMemberDateOfBirth, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.EducationalQualification, htmlAttributes: new { @class = "control-label  col-sm-4" })
+                                    <div class="col-sm-8">
+                                        @Html.EditorFor(model => model.EducationalQualification, new { htmlAttributes = new { @class = "form-control", @placeholder = "Family Member's Educational Qualification" } })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FamilyMemberOccupation, htmlAttributes: new { @class = "control-label  col-sm-4" })
+                                    <div class="col-sm-8">
+                                        @Html.EditorFor(model => model.FamilyMemberOccupation, new { htmlAttributes = new { @class = "form-control", @placeholder = "Family Member's Occupation" } })
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <!-- Message zone -->
+                                <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <p class="message-content">Employee family information has been saved successfully.</p>
+                                </div>
+                                <!-- End message zone-->
+                                &nbsp;
+                                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                                    <input type="button" value="Save" id="btnEmpFamilyInfoSave" class="btn btn-primary" onclick="SaveEmployeeFamilyInfo()" />
+                                    <input type="button" value="Update" id="btnEmpFamilyInfoUpdate" class="btn btn-primary" onclick="UpdateEmployeeFamilyInfo()" /> &nbsp;
+                                    <input type="button" value="Reset" id="btnEmpFamilyInfoReset" class="btn btn-primary" onclick="ResetEmployeeFamilyInfo()" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="gridFamilyInfo"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+
+        @*collapse4 ends*@
+
+
+        @*collapse 5 starts*@
+
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-5">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse5"><i class="fa fa-plus"></i>&nbsp;Employee Marital Status</a>
+                </h4>
+            </div>
+            <div id="collapse5" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4 required"> Marital Status </label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.MaritalStatus, Model.MaritalList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="form-group form-action col-sm-offset-4" style="padding:10px;margin:5px;">
+                        <input type="button" value="Save" id="btnMaritalStatusSave" class="btn btn-primary" onclick="SaveMaritalStatus()" />
+                        <input type="button" value="Update" id="btnMaritalStatusUpdate" class="btn btn-primary" onclick="UpdateMaritalStatus()" /> &nbsp;
+                        <input type="button" value="Reset" id="btnMaritalStatusReset" class="btn btn-primary" onclick="ResetMaritalStatus()" />
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="gridMaritalStatus"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*collapse 5 ends*@
+
+        @*collapse 6 starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-6">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse6"><i class="fa fa-plus"></i>&nbsp;Employee Previous Work Experience</a>
+                </h4>
+            </div>
+            <div id="collapse6" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Organization Name </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.OrganizationName, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Previous Department </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PreviousDepartment, new { placeholder = " Program/ Department", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Previous Designation </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PreviousDesignation, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Joining Date </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PrevJoiningDate, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Supervisor Name </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PreSupervisorName, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Supervisor Contact No. </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PreSupervisorMobileNo, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Release Date </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PrevReleaseDate, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Experience </label>
+                                        <div class="col-sm-2">
+                                            @Html.TextBoxFor(model => model.ExperienceYear, new { @class = "form-control" })
+                                        </div>
+                                        <label class="control-label col-sm-2"> Years </label>
+                                        <div class="col-sm-2">
+                                            @Html.TextBoxFor(model => model.ExperienceMonth, new { @class = "form-control" })
+                                        </div>
+                                        <label class="control-label col-sm-2"> Months </label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Leave Reason </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextAreaFor(model => model.PreLeaveReason, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+
+
+                            <br />
+                            <div class="form-group form-action col-sm-offset-4" style="padding:10px;margin:5px;">
+                                @*<input type="button" value="Save" id="btnPrevWorkExperienceSave" class="btn btn-primary" onclick="SavePrevWorkExperience()" />*@
+                                <input type="button" id="btnPrevWorkExperienceSave" value="Save" class="btn btn-primary" onclick="ChechkRequiredFieldValidateForPreviousWorkExperience()" />
+                                <input type="button" value="Update" id="btnPrevWorkExperienceUpdate" class="btn btn-primary" onclick="UpdatePrevWorkExperience()" /> &nbsp;
+                                <input type="button" value="Reset" id="btnPrevWorkExperienceReset" class="btn btn-primary" onclick="ResetPrevWorkExperience()" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="gridPrevWrokExperience"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*collapse 6 ends*@
+
+
+
+        @*collapse 7 starts*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-7">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse7"><i class="fa fa-plus"></i>&nbsp;Employee Publication</a>
+                </h4>
+            </div>
+            <div id="collapse7" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required"> Publication Name </label>
+                                        <div class="col-sm-8">
+                                            @Html.TextBoxFor(model => model.PublicationName, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-4 required">Publication Detail</label>
+                                        <div class="col-sm-8">
+                                            @Html.TextAreaFor(model => model.PublicationDetail, new { @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group form-action col-sm-offset-4" style="padding:10px;margin:5px;">
+                                <input type="button" value="Save" id="btnPublicationSave" class="btn btn-primary" onclick="SavePublication()" />
+                                <input type="button" value="Update" id="btnPublicationUpdate" class="btn btn-primary" onclick="UpdatePublication()" /> &nbsp;
+                                <input type="button" value="Reset" id="btnPublicationReset" class="btn btn-primary" onclick="ResetPublication()" />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="gridPublication"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*collapse 7 ends*@
+
+
+
+
+
+        @*..................*@
+
+
+    </div>
+</div>

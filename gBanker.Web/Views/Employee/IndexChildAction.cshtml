@@ -1,0 +1,135 @@
+﻿@model gHRM.Web.ViewModels.EmployeeViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Employee">Employee</a></li>
+    </ol>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+@{
+    ViewBag.Title = "Employee List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<link href="~/Content/bpopup/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+<script src="~/Content/bpopup/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+<style type="text/css">
+
+    #element_to_pop_up2 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    #element_to_pop_up3 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    .style1 {
+        width: 100%;
+    }
+
+    .dashborad_lbl {
+        font-family: Arial;
+        font-size: 15px; /*font-weight:bold;*/
+        color: #333333;
+    }
+
+    .style2 {
+        background-color: White;
+        width: 100%;
+    }
+
+    .pop_tbl_style {
+        width: 100%;
+    }
+
+    .tbl {
+        border-collapse: collapse;
+        border: 1px solid #CCCCCC;
+        font-family: "Arial";
+        font-size: 12px;
+        background-color: White;
+        width: 100%;
+    }
+
+    .tHead {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .tFoot {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #tableRow {
+        font-family: Arial;
+        color: Black;
+        font-size: 12px;
+    }
+
+        #tableRow:nth-child(odd) {
+            background-color: #E2E4FF;
+        }
+
+        #tableRow:nth-child(even) {
+            background-color: White;
+        }
+
+    .tbl th {
+        text-align: center;
+    }
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+@Html.Action("GlobalEmployeeSearch","Employee")
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <input type="button" name="name" class="form-control" value="Reset"/>
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="row" style="margin-top:15px;">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="gridKendo"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}
+
+

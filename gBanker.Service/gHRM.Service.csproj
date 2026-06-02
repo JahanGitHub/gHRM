@@ -1,0 +1,480 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7E0396F3-C297-4A3F-B7E2-89D16A266474}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>gHRM.Service</RootNamespace>
+    <AssemblyName>gHRM.Service</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.DataVisualization.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Design, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.Design.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.ProcessingObjectModel.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebDesign, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.WebDesign.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.WebForms.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WinForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ReportViewer.11.0.3366.16\lib\Microsoft.ReportViewer.WinForms.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=14.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Types.14.0.314.76\lib\net40\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Extensions.Design" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Apply\IApplicantAccademicService.cs" />
+    <Compile Include="Apply\IApplicantAddressInfoService.cs" />
+    <Compile Include="Apply\IApplicantJobExperienceService.cs" />
+    <Compile Include="Apply\IApplicantMasterService.cs" />
+    <Compile Include="Apply\IApplicantReferenceInfoService.cs" />
+    <Compile Include="Apply\IApplicantTrainingInfoService.cs" />
+    <Compile Include="Apply\IAppliedPostService.cs" />
+    <Compile Include="Apply\IExamTitleService.cs" />
+    <Compile Include="Apply\IJobsCircularService.cs" />
+    <Compile Include="Apply\ILevelofEducationService.cs" />
+    <Compile Include="Apply\IQuestionAnsweredByApplicantService.cs" />
+    <Compile Include="Basic\IAttHolidayTypeService.cs" />
+    <Compile Include="Basic\IBankAccountService.cs" />
+    <Compile Include="Basic\IBankBranchService.cs" />
+    <Compile Include="Basic\IBankNameService.cs" />
+    <Compile Include="Basic\ICarRecognitionApprovalService.cs" />
+    <Compile Include="Basic\ICarRecognitionApprovedHistoryService.cs" />
+    <Compile Include="Basic\ICarRecognitionService.cs" />
+    <Compile Include="Basic\IEmployeeAllowence.cs" />
+    <Compile Include="Basic\INomineeRelationService.cs" />
+    <Compile Include="Basic\IOfficeRegionService.cs" />
+    <Compile Include="Basic\INoticeService.cs" />
+    <Compile Include="CacheManagerServices\CacheManagerService.cs" />
+    <Compile Include="CacheManagerServices\ICacheManagerService.cs" />
+    <Compile Include="Common\RResult.cs" />
+    <Compile Include="Basic\IEmployeeAllowence.cs" />
+    <Compile Include="Cooperative\ICooperativeLedgerService.cs" />
+    <Compile Include="Employee\IEmployeeDocumentService.cs" />
+    <Compile Include="Employee\IEmployeeGuarantorTranInformationService.cs" />
+    <Compile Include="eRecruit\eRecruitApplicationService.cs" />
+    <Compile Include="eRecruit\IeRecruitDegreeService.cs" />
+    <Compile Include="eRecruit\IeRecruitEducationService.cs" />
+    <Compile Include="FeedBack\FeedbackCategoryService.cs" />
+    <Compile Include="FeedBack\FeedbackRegisterService.cs" />
+    <Compile Include="FixedAsset\AssetUserService.cs" />
+    <Compile Include="FixedAsset\IAssetClientInfoService.cs" />
+    <Compile Include="FixedAsset\IAssetDepreciationInfoService.cs" />
+    <Compile Include="FixedAsset\IAssetGroupInfoService.cs" />
+    <Compile Include="FixedAsset\IAssetInfoService.cs" />
+    <Compile Include="FixedAsset\IAssetOutService.cs" />
+    <Compile Include="FixedAsset\IAssetOverhaulingService.cs" />
+    <Compile Include="FixedAsset\IAssetPartialOutService.cs" />
+    <Compile Include="FixedAsset\IAssetProcessInfoService.cs" />
+    <Compile Include="FixedAsset\IAssetRegisterService.cs" />
+    <Compile Include="FixedAsset\IAssetRevaluationService.cs" />
+    <Compile Include="FixedAsset\IAssetTransferService.cs" />
+    <Compile Include="FixedAsset\IClientTypeService.cs" />
+    <Compile Include="FixedAsset\IDailyTransactionService.cs" />
+    <Compile Include="FixedAsset\IDepreciationMethodService.cs" />
+    <Compile Include="FixedAsset\IDepriciationRateChangeService.cs" />
+    <Compile Include="FixedAsset\IFixAssetUpdatesService.cs" />
+    <Compile Include="FixedAsset\IProjectInfoService.cs" />
+    <Compile Include="FixedAsset\ITransactionTypeService.cs" />
+    <Compile Include="FixedAsset\UltimateReportService.cs" />
+    <Compile Include="Gratuity\IGratuityConfigService.cs" />
+    <Compile Include="IncomeTax\IncomeTaxService.cs" />
+    <Compile Include="Inventory\InvestorService.cs" />
+    <Compile Include="Inventory\InvStoreItemService.cs" />
+    <Compile Include="Inventory\InvStoreService.cs" />
+    <Compile Include="Inventory\InvTrxDetailService.cs" />
+    <Compile Include="Inventory\InvTrxMasterService.cs" />
+    <Compile Include="Inventory\InvWarehouseService.cs" />
+    <Compile Include="Inventory\Inv_CategoryOrSubCategoryService.cs" />
+    <Compile Include="Inventory\Inv_ItemPriceDetailsService.cs" />
+    <Compile Include="Inventory\Inv_ItemsService.cs" />
+    <Compile Include="Inventory\Inv_RequisitionConsulateDetailsService.cs" />
+    <Compile Include="Inventory\Inv_RequisitionConsulateMasterService.cs" />
+    <Compile Include="Inventory\Inv_RequsitionDetailsService.cs" />
+    <Compile Include="Inventory\Inv_RequsitionMasterService.cs" />
+    <Compile Include="Inventory\Inv_TempStoreService.cs" />
+    <Compile Include="Inventory\Inv_VendorService.cs" />
+    <Compile Include="Leave\ILeaveHistoryAttachmentService.cs" />
+    <Compile Include="Leave\ILeaveTypeLedgerService.cs" />
+    <Compile Include="Leave\IOutOfOfficeService.cs" />
+    <Compile Include="Loan\ApplicantInfoService3.cs" />
+    <Compile Include="Loan\ApprovalMasterService.cs" />
+    <Compile Include="Loan\ApproveDetailService.cs" />
+    <Compile Include="Loan\LoanCalculationService\LoanCalculationService.cs" />
+    <Compile Include="Loan\LoanRegisterService.cs" />
+    <Compile Include="Loan\ApplicantNomineeService.cs" />
+    <Compile Include="Loan\ApplicantInfoService.cs" />
+    <Compile Include="Loan\LoanDisbursementService.cs" />
+    <Compile Include="Loan\LoanPurposeService.cs" />
+    <Compile Include="Loan\LoanEligibilityService.cs" />
+    <Compile Include="Loan\CollectionMethodService.cs" />
+    <Compile Include="Payroll\GradeXSalaryStepViewModel.cs" />
+    <Compile Include="Payroll\ICompanyWisePayrollConfigService.cs" />
+    <Compile Include="Payroll\IGradeXSalaryStepService.cs" />
+    <Compile Include="Payroll\INoticePayConfigService.cs" />
+    <Compile Include="Payroll\IOvertimeExceptionService.cs" />
+    <Compile Include="Employee\IResignNoticeService.cs" />
+    <Compile Include="Payroll\IPRComponentService_designation.cs" />
+    <Compile Include="Payroll\ISalaryDateConfigService.cs" />
+    <Compile Include="PerformanceEvaluations\IPerformanceEvaluationService.cs" />
+    <Compile Include="Cooperative\ICooperativeConfigurationService.cs" />
+    <Compile Include="Discipline\DiscCaseAnnexationService.cs" />
+    <Compile Include="Discipline\DiscCaseCrimeLocationService.cs" />
+    <Compile Include="Discipline\DiscCaseDealingOfficerService.cs" />
+    <Compile Include="Discipline\DiscCaseDespatchNoService.cs" />
+    <Compile Include="Discipline\DiscCaseDetailService.cs" />
+    <Compile Include="Discipline\DiscCaseEnquiryOfficerService.cs" />
+    <Compile Include="Discipline\DiscCaseMasterService.cs" />
+    <Compile Include="Discipline\DiscCasePunishmentDetailService.cs" />
+    <Compile Include="Discipline\DiscCasePunishmentMasterService.cs" />
+    <Compile Include="Discipline\DiscCaseStatusService.cs" />
+    <Compile Include="Discipline\DiscCrimeService.cs" />
+    <Compile Include="Discipline\DiscDealingOfficerService.cs" />
+    <Compile Include="Discipline\DiscEmbezzleEmpInfoService.cs" />
+    <Compile Include="Discipline\DiscEmbezzleService.cs" />
+    <Compile Include="Discipline\DiscEnqueryOfficerService.cs" />
+    <Compile Include="Discipline\DiscMemorendumDetailsService.cs" />
+    <Compile Include="Discipline\DiscMemorendumMasterService.cs" />
+    <Compile Include="Discipline\DiscPunishmentService.cs" />
+    <Compile Include="Discipline\DiscStatusService.cs" />
+    <Compile Include="Employee\IEmployeeTranningDropDownService.cs" />
+    <Compile Include="Employee\INomineeTypeService.cs" />
+    <Compile Include="Payroll\IEmployeeLoanInstallmentDetailService.cs" />
+    <Compile Include="Payroll\IEmployeeLoanRegisterService.cs" />
+    <Compile Include="Payroll\IEmployeeMonthlySalaryExceptionService.cs" />
+    <Compile Include="Payroll\IEmployeeSalaryBonusService.cs" />
+    <Compile Include="Payroll\IFestivalBonusCalendarService.cs" />
+    <Compile Include="Payroll\ILoanInstallmentDetailService.cs" />
+    <Compile Include="Payroll\IOvertimeConfigurationService.cs" />
+    <Compile Include="Payroll\IOvertimeHourEmployeeApprovedService.cs" />
+    <Compile Include="Payroll\IOvertimeHourEmployeeService.cs" />
+    <Compile Include="Payroll\IProductGroupService.cs" />
+    <Compile Include="Payroll\IProductTypeService.cs" />
+    <Compile Include="Payroll\IProductItemService.cs" />
+    <Compile Include="Payroll\IComponentPayrollService.cs" />
+    <Compile Include="Payroll\IEmployeeMonthlySalaryApprovedService.cs" />
+    <Compile Include="Payroll\IEmployeeMonthlySalaryService.cs" />
+    <Compile Include="Payroll\IEmployeeSalaryConfigurationHistoryService.cs" />
+    <Compile Include="Payroll\IEmployeeSalaryDeductionService.cs" />
+    <Compile Include="Payroll\IEmployeeSalaryDepositService.cs" />
+    <Compile Include="Payroll\IEmployeeSalaryIncentiveService.cs" />
+    <Compile Include="Payroll\IPRComponentGroupService.cs" />
+    <Compile Include="Payroll\IPRComponentService.cs" />
+    <Compile Include="Payroll\IPRDepositService.cs" />
+    <Compile Include="Payroll\IPRSalaryConfigurationService.cs" />
+    <Compile Include="Payroll\IPRSalaryRegisterService.cs" />
+    <Compile Include="Payroll\ISalaryGenerationLogService.cs" />
+    <Compile Include="Payroll\IView_EmployeeMonthlySalaryService.cs" />
+    <Compile Include="Payroll\IView_EmployeeSalaryConfigurationService.cs" />
+    <Compile Include="Payroll\IView_EmployeeTypeWiseComponentConfigurationService.cs" />
+    <Compile Include="Payroll\IView_PRComponentConfigurationService.cs" />
+    <Compile Include="Leave\ILeaveApproversAuthorityService.cs" />
+    <Compile Include="Payroll\IVMCarTypeService.cs" />
+    <Compile Include="Payroll\IVMServiceProviderConfigurationService.cs" />
+    <Compile Include="Payroll\IVMServiceProviderService.cs" />
+    <Compile Include="PF\AccountChartService.cs" />
+    <Compile Include="PF\AccountTypeService.cs" />
+    <Compile Include="PF\CollectionService.cs" />
+    <Compile Include="PF\GLLevelService.cs" />
+    <Compile Include="PF\LoanTypeService.cs" />
+    <Compile Include="PF\OfficeSetupService.cs" />
+    <Compile Include="PF\OrganizationSetupService.cs" />
+    <Compile Include="PF\TempPFCollectionService.cs" />
+    <Compile Include="PF\PFTypeService.cs" />
+    <Compile Include="PF\PFWithdrawanService.cs" />
+    <Compile Include="PF\PRInstallmentProcessLogService.cs" />
+    <Compile Include="PF\ProcessLogService.cs" />
+    <Compile Include="PF\ProfitDeclarationService.cs" />
+    <Compile Include="PF\ProfitDistProcessLogService.cs" />
+    <Compile Include="PF\TransactionCategoryService.cs" />
+    <Compile Include="PF\TransactionRegisterService.cs" />
+    <Compile Include="PF\Vw_AccChartService.cs" />
+    <Compile Include="PF\YearEndProcessLogService.cs" />
+    <Compile Include="PF\YearEndVoucherService.cs" />
+    <Compile Include="Promotion\IEmployeePromotionService.cs" />
+    <Compile Include="Promotion\IPromotionConfiguredSalaryService.cs" />
+    <Compile Include="Promotion\IPromotionTypeService.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ReportServices\ReportProcessHelper.cs" />
+    <Compile Include="Security\KeyCloakService.cs" />
+    <Compile Include="Security\SingleSignOnTrackingService.cs" />
+    <Compile Include="Security\ISingleSignOnTrackingService.cs" />
+    <Compile Include="Security\IApplicationSettingService.cs" />
+    <Compile Include="Security\IApplictionLogService.cs" />
+    <Compile Include="Leave\IApprovalNotificationService.cs" />
+    <Compile Include="Security\IAspAdminPasswordTableService.cs" />
+    <Compile Include="Security\IAspNetRoleService.cs" />
+    <Compile Include="Security\IAspNetUserService.cs" />
+    <Compile Include="Basic\IBranchService.cs" />
+    <Compile Include="Basic\ICompanyService.cs" />
+    <Compile Include="Basic\ICountryService.cs" />
+    <Compile Include="DropDownService\CommonDropDownService.cs" />
+    <Compile Include="DropDownService\DropDownAttribute.cs" />
+    <Compile Include="StoredProcedure\IAPISPService.cs" />
+    <Compile Include="TaDa\ITADAService.cs" />
+    <Compile Include="TaDa\IEmployeeTADABillService.cs" />
+    <Compile Include="TimeKeeping\IAttAttendanceTypeService.cs" />
+    <Compile Include="TimeKeeping\IAttCardIssueService.cs" />
+    <Compile Include="TimeKeeping\IAttendancePenaltyConfigurationService.cs" />
+    <Compile Include="Basic\IAttHolidayDeclarationService.cs" />
+    <Compile Include="TimeKeeping\IAttAttendanceService.cs" />
+    <Compile Include="Employee\ICurrentOrganizationRelationshipService.cs" />
+    <Compile Include="Basic\IDistrictService.cs" />
+    <Compile Include="Basic\IEducationConcentrationService.cs" />
+    <Compile Include="Basic\IEducationDegreeService.cs" />
+    <Compile Include="Employee\IEmployeeAddressService.cs" />
+    <Compile Include="Basic\IEmployeeDepartmentService.cs" />
+    <Compile Include="Basic\IEmployeeDesignationService.cs" />
+    <Compile Include="Employee\IEmployeeEmergencyContactService.cs" />
+    <Compile Include="Employee\IEmployeeFamilyInfoService.cs" />
+    <Compile Include="Employee\IEmployeeMedicalInfoService.cs" />
+    <Compile Include="Employee\IEmployeeOfficeMappingService.cs" />
+    <Compile Include="Employee\IEmployeeEducationService.cs" />
+    <Compile Include="Employee\IEmployeeOtherQualificationService.cs" />
+    <Compile Include="Employee\IEmployeeReferenceService.cs" />
+    <Compile Include="Employee\IEmployeeService.cs" />
+    <Compile Include="Employee\IEmployeeStatusHistoryService.cs" />
+    <Compile Include="Basic\IEmployeeOfficeDesignationService.cs" />
+    <Compile Include="Basic\IDocumentTypeModuleService.cs" />
+    <Compile Include="Basic\IDocumentTypeService.cs" />
+    <Compile Include="Leave\IELEncashmentAuthorityService.cs" />
+    <Compile Include="Leave\IELEncashmentConfigurationService.cs" />
+    <Compile Include="Basic\IEmployeeDepartmentSectionService.cs" />
+    <Compile Include="Basic\IEmployeeDesignationMappingService.cs" />
+    <Compile Include="Basic\IEmployeeEquivalentDesignationService.cs" />
+    <Compile Include="Employee\IEmployeeFamilyInfoApprovalProcessService.cs" />
+    <Compile Include="Employee\IEmployeeFileAttachemntService.cs" />
+    <Compile Include="Basic\IEmployeeGradeListService.cs" />
+    <Compile Include="Employee\IEmployeeGuarantorInformationService.cs" />
+    <Compile Include="Employee\IEmployeeInformationApprovalService.cs" />
+    <Compile Include="Employee\IEmployeeMaritalStatusApprovalService.cs" />
+    <Compile Include="Basic\IEmployeeOfficeTimeExceptionService.cs" />
+    <Compile Include="Employee\IEmployeeOfficeVisitInformationService.cs" />
+    <Compile Include="Employee\IEmployeePreviousWorkExperienceService.cs" />
+    <Compile Include="Employee\IEmployeePublicationService.cs" />
+    <Compile Include="Employee\IEmployeeReportOptionJCFService.cs" />
+    <Compile Include="Employee\IEmployeeReportOptionService.cs" />
+    <Compile Include="Basic\IEmployeeRosterScheduleService.cs" />
+    <Compile Include="Basic\IEmployeeSignatureDesignationService.cs" />
+    <Compile Include="Basic\IEmployeeStatusService.cs" />
+    <Compile Include="Employee\IEmployeeSupervisorService.cs" />
+    <Compile Include="TimeKeeping\IEmployeeTimeKeepingExceptionService.cs" />
+    <Compile Include="Employee\IEmployeeTrainingService.cs" />
+    <Compile Include="TimeKeeping\IManualOvertimeConfigurationService.cs" />
+    <Compile Include="TimeKeeping\ITimekeepingAttendanceDeviceService.cs" />
+    <Compile Include="TimeKeeping\IRosterEmployeeScheduleService.cs" />
+    <Compile Include="Training\IInstituteService.cs" />
+    <Compile Include="Training\IResultGradeService.cs" />
+    <Compile Include="Training\ITrainingAreaService.cs" />
+    <Compile Include="Training\ITrainingTitleService.cs" />
+    <Compile Include="Training\ITrainingTypeService.cs" />
+    <Compile Include="Training\IVenueService.cs" />
+    <Compile Include="Transfer\ITransferOfficeOrderService.cs" />
+    <Compile Include="Transfer\IEmployeeTransferService.cs" />
+    <Compile Include="Basic\IEmployementTypeService.cs" />
+    <Compile Include="Basic\IFamilyRelationService.cs" />
+    <Compile Include="Basic\IGuarantorRelationshipService.cs" />
+    <Compile Include="Basic\IInternalOrganizationService.cs" />
+    <Compile Include="Leave\ILeaveAdjustmentAuthorityService.cs" />
+    <Compile Include="Leave\ILeaveApproversConfigurationService.cs" />
+    <Compile Include="Leave\ILeaveApproversMetadataService.cs" />
+    <Compile Include="Leave\ILeaveApproversService.cs" />
+    <Compile Include="Leave\ILeaveCategoryService.cs" />
+    <Compile Include="Leave\ILeaveELOpeningService.cs" />
+    <Compile Include="Leave\ILeaveHistoryService.cs" />
+    <Compile Include="Leave\ILeaveSellService.cs" />
+    <Compile Include="Employee\ILinkWithEmployeeService.cs" />
+    <Compile Include="Basic\IOccupationService.cs" />
+    <Compile Include="Employee\IPanelOfficerHistoryService.cs" />
+    <Compile Include="Employee\IPanelOfficerService.cs" />
+    <Compile Include="Employee\IReceivedCertificatesService.cs" />
+    <Compile Include="IServiceBase.cs" />
+    <Compile Include="Basic\ITimeKeepingRosterService.cs" />
+    <Compile Include="Basic\IView_EmployeeDesignation.cs" />
+    <Compile Include="Employee\IView_EmployeeGuarantorInformationService.cs" />
+    <Compile Include="Basic\IView_EmployeeOfficeTimeExceptionService.cs" />
+    <Compile Include="TimeKeeping\IView_EmployeeTimeKeepingExceptionService.cs" />
+    <Compile Include="Employee\IView_EmployeeTrainingService.cs" />
+    <Compile Include="TimeKeeping\IView_TimeKeepingDetailService.cs" />
+    <Compile Include="Basic\IView_TimeKeepingRosterService.cs" />
+    <Compile Include="Employee\IWorkExperienceWithInterOrganizationService.cs" />
+    <Compile Include="Leave\ILeaveMaternityOpeningService.cs" />
+    <Compile Include="Leave\ILeaveTypeService.cs" />
+    <Compile Include="Employee\IEmployeeNomineeService.cs" />
+    <Compile Include="Basic\IOfficeDesignationService.cs" />
+    <Compile Include="Basic\IOfficeService.cs" />
+    <Compile Include="Basic\IOfficeTypeService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\ISecurityService.cs" />
+    <Compile Include="Basic\IStateOrProvinceService.cs" />
+    <Compile Include="Basic\ILgThanaService.cs" />
+    <Compile Include="StoredProcedure\IEmployeeSPService.cs" />
+    <Compile Include="Leave\IApprovalConfigDetailService.cs" />
+    <Compile Include="Leave\IApprovalConfigMasterService.cs" />
+    <Compile Include="Basic\IUnionService.cs" />
+    <Compile Include="Security\IUserService.cs" />
+    <Compile Include="ViewsEmployee\EmployeeStatusServiceModel.cs" />
+    <Compile Include="ViewsEmployee\IEmployeeShortInfoService.cs" />
+    <Compile Include="Web References\ReportExecutionService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="WelfareFund\IHealthWelfareFundConfigurationService.cs" />
+    <Compile Include="WelfareFund\IHealthWelfareFundSettingService.cs" />
+    <Compile Include="WelfareFund\IStaffWelfareFundConfigurationService.cs" />
+    <Compile Include="WelfareFund\IHealthFundingService.cs" />
+    <Compile Include="WelfareFund\IFundSetupService.cs" />
+    <Compile Include="WelfareFund\IStaffWelfareFundSettingService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BasicDataAccess\BasicDataAccess.csproj">
+      <Project>{845595ad-bf9f-4526-bb16-74c8e0239fc5}</Project>
+      <Name>BasicDataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gBanker.Data\gHRM.Data.csproj">
+      <Project>{4a5b6386-fdcf-4c77-9791-e9a63bcc1d2e}</Project>
+      <Name>gHRM.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utility\Utility.csproj">
+      <Project>{cadf45a9-a723-4e81-bae3-8b59da3dcb47}</Project>
+      <Name>Utility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gBanker.Core\gHRM.Core.csproj">
+      <Project>{f5231e48-d0c0-4ecb-b67a-1f6784e5e0fc}</Project>
+      <Name>gHRM.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Payroll\ViewPayrollService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\ReportExecutionService\DocumentMapNode.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ReportExecutionService\ExecutionInfo.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ReportExecutionService\ExecutionInfo2.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ReportExecutionService\ExecutionInfo3.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ReportExecutionService\Extension.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ReportExecutionService\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\ReportExecutionService\ReportExecution2005.wsdl" />
+    <None Include="Web References\ReportExecutionService\Warning.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://192.192.192.176:8081/ReportServer/ReportExecution2005.asmx%3fwsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\ReportExecutionService\</RelPath>
+      <UpdateFromURL>http://192.192.192.176:8081/ReportServer/ReportExecution2005.asmx%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>gHRM_Service_ReportExecutionService_ReportExecutionService</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

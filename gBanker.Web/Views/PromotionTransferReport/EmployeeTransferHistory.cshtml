@@ -1,0 +1,317 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOtherInformationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeOtherInformation/EmployeeOtherInfo">EmployeeReport</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Employee Transfer History";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+
+}
+
+<style type="text/css">
+    .ui-autocomplete {
+        overflow: auto;
+        max-height: 100px;
+    }
+</style>
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/1.3.0/moment-duration-format.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script>
+
+    function viewReport(SelectedEmployeeCode){
+    // var SelectedEmployeeCode = $("#SelectedEmployeeCode").val();
+              var  otherReportURL = '/PromotionTransferReport/IndividualEmployeePostingHistory?EmployeeCode=' + SelectedEmployeeCode ;
+                PrintReport(otherReportURL);
+    }// END Function
+
+     function SetSearchParameters() {
+        var OfficeId = "";
+        var DeptId = "";
+
+        var officeTypeId = "";
+
+        var deptId = "";
+
+        var payRollDesignation = "";
+        var responsibility = "";
+        var status = "";
+        var filterColumn = $("#filterColumn").val();
+        var filterValue = $("#filterValue").val();
+       // if (filterColumn != "" && filterValue == "") {
+    if (filterValue == "") {
+            $.alert.open("Error", "Please Provide Filter Value");
+            return false;
+        }
+
+        var Section = "";
+
+
+        LoadEmployeeList(officeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue);
+    }
+
+    
+    function LoadEmployeeList(OfficeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue) {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("LoadEmployeeList", "Employee", "http")',
+                    dataType: 'json',
+                    data: { OfficeTypeId: OfficeTypeId, OfficeId: OfficeId, DepartmentId: DeptId, PayrollDesignation: payRollDesignation, Responsibility: responsibility, Section:Section, Status: status, FilterColumn: filterColumn, FilterValue: filterValue }
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            excelExport: function(e) {
+            e.workbook.fileName = "Employee.xlsx";
+
+   var grid = $("#gridKendo").data("kendoGrid");
+        grid.saveAsExcel();
+            },
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                 {
+                     field: "ImageFilePath",
+                     title: "Image",
+                     width: "30px",
+                     filterable: false,
+                     template: function (dataItem) {
+                         if (dataItem.ImageFilePath != null) {
+                             return '<img src="' + dataItem.ImageFilePath + '" height="50" width="50" alt="No Image" class="img-circle"/>'
+                         } else {
+                             return '<img src="../../Images/blank-headshot.jpg" height="50" width="50" alt="No Image" class="img-circle"/>'
+                         }
+                     }
+                 },
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "DesignationName",
+                    title: "Designation",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "OrnamentalDesignationName",
+                    title: "Ornamental Designation",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeTypeName",
+                    title: "Office Type",
+                    width: "35px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeName",
+                    title: "Office",
+                    width: "40px",
+                    filterable: true,
+                },
+
+                {
+                    field: "Phone",
+                    title: "Phone",
+                    width: "35px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployementTypeName",
+                    title: "Type",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployeeStatus",
+                    title: "Status",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "StatusDateMsg",
+                    title: "Status Date",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "PermanentDate",
+                    hidden: true,
+                    filterable: false
+                },
+
+                {
+                    title: "Print",
+                    width: "20px",
+                    template: function (dataItem) {
+                        return "<a href='#' OnClick='viewReport(" + '"' + dataItem.EmployeeCode + '"' + ");'><i class='fa fa-print'></i></a>";
+                        //return "<a href='#' OnClick='RegisterResetPassword(" + '"' + dataItem.Id + '"' + ");'><i class='fa fa-pencil-square-o'></i></a>";
+                    }
+                }
+            ]
+        });
+
+    }
+
+
+    $(document).ready(function () {
+
+        $("#EmployeeCode").blur(function () {
+
+            var empCode = $("#EmployeeCode").val();
+            if (empCode != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetEmployeeInfoByCode", "EmployeeOtherInformation", "http")',
+                    data: { empCode: empCode },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.Result == "OK") {
+                            $("#Department").val(data.dataList[0].Department);
+                            $("#Designation").val(data.dataList[0].Designation);
+                            $("#EmployeeName").val(data.dataList[0].EmployeeName);
+
+                            $("#SelectedEmployeeCode").val(data.dataList[0].EmployeeCode);
+
+                            $("#ZoneOfficeName").val(data.dataList[0].ZoneOfficeName);
+                            $("#AreaOfficeName").val(data.dataList[0].AreaOfficeName);
+                            $("#UnitOfficeName").val(data.dataList[0].UnitOfficeName);
+
+                        }
+                        else {
+                            $("#Department").val('');
+                            $("#Designation").val('');
+                            $("#EmployeeName").val('');
+
+
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+        }); // END blur
+
+    $("#btnViewReport").click(function () {
+        //IndividualEmployeePostingHistory(string EmployeeCode)
+    var SelectedEmployeeCode = $("#SelectedEmployeeCode").val();
+              var  otherReportURL = '/EmployeeReport/IndividualEmployeePostingHistory?EmployeeCode=' + SelectedEmployeeCode ;
+                PrintReport(otherReportURL);
+
+
+    });// END Click
+
+     $("#filterColumn").change(function () {
+        $("#filterValue").val("");
+    });
+
+
+
+     $("#btnSearch").click(function () {
+            SetSearchParameters();
+        });
+
+		}); // END Document REady
+
+    function PrintReport(printUrl) {
+    window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+}
+
+
+        var EmpCode = '@Model.EmployeeCode';
+        if (EmpCode != "") {
+            $("#EmployeeCode").val(EmpCode).trigger("blur");
+        }
+
+
+</script>
+
+<h2> Employee Transfer History </h2> &nbsp;
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4 ">
+                <label class="control-label" style="padding-top:8px;"> Search By(Code/Name):</label>
+            </div>
+            <div class="col-md-8">
+                <select id="filterColumn" class="form-control">
+                    <option value="">Please Select</option>
+                    <option value="EmployeeCode">Employee Code</option>
+                    <option value="EmployeeName">Employee Name</option>
+
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <input type="text" id="filterValue" placeholder="Type Search Text" class="form-control" />
+    </div>
+    <div class="col-md-2 text-center">
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+    </div>
+
+</div>
+<br />
+<div class="row" style="margin-top:15px;">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="gridKendo"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

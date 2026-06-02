@@ -1,0 +1,739 @@
+﻿@model gHRM.Web.ViewModels.Discipline.DiscEmbezzleInfoViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    .required {
+        color: red;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+</style>
+
+<script type="text/javascript">
+
+    var Office_Id = 0;
+    var Secondoffice_Id = 0;
+    var Thirdoffice_Id = 0;
+    var Office_Type = 0;
+    var Mode = "";
+
+    function AccusedListSave() {
+        $('#AjaxLoader').show();
+        var EmployeeId = $("#EmployeeId").val();
+
+        var Counttbl = 0;
+        Counttbl = $('#tblAccusedDetails >tbody >tr').length;
+
+        for (i = 1; i <= Counttbl; i++) {
+            var Employee_Id = $("#txtEmployeeId" + i).val();
+            if (EmployeeId != undefined) {
+                if (EmployeeId == Employee_Id) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open("error", "This employee has been added")
+                    return false;
+                }
+            }
+
+        }
+
+        var EmbezzleId = $("#EmbezzleId").val();
+        var EmployeeId = $("#EmployeeId").val();
+
+        if (EmbezzleId != 0 && EmployeeId != 0) {
+            $.ajax({
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("AccusedListSave", "DiscEmbezzleInfo", "http")',
+                type: "GET",
+                dataType: 'json',
+                async: true,
+                data: { EmbezzleId: EmbezzleId, EmployeeId: EmployeeId },
+                success: function (result) {
+                    $('#AjaxLoader').hide();
+                    if (result >= 1) {
+                        AccusedListAdd();
+                        // $.alert.open("info", "Save Successfully.");
+                    }
+                    else {
+                        $.alert.open("error", "Fail to Save");
+                    }
+                },
+                error: function () {
+                    $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                    $("#dialog-message").dialog({
+                        modal: true,
+                        buttons: {
+                            Ok: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            $.alert.open("error", "Please Save Embezzle");
+        }
+
+    }
+
+    function LoadEmpInfo(employee_code) {
+
+
+
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeTransferNew", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+
+                        // $("#EmployeeRank").val(data.EmployeeRank);
+                        $("#OfficeName").val(data.EmployeeCurrentOfficeName);
+                        //$("#DepartmentName").val(data.DepartmentName);
+                        $("#DesignationName").val(data.EmployeeCurrentDesignation);
+                        $("#OffcDesignName").val(data.EmployeeCurrentDesignation);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#OfficeDesignationId").val(data.EmpOfficeDesigId);
+                        $("#EmployeeCode").val(data.EmployeeCode);
+
+
+                    });
+
+                }
+
+                else {
+
+                    $("#OfficeName").val("");
+                    //$("#DepartmentName").val(data.DepartmentName);
+                    $("#DesignationName").val("");
+                    $("#OffcDesignName").val("");
+                    $("#EmployeeId").val("");
+                    $("#EmployeeName").val("");
+                    $("#OfficeDesignationId").val("");
+                    $("#EmployeeCode").val("");
+
+
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+
+
+    }
+    function AccusedListAdd() {
+
+        $("#EmployeeName").val("");
+        $("#DesignationName").val("");
+        $("#OfficeName").val("");
+        $("#txtEmployeeCode").val("");
+        $('#AjaxLoader').show();
+
+        var EmbezzleId = $("#EmbezzleId").val();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmbezzleEmplyeeList", "DiscEmbezzleInfo", "http")',
+            data: { EmbezzleId: EmbezzleId },
+            dataType: 'json',
+            async: true,
+            success: function (List_EmployeeViewModel) {
+                var dtTable = $('#tblAccusedDetails');
+                var NewSl = 0;
+                var tableBody = dtTable.find('tbody');
+                tableBody.empty();
+                $.each(List_EmployeeViewModel, function (index, E) {
+                    NewSl = index + 1;
+                    tableBody.append('<tr id="table_Row' + NewSl + '">' +
+                                  '<td></td>' +
+                                  '<td>' + E.EmployeeCode + ' <input type="text" value="' + E.EmployeeId + '" style="display:none;" name="EmpCode" id="txtEmployeeId' + NewSl + '" /></td>' +
+                                  '<td>' + E.EmployeeName + '<input type="text" value="' + E.EmployeeName + '" style="display:none;" name="EmpName" id="txtEmpName' + NewSl + '" /></td>' +
+                                  '<td>' + E.DesignationName + '<input type="text" value="' + E.DesignationName + '" style="display:none;" name="EmpDesig" id="txtEmpDesig' + NewSl + '" /></td>' +
+                                  '<td>' + E.OfficeName + '<input type="text" value="' + E.OfficeName + '" style="display:none;"  name="ReportReceivedDt" id="txtEmpOffice' + NewSl + '" /></td>' +
+                                  '<td style="text-align:center;"><a href="javascript:;" onclick="deleteRow(' + E.EmbezzleEmpId + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                                  '</tr>'
+                        )
+                });
+                $('#AjaxLoader').hide();
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+
+    }
+
+
+
+    function checkNumberic(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 46 || e.which > 57)) {
+            return false;
+        }
+        else
+            return true;
+    }
+
+
+    @*function LoadEmpInfo(employee_Code) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeListByCode", "Welfare", "http")',
+            data: { employee_Code: employee_Code },
+            dataType: 'json',
+            async: true,
+            success: function (List_EmployeeViewModel) {
+
+                if (List_EmployeeViewModel != "") {
+                    $.each(List_EmployeeViewModel, function (index, emp) {
+                        $('#EmployeeId').val(emp.EmployeeId);
+                        $("#EmployeeName").val(emp.EmployeeName);
+                        $("#OfficeName").val(emp.OfficeName);
+                        $("#DesignationName").val(emp.DesignationName);
+                    });
+                }
+                else {
+                    $.alert.open('alert', 'Invalid code');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }*@
+
+
+    $(document).ready(function () {
+
+        
+
+        mode = "EditLoad";
+        //NoOfCMAccussed NoOfSignatoryAccussed NoOfBMAccused TotEmbezzledAmount TotReturnAmount BalanceAmount
+        var NoOfCMAccussed =$("#NoOfCMAccussed").val();
+        var NoOfSignatoryAccussed =$("#NoOfSignatoryAccussed").val();
+        var NoOfBMAccused =$("#NoOfBMAccused").val();
+        $("#TotalAccussed").val(parseInt(NoOfCMAccussed)+parseInt(NoOfSignatoryAccussed)+parseInt(NoOfBMAccused));
+        var TotEmbezzledAmount =$("#TotEmbezzledAmount").val();
+        var TotReturnAmount =$("#TotReturnAmount").val();
+        $("#BalanceAmount").val(parseInt(TotEmbezzledAmount)-parseInt(TotReturnAmount));
+
+        AccusedListAdd();
+      //  GetOfficeForEdit();
+        $("#txtEmpName").blur(function () {
+
+            var employee_Code = $("#txtEmpName").val();
+            $("#EmployeeCode").val(employee_Code);
+            LoadEmpInfo(employee_Code);
+        });
+
+
+
+        $("#NoOfBMAccused").keypress(function (e) {
+
+            return checkNumberic(e);
+
+        });
+        $("#NoOfSignatoryAccussed").keypress(function (e) {
+
+            return checkNumberic(e);
+
+        });
+        $("#NoOfCMAccussed").keypress(function (e) {
+
+            return checkNumberic(e);
+
+        });
+        $("#TotEmbezzledAmount").keypress(function (e) {
+
+            return checkNumberic(e);
+
+        });
+        $("#TotReturnAmount").keypress(function (e) {
+
+            return checkNumberic(e);
+
+        });
+
+
+        $("#btnEmbezzleAccusedAdd").click(function (e) {
+
+            e.preventDefault();
+
+            AccusedListSave();
+
+        });
+
+        $("#txtEmployeeCode").blur(function () {
+
+            var employee_Code = $("#txtEmployeeCode").val();
+            LoadEmpInfo(employee_Code);
+        });
+        $("#btnEmbezzleSave").click(function (e) {
+            $('#AjaxLoader').show()
+            e.preventDefault();
+
+
+
+            var CrimeLocation = 0;
+
+            $("#OfficeId").val(CrimeLocation);
+            if (CrimeLocation >= 1) {
+                $('#DiscEmbezzleInfo').ajaxSubmit({
+                    type: "POST",
+                    target: '#thumbnil',
+                    data: { CrimeLocation: CrimeLocation },
+                    dataType: 'json',
+                    resetForm: true,
+                    success: function (EmbezzleId) {
+                        if (EmbezzleId > 0) {
+                            $('#AjaxLoader').hide();
+                            // $.alert.open('alert', 'Save Successfull');
+                            AccusedListAdd();
+
+                            //  $(".save-success").show(800).fadeToggle(3000);
+
+                        }
+                        else {
+                            $(".save-fail").show(800).fadeToggle(3000);
+                        }
+                    },
+                    error: function () {
+                        $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                        $("#dialog-message").dialog({
+                            modal: true,
+                            buttons: {
+                                Ok: function () {
+                                    $(this).dialog("close");
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            else {
+                $.alert.open("error", "Please Select Office");
+            }
+        });
+
+
+
+        $("#EmbezzleRcvDtMsg").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+        $("#AuditDateToMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+        $("#AuditDateFromMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+
+
+
+        $("#NoOfBMAccused").keyup(function (e) {
+            var NoOfCMA = $("#NoOfCMAccussed").val();
+            var NoOfSignatory = $("#NoOfSignatoryAccussed").val();
+            var NoOfBM = $("#NoOfBMAccused").val();
+
+            if (NoOfCMA == "") {
+                NoOfCMA = 0;
+            }
+            if (NoOfSignatory == "") {
+                NoOfSignatory = 0;
+            }
+            if (NoOfBM == "") {
+                NoOfBM = 0;
+            }
+
+            var total = parseInt(NoOfCMA) + parseInt(NoOfSignatory) + parseInt(NoOfBM);
+
+            $("#TotalAccussed").val(total);
+        });
+        $("#NoOfCMAccussed").keyup(function (e) {
+            var NoOfCMA = $("#NoOfCMAccussed").val();
+            var NoOfSignatory = $("#NoOfSignatoryAccussed").val();
+            var NoOfBM = $("#NoOfBMAccused").val();
+
+            if (NoOfCMA == "") {
+                NoOfCMA = 0;
+            }
+            if (NoOfSignatory == "") {
+                NoOfSignatory = 0;
+            }
+            if (NoOfBM == "") {
+                NoOfBM = 0;
+            }
+
+            var total = parseInt(NoOfCMA) + parseInt(NoOfSignatory) + parseInt(NoOfBM);
+
+            $("#TotalAccussed").val(total);
+        });
+        $("#NoOfSignatoryAccussed").keyup(function (e) {
+            var NoOfCMA = $("#NoOfCMAccussed").val();
+            var NoOfSignatory = $("#NoOfSignatoryAccussed").val();
+            var NoOfBM = $("#NoOfBMAccused").val();
+
+            if (NoOfCMA == "") {
+                NoOfCMA = 0;
+            }
+            if (NoOfSignatory == "") {
+                NoOfSignatory = 0;
+            }
+            if (NoOfBM == "") {
+                NoOfBM = 0;
+            }
+
+            var total = parseInt(NoOfCMA) + parseInt(NoOfSignatory) + parseInt(NoOfBM);
+
+            $("#TotalAccussed").val(total);
+        });
+
+        $("#TotEmbezzledAmount").keyup(function (e) {
+            var TotEmbezzled = $("#TotEmbezzledAmount").val();
+            var TotReturn = $("#TotReturnAmount").val();
+
+            if (TotEmbezzled == "") {
+                TotEmbezzled = 0;
+            }
+            if (TotReturn == "") {
+                TotReturn = 0;
+            }
+
+            var balance = parseInt(TotEmbezzled) - parseInt(TotReturn);
+
+            $("#BalanceAmount").val(balance);
+        });
+        $("#TotReturnAmount").keyup(function (e) {
+            var TotEmbezzled = $("#TotEmbezzledAmount").val();
+            var TotReturn = $("#TotReturnAmount").val();
+            if (TotEmbezzled == "") {
+                TotEmbezzled = 0;
+            }
+            if (TotReturn == "") {
+                TotReturn = 0;
+            }
+
+
+            var balance = parseInt(TotEmbezzled) - parseInt(TotReturn);
+
+            $("#BalanceAmount").val(balance);
+        });
+    });
+
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+<br />
+<h2 class="page-title">Embezzle</h2>
+
+@using (Html.BeginForm("Edit", "DiscEmbezzleInfo", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "DiscEmbezzleInfo" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="create-success create-content alert alert-success alert-dismissible" role="alert" style="display: none;">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p class="message-content">  </p>
+    </div>
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+        <br />
+        <fieldset>
+            <legend>Embezzle Location</legend>
+             
+        </fieldset>
+        <br />
+        <fieldset>
+            <legend>Embezzle Info</legend>
+            <div class="row">
+                @*<div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.ExplonatoryNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                               @Html.EditorFor(model => model.ExplonatoryNo, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmbezzleRcvDtMsg, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmbezzleRcvDtMsg, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.HiddenFor(model => model.OfficeId)
+                            @Html.HiddenFor(model => model.CaseMasterId)
+                            @Html.HiddenFor(model => model.EmbMode)
+                            @Html.HiddenFor(model => model.EmbezzleId)
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AuditDateFromMsg, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.AuditDateFromMsg, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AuditDateToMsg, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.AuditDateToMsg, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BranchAuditNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.BranchAuditNo, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.NoOfBMAccused, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.NoOfBMAccused, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.NoOfSignatoryAccussed, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.NoOfSignatoryAccussed, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.NoOfCMAccussed, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.NoOfCMAccussed, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotalAccussed, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TotalAccussed, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotEmbezzledAmount, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TotEmbezzledAmount, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotReturnAmount, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TotReturnAmount, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BalanceAmount, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.BalanceAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Remarks, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-6">
+                    <input type="submit" value="Save" id="btnEmbezzleSave" class="btn btn-primary" />
+                </div>
+            </div>   
+        </fieldset>
+        <br />
+        <fieldset>
+                <legend>Accused Info Add</legend>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Employee Code</label>
+                            <div class="col-sm-6">
+                                @Html.TextBox("txtEmployeeCode", "", new { @class = "form-control" })
+                                @Html.HiddenFor(model => model.EmployeeId)
+                                @Html.HiddenFor(model => model.EmployeeCode)
+                            </div>
+                            <div style="float:left">
+                                <input type="submit" value="Add" id="btnEmbezzleAccusedAdd" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Employee Name</label>
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Designation Name</label>
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Office Name</label>
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <br />
+        <fieldset>
+                <legend>Accused List</legend>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="DivTableView">
+                            <div class="box-body no-padding table-responsive">
+                                <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblAccusedDetails">
+                                    <thead>
+                                        <tr class="headings">
+                                            <th class="column-title">Sl</th>
+                                            <th class="column-title">Code</th>
+                                            <th class="column-title">Name</th>
+                                            <th class="column-title">Designation</th>
+                                            <th class="column-title">Office</th>
+                                            <th class="column-title">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        <div class="row">
+            <div class="col-sm-12">
+                <div style="padding:10px;margin:5px;">
+                    <div class="nominee-save-success alert alert-success alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Saved Sucessfully</p>
+                    </div>
+                    <div class="nominee-save-fail alert alert-danger alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Fail to save</p>
+                    </div>
+                    @*  <input type="submit" value="Add" id="btnEmbezzleAccusedAdd" class="btn btn-primary" />*@
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}
+
+
+
+
+

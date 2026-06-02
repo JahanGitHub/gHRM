@@ -1,0 +1,281 @@
+﻿@model gHRM.Web.ViewModels.Basic.CarRecognitionViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/CarRecognition">Approval</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Car Recognition Approval";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<link href="~/Content/css/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+<script src="~/Scripts/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+
+<script type="text/javascript">
+
+    function GridLoad(qType) {
+        $(".k-loading-image").hide();
+        var ApprovalId = '@Model.EmployeeId';
+        //alert(ApprovalId);
+        $("#grid").html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("ListCarRecognitionApprover", "CarRecognition", "http")',
+                    dataType: 'json',
+                    data: { qType: qType, EmployeeId: ApprovalId }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "Rowsl",
+                     title: "Sl.",
+                     width: "40px",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false,
+                     locked: true
+                 },
+                 {
+                     field: "EmployeeId",
+                     title: "EmployeeId",
+                     width: "70px",
+                     filterable: true,
+                     locked: true
+                 },
+                 {
+                     width: "120px",
+                     field: "CarNo",
+                     title: "CarNo",
+                     filterable: false,
+                     locked: true
+                 },
+                 {
+                     width: "100px",
+                     field: "CarRecognitionId",
+                     title: "CarRecognitionId",
+                     filterable: false,
+                     locked: true
+                 },
+                 {
+                     width: "100px",
+                     field: "Distance",
+                     title: "Distance",
+                     filterable: false,
+
+                 },
+                {
+                    width: "100px",
+                    field: "Purpose",
+                    title: "Purpose",
+                    filterable: false,
+
+                },
+                {
+                    width: "100px",
+                    field: "CRD",
+                    title: "CRD",
+                    filterable: false,
+
+                },
+                {
+                    width: "100px",
+                    field: "CRTF",
+                    title: "CRTF",
+                    filterable: false
+                },
+                {
+                    width: "100px",
+                    field: "CRTT",
+                    title: "CRTT",
+                    filterable: false,
+
+                },
+                {
+                    width: "100px",
+                    field: "IsActive",
+                    title: "IsActive",
+                    filterable: false,
+
+                },
+                 {
+                     width: "100px",
+                     title: 'Action',
+                     template: function (data) {
+                         var btn = "<div class='text-center'>";
+                         btn = btn + '<p style="padding:0px; margin:0px;"><button type="button" style="width:50%" OnClick="CarRecognitionConfirm(' + ApprovalId + ',' + data.EmployeeId + ',' + data.NotificationId + ');" class="btn btn-success btn-xs">Approve</button></p>';
+                         btn = btn + '<p style="margin:0px;padding-bottom:0px;padding-top:7px;"><button style="width:50%" type="button" OnClick="CarRecognitionReject(' + ApprovalId + ',' + data.EmployeeId + ',' + data.NotificationId + ');" class="btn btn-danger btn-xs">Reject</button></p>';
+                         return btn;
+                     }
+                 },
+            ]
+        });
+    }
+
+
+    function CarRecognitionConfirm(ApprovalId, EmployeeId, NotificationId) {
+
+        $.alert.open('confirm', 'Are you sure you want to approve this Recognition?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("CarRecognitionConfirm", "CarRecognition", "http")',
+                    data: { ApprovalId: ApprovalId, EmployeeId: EmployeeId, NotificationId: NotificationId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result.result == 1) {
+                            GridLoad(qType);
+                            $.alert.open("Success", Result.message);
+                        } else {
+                            $.alert.open("Error", Result.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+    function CarRecognitionReject(ApprovalId, EmployeeId, NotificationId) {
+        //var reason = prompt("Please write the rejection note", "");
+
+        //if (reason != '' && reason.length > 0) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("ApproveReject", "CarRecognition", "http")',
+            data: { ApprovalId: ApprovalId, EmployeeId: EmployeeId, NotificationId: NotificationId },
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+                if (Result.result == 1) {
+                    GridLoad(qType);
+                    $.alert.open("Success", Result.message);
+                } else {
+                    $.alert.open("Error", Result.message);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+        return true;
+        //}
+        //else {
+        //    $.alert.open("Error", "Please write the rejection note");
+        //    return false;
+        //}
+    }
+
+
+    $(document).ready(function () {
+
+        qType = 'N';
+        $("#chkNonApproved").prop('checked', true);
+
+        GridLoad(qType);
+
+        $("#chkNonApproved").click(function () {
+            var checkVal = $("#chkNonApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "N"
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkApproved").click(function () {
+            var checkVal = $("#chkApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "A"
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkReject").click(function () {
+            var checkVal = $("#chkReject").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkApproved").prop('checked', false);
+                qType = "R"
+                GridLoad(qType);
+            }
+        });
+    });
+
+</script>
+
+
+&nbsp;
+<h2 class="page-title">Car Recognition Approve List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-2" style="float:left">
+            <input type="checkbox" name="app" id="chkNonApproved" />&nbsp;&nbsp;&nbsp;<label>Non-Approved</label><br />
+            <input type="checkbox" name="app" id="chkApproved" />&nbsp;&nbsp;&nbsp;<label>Approved</label><br />
+            <input type="checkbox" name="app" id="chkReject" />&nbsp;&nbsp;&nbsp;<label>Reject</label>
+        </div>
+    </div>
+</div>
+
+ &nbsp;
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

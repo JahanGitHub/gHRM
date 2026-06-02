@@ -1,0 +1,141 @@
+﻿@model gHRM.Web.ViewModels.PayrollReportViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/AttendanceReport">AttendanceReport</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Daily Attendance Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<script type="text/javascript">
+
+   
+    function rptValidation() {
+
+        return true;
+ 
+    }
+
+    $(document).ready(function () {
+
+        $("#AttDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2050"
+
+        });
+        $("#AttDate").datepicker(
+      'setDate', new Date());
+
+
+         
+       
+        ////////
+        $("#reportView").click(function (e) {
+           
+            var AttDate = $("#AttDate").val();
+            
+            var AttenTypeShortName = $("#filterColumn option:selected").val();
+            
+            
+
+
+           // var EmployeeCode = $("#EmployeeID").val();
+            //var qType = $("#qType").val();
+            if (rptValidation() == true) {
+                url = '/AttendanceReport/GenerateDailyAttendanceReport?AttendanceDate=' + AttDate + '&AttenTypeShortName=' + AttenTypeShortName;
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+
+        });//// End of Button
+
+    });
+</script>
+
+<h2 class="page-title">Daily Attendance Report</h2>
+<br />
+<div class="row">
+    
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+                
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Attendance Date</label>
+                        <div class="col-md-8">
+                            <input type="text" id="AttDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <select id="filterColumn" class="form-control">
+                        <option value="ViewAll">View All</option>
+                        <option value="PR">Regular Present</option>
+                        <option value="LT">Late</option>
+                        <option value="L">Leave</option>
+                        <option value="TR">Tour</option>
+                        <option value="AB">Absent</option>
+                    </select>
+
+                    @*wh holiday
+                    ew extra work
+                    ei early inform
+                    wc present without card*@
+
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-8">
+        <input type="submit" id="reportView" value="View" class="btn btn-warning" />
+    </div>
+</div>
+
+<div class="row">
+    <div class="panel-body">
+        <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">Report Generated Successfully.</p>
+        </div>
+    </div>
+
+    <div class="danger">
+        <div class="create-content create-content alert alert-error alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content" id="messageErr"> @Html.Raw(TempData["Error"])  </p>
+        </div>
+    </div>
+
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <script>
+
+        $(".panel-body .create-success").show(700).fadeToggle(2000);
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+        $(".danger .create-content").show(700).fadeToggle(4000);
+
+    </script>
+}

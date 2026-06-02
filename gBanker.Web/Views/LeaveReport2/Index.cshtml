@@ -1,0 +1,184 @@
+﻿@model gHRM.Web.ViewModels.LeaveReportViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var employeeStatusList = Model == null ? null : Model.EmployeeStatusList;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+
+
+<h2 class="page-title">Leave Report</h2>
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<br />
+<br />
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Leave Report</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.ReportType, Model.ReportTypeList, new { @class = "form-control required" })
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.Label("Office Type", htmlAttributes: new { @class = "control-label col-sm-4" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-md-4 required">Start Date</label>
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control dt-datepicker", @autocomplete = "off" } })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-md-4 required">End Date</label>
+            <div class="col-md-8">
+                @Html.EditorFor(model => model.DateTo, new { htmlAttributes = new { @class = "form-control dt-datepicker", @autocomplete = "off" } })
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+
+<div class="form-group row">
+    <div class="col-sm-12 d-flex gap-2">
+        <button type="button" id="btnPrint" class="btn btn-primary">Print</button>&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" id="btnPrint2" class="btn btn-success">Excel</button>
+    </div>
+</div>
+
+
+
+
+<script>
+    $(document).ready(function () {
+
+        // Initialize datepickers
+        $("#DateTo, #DateFrom").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+        });
+
+        // Set default date as today
+        $("#DateTo, #DateFrom").datepicker('setDate', new Date());
+
+        // Print button click
+        $("#btnPrint").click(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId === "") {
+                officeTypeId = 0;
+            }
+
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+
+            if (DateFrom !== "" && DateTo !== "") {
+                var url = '/LeaveReport2/LeaveStatementMonthlyReportPrint?DateFrom=' + encodeURIComponent(DateFrom) +
+                    '&DateTo=' + encodeURIComponent(DateTo) + '&OfficeTypeId=' + officeTypeId;
+                PrintReport(url);
+            } else {
+                $.alert.open('error', "Please select both Start and End Date.");
+            }
+        });
+
+        $("#btnPrint2").click(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId === "") {
+                officeTypeId = 0;
+            }
+
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+
+            if (DateFrom !== "" && DateTo !== "") {
+                var url = '/LeaveReport2/LeaveStatementMonthlyReportPrint_excel?DateFrom=' + encodeURIComponent(DateFrom) +
+                    '&DateTo=' + encodeURIComponent(DateTo) + '&OfficeTypeId=' + officeTypeId;
+                PrintReport(url);
+            } else {
+                $.alert.open('error', "Please select both Start and End Date.");
+            }
+        });
+
+
+        // Open report in new tab
+        function PrintReport(PrintUrl) {
+            window.open(PrintUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        }
+
+        // Initial employee status filtering
+        InformationStatus(true);
+
+        // Change employee status filter
+        $('input[name=empStatus]').click(function () {
+            $('.selectpicker').selectpicker('deselectAll');
+            let status_text = $('input[name=empStatus]:checked').val();
+
+            if (status_text === "Active") {
+                InformationStatus(true);
+            } else if (status_text === "InActive") {
+                InformationStatus(false);
+            } else {
+                $('.selectpicker').selectpicker('selectAll');
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+
+        // Load employee status-based filters
+        function InformationStatus(stsvalue) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("InformationStatus", "Employee", "http")',
+                data: { stsvalue: stsvalue },
+                dataType: 'json',
+                async: true,
+                success: function (response) {
+                    $.each(response.Data, function (index, status) {
+                        if (status.Value) {
+                            $("#typeFilterColumn option").filter(function () {
+                                return $(this).text() === status.Text;
+                            }).prop("selected", true);
+                        }
+                    });
+
+                    $('.selectpicker').selectpicker('refresh');
+                }
+            });
+        }
+
+    });
+</script>
+
+

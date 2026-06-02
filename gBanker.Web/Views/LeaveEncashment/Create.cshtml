@@ -1,0 +1,492 @@
+﻿@model gHRM.Web.ViewModels.LeaveSellViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#RequestDate").datepicker({
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+
+        $("#EmployeeCode").keyup(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == 8) {
+                ClearFormData();
+            }
+        });
+
+        $("#EmployeeCode").blur(function () {
+            var employee_Code = $("#EmployeeCode").val();
+            if (employee_Code != "") {
+                LoadEmpInfo(employee_Code);
+            }
+            else {
+                $("#OfficeName").empty();
+                $("#DepartmentName").empty();
+                $("#DesignationName").empty();
+            }
+        });
+
+        if ('@Model.EmployeeCode' != "") {
+            $("#EmployeeCode").trigger("blur");
+        }
+
+        //$("#TotalDays").val(30);//????  Must be come from configuration
+
+        $("#btnLeaveSellSave").click(function (e) {
+            e.preventDefault();
+
+            var empId = $("#EmployeeId").val();
+            if (!empId) {
+                $("#EmployeeCode").addClass("errorClass");
+                return false;
+            }
+            else {
+                $('#LeaveSellProfile').ajaxSubmit({
+                    type: "POST",
+                    target: '#thumbnil',
+                    data: {},
+                    dataType: 'json',
+                    resetForm: false,
+                    success: function (data) {
+
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open('Success', data.message);
+                            $("#btnLeaveSellSave").hide();
+
+                            if (data.leaveSellId > 0 && empId > 0) {
+                                ELEncashmentApplication(data.leaveSellId, empId)
+                            }
+                            ClearFormData();
+                        } else {
+                            $.alert.open('error', data.message);
+                        }
+                    },
+                    error: function () {
+                        $('#AjaxLoader').hide();
+                        $.alert.open('error', "Error Occured");
+                    }
+                });
+            }
+        });
+    });
+
+    function LoadEmpInfo(employee_Code) {
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetLeaveSellInfo", "LeaveEncashment", "http")',
+            data: { employee_Code: employee_Code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $('#AjaxLoader').hide();
+                if (data.result==0) {
+                    $.alert.open('Error',data.message);
+                    ClearFormData();
+                    $(".create-success").hide();
+                    $(".create-danger").hide();
+                }
+
+                else {
+                    $("#EmployeeId").val(data.model.EmployeeId);
+                    $("#EmployeeName").val(data.model.EmployeeName);
+                    $('#OfficeName').val(data.model.OfficeName);
+                    $('#DepartmentName').val(data.model.DepartmentName);
+                    $('#DesignationName').val(data.model.DesignationName);
+                    $('#txtJoiningDate').val(data.model.ConfirmDateMsg);
+                    $('#txtEligibleDate').val(data.model.EligibleDateMsg);
+                    $('#txtTotalEarnLeave').val(data.model.TotalEarnLeave);
+                    $('#txtLeaveSold').val(data.model.TotalLeaveSold);
+                    $('#txtLastSellDate').val(data.model.LastSellDateMsg);
+                    $('#txtLeaveTaken').val(data.model.TotalEarnLeaveTaken);
+                    $('#txtAvailableLeave').val(data.model.AvailableLeave);
+                    $("#TotalDays").val(data.model.EncashmentQuantity);
+                    //$('#LeaveSellMessage').val(data.LeaveSellMessage);
+                    $(".create-success").hide();
+                    $(".create-danger").hide();
+                    $('#LeaveSellSave').val(data.model.LeaveSellSave);
+                    if ($('#LeaveSellSave').val() == '1') {
+                        $('#lblSellSucessMsg').html(data.model.LeaveSellMessage);
+                        $(".create-success").show();
+                    }
+                    else {
+                        $('#lblSellDangerMsg').html(data.model.LeaveSellMessage);
+                        $(".create-danger").show();
+                    }
+                    
+                    GetLeaveSellListByEmployee();
+
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GetLeaveSellListByEmployee() {
+
+        var empId = $("#EmployeeId").val();
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetLeaveSellListByEmployee", "LeaveEncashment", "http")',
+                    dataType: 'json',
+                    data: { EmployeeId: empId }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "LeaveSellId",
+                     hidden: true,
+                     filterable: false
+                 },
+
+                 {
+                     field: "EmployeeId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "Rowsl",
+                     title: "Sl.",
+                     width: "30px",
+                     filterable: false
+                 },
+                 {
+                     width: "50px",
+                     field: "EmployeeCode",
+                     filterable: false,
+                     title: "Code"
+                 },
+                 {
+                     width: "100px",
+                     field: "EmployeeName",
+                     title: "Name",
+                     filterable: false
+                 },
+                  {
+                      width: "100px",
+                      field: "SaleDateMsg",
+                      title: "Sale Date",
+                      filterable: false
+                  },
+                    //{
+                    //    width: "70px",
+                    //    field: "ScaleDate",
+                    //    title: "Scale Date",
+                    //    filterable: false
+                    //},
+                {
+                    width: "50px",
+                    field: "BalanceEl",
+                    title: "EL Balance",
+                    filterable: false
+                },
+
+                {
+                    width: "50px",
+                    field: "TotalDays",
+                    title: "Days Sold",
+                    filterable: false
+                },
+                {
+                    width: "50px",
+                    field: "EncashedAmount",
+                    title: "Amount",
+                    filterable: false
+                },
+                 {
+                     title: "Print",
+                     width: "40px",
+                     template: function (data) {
+                         return '<div class="text-center"><a title="EL Encashment Application" href="#" OnClick="ELEncashmentApplication(' + data.LeaveSellId + ',' + data.EmployeeId + ');"><i class="fa fa-print"></i></a></div>';
+                     }
+                 },
+                {
+                    width: "100px",
+                    title: 'Status',
+                    template: function (data) {
+                        if (data.IsApproved == false && data.IsActive == true) {
+                            // return '<input type="file" name="pic" accept="image/*">';
+                            return "Not Approved";
+                        }
+                        else if (data.IsApproved == true) {
+                            return "Approved";
+                        }
+                        else if (data.IsApproved == false && data.IsActive == false) {
+                            return "Rejected";
+                        }
+                    }
+                },
+            ]
+        });
+    }
+
+    function ClearFormData() {
+
+        $("#EmployeeId").val("");
+        $("#EmployeeName").val("");
+        $('#OfficeName').val("");
+        $('#DepartmentName').val("");
+        $('#DesignationName').val("");
+        $('#txtJoiningDate').val("");
+        $('#txtEligibleDate').val("");
+        $('#txtTotalEarnLeave').val("");
+        $('#txtLeaveSold').val("");
+        $('#txtLastSellDate').val("");
+        $('#txtLeaveTaken').val("");
+        $('#txtAvailableLeave').val("");
+        $("#TotalDays").val();
+
+    }
+
+    function ELEncashmentApplication(LeaveSellId, EmployeeId) {
+        var url;
+        url = '/LeaveEncashment/ELEncashmentApplication?LeaveSellId=' + LeaveSellId + '&EmployeeId=' + EmployeeId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Leave Encashment</h2>
+&nbsp;
+
+@using (Html.BeginForm("Create", "LeaveEncashment", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "LeaveSellProfile" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+        <fieldset>
+            <legend>Employee Leave Info</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @if (Model.IsAuthorized == true)
+                            {
+                                @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                            }
+                            else
+                            {
+                                @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                            }
+                            @Html.HiddenFor(model => model.EmployeeId)
+                            @Html.HiddenFor(model => model.LeaveSellSave)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Salary Scale Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+
+                            <input type="text" id="txtJoiningDate" class="form-control" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Encash Eligible Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtEligibleDate", "", new { @class = "form-control", @readonly = "true" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Total Earn Leave", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtTotalEarnLeave", "", new { @class = "form-control", @readonly = "true" })
+                            @*@Html.EditorFor(model => model.JoiningDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Earn Leave Taken", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtLeaveTaken", "", new { @class = "form-control", @readonly = "true" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Available Earn Leave", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtAvailableLeave", "", new { @class = "form-control", @readonly = "true" })
+                            @*@Html.EditorFor(model => model.JoiningDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Earn Leave Sold", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtLeaveSold", "", new { @class = "form-control", @readonly = "true" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Last Encash Date", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtLastSellDate", "", new { @class = "form-control", @readonly = "true" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("Encashment Quantity", htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TotalDays, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Request Date</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.RequestDate, new { htmlAttributes = new { @Value = DateTime.Now.ToString("dd-MMM-yyyy"), @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <div id="grid"></div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <div class="row" style="margin-top:20px;">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <div class="col-sm-12">
+                    <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content"><label id="lblSellSucessMsg" style="font-size:15px;"></label></p>
+                    </div>
+                    <div class="create-danger create-content alert alert-danger alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content"><label id="lblSellDangerMsg" style="font-size:15px;"></label></p>
+                    </div>
+
+                    <div class="save-success alert alert-success alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Saved Sucessfully</p>
+                    </div>
+                    <div class="save-fail alert alert-danger alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Fail to save</p>
+                    </div>
+
+                    <input type="submit" value="Save" id="btnLeaveSellSave" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

@@ -1,0 +1,117 @@
+﻿@model gHRM.Web.ViewModels.EmployeeReportViewModel
+
+@{
+    ViewBag.Title = "Employee Training Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    $(document).ready(function () {
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1900:2025"
+        });
+
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1900:2025"
+        });
+
+        $("#btnPrint").click(function () {
+            var url;
+            var InstituteName = $("#InstituteName option:selected").val();
+            var TrainingTitle = $("#TrainingTitle option:selected").val();
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            if (dateFrom != "" && dateTo != "") {
+                url = '/EmployeeReport/EmployeeTrainingInfoReport?InstituteName=' + InstituteName + '&TrainingTitle=' + TrainingTitle + '&DateFrom=' + dateFrom + '&DateTo=' + dateTo;
+                PrintReport(url);
+            } else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+
+        });
+
+    });
+
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+</script>
+
+
+<h2 class="page-title">Employee Training Report</h2>
+<br />
+<div class="row">
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Institute Name</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.InstituteName, Model.InstituteNameList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Training Title</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.TrainingTitle, Model.TrainingTitleList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date From</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date To</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"></label>
+                        <div class="col-md-4">
+                            <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

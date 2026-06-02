@@ -1,0 +1,76 @@
+﻿@model gHRM.Web.ViewModels.Payroll.SalaryDateConfigViewModel
+
+@{
+    ViewBag.Title = "Salary Date Config";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/MonthlySalaryProcessConfig">Salary Date Config</a></li>
+    </ol>
+</div>
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+    &nbsp;
+<h2 class="page-title">Salary Date Config</h2>
+    &nbsp;
+<div class="container-fluid">
+    @using (Html.BeginForm("AddNew", "SalaryDateConfig", FormMethod.Post,new {@role = "form",@class = "form-horizontal", @id = "add-or-edit-form"}))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DayOfMonthlySalary, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DayOfMonthlySalary, new { htmlAttributes = new { @class = "form-control" } })                     
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-8">
+                        <label class="switch ib switch-primary mt10">
+                            @Html.CheckBoxFor(m => m.IsCurrentlyUsing)
+                            <label for="IsCurrentlyUsed" data-on="YES" data-off="NO"></label>
+                            <span>Is Current</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" class="btn btn-success">Save</button> 
+                        &nbsp;                      
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" onclick="monthlySalaryProcessConfigManager.clearform()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h2 class="page-title">Salary Date Config List</h2><br>
+    <!--To view Listings-->
+    <div id="grid"></div>
+</div>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/payroll/salaryDateConfigManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

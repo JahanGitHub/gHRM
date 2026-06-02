@@ -1,0 +1,113 @@
+﻿@model gHRM.Web.ViewModels.EmployeePromotionReportViewModel
+@{
+    ViewBag.Title = "Promotion Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .form-group {
+        padding: 15px 0;
+    }
+</style>
+
+<h2 class="page-title">Promotion Report</h2>
+&nbsp;
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Report Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ReportType, Model.ReportTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6 EmployeeCodeContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">Employee Code</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="col-sm-6 DateContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">From Date</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.Date, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6 DateToContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">To Date</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6 BasicOfficeTypeContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">Office Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.BasicOfficeTypeId, Model.BasicOfficeTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6 DesignationContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">Designation</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.DesignationId, Model.DesignationList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6 TotalServiceYearContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">Total Service (Year)</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.TotalServiceYear, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6 ServiceYearFromLastPromotionContainer" style="display: none;">
+            <div class="form-group">
+                <label class="control-label col-md-4">Service (Year) from last promotion</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.ServiceYearFromLastPromotion, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    &nbsp;
+    <div class="row">
+        <div class="form-group col-md-offset-5">
+            <input type="button" value="Print" class="btn btn-success" onclick="Page.PrintReport(false)" />
+            <input type="button" value="Excel" class="btn btn-success" onclick="Page.PrintReport(true)" style="margin-left: 10px;" />
+        </div>
+    </div>
+</div>
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    @Scripts.Render("/Assets/js/app/promotion/report.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION()+DateTime.Now)
+}

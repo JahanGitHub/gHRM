@@ -1,0 +1,265 @@
+﻿@model gHRM.Web.ViewModels.PF.ContributionCollectionViewModel
+
+@{
+    ViewBag.Title = "Create Contribution Collection";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function SaveContributionCollection(obj) {
+        
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveContributionCollection", "PFContributionCollection", "http")',
+            data: JSON.stringify({ model: obj }),
+            dataType: 'json',
+            //async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                clear();
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+            }
+        });
+    }
+
+
+    function clear() {
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#EmployeeCode,#EmployeeId,#EmployeeName,#SelfContribution,#OrgContribution,#Comment,#TransactionDate').val('');
+    }
+
+    //New
+    function GetEmployeeByEmployeeCode(employeeCode) {
+        var employeeId = '';
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeByEmployeeCode", "Employee", "http")',
+            data: { employeeCode: employeeCode },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+
+                $('#EmployeeId').val(data.EmployeeId);
+                $('#EmployeeName').val(data.EmployeeName);
+                employeeId = data.EmployeeId;
+            },
+            error: function (request, status, error) {
+            }
+        });
+        return employeeId;
+    }
+
+
+    function GetEmployeeNameByEmpId(employeeId) {
+        var employeeName = '';
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeNameByEmpId", "Employee", "http")',
+            data: { employeeId: employeeId },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                employeeName = data.EmployeeName;
+            },
+            error: function (request, status, error) {
+            }
+        });
+        return employeeName;
+    }
+
+    function DisableAll(flag) {
+        $('#EmployeeCode').prop('disabled', flag);
+        $('#EmployeeId').prop('disabled', flag);
+        $('#SelfContribution').prop('disabled', flag);
+        $('#OrgContribution').prop('disabled', flag);
+
+        $('#btnSaveConCollection').prop('disabled', flag);
+        $('#btnReset').prop('disabled', flag);
+    }
+
+    function Add() {
+
+        var employeeId = $("#EmployeeId").val();
+        var employeeName = $("#EmployeeName").val();
+        var selfContribution = $("#SelfContribution").val();
+        var orgContribution = $("#OrgContribution").val();
+        var comment = $("#Comment").val();
+        var transactionDate = $("#TransactionDate").val();
+
+        var msg = (employeeId == '' ? "Employee Information not found" : employeeName == '' ? "Invald employee" : selfContribution == '' ? "Enter self contribution." : !comment ? "Comment is required." : !transactionDate ? "Transaction date is required." : "");
+        if (msg) {
+            $.alert.open("Warning", msg);
+            return;
+        }
+        var obj = {
+            EmployeeId: employeeId,
+            SelfContribution: selfContribution,
+            OrgContribution: orgContribution,
+            Comment: comment,
+            TransactionDate: transactionDate,
+        };
+        SaveContributionCollection(obj);
+    }
+
+    $(document).ready(function () {
+        $("#TransactionDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "@DateTime.Now.AddYears(-1).Year:@DateTime.Today.Year",
+            changeYear: true
+        });
+        $("input[type=text]:visible:enabled").first().focus();
+        //PF Setup
+
+
+        $('#SelfContribution,#OrgContribution').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+
+        //New
+        $('#EmployeeCode').change(function () {
+
+                $('#EmployeeId').val('');
+                $('#EmployeeName').val('');
+                $('#SelfContribution').val('');
+                $('#OrgContribution').val('');
+
+                var employeeCode = $('#EmployeeCode').val();
+
+
+                var employeeId = GetEmployeeByEmployeeCode(employeeCode);
+
+                if (employeeId == '' || employeeId == undefined) {
+                    alert('Does not exist');
+
+                    $('#EmployeeCode').val('');
+                    $('#EmployeeId').val('');
+                    $('#EmployeeName').val('');
+                    $('#SelfContribution').val('');
+                    $('#OrgContribution').val('');
+                    $('#EmployeeCode').focus();
+                    return;
+                }
+        });
+
+
+
+        $("#btnReset").click(function () {
+            clear();
+        });
+
+        $("#btnSaveConCollection").click(function () {
+            Add();
+            //$.alert.open('confirm', 'Are you sure you want to add?', function (button) {
+            //    if (button == 'yes') {
+
+            //        return true;
+            //    }
+            //    else {
+            //        return false;
+            //    }
+            //});
+        });
+    });
+</script>
+
+@*@Html.ActionLink("Back to List", "ContributionCollectionList", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+<h2 class="page-title">Contribution Collection</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, @Placeholder = "Employee Code", @autocomplete = "off" } })
+                        @Html.HiddenFor(model => model.EmployeeId)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TransactionDateString, htmlAttributes: new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.TransactionDateString, new { htmlAttributes = new { @class = "form-control", @tabindex = 2, @Placeholder = "Transaction Date", @autocomplete = "off",@id= "TransactionDate" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Comment, htmlAttributes: new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.Comment, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Comment", @tabindex = 3, @autocomplete = "off" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SelfContribution, htmlAttributes: new { @class = "control-label col-md-5 required" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.SelfContribution, new { htmlAttributes = new { @class = "form-control", @tabindex = 4, @Placeholder = "Self Contribution", @autocomplete = "off" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" id="divOrgContribution">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OrgContribution, htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.OrgContribution, new { htmlAttributes = new { @class = "form-control", @tabindex = 5, @Placeholder = "Org. Contribution", @autocomplete = "off" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnSaveConCollection" class="btn btn-success" tabindex="5" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

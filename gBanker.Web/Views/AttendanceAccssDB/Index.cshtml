@@ -1,0 +1,288 @@
+﻿@model gHRM.Web.ViewModels.AttendanceAccssDBViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/AttendanceAccssDB">Attendance Accss DB</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Upload Data";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function GetOfficeDayTypeDropdown() {
+
+        var ddlOfficeDayD = $("#AttOfficeDay");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetOfficeDayTypeList", "Attendance", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlOfficeDayD.html('');
+                $.each(data, function (id, option) {
+                    ddlOfficeDayD.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function chkAccess() {
+        var officeDay = 1; // $("#AttOfficeDayTypeIdForAccess").val();
+        if (officeDay == 0) {
+            $.alert.open("Message", "Please Select Office Day Type.");
+            return false;
+        }
+    }
+
+    function chkCSV() {
+        var officeDay = 1; // $("#AttOfficeDayTypeIdForCSV").val();
+        if (officeDay == 0) {
+            $.alert.open("Message", "Please Select Office Day Type.");
+            return false;
+        }
+    }
+    function LastTime() {
+        
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetLastTime", "AttendanceAccssDB", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.result == "1") {
+                    var LastDate = (data.data[0].AttendanceDateMsg);
+                    $("#last_date").text(LastDate);
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        LastTime();
+        $("#AttOfficeDayTypeIdForAccess").val(1);
+        $("#AttOfficeDayTypeIdForCSV").val(1);
+        // GetOfficeDayTypeDropdown();
+        $("#AttOfficeDay").change(function () {
+            var officeDay = 1;
+            // $("#AttOfficeDay option:selected").val();
+            $("#AttOfficeDayTypeId").val(officeDay);
+            $("#AttOfficeDayTypeIdForAccess").val(officeDay);
+            $("#AttOfficeDayTypeIdForCSV").val(officeDay);
+        });
+
+        //$('#AccessOP').attr('checked', true);
+        //$("#AccessDB").show();
+        //$("#CSV").hide();
+
+        $('#CSVOP').attr('checked', true);
+        $("#AccessDB").hide();
+        $("#CSV").show();
+
+        if ($('#AccessOP').is(':checked')) {
+            $("#AccessDB").show();
+            $("#CSV").hide();
+        }
+
+        if ($('#CSVOP').is(':checked')) {
+            $("#AccessDB").hide();
+            $("#CSV").show();
+        }
+
+        $('#AccessOP').click(function () {
+            if ($('#AccessOP').is(':checked')) {
+                $("#AccessDB").show();
+                $("#CSV").hide();
+            }
+        });
+
+        $('#CSVOP').click(function () {
+            if ($('#CSVOP').is(':checked')) {
+                $("#AccessDB").hide();
+                $("#CSV").show();
+            }
+        });
+
+        //$("#AccessDB").show();
+        //$("#CSV").show();
+
+    });
+</script>
+
+
+&nbsp;
+<h2>Data Upload</h2><hr />
+
+<div class="row">
+    <div class="col-sm-6">
+        <label class="control-label col-md-2">File Type</label>
+        <div class="form-group checkboxXX">            
+            <div class="col-sm-3">
+                <label class="radio-inline">
+                    <input type="radio" id="CSVOP" name="op"><font size="3.5px"> CSV File </font>
+                </label>
+            </div>
+            <div class="col-md-3">
+                <label class="radio-inline">
+                    <input type="radio" id="AccessOP" name="op" checked="checked" style="visibility:hidden"><font size="3.5px"> </font>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display:none;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.Label("Office Day Type", new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.DropDownList("OfficeDayTypeList", null, new { @ID = "AttOfficeDay", @class = "form-control" })
+                @Html.HiddenFor(model => model.AttOfficeDayTypeId)
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AccessDB">
+    &nbsp;
+
+    @using (Html.BeginForm("AccessDataUpload", "AttendanceAccssDB", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "aCCESS" }))
+    {
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <h4>Access Database Data Upload </h4>
+        <hr />
+
+        @Html.HiddenFor(model => model.AttOfficeDayTypeIdForAccess)
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AccessFile_AttachmentU, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.AccessFile_AttachmentU, new { type = "file", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <input type="submit" value="Submit" id="btnSubmit" class="btn btn-success" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+
+&nbsp;
+<div id="CSV" style="display:none;">
+    @using (Html.BeginForm("TxtDataUpload", "AttendanceAccssDB", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="form-horizontal">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+           
+            @Html.HiddenFor(model => model.AttOfficeDayTypeIdForCSV)
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AttendanceTerminal, new { @class = "control-label col-md-2" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(m => m.AttendanceTerminal, Model.AttendanceDevicesDropdown, "-Select One-", new { @class = "form-control" })                            
+                            @Html.ValidationMessageFor(m => m.AttendanceTerminal)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TxtFile_AttachmentU, new { @class = "control-label col-md-2" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.TxtFile_AttachmentU, new { type = "file", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-2"></label>
+                        <div class="col-md-8">
+                            <h4>Last Upload Date : <span class="text-success" id="last_date"></span></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-10">
+                            <div class="form-group" style="margin:0px;">
+                                <input type="submit" value="Submit" id="btnSubmit" class="btn btn-success" onclick="chkCSV();" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+
+<div class="row">
+    <div class="panel-body">
+        <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">Data Uploaded Successfully.</p>
+        </div>
+    </div>
+
+    <div class="danger">
+        <div class="create-content create-content alert alert-error alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content" id="messageErr"> @Html.Raw(TempData["Error"])  </p>
+        </div>
+    </div>
+
+</div>
+
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        $(".panel-body .create-success").show(700).fadeToggle(2000);
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        $(".danger .create-content").show(700).fadeToggle(4000);
+    </script>
+}

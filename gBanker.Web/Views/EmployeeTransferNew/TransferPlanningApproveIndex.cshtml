@@ -1,0 +1,149 @@
+﻿@model gHRM.Web.ViewModels.EmployeeTransferViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        loadPlanList();
+    });
+
+
+    function loadPlanList() {
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("loadTransferPlanList", "EmployeeTransferNew", "http")',
+                    dataType: 'json',
+                    //data: { FilterBy: filterBy, FilterValue: filterValue }
+                }
+            }
+        });
+
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "Id",
+                     hidden: true,
+                     filterable: false
+                 }, {
+                     field: "EmployeeId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "RowSl",
+                     title: "Sl No.",
+                     width: "5%",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false
+                     //locked: true,
+                     //lockable: false,
+                 },
+                 {
+                     width: "8%",
+                     field: "EmployeeCode",
+                     title: "Code"
+                 },
+                 {
+                     width: "15%",
+                     field: "EmployeeName",
+                     title: "Name",
+                     filterable: false
+                     //locked: true
+                 },
+                {
+                    width: "15%",
+                    field: "OfficeName",
+                    title: "Office",
+                    //locked: true
+                },
+                {
+                    width: "15%",
+                    field: "DepartmentName",
+                    title: "Department",
+                    //locked: true
+                },
+                {
+                    width: "10%",
+                    field: "OfficeDesignationName",
+                    title: "Responsibility",
+                    //locked: true
+                },
+                {
+                    width: "10%",
+                    field: "OrderNo",
+                    title: "Order No",
+                    //locked: true
+                },
+                {
+                    width: "10%",
+                    field: "PlannedReleaseDate",
+                    title: "Planned Release Date",
+                    filterable: false,
+                    template: "#= kendo.toString(kendo.parseDate(PlannedReleaseDate, 'yyyy-MM-dd'), 'dd-MMM-yyyy') #"
+                },
+                {
+                    width: "10%",
+                    field: "PlannedJoiningDate",
+                    title: "Planned Joining Date",
+                    filterable: false,
+                    template: "#= kendo.toString(kendo.parseDate(PlannedJoiningDate, 'yyyy-MM-dd'), 'dd-MMM-yyyy') #"
+                },
+
+                 {
+                     width: "7%",
+                     title: 'Approve',
+                     template: function (dataItem) {
+                         var EntryType = 'Approve';
+                         return "<a href='/EmployeeTransferNew/TransferPlanningEntry/?Id=" + dataItem.Id + "&EmployeeCode=" + dataItem.EmployeeCode + "&EntryType=" + EntryType + "''><i class='fa fa-external-link'></i></a>";
+                     }
+                 }
+            ]
+        });
+    }
+
+</script>
+
+
+@*@Html.ActionLink("Add New", "TransferPlanningEntry", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+<h2 class="page-title">Transfer Planning Approve List </h2>
+<br />
+
+
+<div id="grid"></div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+

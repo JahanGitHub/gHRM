@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "Employee Monthly Salary Report Configuration";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Employee Monthly Salary Report Configuration</h2>&nbsp;
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">TopMargin (Inches)</label>
+                <div class="col-sm-7">
+                    <input id="TopMargin" type="text" class="number-value form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Header Font Size (Pixels)</label>
+                <div class="col-sm-7">
+                    <input id="HeaderFontSize" type="text" class="number-value form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Table Header Height (Inches)</label>
+                <div class="col-sm-7">
+                    <input id="TableHeaderHeight" type="text" class="number-value form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Body Column Width (Inches)</label>
+                <div class="col-sm-7">
+                    <input id="BodyColWidth" type="text" class="number-value form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Body Font Size (Pixels)</label>
+                <div class="col-sm-7">
+                    <input id="BodyFontSize" type="text" class="number-value form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-title"></div>&nbsp;
+    <div class="row">
+        <div class="col-sm-12">
+            <input type="button" value="Save" id="btnSave" class="btn btn-success" onclick="Page.Save()" />&nbsp;&nbsp;
+            <input type="button" value="Reset" class="btn btn-success" onclick="Page.Reset()" />
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/jtable")
+    <script type="text/javascript">
+        var DefaultSettings = @Html.Raw(ViewBag.DefaultSettings);
+        var Settings = @Html.Raw(ViewBag.Settings);
+
+        var Page = {
+            IsNumber: function (Value) {
+                return ![null, ""].includes(Value) && !isNaN(Value);
+            },
+            Load: function () {
+                this.BindEvents();
+                this.ApplySettings(Settings);
+            },
+            BindEvents: function () {
+                $(document).on("keydown", ".number-value", function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+            },
+            ApplySettings: function (Obj) {
+                $("#TopMargin").val(Obj.TopMargin);
+                $("#HeaderFontSize").val(Obj.HeaderFontSize);
+                $("#TableHeaderHeight").val(Obj.TableHeaderHeight);
+                $("#BodyColWidth").val(Obj.BodyColWidth);
+                $("#BodyFontSize").val(Obj.BodyFontSize);
+            },
+            Reset: function () {
+                this.ApplySettings(DefaultSettings);
+            },
+            Save: function () {
+                $("#btnSave").prop("disabled", true);
+                var TopMargin = $("#TopMargin").val();
+                var HeaderFontSize = $("#HeaderFontSize").val();
+                var TableHeaderHeight = $("#TableHeaderHeight").val();
+                var BodyColWidth = $("#BodyColWidth").val();
+                var BodyFontSize = $("#BodyFontSize").val();
+                TopMargin = Page.IsNumber(TopMargin) ? parseFloat(TopMargin) : 0;
+                HeaderFontSize = Page.IsNumber(HeaderFontSize) ? parseFloat(HeaderFontSize) : 0;
+                TableHeaderHeight = Page.IsNumber(TableHeaderHeight) ? parseFloat(TableHeaderHeight) : 0;
+                BodyColWidth = Page.IsNumber(BodyColWidth) ? parseFloat(BodyColWidth) : 0;
+                BodyFontSize = Page.IsNumber(BodyFontSize) ? parseFloat(BodyFontSize) : 0;
+                var Data = {
+                    TopMargin: TopMargin,
+                    HeaderFontSize: HeaderFontSize,
+                    TableHeaderHeight: TableHeaderHeight,
+                    BodyColWidth: BodyColWidth,
+                    BodyFontSize: BodyFontSize
+                };
+                Req.POST.Save(JSON.stringify(Data), function () {
+                    $.alert.open("Success", "Data Saved successfully!");
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                }, function () {
+                    $("#btnSave").prop("disabled", false);
+                });
+            }
+        };
+
+        var Req = {
+            POST: {
+                Save: function (Data, callback, err_callback) {
+                    $.ajax({
+                        url: '/PRSalaryReport/EmployeeMonthlySalaryReportConfigSave',
+                        type: 'Post',
+                        data: Data,
+                        dataType: 'json',
+                        async: true,
+                        contentType: 'application/json',
+                        success: function (response) {
+
+                            if ("Error" == response.Result) {
+                                $.alert.open("error", response.Message);
+                                if (null != err_callback) { err_callback(); }
+                                return;
+                            }
+                            if (null != callback) { callback(); }
+                        },
+                        error: function (data, textStatus, jqXHR) {
+                            $.alert.open("error", data + ": " + textStatus + ": " + jqXHR, 'Error!!!');
+                            if (null != err_callback) { err_callback(); }
+                        }
+                    });
+                }
+            }
+        };
+
+        $(function () {
+            Page.Load();
+        });
+    </script>
+}

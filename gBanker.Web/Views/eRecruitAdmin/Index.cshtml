@@ -1,0 +1,478 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    function GenerateDetails(ApplicationNo) {
+        var url = '/eRecruit/ApplicationInfoReportById?ApplicationId=' + ApplicationNo;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function GenerateReport(Option) {
+
+        
+        var ComponentResultType = $('option:selected', $('#ComponentResultType')).val();
+
+        var url = '/eRecruit/eRecruitReports?Option=' + Option + '&ComponentResultType=' + ComponentResultType;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function GenerateReportToExcell() {
+        var Excel = 0;
+        var url = '/eRecruit/GenerateReportToExcell?Excel=' + Excel;
+        window.open(url);
+    }// End of call
+
+    function GenerateInterViewCard(ApplicationNo) {
+
+        var url = '/eRecruit/ApplicationInterViewCardById?ApplicationId=' + ApplicationNo;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+    $(document).ready(function () {
+
+        $("#btnViewGenerateReportToExcell").click(function () {
+            GenerateReportToExcell();
+        });
+        $("#txtFromDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "c-50:c+50",
+         });
+       // $("#ten").datepicker(
+       //'setDate', new Date());
+
+        $("#txtToDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "c-50:c+50",
+         });
+       // $("#ten").datepicker(
+       //'setDate', new Date());
+
+        $('#ComponentCategoryDDL').change(function () {
+            var newValu = $('option:selected', $('#ComponentCategoryDDL')).val();
+            $('#ComponentCategory').val(newValu);
+        });
+
+        //$("#ComponentResultType option[value=1]").remove();
+
+        $("#btnSearch").click(function () {
+            var positionType = "";
+            positionType = $('#typeFilterColumn').val();
+
+            if (positionType == "")
+            {
+                positionType = null;
+            }
+
+            let txtYear = "";
+
+            var txtApplicationNumber = $('#txtApplicationNumber').val();
+
+
+            var HonorsSubject = $('option:selected', $('#ComponentBachelorSubject')).val();
+            var MastersSubject = $('option:selected', $('#ComponentMastersSubject')).val();
+            var UniversityName = $('option:selected', $('#UniversityName')).val();
+
+            if (HonorsSubject == "0")
+                HonorsSubject = ""
+
+            if (MastersSubject == "0")
+                MastersSubject = "";
+
+
+            if (UniversityName == "0")
+                UniversityName = "";
+
+            var ComponentHomeDistrict = $('option:selected', $('#ComponentHomeDistrict')).val();
+            if (ComponentHomeDistrict == "0")
+                ComponentHomeDistrict = "";
+
+            var ComponentResultType = "";
+            var ComponentResultType = $('option:selected', $('#ComponentResultType')).val();
+            if (ComponentResultType == "0")
+                ComponentResultType = "";
+
+
+           var txtFromDate = $('#txtFromDate').val();
+           var txtToDate = $('#txtToDate').val();
+
+           if (txtFromDate != "")
+           {
+               if (txtToDate == "")
+               {
+                   alert("Please Give To Date.");
+                   return;
+               }
+           }
+
+
+           var txtFromResult = $('#txtFromResult').val();
+           var txtToResult = $('#txtToResult').val();
+
+           if (txtFromResult != "") {
+               if (txtToResult == "") {
+                   alert("Please Give To CGPA.");
+                   return;
+               }
+           }
+
+
+           var DataTypeSelected = $('option:selected', $('#componentDataType')).val();
+           $('#grid').jtable('load', { AppliedPost: positionType, year: txtYear, txtApplicationNumber: txtApplicationNumber, HonorsSubject: HonorsSubject, MastersSubject: MastersSubject, ComponentHomeDistrict: ComponentHomeDistrict, ComponentResultType: ComponentResultType, txtFromDate: txtFromDate, txtToDate: txtToDate, UniversityName: UniversityName, txtFromResult: txtFromResult, txtToResult: txtToResult, DataTypeSelected: DataTypeSelected });
+
+        });
+
+
+        $('#grid').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 100,
+            sorting: false,
+            defaultSorting: 'SummaryCGPA ASC',
+            actions: {
+                listAction: '/eRecruit/GetApplicationList'
+            },
+            fields: {
+                rowSlK: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                rowSlK: {
+                    title: 'Serial',
+                    width: '1%',
+                },
+                ApplicationId: {
+                    title: 'App.Ser.No',
+                    width: '2%',
+                },
+                ApplicantName: {
+                    title: 'App Name',
+                    width: '3%',
+                },
+                PaentName: {
+                    title: 'Father/Mother Name',
+                    width: '2%'
+                },
+                PermanentThana: {
+                    title: 'UpaZilla',
+                    width: '2%'
+                },
+                PerHomeDistrict: {
+                    title: 'Home District',
+                    width: '2%'
+                },
+                DateOfBirthMsg: {
+                    title: 'Date Of Birth',
+                    width: '2%'
+                },
+                Age: {
+                    title: 'Age',
+                    width: '4%'
+                },
+
+                SSC: {
+                    title: 'SSC',
+                    width: '2%'
+                },
+                HSC: {
+                    title: 'HSC',
+                    width: '2%'
+                },
+                Bachelor: {
+                    title: 'Bachelor',
+                    width: '2%'
+                },
+                Masters: {
+                    title: 'Masters',
+                    width: '2%'
+                },
+                SUMOfCGPA: {
+                    title: ' Total GPA & CGPA ', //'SUM Of CGPA',
+                    width: '2%'
+                },
+                SummaryCGPA: {
+                    title: ' Avr GPA & CGPA ',  //'Summary CGPA',
+                    width: '3%',
+
+                },
+                SubjectName: {
+                    title: ' Subject in Hons ',  //'Summary CGPA',
+                    width: '4%',
+                },
+                UniversityName: {
+                    title: 'UniversityName',
+                    width: '4%',
+                },
+                PostingPrint: {
+                    title: "Print",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" title="View Details" OnClick="GenerateDetails(' + "'" + data.record.ApplicationId + "'" + ');"><i class="fa fa-print"></i></a></div>';
+                    }
+                }
+                ,
+                Print: {
+                    title: "Card Print",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" title="Generate Interview Card." OnClick="GenerateInterViewCard(' + "'" + data.record.ApplicationId + "'" + ');"><i class="fa fa-print"></i></a></div>';
+                    }
+
+                }
+
+                //DeleteLink: {
+                //    title: "Delete",
+                //    display: function (data) {
+                //        return '<div class="text-center"><a href="#" OnClick="Delete(' + data.record.PRComponentID + ');"><i class="fa fa-trash-o"></i></a></div>';
+                //    }
+                //}
+            }
+        });
+        //reloadGrid();
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+
+    });
+    function reloadGrid() {
+        //$("#loading").show();
+        var DataTypeSelected = $('option:selected', $('#componentDataType')).val();
+        $('#grid').jtable('load', { DataTypeSelected: DataTypeSelected, onLoad: "Yes", filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+
+        //$('#grid').jtable('load', { DataTypeSelected: DataTypeSelected, onLoad:"Yes", filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        //$("#loading").hide();
+    }
+
+</script>
+
+
+
+@*@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+&nbsp;
+<h2 class="page-title">eRecruit List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">Bachelor Subject</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("componentBachelor", null, new { @ID = "ComponentBachelorSubject", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">Masters Subject</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("componentMaster", null, new { @ID = "ComponentMastersSubject", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">Result Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("componentResultType", null, new { @ID = "ComponentResultType", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <br />
+    <div class="row">
+
+        <div class="col-sm-4">
+            <label class="control-label col-md-4">Application Number</label>
+            <div class="form-group">
+                <div class="col-md-8">
+                    <input type="number" placeholder="Application Number" id="txtApplicationNumber" value="" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">Applied Position</label>
+                <div class="col-sm-8">
+                    <select id="typeFilterColumn" class="form-control">
+                        <option value="" selected="selected">All Position</option>
+                        <option value="1">B.Sc. Engineer (Civil)</option>
+                        <option value="2">Diploma Engineer</option>
+                        <option value="3">Trainee Center Manager</option>
+                        <option value="4">Trainee Officer</option>
+                    </select>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">Home District</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("componentHomeDistrict", null, new { @ID = "ComponentHomeDistrict", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-4">
+            <label class="control-label col-md-4">Applied From</label>
+            <div class="form-group">
+                <div class="col-md-8">
+                    <input type="text" placeholder="Date From" id="txtFromDate" value="" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="control-label col-md-4">To</label>
+            <div class="form-group">
+                <div class="col-md-8">
+                    <input type="text" placeholder="Date To" id="txtToDate" value="" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">University Name</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("componentUniversityName", null, new { @ID = "UniversityName", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-4">
+            <label class="control-label col-md-4">Result Range</label>
+            <div class="form-group">
+                <div class="col-md-8">
+                    <input type="number" placeholder="CGPA FROM" id="txtFromResult" value="" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <label class="control-label col-md-4">To</label>
+            <div class="form-group">
+                <div class="col-md-8">
+                    <input type="number" placeholder="CGPA To" id="txtToResult" value="" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-md-4">Data Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("componentDataType", null, new { @ID = "componentDataType", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr />
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                &nbsp;
+                <div class="col-md-8">
+                    <input type="button" id="btnSearch" value="Search" class="btn btn-bitbucket" />
+                    &nbsp;
+                    <input type="button" id="btnViewGenerateReportToExcell" value="Download To Excel" class="btn btn-bitbucket" />
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="form-group">
+                &nbsp;
+                <div class="col-md-8">
+                    <input type="button" id="btndistrict" value="District Wise" OnClick="GenerateReport('district');" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                &nbsp;
+                <div class="col-md-8">
+                    <input type="button" id="btnsubject" value="Subject Wise" OnClick="GenerateReport('subject');" class="btn btn-dropbox" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                &nbsp;
+                <div class="col-md-8">
+                    <input type="button" id="btnuniversity" value="University Wise" OnClick="GenerateReport('university');" class="btn btn-flickr" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                &nbsp;
+                <div class="col-md-8">
+                    <input type="button" id="btnresult" value="Result Wise" OnClick="GenerateReport('result');" class="btn btn-bitbucket" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    &nbsp;
+    <div class="anyClass">
+        <div id="grid">
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .anyClass {
+        height: 750px;
+        overflow-y: scroll;
+    }
+</style>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

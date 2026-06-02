@@ -1,0 +1,520 @@
+﻿@model gHRM.Web.ViewModels.AttCardIssueViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/AttCardIssue">AttCardIssue</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    //Save Work Area
+    function Update() {
+        var EmployeeId = $("#EmployeeId").val();
+        var AttCardIssueId = $("#AttCardIssueId").val();
+        var CardNo = $("#CardNo").val();
+        var CardIssueDateView = $("#CardIssueDateView").val();
+        var Remarks = $("#Remarks").val();
+        $("#EmployeeName").val("");
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("Update", "AttCardIssue", "http")', //UpdateWorkArea(string WorkAreaName, int PRWorkAreaID)
+            data: {
+                AttCardIssueId      : AttCardIssueId,
+                EmployeeId          : EmployeeId,
+                CardNo              : CardNo,
+                CardIssueDateView   : CardIssueDateView,
+                Remarks             : Remarks
+
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Update Successfully");
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+
+        });
+
+    }// End of Function
+
+
+    //Save Work Area
+    function Save() {
+
+        var EmployeeId = $("#EmployeeId").val();
+        var AttCardIssueId = $("#AttCardIssueId").val();
+        var CardNo = $("#CardNo").val();
+        var CardIssueDateView = $("#CardIssueDateView").val();
+        var Remarks = $("#Remarks").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("Create", "AttCardIssue", "http")', //string EmployeeId = "", string CardNo = "", string CardIssueDateView = "", string Remarks= ""
+            data: {
+
+                EmployeeId          : EmployeeId,
+                CardNo              : CardNo,
+                CardIssueDateView   : CardIssueDateView,
+                Remarks             : Remarks
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Saved Successfully");
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+
+        });
+
+    }// End of Function
+
+
+
+    //Promotion Config JS
+    function GetData(IssueId) { //populate Area Form
+        //alert(AreaID);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetList", "AttCardIssue", "http")',  //GetWorkAreaList(string WorkAreaId, int jtStartIndex, int jtPageSize, string jtSorting, string filterColumn, string filterValue)
+            data: { IssueId: IssueId},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+                $.each(data, function (id, option) {
+
+                    //promotionConfigAge.append($('<option></option>').val(option.Value).html(option.Text));
+                    //$('#DesignationIdFrom option[value=' + option.DesignationIdFrom + ']').prop('selected', true);
+                    //$('#DesignationIdTo option[value=' + option.DesignationIdTo + ']').prop('selected', true);
+                    $('#txtEmpName').val(option.EmployeeCode);
+                    $("#txtEmpName").prop('disabled', true);
+                    $('#EmployeeId').val(option.EmployeeId);
+                    $('#EmployeeName').val(option.EmployeeName);
+                    $('#CardNo').val(option.CardNo);
+                    $('#CardIssueDateView').val(option.CardIssueDateView);
+                    $('#Remarks').val(option.Remarks);
+                    $('#AttCardIssueId').val(option.AttCardIssueId);
+
+
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+                clear();
+            }
+        });
+    }
+    function clear()
+    {
+        $("#txtEmpName").prop('disabled', false);
+
+        $("#txtEmpName").val('');
+        $("#EmployeeName").val("");
+
+        $("#EmployeeId").val('');
+        $("#CardNo").val('');
+        $("#AttCardIssueId").val('');
+        $("#Remarks").val('');
+        $("#CardIssueDateView").datepicker(
+     'setDate', new Date());
+
+    }
+    //Save Work Area
+    function DeleteAtt(Id) {
+
+        var AttCardIssueId = Id;  //$("#AttCardIssueId").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("Delete", "AttCardIssue", "http")', //CreateWorkArea(string WorkAreaName)
+            data: { AttCardIssueId: AttCardIssueId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Delete Successfully");
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Delete");
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+
+        });
+
+
+
+    }// End of Function
+
+
+    function Edit(id) // Edit ConfigAge Table
+    {
+        GetData(id);
+        //$("#PromotionConfigId").attr('disabled', true);
+        //GetDataPromoAge(id);
+
+    }
+
+    function Delete(id)
+    {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                DeleteAtt(id);
+                return true;
+            }
+            else {
+
+                return false;
+            }
+        });
+
+    }
+
+    //End Save Work Area
+
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "Attendance", "http")',
+            data: { employeeID: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#EmployeeId").val(data.EmployeeId);
+
+                        if (data.EmployeeName == '') {
+                            $("#EmployeeName").val('');
+                            $("#EmployeeId").val('');
+                        }
+                    }
+                    else {
+                        $("#EmployeeName").val('');
+                        //alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                        $("#EmployeeId").val('');
+
+                    }
+                });
+            },
+            error: function (request) {
+                var Err = $("#errFound").val();
+                if (Err == '') {
+                    if (request.statusText == 'Not Found') {
+                        $.alert.open("Message", "Employee Not Found.");
+
+                    }
+                    else {
+                        $.alert.open("Message", request.statusText + "/" + request.statusText + "/" + error);
+
+                    }
+                    $("#errFound").val(1);
+                }
+                $.alert.open("Message", "Employee Not Found.");
+                $("#errFound").val('');
+                $("#EmployeeName").val('');
+                //alert("Wrong Employe Code");
+                $("#txtEmpName").focus();
+                $("#EmployeeId").val('');
+
+                $("#txtEmpName").val('');
+
+            }
+        });
+    }
+
+    function GridLoad() {
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetList", "AttCardIssue", "http")',
+                    dataType: 'json'
+                }
+            }
+        });
+
+        $("#grid2").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "AttCardIssueId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "EmployeeCode",
+                     title: "Employee Code",
+                     width: "50px",
+                     filterable: true
+                 },
+                 {
+                     field: "EmployeeName",
+                     title: "Employee Name",
+                     width: "150px",
+                     filterable: true,
+                 },
+                 {
+                     field: "CardNo",
+                     title: "Card No",
+                     width: "150px",
+                     filterable: true
+                 },
+                 {
+                     field: "CardIssueDateView",
+                     title: "Card Issue Date",
+                     width: "80px",
+                     filterable: true
+                 },
+
+                 {
+                     width: "30px",
+                     title: 'Delete',
+                     template: function (data) {
+                         var btn = "";
+                         btn += '<div class="text-center" style="float:left;"><a href="#" OnClick="Edit(' + data.AttCardIssueId + ')"><i class="fa fa-pencil-square-o"></i></a></div>';
+                         btn += '<div class="text-center"><a href="#" OnClick="Delete(' + data.AttCardIssueId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                         return btn;
+                     }
+
+
+                 },
+            ]
+        });
+    }
+
+
+    //
+
+
+    $(document).ready(function () {
+
+        $("input[type='text']").change(function () {
+            // your code
+            var employee_code = $("#txtEmpName").val();
+            if ($("#txtEmpName").val().trim() != '') {
+                LoadEmpInfoByCode(employee_code);
+            }
+            else {
+                $("#EmployeeName").val('');
+            }
+        });
+
+        $("#CardIssueDateView").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+
+          });
+        $("#CardIssueDateView").datepicker(
+      'setDate', new Date());
+
+
+
+
+        $("#btnReset").click(function () { // Reset form
+
+            clear();
+
+        });
+
+        $("#btnSave").click(function () {
+
+            var EmployeeId = $("#EmployeeId").val();
+            var AttCardIssueId = $("#AttCardIssueId").val();
+
+            var CardNo = $("#CardNo").val();
+            var CardIssueDateView = $("#CardIssueDateView").val();
+            var Remarks = $("#Remarks").val();
+
+            if (EmployeeId == '' || EmployeeId == 0)
+            {
+                $.alert.open("Please Select Employee.");
+                return false;
+            }
+            if (CardNo == '') {
+                $.alert.open("Please Give Card No.");
+                return false;
+            }
+
+
+            if (AttCardIssueId != 0)
+            {
+                // Update
+                Update();
+                clear();
+
+            }
+            else
+            {
+                // Save
+                Save();
+                clear();
+
+            }
+            clear();
+
+        });
+
+
+        GridLoad();
+
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+    });// End Document Rready
+</script>
+
+<h2 class="page-title">Add Card Issue</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Code</label>
+                        <div class="col-sm-8">
+                            @*@Html.DropDownListFor(model => model.EmployeeId, empList, new { @class = "form-control" })*@
+                            @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.EmployeeId)
+                            @Html.HiddenFor(model => model.AttCardIssueId)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Name</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CardNo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CardNo, new { htmlAttributes = new { @class = "form-control"} })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CardIssueDateView, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CardIssueDateView, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Remarks, htmlAttributes: new { @class = "control-label col-md-2 " })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+                            &nbsp;
+                            <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    &nbsp;
+                </div>
+                &nbsp;
+                <div id="grid2">
+
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

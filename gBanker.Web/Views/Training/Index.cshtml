@@ -1,0 +1,977 @@
+﻿@model gHRM.Web.ViewModels.EmployeeViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Training/Index">Training</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Training";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    var countryList = Model == null ? null : Model.CountryList;
+}
+<style type="text/css">
+    .btn span.glyphicon {
+        opacity: 0;
+    }
+
+    .btn.active span.glyphicon {
+        opacity: 1;
+    }
+</style>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        debugger;
+        $("#EmployeeCode").blur(function () {
+            var empCode = $("#EmployeeCode").val();
+            if (empCode != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetEmployeeInfoByCode", "Training", "http")',
+                    data: { empCode: empCode },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        $.each(data, function (index, data) {
+                            if (data != "") {
+                                $("#Department").val(data.Department);
+                                $("#Designation").val(data.Designation);
+                                $("#EmployeeName").val(data.EmployeeName);
+                            } else {
+                                $("#Department").val('');
+                                $("#Designation").val('');
+                                $("#EmployeeName").val('');
+                            }
+                        });
+
+                    },
+                    error: function (request, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+        });
+
+        getEmployeeTraning();
+        getPromotionEvaluationQualitieMarking();
+
+        //for training information start
+
+        $("#isapproved").change(function () {
+            $("#isrejected").hide();
+        });
+        $("#isrejected").change(function () {
+            $("#isapproved").hide();
+        });
+
+        $("#TrainingDateTo").change(function () {
+            var TrainingDateTo = $("#TrainingDateTo").val();
+            var TrainingDateFrom = $("#TrainingDateFrom").val();
+            if (TrainingDateTo != "" && TrainingDateFrom == "") {
+                $.alert.open("Please select Also TrainingDate From");
+            } else if (TrainingDateTo != "" && TrainingDateFrom != "") {
+                GETTraningTimeTrainingDateTos(TrainingDateTo);
+            }
+        });
+
+        $("#TrainingDateFrom").change(function () {
+            var TrainingDateTo = $("#TrainingDateTo").val();
+            var TrainingDateFrom = $("#TrainingDateFrom").val();
+            if (TrainingDateTo != "" && TrainingDateFrom == "") {
+            } else if (TrainingDateTo != "" && TrainingDateFrom != "") {
+                GETTraningTimeTrainingDateTos(TrainingDateTo);
+            }
+        });
+        $("#TrainingDateFrom").datepicker(
+                   {
+                       dateFormat: "dd-M-yy",
+                       showAnim: "scale",
+                   });
+        $("#TrainingDateFrom").datepicker(
+               'setDate', new Date());
+
+        $("#TrainingDateTo").datepicker(
+                   {
+                       dateFormat: "dd-M-yy",
+                       showAnim: "scale",
+                   });
+        $("#TrainingDateTo").datepicker(
+               'setDate', new Date());
+
+        //for training information end
+
+    });
+
+
+    //employee tranning informatio
+    function getEmployeeTraning() {
+        $("#btnUpdate").hide();
+        $("#btnReset").hide();
+        var RowNumber = 0;
+
+        $('#gridTraining').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            //defaultSorting: 'InventoryId ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    var RowNumber = 0;
+
+                    return $.Deferred(function ($dfd) {
+                        var employeId = '@Model.EmployeeId';
+                        $.ajax({
+                            url: '/Training/ListTraning?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&EmployeeId=' + employeId,
+
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                //RowNumber: {
+                //    title: 'Sl. No',
+                //    sorting: false,
+                //    display: function () {
+                //        RowNumber++;
+                //        return RowNumber;
+                //    }
+                //},
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'EmployeeName',
+                    width: '15%'
+                },
+                TrainingTitle: {
+                    title: 'TrainingTitle',
+                    width: '15%'
+                },
+                InstituteName: {
+                    title: 'InstituteName',
+                    width: '15%'
+                },
+                CountryName: {
+                    title: 'CountryName',
+                    width: '15%'
+                },
+                TrainingTopics: {
+                    title: 'TrainingTopics',
+                    width: '15%'
+                },
+                Result: {
+                    title: 'Result',
+                    width: '15%'
+                },
+                TDF: {
+                    title: 'TrainingDateFrom',
+                    width: '15%'
+                },
+                TDT: {
+                    title: 'TrainingDateTo',
+                    width: '15%'
+                },
+                CurrentOfficeTraining: {
+                    title: 'OfficeTraining',
+                    width: '15%',
+                    display: function (data) {
+                        if (data.record.CurrentOfficeTraining == "1") {
+                            return "Yes"
+                        } else if (data.record.CurrentOfficeTraining == "0") {
+                            return "No"
+                        }
+                    }
+                },
+                //isapproved: {
+                //    title: 'isapproved',
+                //    width: '15%',
+                //    display: function (data) {
+                //        if (data.record.isapproved == "1") {
+                //            return "Approved"
+                //        } else if (data.record.isapproved == "0") {
+                //            return "NonApproved"
+                //        }
+                //    }
+                //},
+                //isrejected: {
+                //    title: 'isrejected',
+                //    width: '15%',
+                //    display: function (data) {
+                //        if (data.record.isrejected == "1") {
+                //            return "Rejected"
+                //        } else if (data.record.isrejected == "0") {
+                //            return "NonRejected"
+                //        }
+                //    }
+                //},
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditTraning(' + "'" + data.record.EmployeeCode + "'" + ',' + "'" + data.record.EmployeeTrainingId + "'" + ',' + "'" + data.record.TrainingTitle + "'" + ',' + "'" + data.record.InstituteName + "'" + ',' + "'" + data.record.TrainingCountryId + "'" + ',' + "'" + data.record.TrainingTopics + "'" + ',' + "'" + data.record.Result + "'" + ',' + "'" + data.record.TDF + "'" + ',' + "'" + data.record.TDT + "'" + ',' + "'" + data.record.CurrentOfficeTraining + "'" + ',' + "'" + data.record.isapproved + "'" + ',' + "'" + data.record.isrejected + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDeleteTraning(' + data.record.EmployeeTrainingId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridTraining').jtable('load');
+    }
+
+
+    function GenerateEmployeeTraning() {
+        var item = {};
+        item.EmployeeId = '@Model.EmployeeId';
+        item.EmployeeCode = $("#EmployeeCode").val();
+        item.TrainingTitle = $("#TrainingTitle").val();
+        item.InstituteName = $("#InstituteName").val();
+        item.TrainingCountryId = $("#TrainingCountryId").val();
+        item.TrainingTopics = $("#TrainingTopics").val();
+        item.Result = $("#Result").val();
+        item.TrainingDateFrom = $("#TrainingDateFrom").val();
+        item.TrainingDateTo = $("#TrainingDateTo").val();
+        item.CurrentOfficeTraining = $("#CurrentOfficeTraining").val();
+        item.isapproved = $("#isapproved").val();
+        item.isrejected = $("#isrejected").val();
+        return item;
+    }
+
+    function GenerateUpdateEmployeeTraning() {
+        var item = {};
+        item.EmployeeTrainingId = $("#EmployeeTrainingId").val();
+        item.TrainingTitle = $("#TrainingTitle").val();
+        item.InstituteName = $("#InstituteName").val();
+        item.TrainingCountryId = $("#TrainingCountryId").val();
+        item.TrainingTopics = $("#TrainingTopics").val();
+        item.Result = $("#Result").val();
+        item.TrainingDateFrom = $("#TrainingDateFrom").val();
+        item.TrainingDateTo = $("#TrainingDateTo").val();
+        item.CurrentOfficeTraining = $("#CurrentOfficeTraining").val();
+        item.isapproved = $("#isapproved").val();
+        item.isrejected = $("#isrejected").val();
+        return item;
+    }
+
+    function ClearControlTraining() {
+        $("#EmployeeCode").val('');
+        $("#EmployeeTrainingId").val('');
+        $("#TrainingTitle").val('');
+        $("#InstituteName").val('');
+        $("#TrainingCountryId").val('');
+        $("#TrainingTopics").val('');
+        $("#Result").val('');
+        $("#TrainingDateFrom").val('');
+        $("#TrainingDateTo").val('');
+        $("#CurrentOfficeTraining").val('');
+        $("#isapproved").val('').show();
+        $("#isrejected").val('').show();
+    }
+
+    function SaveTraining() {//job
+
+
+        var employeeTraining = GenerateEmployeeTraning();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: false,
+            cache: false,
+            url: '@Url.Action("SaveTraining", "Training")',
+            data: JSON.stringify({ employeeTraining: employeeTraining }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data.result == "Save Successfull") {
+                    ClearControlTraining();
+                    $('#gridTraining').jtable('load');
+                    $.alert.open("Success", "Save Successfull");
+                } else {
+                    $.alert.open('Error');
+                }
+
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+
+        });
+
+    }
+
+    function UpdateTraining() {
+
+
+        var employeeTraining = GenerateUpdateEmployeeTraning();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("UpdateTraining", "Training")',
+            data: JSON.stringify({ employeeTraining: employeeTraining }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                $('#gridTraining').jtable('load');
+                if (data.result == "Update Successfull") {
+                    ClearControlTraining();
+                    $('#gridTraining').jtable('load');
+                    $.alert.open('Success');
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+
+        });
+
+    }
+
+
+    function InformationDeleteTraning(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationDeleteTraning", "Training", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridTraining').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    function ResetTraining() {
+        $("#btnUpdate").hide();
+        $("#btnSave").show();
+        $("#btnReset").hide();
+        ClearControlTraining();
+    }
+
+    function EditTraning(EmployeeCode, EmployeeTrainingId, TrainingTitle, InstituteName, TrainingCountryId, TrainingTopics, Result, TrainingDateFrom,
+                                        TrainingDateTo, CurrentOfficeTraining, isapproved, isrejected) {
+        $("#EmployeeCode").val(EmployeeCode);
+        $("#EmployeeTrainingId").val(EmployeeTrainingId);
+        $("#TrainingTitle").val(TrainingTitle);
+        $("#InstituteName").val(InstituteName);
+        $("#TrainingCountryId").val(TrainingCountryId);
+        $("#TrainingTopics").val(TrainingTopics);
+        $("#Result").val(Result);
+        $("#TrainingDateFrom").val(TrainingDateFrom);
+        $("#TrainingDateTo").val(TrainingDateTo);
+        $("#CurrentOfficeTraining").val(CurrentOfficeTraining);
+        $("#isapproved").val(isapproved);
+        $("#isrejected").val(isrejected);
+        $("#isapproved").show();
+        $("#isrejected").show();
+        $("#btnUpdate").show();
+        $("#btnReset").show();
+        $("#btnSave").hide();
+
+    }
+
+    function GETTraningTimeTrainingDateTos(TrainingDateTo) {
+        var TrainingDateFrom = $("#TrainingDateFrom").val();
+        if (TrainingDateTo != "" && TrainingDateFrom != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GETTraningTimeTrainingDateTo", "Training", "http")',
+                data: { TrainingDateFrom: TrainingDateFrom, TrainingDateTo: TrainingDateTo },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.result == "1") {
+                        //$.alert.open('Success', "Now Date Perfect");
+                    } else {
+                        $("#TrainingDateFrom").val('');
+                        $("#TrainingDateTo").val('');
+                        $.alert.open('Error', "Please Select Form Date Less then To Date");
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+    //employeetranninginformationend
+
+
+    function emps(Empsearch) {
+        debugger;
+        var EmployeeId = $("#Empsearch").val();
+        if (EmployeeId != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("empss", "Training", "http")',
+                data: { EmployeeId: EmployeeId },
+                dataType: 'json',
+                success: function (data) {
+                    //if (data.result == "1") {
+                    //    $.alert.open('Success');
+                    //} else {
+                    //    $.alert.open('Error', "Please Select Form Date Less then To Date");
+                    //}
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+
+
+
+    //employee Promotion Evaluation Qualitie Marking start
+    function getPromotionEvaluationQualitieMarking() {
+        $("#collapseQualitie #btnUpdate").hide();
+        $("#collapseQualitie #btnReset").hide();
+
+        $('#GridQualities').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            //defaultSorting: 'InventoryId ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+
+                    return $.Deferred(function ($dfd) {
+                        var employeId = '@Model.EmployeeId';
+                        $.ajax({
+                            url: '/Training/ListPromotionEvaluationQualitieMarking?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&EmployeeId=' + employeId,
+
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                PersonalQualification: {
+                    title: 'PersonalQualification',
+                    width: '15%'
+                },
+                Marks: {
+                    title: 'Marks',
+                    width: '15%',
+                    display: function (data) {
+                        if (data.record.Marks == "1") {
+                            return "1"
+                        }else if (data.record.Marks == "2") {
+                            return "2"
+                        }
+                        else if (data.record.Marks == "3") {
+                            return "3"
+                        }
+                        else if (data.record.Marks == "4") {
+                            return "4"
+                        }
+                        else if (data.record.Marks == "5") {
+                            return "5"
+                        } 
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditPromotionEvaluationQualitieMarking(' + "'" + data.record.EmployeeCode + "'" + ',' + "'" + data.record.EmployeeQualitiesId + "'" + ',' + "'" + data.record.PersonalQualificationPromotionId + "'" + ',' + "'" + data.record.Marks + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDeletePromotionEvaluationQualitieMarking(' + data.record.EmployeeQualitiesId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#GridQualities').jtable('load');
+    }
+
+
+    function GeneratePromotionEvaluationQualitieMarking() {
+        debugger;
+        var item = {};
+        item.EmployeeId = '@Model.EmployeeId';
+        item.EmployeeCode = $("#EmployeeCode").val();
+        item.PersonalQualificationPromotionId = $("#PersonalQualificationPromotionId").val();
+        item.Marks = $("#Marks").val();
+        return item;
+    }
+
+    function GenerateupdatePromotionEvaluationQualitieMarking() {
+        var item = {};
+        item.EmployeeQualitiesId = $("#EmployeeQualitiesId").val();
+        item.PersonalQualificationPromotionId = $("#PersonalQualificationPromotionId").val();
+        item.Marks = $("#Marks").val();
+        return item;
+    }
+
+    function ClearControlQualitie() {
+        $("#EmployeeCode").val('');
+        $("#EmployeeQualitiesId").val('');
+        $("#PersonalQualificationPromotionId").val('');
+        $("#Marks").val('');
+    }
+
+    function SavePromotionEvaluationQualitieMarking() {//job
+
+
+        var promotionEvaluationQualitieMarking = GeneratePromotionEvaluationQualitieMarking();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: false,
+            cache: false,
+            url: '@Url.Action("SavePromotionEvaluationQualitieMarking", "Training")',
+            data: JSON.stringify({ promotionEvaluationQualitieMarking: promotionEvaluationQualitieMarking }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data.result == "Save Successfull") {
+                    ClearControlQualitie();
+                    $('#GridQualities').jtable('load');
+                    $.alert.open('Success');
+                } else {
+                    $.alert.open('Success', data.result);
+                }
+
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+
+        });
+
+    }
+
+    function UpdatePromotionEvaluationQualitieMarking() {
+
+
+        var promotionEvaluationQualitieMarking = GenerateupdatePromotionEvaluationQualitieMarking();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("UpdatePromotionEvaluationQualitieMarking", "Training")',
+            data: JSON.stringify({ promotionEvaluationQualitieMarking: promotionEvaluationQualitieMarking }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                    $('#GridQualities').jtable('load'); 
+                if (data.result == "Update Successfull") {
+                    ClearControlQualitie();
+                    $('#GridQualities').jtable('load');
+                    $.alert.open('Success');
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+
+        });
+
+    }
+
+
+    function InformationDeletePromotionEvaluationQualitieMarking(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationDeletePromotionEvaluationQualitieMarking", "Training", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#GridQualities').jtable('load');
+                            $.alert.open("Error", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    function ResetQualitie() {
+        $("#collapseQualitie #btnUpdate").hide();
+        $("#collapseQualitie #btnSave").show();
+        $("#collapseQualitie #btnReset").hide();
+        ClearControlQualitie();
+    }
+
+    function EditPromotionEvaluationQualitieMarking(EmployeeCode, EmployeeQualitiesId, PersonalQualificationPromotionId, Marks) {
+        $("#EmployeeCode").val(EmployeeCode);
+        $("#EmployeeQualitiesId").val(EmployeeQualitiesId);
+        $("#PersonalQualificationPromotionId").val(PersonalQualificationPromotionId);
+        $("#Marks").val(Marks);
+        $("#collapseQualitie #btnUpdate").show();
+        $("#collapseQualitie #btnReset").show();
+        $("#collapseQualitie #btnSave").hide();
+
+    }
+
+    function GETTraningTimeTrainingDateTos(TrainingDateTo) {
+        var TrainingDateFrom = $("#TrainingDateFrom").val();
+        if (TrainingDateTo != "" && TrainingDateFrom != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GETTraningTimeTrainingDateTo", "Training", "http")',
+                data: { TrainingDateFrom: TrainingDateFrom, TrainingDateTo: TrainingDateTo },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.result == "1") {
+                        //$.alert.open('Success', "Now Date Perfect");
+                    } else {
+                        $("#TrainingDateFrom").val('');
+                        $("#TrainingDateTo").val('');
+                        $.alert.open('Error', "Please Select Form Date Less then To Date");
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+    }
+    //employee Promotion Evaluation Qualitie Marking End
+
+</script>
+@Html.HiddenFor(model => model.EmployeeId)
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Employee Code</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4"> Department </label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.Department, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Designation</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.Designation, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4"> Employee Name </label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    @*Employee Training*@
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title panel-title-Training">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseTraining">
+                    <i class="fa fa-plus"></i>&nbsp;Employee Training Info
+                </a>
+            </h4>
+        </div>
+        <div id="collapseTraining" class="panel-collapse collapse">
+            <div class="panel-body">
+                <h4 class="text-info">Training Info</h4>
+                <br /><br />
+                <div id="AjaxLoader" class="ajaxLoader"></div>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4 required">TrainingTitle</label>
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.TrainingTitle, new { @class = "form-control required" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4 required">InstituteName</label>
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.InstituteName, new { @class = "form-control required" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Country</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.TrainingCountryId, countryList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4 required">TrainingTopics</label>
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.TrainingTopics, new { @class = "form-control required" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Result</label>
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.Result, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TrainingDateFrom, htmlAttributes: new { @class = "control-label col-sm-4" })
+                                <div class="col-sm-8">
+                                    @Html.EditorFor(model => model.TrainingDateFrom, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TrainingDateTo, htmlAttributes: new { @class = "control-label col-sm-4" })
+                                <div class="col-sm-8">
+                                    @Html.EditorFor(model => model.TrainingDateTo, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/mm/yyyy" } })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Current Office Training</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.CurrentOfficeTraining, Model.CurrentOfficeTrainingList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveTraining()" />
+                                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdateTraining()" />
+                                    <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetTraining()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.EmployeeTrainingId)
+                        </div>
+                    </div>
+
+
+                    <h2 class="page-title"> Training List</h2>
+                    &nbsp;
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="gridTraining"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+    @*Promotion Evaluation Qualitie Marking*@
+    @*<div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title panel-title-Qualitie">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseQualitie">
+                        <i class="fa fa-plus"></i>&nbsp;Employee Promotion Evaluation Qualitie Marking Info (কর্মকর্তা/কর্মচারীর গুণাবলী সংক্রান্ত তথ্য)
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseQualitie" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <h4 class="text-info">Promotion Evaluation Qualitie Marking Info</h4>
+                    <br /><br />
+                    <div id="AjaxLoader" class="ajaxLoader"></div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">PersonalQualificationPromotion</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.PersonalQualificationPromotionId, Model.PersonalQualificationforPromotionList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Marks</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.Marks, Model.MarksList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <div class="col-sm-8">
+                                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SavePromotionEvaluationQualitieMarking()" />
+                                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdatePromotionEvaluationQualitieMarking()" />
+                                    <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetQualitie()" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            @Html.HiddenFor(model => model.EmployeeQualitiesId)
+                        </div>
+                    </div>
+
+                    <br />
+                    <h2 class="page-title"> Promotion Evaluation Qualitie Marking List</h2>
+                    &nbsp;
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+
+                    <div id="GridQualities"></div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            &nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+
+
+
+    @section Scripts {
+
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/jtable")
+    }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    function GenerateInterViewCard(ApplicationNo) {
+
+        var url = '/eRecruit/ApplicationInterViewCardById?ApplicationId=' + ApplicationNo;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    $(document).ready(function () {
+        
+        $("#txtInterviewDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "c-50:c+50",
+         });
+         $("#ten").datepicker(
+        'setDate', new Date());
+
+
+         $("#btnGenerateCard").click(function () {
+             var txtApplicationIds = $("#txtApplicationIds").val();
+
+             GenerateInterViewCard(txtApplicationIds);
+
+         });
+
+         $("#btnSET").click(function () {
+             
+             var InterviewDate = $("#txtInterviewDate").val();
+
+             $.ajax({
+                 type: 'GET',
+                 contentType: "application/json; charset=utf-8",
+                 url: '@Url.Action("SETInterviewDate", "eRecruit", "http")',
+             data: { InterviewDate: InterviewDate},
+                 dataType: 'json',
+                 async: true,
+                 success: function (data) {
+                     $('#AjaxLoader').hide();
+                     $.alert.open("Message", data);
+
+                 },
+                 error: function (request, status, error) {
+                     $('#AjaxLoader').hide();
+                     $.alert.open("Message", "Process Not Completed.");
+                 }
+
+             });
+         });
+
+
+
+
+    });// END Document Ready
+     
+
+</script>
+
+
+
+@*@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+&nbsp;
+<h2 class="page-title">Generate Interview Card</h2>
+&nbsp;
+
+<div class="row" >
+    <div class="col-sm-8">
+        <label class="control-label col-md-4">Applied From</label>
+        <div class="form-group">
+            <div class="col-md-8">
+                <input type="text" placeholder="Interview Date" id="txtInterviewDate" value="" class="form-control" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group">
+            &nbsp;
+            <div class="col-md-8">
+                <input type="button" id="btnSET" value="Set Interview Date" class="btn btn-bitbucket" />
+            </div>
+        </div>
+    </div>
+</div>
+<hr />
+
+<div class="row">
+    <input class="form-control" id="txtApplicationIds" name="txtApplicationIds" type="text" value="" height="1000px;" width="300px;" />
+</div>
+<br />
+
+<div class="row">
+    <input type="button" id="btnGenerateCard" value="Generate Card" class="btn btn-dropbox" />           
+</div>
+
+<style>
+    .anyClass {
+        height: 750px;
+        overflow-y: scroll;
+    }
+</style>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

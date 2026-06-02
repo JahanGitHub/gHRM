@@ -1,0 +1,402 @@
+﻿@model gHRM.Web.ViewModels.FixedAssetViewModel
+@{
+    ViewBag.Title = "Year End Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    int officeTypeId = @gHRM.Web.Helpers.SessionHelper.LoggedInOfficeTypeId;
+}
+
+<script>
+    function GetHO(ddlVal) {
+        var ddlHO = $("#ddlHO");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetHOList", "FixedAsset", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlHO.html('');
+                $.each(data, function (id, option) {
+                    ddlHO.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null) {
+                    $('#ddlHO').val(ddlVal);
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetZone(HO_val, ddlVal, canLoadOfficeUser=true) {
+        var ddlZone = $("#ddlZone");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZoneList", "FixedAsset", "http")',
+            data: { HO_val: HO_val },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZone.html('');
+                $.each(data, function (id, option) {
+                    ddlZone.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null && canLoadOfficeUser) {
+                    $('#ddlZone').val(ddlVal);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetArea(HO_val, zone_val, ddlVal, canLoadOfficeUser = true) {
+        var ddlArea = $("#ddlArea");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAreaList", "FixedAsset", "http")',
+            data: { HO_val: HO_val, zone_val: zone_val },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlArea.html('');
+                $.each(data, function (id, option) {
+                    ddlArea.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null && canLoadOfficeUser) {
+                    $('#ddlArea').val(ddlVal);
+                }
+                else {
+                    $("#ddlArea").prop('selectedIndex', 0);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetOffice(HO_val, zone_val, area_val, ddlVal, canLoadOfficeUser = true) {
+        var ddlOffice = $("#ddlOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetOfficeList", "FixedAsset", "http")',
+            data: { HO_val: HO_val, zone_val: zone_val, area_val: area_val },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                if (ddlVal != null && canLoadOfficeUser) {
+                    $('#ddlOffice').val(ddlVal);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function CheckOffcLevel() {
+        var offcLevel = $('#lblOffcLevel').html();
+        var firstLevel = $('#lblFirstLevel').html();
+        var secondLevel = $('#lblSecondLevel').html();
+        var thirdLevel = $('#lblThirdLevel').html();
+        var fourthLevel = $('#lblFourthLevel').html();
+        //alert(offcLevel);
+
+        if (offcLevel == 1) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel,false);
+            GetArea(firstLevel, secondLevel, thirdLevel, false);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, false);
+
+            $("#ddlHO").prop("disabled", true);
+        }
+        if (offcLevel == 2) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel, false);
+            // GetArea(firstLevel, secondLevel, thirdLevel);
+            GetArea(firstLevel, secondLevel, null, false);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, false);
+
+            $("#ddlHO").prop("disabled", true);
+            $("#ddlZone").prop("disabled", true);
+        }
+        if (offcLevel == 3) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel, false);
+            GetArea(firstLevel, secondLevel, thirdLevel, false);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, false);
+
+            $("#ddlHO").prop("disabled", true);
+            $("#ddlZone").prop("disabled", true);
+            $("#ddlArea").prop("disabled", true);
+        }
+        if (offcLevel == 4) {
+            GetHO(firstLevel);
+            GetZone(firstLevel, secondLevel, true);
+            GetArea(firstLevel, secondLevel, thirdLevel, true);
+            GetOffice(firstLevel, secondLevel, thirdLevel, fourthLevel, true);
+
+            $("#ddlHO").prop("disabled", true);
+            $("#ddlZone").prop("disabled", true);
+            $("#ddlArea").prop("disabled", true);
+            $("#ddlOffice").prop("disabled", true);
+        }
+    }
+
+    function OfficeSelection() {
+        if($("#HeadOffice").val() > 0) {
+            var office_id;
+            if ($("#ZoneId").val() > 0) {
+                if ($("#AreaId").val() > 0) {
+                    if ($("#UnitId").val() > 0) {
+                        office_id = $("#UnitId").val();
+                    }
+                    else {
+                        office_id = $("#AreaId").val();
+                    }
+                }
+                else {
+                    office_id = $("#ZoneId").val();
+                }
+            }
+            else {
+                office_id = $("#HeadOffice").val();
+            }
+        }
+        return office_id;
+    }
+
+    function RunYearEndProcess() {
+        debugger;
+        var office_id = OfficeSelection();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("RunYearEndProcess", "FixedAsset", "http")',
+            data: { office_id: office_id },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data != "" || data != null) {
+                    $.alert.open("Success", data);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function DeleteYearEndProcess() {
+        debugger;
+        var office_id = OfficeSelection();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("DeleteYearEndProcess", "FixedAsset", "http")',
+            data: { office_id: office_id },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data != "" || data != null) {
+                    $.alert.open("Success", data);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        debugger;
+         CheckOffcLevel();
+        $("#ddlHO").change(function () {
+            var HO_val = $("#ddlHO").val();
+            if (HO_val > 0) {
+                var ddlZone = $("#ddlZone");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetZoneList", "FixedAsset", "http")',
+                    data: { HO_val: HO_val },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlZone.html('');
+                        $.each(data, function (id, option) {
+                            ddlZone.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                        //ClearForm();
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlZone").empty();
+                $("#ddlArea").empty();
+                $("#ddlOffice").empty();
+            }
+        });
+        $("#ddlZone").change(function () {
+            var HO_val = $("#ddlHO").val();
+            var zone_val = $("#ddlZone").val();
+            if (HO_val > 0 && zone_val > 0) {
+                var ddlArea = $("#ddlArea");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetAreaList", "FixedAsset", "http")',
+                    data: { HO_val: HO_val, zone_val: zone_val },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlArea.html('');
+                        $.each(data, function (id, option) {
+                            ddlArea.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                        $("#ddlOffice").empty();
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlArea").empty();
+                $("#ddlOffice").empty();
+            }
+        });
+        $("#ddlArea").change(function () {
+            var HO_val = $("#ddlHO").val();
+            var zone_val = $("#ddlZone").val();
+            var area_val = $("#ddlArea").val();
+            if (HO_val > 0 && zone_val > 0) {
+                var ddlOffice = $("#ddlOffice");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetOfficeList", "FixedAsset", "http")',
+                    data: { HO_val: HO_val, zone_val: zone_val, area_val: area_val },
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        ddlOffice.html('');
+                        $.each(data, function (id, option) {
+                            ddlOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                        //ClearForm();
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlOffice").empty();
+            }
+        });
+        $("#btnRun").click(function () {
+            RunYearEndProcess();
+        });
+        $("#btnDelete").click(function () {
+            DeleteYearEndProcess();
+        });
+
+    });
+</script>
+
+<h2 class="page-title">Year End Process</h2>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.AssetPartialOutID)
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title panel-title-OfficeSelection">
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOfficeSelection"><i class="fa fa-plus"></i>&nbsp;Office Selection</a>
+            </h4>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Head Office</label>
+                        <div class="col-sm-7">
+                            @Html.DropDownList("HOList", null, new { @ID = "ddlHO", @class = "form-control" })
+                        </div>
+                        @Html.Label(ViewData["OfficeLevel"].ToString(), new { @ID = "lblOffcLevel", style = "display:none;" })
+                        @Html.Label(ViewData["FirstLevel"].ToString(), new { @ID = "lblFirstLevel", style = "display:none;" })
+                        @Html.Label(ViewData["SecondLevel"].ToString(), new { @ID = "lblSecondLevel", style = "display:none;" })
+                        @Html.Label(ViewData["ThirdLevel"].ToString(), new { @ID = "lblThirdLevel", style = "display:none;" })
+                        @Html.Label(ViewData["FourthLevel"].ToString(), new { @ID = "lblFourthLevel", style = "display:none;" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Zone Office</label>
+                        <div class="col-sm-7">
+                            @Html.DropDownList("ZoneList", null, new { @ID = "ddlZone", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Area Office</label>
+                        <div class="col-sm-7">
+                            @Html.DropDownList("AreaList", null, new { @ID = "ddlArea", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Branch Office</label>
+                        <div class="col-sm-7">
+                            @Html.DropDownList("OfficeList", null, new { @ID = "ddlOffice", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="form-group form-action">
+                    <input type="button" value="Run Process" class="btn btn-primary" id="btnRun" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="form-group form-action">
+                    <input type="button" value="Delete Process" class="btn btn-primary" id="btnDelete" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+        @Scripts.Render("~/bundles/jqueryui")
+    }

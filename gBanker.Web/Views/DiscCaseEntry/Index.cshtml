@@ -1,0 +1,909 @@
+﻿@model IEnumerable<gHRM.Web.ViewModels.Discipline.DiscCaseMasterViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+    
+</style>
+
+<script type="text/javascript">
+    function GetSearchZOOffice() {
+        var ddlZOOffice = $("#ddlSearchZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZoneName", "DiscCaseEntry", "http")', //GetZOOfficeList
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchCrime() {
+        var ddlCrime = $("#ddlSearchCrime");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetCrimeList", "DiscCaseEntry", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlCrime.html('');
+                $.each(data, function (id, option) {
+                    ddlCrime.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchCrimeK() {
+        var ddlCrime = $("#ddCrimeEdit");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetCrimeList", "DiscCaseEntry", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlCrime.html('');
+                $.each(data, function (id, option) {
+                    ddlCrime.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchStatus() {
+        var ddlStatus = $("#ddlSearchStatus");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetStatusList", "DiscCaseEntry", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlStatus.html('');
+                $.each(data, function (id, option) {
+                    ddlStatus.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert( request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function CaseDelete(CaseMasterId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("CaseDelete", "DiscCaseEntry", "http")',
+                    data: { CaseMasterId: CaseMasterId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        reloadGrid();
+                    },
+                    error: function (request, status, error) {
+                        alert( request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    //POPUP
+
+    //Popup Start
+    function PopupDiv(masterId, caseDetailsId) {
+
+        GetDataPopUp(masterId, caseDetailsId);
+        $('#hdnMasterId').val(masterId);
+        $('#hdnCaseDetailsId').val(caseDetailsId);
+
+        $('html, body').animate({ scrollTop: $('#ProgramDiv').offset().top }, 'slow');
+        // $("#ProgramDiv").attr("tabindex", -1).focus();
+
+
+        $("#ProgramDiv").dialog({
+            autoOpen: false,
+            height: 450,
+            width: 650,
+            modal: true,
+            buttons: {
+                //"Save": function () {
+                //    SaveUpdateProgram();
+                //},
+                "Close": function () {
+                    //alert("No Office selected. Employee office will be used.");
+                    // window.location.href = "Member/Create";
+                                        
+                    reloadGrid();
+
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+        var showPopup = "True";
+        if (showPopup == "True") {
+            $("#ProgramDiv").dialog('open');
+        }
+
+
+
+    }//End of Show Popup
+
+
+
+    function GetDataPopUp(masterId, CaseDetailsId) { //populate Popup Form
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetDataPopupCaseEdit", "DiscCaseEntry", "http")',
+            data: { MasterId: masterId, CaseDetailsId:CaseDetailsId, jtStartIndex: 1, jtPageSize: 5, jtSorting: true, filterColumn: null, filterValue: null },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (id, option) {
+                     
+                    $('#txtEmployeeId').val(option.EmployeeId);
+                    $('#txtCaseIssueDate').val(option.CaseDateFromMsg);
+                    $('#txtCrimeLocationId').val(option.CrimeLocationId);
+                    $('#hdnOfficeIdEdit').val(option.CrimeLocationId);
+                    $('#CaseDesPatchNo').val(option.CaseDesPatchNo);
+                    $('#txtCrimeLocationBng').val(option.CrimeLocationBng);
+                    $('#txtCrimeName').val(option.CrimeName);
+                    
+                    $('#hdnCrimeIdEdit').val(option.CrimeId);
+
+
+
+                });
+            },
+            error: function (request, status, error) {
+                alert( request.statusText + "/" + request.statusText + "/" + error);
+                clear();
+            }
+        });
+    }
+
+    
+
+        //Popup SELECT Punishment Start
+    function PopupSelectCrimeLocationDiv() {
+
+        $('html, body').animate({ scrollTop: $('#CimeLocationDiv').offset().top }, 'slow');
+        // $("#PddPunishmentListrogramDiv").attr("tabindex", -1).focus();
+
+        $("#CimeLocationDiv").dialog({
+            autoOpen: false,
+            height: 150,
+            width: 640,
+            modal: true,
+            scroll: false,
+            buttons: {
+                "Ok": function () {
+                    //SaveUpdateProgram();
+                    // ddlRestrictedZOOffice
+                    var CrimeLocationId = $("#ddAllOfficeEDIT option:selected").val();
+
+                    // var CrimeLocationName = $("#ddAllOfficeEDIT option:selected").Text;
+                    // alert(PunishmentListName);
+                    // $("#txtPunishmentName").val(PunishmentListName);
+
+                    ////////////////START
+
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetCrimeLocationNameByID", "DiscCaseEntry", "http")',
+                        data: { CrimeLocationId: CrimeLocationId },
+                        dataType: 'json',
+                        async: true,
+                        success: function (List_EmployeeViewModel) {
+
+                            if (List_EmployeeViewModel != "") {
+                                $.each(List_EmployeeViewModel, function (index, emp) {
+                                    $('#txtCrimeLocationBng').val(emp.CrimeLocationBng);
+                                     
+                                });
+                            }
+                            else {
+                                $.alert.open('alert', 'Invalid Punishment ID');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+
+
+
+                    ///////////////END
+
+                    $("#hdnOfficeIdEdit").val(CrimeLocationId);
+
+                    ///Update Punishment ddPunishmentList Text
+                    // $("#ddPunishmentList option:selected").Text = RestrictedZoneName + "is Restricted.";
+
+                    $(this).dialog("close");
+
+                },
+                "Close": function () {
+                    //alert("No Office selected. Employee office will be used.");
+                    // window.location.href = "Member/Create";
+
+                    $(this).dialog("close");
+                }
+            }
+        });
+        var showPopup = "True";
+        if (showPopup == "True") {
+            $("#CimeLocationDiv").dialog('open');
+        }
+
+    }//End of Show CrimeLocation Popup
+
+
+    ///// Crime Popup Edit
+
+    //Popup SELECT Crime
+    function PopupSelectCrimeDiv() {
+
+        $('html, body').animate({ scrollTop: $('#CimeDiv').offset().top }, 'slow');
+        // $("#PddPunishmentListrogramDiv").attr("tabindex", -1).focus();
+
+        $("#CimeDiv").dialog({
+            autoOpen: false,
+            height: 150,
+            width: 640,
+            modal: true,
+            scroll: false,
+            buttons: {
+                "Ok": function () {
+                    //SaveUpdateProgram();
+                    // ddlRestrictedZOOffice
+                    var CrimeId = $("#ddCrimeEdit option:selected").val();
+
+                    // var CrimeLocationName = $("#ddAllOfficeEDIT option:selected").Text;
+                    // alert(PunishmentListName);
+                    // $("#txtPunishmentName").val(PunishmentListName);
+
+                    ////////////////START
+
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetCrimeNameByID", "DiscCaseEntry", "http")',
+                        data: { CrimeId: CrimeId },
+                        dataType: 'json',
+                        async: true,
+                        success: function (List_EmployeeViewModel) {
+
+                            if (List_EmployeeViewModel != "") {
+                                $.each(List_EmployeeViewModel, function (index, emp) {
+                                    $('#txtCrimeName').val(emp.CrimeName);
+
+                                });
+                            }
+                            else {
+                                $.alert.open('alert', 'Invalid Crime ID');
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+
+
+
+                    ///////////////END
+
+                    $("#hdnCrimeIdEdit").val(CrimeId);
+
+                    ///Update Punishment ddPunishmentList Text
+                    // $("#ddPunishmentList option:selected").Text = RestrictedZoneName + "is Restricted.";
+
+                    $(this).dialog("close");
+
+                },
+                "Close": function () {
+                    //alert("No Office selected. Employee office will be used.");
+                    // window.location.href = "Member/Create";
+
+                    $(this).dialog("close");
+                }
+            }
+        });
+        var showPopup = "True";
+        if (showPopup == "True") {
+            $("#CimeDiv").dialog('open');
+        }
+
+    }//End of Show Crime Popup
+
+
+
+    /////// END Crime Popup Edit
+
+
+
+
+        //END POPUP
+
+    function GetALLOffice() { //CrimeLocation
+        var ddlAOOffice = $("#ddAllOfficeEDIT");
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAllOffice", "DiscCaseEntry", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function updatePopup() {
+        var hdnMasterId = $('#hdnMasterId').val();
+         
+        var CaseIssueDate = $('#txtCaseIssueDate').val();
+       
+        var EmployeeId = $('#txtEmployeeId').val();
+
+        var CrimeLocationId = $('#hdnOfficeIdEdit').val();
+       
+        var CaseDesPatchNo = $('#CaseDesPatchNo').val();
+
+        var CaseDetailsId = $('#hdnCaseDetailsId').val();
+
+        var CrimeId = $('#hdnCrimeIdEdit').val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdatePOPUPCaseDataEdit", "DiscCaseEntry", "http")',
+            data: {
+                masterId: hdnMasterId,
+                CaseDateFrom: CaseIssueDate,
+                
+                CrimeLocationId: CrimeLocationId,
+                CaseDesPatchNo: CaseDesPatchNo,
+                CaseDetailsId: CaseDetailsId,
+                CrimeId: CrimeId,
+                EmployeeId: EmployeeId
+
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Update Successfully");
+
+                EmployeeWiseCaseList();
+                reloadGrid();
+
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+
+                EmployeeWiseCaseList();
+            }
+
+        });
+
+        ///Reload Grid
+        //reloadGrid();
+
+        var ZO = $("#ddlSearchZOOffice option:selected").val();
+        var Status = $("#ddlSearchStatus option:selected").val();
+        var CaseNo = $("#txtCaseNo").val();
+        var CaseDate = $("#txtCaseDate").val();
+        var DespatchNo = $("#txtDespatch").val();
+        var filterType = $("#filterType option:selected").val();
+        var EmployeeID = $("#EmployeeID").val();
+
+
+        $('#grid').jtable('load', { zoOfc: ZO, EmployeeID: EmployeeID, StatusId: Status, CaseNo: CaseNo, CaseDate: CaseDate, DespatchNo: DespatchNo, filterType: filterType });
+
+
+        ////END ReLoad Grid
+       
+
+    }
+
+    $(document).ready(function () {
+        
+        GetALLOffice();
+       //KHALID GetSearchCrimeK();
+
+        $("#btnPopUpUpdate").click(function () {
+
+            updatePopup();
+
+
+        });
+
+        $("#txtCaseDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+        $("#txtCaseIssueDate").datepicker(
+      {
+          dateFormat: "dd-M-yy",
+          showAnim: "scale",
+          changeMonth: true,
+          changeYear: true,
+          yearRange: "1920:2055"
+      });
+
+
+        GetSearchZOOffice();
+        GetSearchCrime();
+        GetSearchStatus();
+
+
+        var LoggedInOfficeID = "@ViewBag.LoggedInOfficeID";
+
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 50,
+            sorting: false,
+            defaultSorting: 'EmployeeName ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    //console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/DiscCaseEntry/GetCaseList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+
+            },
+            fields: {
+                CaseMasterId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                SlNo: {
+                    title: 'Sl',
+                    // width: '5%',
+                },
+                CaseNo: {
+                    title: 'Case No',
+                    //width: '10%'
+                },
+                ZoneName: {
+                    title: 'Zone',
+                    //width: '20%',
+                },
+                EmployeeId: {
+                    title: 'Empl ID',
+                    width: '2%',
+                },
+                Employees: {
+                    title: 'Employees',
+                    //width: '30%'
+                },
+                CaseDateFromMsg: { //Case Date KK
+                    title: 'Case Issuing Date',
+                    width: '18%',
+                },
+                DispatchNo: {
+                    title: 'Despatch No',
+                    //width: '10%'
+                },
+                CaseType: {
+                    title: 'Case Type',
+                    //width: '10%'
+                },
+                OfficeName: {
+                    title: 'Location',
+                    //width: '10%'
+                },
+                Crimes: {
+                    title: 'Crimes',
+                    width: '30%',
+                },
+
+                TotalAnnexationAmountMsg: {
+                    title: 'Embezzle',
+                    //width: '10%'
+                },
+                TotReturnAmountMsg: {
+                    title: 'Return',
+                    //width: '10%'
+                },
+                TotBalanceMsg: {
+                    title: 'Balance',
+                    //width: '10%'
+                },
+                StatusMsg: {
+                    title: 'Status',
+                    //width: '10%'
+                },
+                //StatusDtMsg: {
+                //    title: 'Date'
+                //    //width: '10%'
+                //},
+                /*
+               EditLink: {
+                   title: "Edit",
+                   display: function (data) {
+                       //if (data.StatusMsg == null) {
+                       //    return '<div class="text-center"><a href="#" OnClick="CaseEdit(' + data.record.CaseMasterId + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                       //}
+                       //else return '';
+
+                       if (LoggedInOfficeID == 2664 || LoggedInOfficeID == 2673) {
+                           if (data.record.CaseType == 'Explanation') {
+                               // return '<div class="text-center"><a href="#" OnClick="CaseEdit_Description(' + data.record.CaseMasterId + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                               return "<div class='text-center'><a href='/DiscCaseEntry/CaseEdit/" + data.record.CaseMasterId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                           }
+                           else if (data.record.CaseType == 'Charge Sheet') {
+                               return "<div class='text-center'><a href='/DiscCaseEntry/ChargeSheetEdit/" + data.record.CaseMasterId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                               //return '<div class="text-center"><a href="#" OnClick="CaseEdit_ChargeSheet(' + data.record.CaseMasterId + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                           }
+                       }
+                       else return '';
+                   }
+               },
+
+                */
+                DeleteLink: {
+                    title: "Delete",
+                    display: function (data) {
+
+                        if (LoggedInOfficeID == 2664 || LoggedInOfficeID == 2673) {
+
+                            if (data.StatusMsg == null) {
+                                return '<div class="text-center"><a href="#" OnClick="CaseDelete(' + data.record.CaseMasterId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                            }
+                        }
+                        else return '';
+                    }
+                },
+
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        if (LoggedInOfficeID == 2664 || LoggedInOfficeID == 2673) {
+
+                            return '<div class="text-center"><a href="#" OnClick="PopupDiv(' + data.record.CaseMasterId + ',' + data.record.CaseDetailsId + ' );"><i class="fa fa-pencil-square-o"></i></a></div>';
+                        }
+                    }
+                },
+
+                EnquiryLink: {
+                    title: "Enquiry Officer",
+                    display: function (data) {
+                        if (data.record.CaseType == 'Charge Sheet') {
+                            return "<div class='text-center'><a href='/DiscCaseEntry/EnquiryOfficer/" + data.record.CaseMasterId + "'><i title='Enquiry Officer' class='fa fa-th'></i></a></div>";
+                        }
+                        else return '';
+                    },
+                    visibility: 'fixed' //'hidden'
+
+
+                }
+            }
+        });
+        // $('#grid').jtable('load');  // Khalid: Commented as Not Need to Load Data when load page.
+    });
+
+    function reloadGrid() {
+        var ZO = $("#ddlSearchZOOffice option:selected").val();
+        var Status = $("#ddlSearchStatus option:selected").val();
+        var CaseNo = $("#txtCaseNo").val();
+        var CaseDate = $("#txtCaseDate").val();
+        var DespatchNo = $("#txtDespatch").val();
+        var filterType = $("#filterType option:selected").val();
+        var EmployeeID = $("#EmployeeID").val();
+
+
+        $('#grid').jtable('load', { zoOfc: ZO, EmployeeID: EmployeeID, StatusId: Status, CaseNo: CaseNo, CaseDate: CaseDate, DespatchNo: DespatchNo, filterType: filterType });
+
+    }
+</script>
+
+<h2 class="page-title">Case List</h2>
+<br />
+@*<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Filter Type</label>
+            <div class="col-sm-8">
+                <select id="filterType" class="form-control">
+                    <option value="ViewAll" selected="selected">View All</option>
+                    <option value="Explanation">Explanation</option>
+                    <option value="ChargeSheet">Charge Sheet</option>                   
+                </select>
+            </div>
+        </div>
+    </div>
+</div>*@
+<br />
+    
+<div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Filter Type</label>
+                <div class="col-sm-8">
+                    <select id="filterType" class="form-control">
+                        <option value="ViewAll" selected="selected">View All</option>
+                        <option value="Explanation">Explanation</option>
+                        <option value="ChargeSheet">Charge Sheet</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                @Html.Label("Zone", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlSearchZOOffice", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                @Html.Label("Status", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("StatusList", null, new { @ID = "ddlSearchStatus", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+       
+    </div>
+    <br />
+    <div class="row">
+    <div class="col-sm-4">
+        <div class="form-group">
+            @Html.Label("Case No", new { @class = "control-label col-md-4" })
+            <div class="col-md-8">
+                <input type="text" id="txtCaseNo" placeholder="Type Search Text" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group">
+            @Html.Label("Case Issuing Date", new { @class = "control-label col-md-4" })
+            <div class="col-md-8">
+                <input type="text" id="txtCaseDate" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group">
+            @Html.Label("Despatch No", new { @class = "control-label col-md-4" })
+            <div class="col-md-8">
+                <input type="text" id="txtDespatch" class="form-control txtcapitalize" />
+            </div>
+        </div>
+    </div>
+       
+</div><br />
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group">
+            @Html.Label("Employee Id", new { @class = "control-label col-md-4" })
+            <div class="col-md-8">
+                <input type="text" id="EmployeeID" class="form-control txtcapitalize" />
+            </div>
+        </div>
+    </div>
+
+</div>
+<br />
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    &nbsp;
+                </div>
+                <div class="col-md-8">
+                    <input type="submit" value="Search" id="btnSearch" class="btn btn-success" onclick="reloadGrid();" />
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <br />
+    <div id="grid"></div>
+<input type="hidden" value="" id="hdnCaseDetailsId" />
+
+<!-- Popup Program Entry -->
+<div id="ProgramDiv" title="Edit" style="display:none">
+    @*khalid*@
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-5 required"> Employee ID  </label>
+                <div class="col-sm-7">
+                    <input type="text" id="txtEmployeeId" class="form-control" placeholder="EmployeeId" />
+                     
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-5 required"> Case Despatch No  </label>
+                <div class="col-sm-7">
+                    <input type="text" id="CaseDesPatchNo" class="form-control" placeholder="Case Despatch No" />
+                    <input type="hidden" id="hdnMasterId" />
+                </div>
+            </div>
+        </div>
+       
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-5 required">Case Issue Date </label>
+                <div class="col-sm-7">
+                    <input type="text" id="txtCaseIssueDate" class="form-control" placeholder="Case Issue Date" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+     
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-5 "> Crime Location </label>
+                <div class="col-sm-7">
+                    <input type="text" id="txtCrimeLocationBng" class="form-control" placeholder=" " />
+                    <input type="button" id="btnSelectCrimeLocation" value="#" onclick="PopupSelectCrimeLocationDiv();" class=" btn btn-facebook" />
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-5 "> Crime Name </label>
+                <div class="col-sm-7">
+                    <input type="text" id="txtCrimeName" class="form-control" placeholder=" " />
+                    <input type="button" id="btnSelectCrime" value="#" onclick="PopupSelectCrimeDiv();" class=" btn btn-facebook" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    &nbsp;
+                    <input type="button" value="Save" id="btnPopUpUpdate" class="btn btn-success" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- End Of Program Entry Div -->
+
+
+ <!-- Popup Crime Location Entry -->
+
+<div id="CimeLocationDiv" title="Select Crime Location" style="display:none">
+    @*khalid*@
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Office Name  </label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("AOOfficeList", null, new { @ID = "ddAllOfficeEDIT", @class = "form-control" })
+                    <input type="hidden" id="hdnOfficeIdEdit" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- End Of Restricted Zone Entry Div -->
+
+ <!-- Popup Crime Entry -->
+
+<div id="CimeDiv" title="Select Crime " style="display:none">
+    @*khalid*@
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Crime Name  </label>
+                <div class="col-sm-8">
+                    @Html.DropDownList("CrimeList", null, new { @ID = "ddCrimeEdit", @class = "form-control" })
+                    <input type="hidden" id="hdnCrimeIdEdit" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- End Of Crime Div -->
+
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/jtable")
+    }

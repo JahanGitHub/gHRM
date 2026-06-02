@@ -1,0 +1,349 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOtherInformationViewModel
+
+@{
+    ViewBag.Title = "General Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .panel-body {
+        background: #F4F4F4 !important;
+    }
+
+    .panel-heading {
+        font-size: 20px !important
+    }
+</style>
+
+<style>
+    .modal-backdrop {
+        z-index: revert;
+    }
+
+    .modal {
+        background: revert;
+    }
+</style>
+
+<script>
+
+    $(document).ready(function () {
+
+        $("#btnViewReportempProv").click(function () {
+
+            var otherReportURL = '/EmployeeReport/ProbationDuration';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportempProv
+
+        $("#btnViewReportCuktiVittikEmployees").click(function () {
+
+            var otherReportURL = '/EmployeeReport/CuktiVittikEmployees';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportCuktiVittikEmployees
+
+
+
+
+        $("#btnViewReportDesiWiseEmpList").click(function () {
+
+            var otherReportURL = '/EmployeeReport/DesiWiseEmpList';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportDesiWiseEmpList
+
+
+        $("#btnViewReportStaffPositionEmpList").click(function () {
+
+            var otherReportURL = '/EmployeeReport/StaffPositionEmpList';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportStaffPositionEmpList
+
+        /*
+    $("#btnViewReportIncrementElegibleEmpList").click(function () {
+            var Year = $("#Year1 option:selected").val();
+            var MonthName = $('#Month1 option:selected').val();
+                                    //(string MonthName, string Year)
+           var  otherReportURL = '/EmployeeReport/IncrementElegibleEmpList?&MonthName='+ MonthName + '&Year= '+ Year;
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportIncrementElegibleEmpList
+
+        */
+
+
+        $("#btnViewReportOfficeWiseEmpList").click(function () {
+
+            var otherReportURL = '/EmployeeReport/OfficeWiseEmpList';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportOfficeWiseEmpList
+
+        $("#btnViewReportPresentOfficeMoreThanTHreeYears").click(function () {
+
+            var otherReportURL = '/EmployeeReport/PresentOfficeMoreThanTHreeYears';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportPresentOfficeMoreThanTHreeYears
+
+        $("#btnViewReportLeaveEncashment").click(function () {
+
+            var otherReportURL = '/EmployeeReport/LeaveEncashment';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportLeaveEncashment
+
+        //EmployeesWillBeRetired(string SelectedDate)
+
+        $("#btnViewReportEmployeesWillBeRetired").click(function () {
+
+            var SelectedDate = $("#SelectedDate").val();
+            var otherReportURL = '/EmployeeReport/EmployeesWillBeRetired?SelectedDate=' + SelectedDate;
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportEmployeeListAbsentReleased
+
+
+
+        $("#btnViewReportEmployeeListWhoHasInsurance").click(function () {
+
+            var otherReportURL = '/EmployeeReport/EmployeeListWhoHasInsurance';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportLeaveEncashment
+
+
+        $("#btnViewReportEmployeeListAbsentReleased").click(function () {
+
+            var SelectedFromDate = $("#SelectedFromDate").val();
+            var otherReportURL = '/EmployeeReport/EmployeeListAbsentReleased?FromDate=' + SelectedFromDate;
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportEmployeeListAbsentReleased
+
+        $("#btnViewReportEmployeeListOfficeDesig").click(function () {
+            var otherReportURL = '/EmployeeReport/EmployeeListOfficeDesig';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportAgrementToEndEmpNameList
+
+
+        $("#btnViewReportAgrementToEndEmpNameList").click(function () {
+            var otherReportURL = '/EmployeeReport/AgreementToEndEmpNameList';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportAgrementToEndEmpNameList
+
+        $("#btnViewReportLeaveEncahsmentEmpList").click(function () {
+            var otherReportURL = '/EmployeeReport/LeaveEncahsmentEmpList';
+            PrintReport(otherReportURL);
+        });// END Click btnViewReportLeaveEncahsmentEmpList
+
+
+
+
+        $("#SelectedDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1900:2050"
+            });
+
+        $("#SelectedFromDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1900:2050"
+            });
+
+
+
+    }); // END Document REady
+
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeOtherInformation/EmployeeOtherInfo">Employee Report</a></li>
+    </ol>
+</div>
+
+<div class="row" style="margin-bottom:10px;">
+    <h2 class="page-title">General Reports</h2>
+    <input type="hidden" id="hfZoCode" />
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportempProv">
+                    <div class="panel-heading"><i class="fa fa-users"></i> Employee Probation Report </div>
+                    <div class="panel-body"> View Employee Probation Period More than Six Months till today.</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportCuktiVittikEmployees">
+                    <div class="panel-heading"><i class="fa fa-address-card" aria-hidden="true"></i> Contructual Employee Report </div>
+                    <div class="panel-body">To view <mark>Contructual Employee List report</mark>, just click on here. </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportDesiWiseEmpList">
+                    <div class="panel-heading"><i class="fa fa-id-badge" aria-hidden="true"></i> Designation Wise Employee</div>
+                    <div class="panel-body">Click on <mark>Designation Wise Employee</mark> to see designation wise employee report </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportStaffPositionEmpList">
+                    <div class="panel-heading"><i class="fa fa-line-chart"></i> View Staff Position Employee List </div>
+                    <div class="panel-body"> <mark>View Staff Position Employee List</mark> ! Let's click on this report menu to view stuff postion list  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportOfficeWiseEmpList">
+                    <div class="panel-heading"><i class="fa fa-building" aria-hidden="true"></i> View Office Wise Employee List </div>
+                    <div class="panel-body">Click on <mark>View Office Wise Employee List</mark> to see office wise employee report </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportPresentOfficeMoreThanTHreeYears">
+                    <div class="panel-heading"><i class="fa fa-th-list" aria-hidden="true"></i> More than 3 Years in Office</div>
+                    <div class="panel-body">Click on <mark>View Employee List More than 3 Years in Present Office</mark> to see employee report </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportLeaveEncashment">
+                    <div class="panel-heading"><i class="fa fa-calendar"></i> Employee Leave Encashment </div>
+                    <div class="panel-body"> Click on this <mark>Employee Leave Encashment</mark>! and view employee's Leave Encashment.</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportEmployeeListWhoHasInsurance">
+                    <div class="panel-heading"><i class="fa fa-users" aria-hidden="true"></i> Employee List Who Has Insurance </div>
+                    <div class="panel-body"> <mark>Employee List Who Has Insurance</mark> ! Let's click on this report menu to view employee list who has insurance  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportEmployeeListOfficeDesig">
+                    <div class="panel-heading"><i class="fa fa-cubes" aria-hidden="true"></i> Employee List With Office</div>
+                    <div class="panel-body">Click on <mark>Employee List With Office</mark> to see employee with office report </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportAgrementToEndEmpNameList">
+                    <div class="panel-heading"><i class="fa fa-check-square-o"></i> Agreement About End Employees</div>
+                    <div class="panel-body"> <mark>Agreement About End Employees</mark> ! Let's click on this report menu to view agreement about to end employee list  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-success" id="btnViewReportLeaveEncahsmentEmpList">
+                    <div class="panel-heading"><i class="fa fa-credit-card" aria-hidden="true"></i> Leave Encashment Employee List </div>
+                    <div class="panel-body"><mark>Leave Encashment Employee List!</mark>, Just click on this report section to Leave Encashment Employee report </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="panel panel-success" data-toggle="modal" data-target="#myModal">
+                    <div class="panel-heading"><i class="fa fa-cogs" aria-hidden="true"></i> Employee who will be Retired </div>
+                    <div class="panel-body">Click on <mark>Employee who will be Retired</mark> to see employee report </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+           
+            <div class="col-md-4">
+                <div class="panel panel-success" data-toggle="modal" data-target="#myModal2">
+                    <div class="panel-heading"><i class="fa fa-window-restore" aria-hidden="true"></i> Employee List Absent, Released </div>
+                    <div class="panel-body">Click on <mark>Employee List Absent, Released</mark> to see employee report </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+<!-- Trigger the modal with a button -->
+@*<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Employee who will be Retired</button>*@
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Employee who will be Retired</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4"> </label>
+                            <div class="col-md-8">
+                                <input type="text" id="SelectedDate" class="form-control" autocomplete="off" />
+                            </div>
+
+                        </div>
+                    </div>
+                    <input type="button" value="Employee who will be Retired" id="btnViewReportEmployeesWillBeRetired" class="btn btn-success" />
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Trigger the modal with a button -->
+@*<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal2">Employee List Absent, Released</button>*@
+
+<!-- Modal -->
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Employee List Absent, Released</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4"> </label>
+                            <div class="col-md-8">
+                                <input type="text" id="SelectedFromDate" class="form-control" autocomplete="off" />
+                            </div>
+
+                        </div>
+                    </div>
+                    <input type="button" value="Employee List Absent, Released" id="btnViewReportEmployeeListAbsentReleased" class="btn btn-success" />
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

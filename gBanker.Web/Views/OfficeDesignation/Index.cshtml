@@ -1,0 +1,358 @@
+﻿@model gHRM.Web.ViewModels.OfficeDesignationViewModel
+
+@{
+    ViewBag.Title = "Office Designation";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    function Clearform() {
+        $("#OffcType").val("");
+        $("#OffcDesignName").val("");
+        $("#OffcDesignNameBn").val("");
+        $("#DesignationOrder").val("");
+    }
+
+    $(document).ready(function () {
+        $("#btnRestore").hide();
+        $("#btnUpdate").hide();
+        loadOffiiceDesignation();
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+            var offcType = $("#OffcType").val();
+            var designName = $("#OffcDesignName").val();
+            var designNameBn = $("#OffcDesignNameBn").val();
+            var designationOrder = $("#DesignationOrder").val();
+            var isSectionDependent = $("#IsSectionDependent").val();
+            if (offcType != "" && designName != "" && designNameBn != "" && designationOrder != "" && isSectionDependent != "") {
+
+                var obj = {
+                    OffcType: offcType,
+                    OffcDesignName: designName,
+                    OffcDesignNameBn: designNameBn,
+                    DesignationOrder: designationOrder,
+                    IsSectionDependent: isSectionDependent
+                };
+
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("SaveDesignation", "OfficeDesignation", "http")',
+                    data: obj,
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            loadOffiiceDesignation();
+                            Clearform();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please Insert Required Data");
+            }
+
+        });
+
+        $("#btnUpdate").click(function (e) {
+            e.preventDefault();
+            var offDesigId = $("#OfficeDesignationId").val();
+            var offcType = $("#OffcType").val();
+            var designName = $("#OffcDesignName").val();
+            var designNameBn = $("#OffcDesignNameBn").val();
+            var designationOrder = $("#DesignationOrder").val();
+            var isSectionDependent = $("#IsSectionDependent").val();
+            if (offcType != "" && designName != "" && designNameBn != "" && designationOrder != "" && isSectionDependent != "") {
+
+                var obj = {
+                    OfficeDesignationId: offDesigId,
+                    OffcType: offcType,
+                    OffcDesignName: designName,
+                    OffcDesignNameBn: designNameBn,
+                    DesignationOrder: designationOrder,
+                    IsSectionDependent: isSectionDependent
+                };
+
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("UpdateDesignation", "OfficeDesignation", "http")',
+                    data: obj,
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            loadOffiiceDesignation();
+                            Clearform();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+
+                });
+            } else {
+                $.alert.open("Error", "Please Insert Required Data");
+            }
+
+        });
+
+        $("#btnRestore").click(function () {
+            RestoreControls();
+        });
+    });
+
+
+    function RestoreControls() {
+        $("#btnSave").show();
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+        Clearform();
+    }
+
+    function loadOffiiceDesignation() {
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("DesignationList", "OfficeDesignation", "http")',
+                    dataType: 'json',
+                    //data: { FilterBy: filterBy, FilterValue: filterValue }OfficeDesignation/DesignationList
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [//OfficeDesignationId,OffcType,OfficeTypeName,OffcDesignName,OffcDesignNameBn,DesignationOrder
+                 {
+                     field: "OfficeDesignationId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "OffcType",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "rowSl",
+                     title: "Sl No.",
+                     width: "50px",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false
+                     //locked: true,
+                     //lockable: false,
+                 },
+                 {
+                     width: "100px",
+                     field: "OfficeTypeName",
+                     filterable: true,
+                     title: "Office Type Name",
+                     //locked: true
+                 },
+                 {
+                     width: "100px",
+                     field: "OffcDesignName",
+                     title: "Designation Name",
+                     //locked: true
+                 },
+                {
+                    width: "100px",
+                    field: "OffcDesignNameBn",
+                    title: "Designation Name (Bangla)"
+                },
+                 {
+                     width: "50px",
+                     field: "DesignationOrder",
+                     title: "Rank",
+                     //locked: true
+                 },
+                 {
+                     width: "50px",
+                     title: 'Edit',
+                     template: function (dataItem) {
+                         return "<a href='#' OnClick='EditGrid(" + dataItem.OfficeDesignationId + ",\""+ dataItem.OffcType + "\",\"" + dataItem.OffcDesignName + "\",\"" + dataItem.OffcDesignNameBn + "\",\"" + dataItem.DesignationOrder + "\",\"" + dataItem.IsSectionDependent + "\");'><i class='fa fa-pencil-square-o'></i></a>";///Office/Create/?OfficeId=" + dataItem.EntrepreneurId + "
+                     }
+                 },
+                 {
+                     width: "50px",
+                     title: 'Delete',
+                     template: function (dataItem) {
+                         return "<a href='#' OnClick='InformationDelete(" + dataItem.OfficeDesignationId + ");'><i class='fa fa-trash-o'></i></a>";///Office/Create/?OfficeId=" + dataItem.EntrepreneurId + "                   
+                     }
+                 }
+            ]
+        });
+    }
+    
+
+
+    function EditGrid(OfficeDesignationId, OffcType, OffcDesignName, OffcDesignNameBn, DesignationOrder, IsSectionDependent) {
+        $("#OfficeDesignationId").val(OfficeDesignationId);
+        $("#OffcType").val(OffcType);
+        $("#OffcDesignName").val(OffcDesignName);
+        $("#OffcDesignNameBn").val(OffcDesignNameBn);
+        $("#DesignationOrder").val(DesignationOrder);
+        $("#IsSectionDependent").val(IsSectionDependent);
+        $("#btnRestore").show();
+        $("#btnUpdate").show();
+        $("#btnSave").hide();
+    }
+
+    function InformationDelete(OfficeDesignationId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteDesignation", "OfficeDesignation", "http")',
+                    data: { OfficeDesignationId: OfficeDesignationId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            loadOffiiceDesignation();
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+</script>
+
+
+<h2 class="page-title"> Ornamental Designation (Responsibility) List (অফিস দায়িত্বের তালিকা) </h2>
+@using (Html.BeginForm("Index", "OfficeDesignation", FormMethod.Get, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <br />
+    <br />
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    @Html.HiddenFor(model => model.OfficeDesignationId)
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Office Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.OffcType, Model.OfficeTypeList, new { @class = "form-control", @disabled = "true" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Designation Name</label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.OffcDesignName, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Designation Name (Bangla) </label>
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.OffcDesignNameBn, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Rank</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.DesignationOrder, Model.RankList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Section Dependent</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.IsSectionDependent, Model.SectionDependentList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-2">
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" /> &nbsp;
+                    <input type="button" value="Restore" id="btnRestore" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="grid"></div>
+}
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+
+}

@@ -1,0 +1,88 @@
+﻿@model gHRM.Web.ViewModels.EmployeeSalaryBonusViewModel
+
+@{
+    ViewBag.Title = "EmployeeSalaryBonus";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#btnPrint").click(function () {
+            var Year = $("#SalaryYear").val();
+            var Month = $("#SalaryMonth").val();
+            if (Year != "") {
+
+                if (Year != "" && Month != "") {
+                    url = '/EmployeeSalaryBonus/EmployeeSalaryBonusReportPrint?Year=' + Year + '&Month=' + Month;
+                    PrintReport(url);
+                }
+            }
+        });
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        //window.location.href = "/LeaveHistory/Index";
+    }
+
+</script>
+
+
+<h2 class="page-title">EmployeeSalaryBonus Report</h2>
+&nbsp;
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Year </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryYear, Model.YearList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Month </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryMonth, Model.MonthList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    &nbsp;
+
+    <div class="row">
+        <div class="col-sm-6 ">
+            <div class="form-group col-md-offset-4">
+                <div class="col-md-8">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            &nbsp;
+        </div>
+        &nbsp;
+        <div id="grid">
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

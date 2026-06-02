@@ -1,0 +1,190 @@
+﻿@model IEnumerable<gHRM.Web.ViewModels.BranchViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript">
+    function deleteConfirm(status) {
+        if (status == "true") {
+            return confirm('Are you sure you want to delete this record');
+        }
+        else {
+            alert("You cannot delete this record because it is already disabled.");
+            return false;
+        }
+    }
+    function GetCompany() {
+        var ddlCompany = $("#ddlCompany");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetCompanyList", "Branch", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlCompany.html('');
+                $.each(data, function (id, option) {
+                    ddlCompany.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function BranchDelete(branchId) {
+        if (confirm("Are you sure you want to delete this record?") == true) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("BranchDelete", "Branch", "http")',
+                data: { branchId: branchId },
+                dataType: 'json',
+                async: true,
+                success: function (Result) {
+                    $('#grid').jtable('load');
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+            return true;
+        }
+        else {
+            hiddenField.value = 'false';
+            return false;
+        }
+    }
+
+    $(document).ready(function () {
+        GetCompany();
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            defaultSorting: 'CompanyName ASC',
+            actions: {
+                listAction: '/Branch/GetBranchList'
+            },
+            fields: {
+                BranchId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                CompanyName: {
+                    title: ' Company Name',
+                    width: '15%',
+                },
+                BranchName: {
+                    title: 'Branch Name',
+                    width: '20%'
+                },
+                BranchAddress: {
+                    title: 'Address',
+                    width: '30%'
+                },
+                BranchEmail: {
+                    title: 'Email Address',
+                    width: '20%'
+                },
+                BranchPhone: {
+                    title: 'Phone',
+                    width: '5%',
+                },              
+                EditLink: {
+                    title: "Edit",
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/Branch/Edit/" + data.record.BranchId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    display: function (data) {
+                        //return '<div class="text-center delete-link"><a href="/Branch/Delete/' + data.record.BranchId + '"' + " onclick='return confirm(" + '"Are you sure you want to delete this item?");' + "'" + "'><i title='Delete'  class='fa fa-trash-o'></i></a></div>";
+                        return '<div class="text-center"><a href="#" OnClick="BranchDelete(' + data.record.BranchId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+        });
+        $('#grid').jtable('load');
+
+        reloadGrid();
+
+        $("#ddlCompany").change(function () {
+            var company_val = $("#ddlCompany").val();
+            if (company_val > 0) {
+                var ddlBranch = $("#ddlBranch");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetSearchBranchList", "Branch", "http")',
+                    data: { company_val: company_val },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        ddlBranch.html('');
+                        $.each(data, function (id, option) {
+                            ddlBranch.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlBranch").empty();                
+            }
+        });
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+            else if ($(this).val() === "BranchId") {
+                $("#filterValue").val('');
+            }
+            else {
+                $("#filterValue").val('');
+            }
+        });
+    });
+    function reloadGrid() {
+        //$("#loading").show();
+        $('#grid').jtable('load', { companyId: $('#ddlCompany').val(), branchId: $('#ddlBranch').val() });
+        //$("#loading").hide();
+    }
+</script>
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Branch List</h2>
+<br />
+<div class="row">
+    <div class="col-md-4">
+        @Html.Label("Company", new { @class = "control-label" })
+        @Html.DropDownList("CompanyList", null, new { @ID = "ddlCompany", @class = "form-control" })
+    </div>
+    <div class="col-md-4">
+        @Html.Label("Branch", new { @class = "control-label" })
+        @Html.DropDownList("BranchList", null, new { @ID = "ddlBranch", @class = "form-control" })
+    </div>
+    <div class="col-md-3">
+        <br />
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" onclick="reloadGrid();" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+</div>
+<div id="grid"></div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

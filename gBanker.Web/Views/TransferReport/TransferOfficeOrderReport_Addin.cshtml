@@ -1,0 +1,476 @@
+﻿@model gHRM.Web.ViewModels.TransferReportViewModel
+
+@{
+    ViewBag.Title = "Transfer Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    var checkedIds = {};
+
+    var Page = {
+        TransferPlanningProposalReport: function () {
+            var OrderNo = $("#OrderNo").val();
+            if ([null, ""].includes(OrderNo)) {
+                $.alert.open("Error", "Order No is Required");
+                return false;
+            }
+            url = '/TransferReport/GetTransferPlanningProposalReport?OrderNo=' + OrderNo;
+            PrintReport(url);
+        },
+        TransferPlanningOfficeOrderReport: function () {
+            var OrderNo = $("#OrderNo").val();
+            if ([null, ""].includes(OrderNo)) {
+                $.alert.open("Error", "Order No is Required");
+                return false;
+            }
+            url = '/TransferReport/GetTransferPlanningOfficeOrderReport?OrderNo=' + OrderNo;
+            PrintReport(url);
+        },
+        TransferPlanningProposalReport2: function () {
+            var OrderNo = $("#OrderNo").val();
+            if ([null, ""].includes(OrderNo)) {
+                $.alert.open("Error", "Order No is Required");
+                return false;
+            }
+            url = '/TransferReport/GetTransferPlanningProposalReportDoc?OrderNo=' + OrderNo;
+            PrintReport(url);
+        },
+        TransferPlanningOfficeOrderReport2: function () {
+            var OrderNo = $("#OrderNo").val();
+            if ([null, ""].includes(OrderNo)) {
+                $.alert.open("Error", "Order No is Required");
+                return false;
+            }
+            url = '/TransferReport/GetTransferPlanningOfficeOrderReportDoc?OrderNo=' + OrderNo;
+            PrintReport(url);
+        }
+    };
+
+
+    $(document).ready(function () {
+        $("#btnUpdate").hide();
+        $("#btnReset").hide();
+        $(".officeOrderHeader").hide();
+        //$(".officeOrderContent").show();
+
+        LoadMainGrid();
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+        });
+
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+        });
+
+        $("#btnPrintWithpr").click(function () {
+            var url;
+            var idList = new Array();
+
+            for (var i in checkedIds) {
+                if (checkedIds[i]) {
+                    var id = i.toString();
+                    idList.push(id);
+                }
+            }
+
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var OrderNo = $("#OrderNo").val();
+
+            if (dateFrom != "" && dateTo != "") {
+                url = '/TransferReport/TransferEmployeeOfficeOrder?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&OrderNo=' + OrderNo + '&IdLists=' + idList;
+                PrintReport(url);
+            } else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+        });
+
+
+        $("#btnPrintWithpr2").click(function () {
+            var url;
+            var idList = new Array();
+
+            for (var i in checkedIds) {
+                if (checkedIds[i]) {
+                    var id = i.toString();
+                    idList.push(id);
+                }
+            }
+
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var OrderNo = $("#OrderNo").val();
+
+            if (dateFrom != "" && dateTo != "") {
+                url = '/TransferReport/TransferEmployeeOfficeOrderDoc?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&OrderNo=' + OrderNo + '&IdLists=' + idList;
+                PrintReport(url);
+            } else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+        });
+
+    });
+
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function GenerateUpdateCCForOfficeOrder() {
+        var item = {};
+        item.CCForOfficeOrderId = $("#CCForOfficeOrderId").val();
+        item.CCForOfficeOrderNameView = $("#CCForOfficeOrderNameView").val();
+        item.ViewOrder = $("#ViewOrder").val();
+        item.ReportPlacementType = $("#ReportPlacementType").val();
+        return item;
+    }
+
+    function ClearControl() {
+        $("#CCForOfficeOrderNameView").val('');
+        $("#ViewOrder").val('');
+    }
+
+
+    function UpdateCCForOfficeOrder() {
+
+        var ccForOfficeOrder = GenerateUpdateCCForOfficeOrder();
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("UpdateTransferOfficeOrder", "TransferReport")',
+            data: JSON.stringify({ ccForOfficeOrder: ccForOfficeOrder }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data.result = 1) {
+                    $.alert.open('Success', data.message);
+                    ClearControl();
+                    LoadMainGrid();
+                } else {
+                    $.alert.open('Error', data.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+        });
+    }
+
+    //edit using jtable
+
+    function ResetForm() {
+        $("#btnUpdate").hide();
+        $(".officeOrderHeader").hide();
+        $("#btnReset").hide();
+        ClearControl();
+    }
+
+    function EditInformation(CCForOfficeOrderId, CCForOfficeOrderNameView, vieword, ReportPlacementType ) {
+        $(".officeOrderHeader").show();
+        $("#CCForOfficeOrderId").val(CCForOfficeOrderId);
+        $("#CCForOfficeOrderNameView").val(decodeURIComponent(CCForOfficeOrderNameView));
+        $("#ReportPlacementType").val(ReportPlacementType);
+        $("#ViewOrder").val(vieword);
+        $("#btnUpdate").show();
+        $("#btnReset").show();
+        $("#btnSave").hide();
+    }
+
+    function LoadMainGrid() {
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("TransferOfficeOrderList", "TransferReport", "http")',
+                    dataType: 'json',
+                    cache: false,
+                    data: {}
+                }
+            },
+            schema: {
+                model: {
+                    id: "CCForOfficeOrderId",
+                },
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            }
+        });
+
+        var grid = $("#grid").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            dataBound: onDataBound,
+            pagging: true,
+            pageable: {
+                refresh: true,
+                pageSizes: [150, 300, 500, 700],
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    title: 'Select All',
+                    headerTemplate: "<input type='checkbox' id='header-chb' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-chb'></label>",
+                    template: function (dataItem) {
+                        return "<input type='checkbox' id='" + dataItem.CCForOfficeOrderId + "' class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='" + dataItem.CCForOfficeOrderId + "'></label>"
+                    },
+                    width: 20
+                },
+                 {
+                     field: "CCForOfficeOrderId",
+                     hidden: true,
+                     filterable: false
+                 },
+                {
+                    width: "250px",
+                    field: "CCForOfficeOrderNameView",
+                    filterable: true,
+                    title: "Office Order Name"
+                },
+                {
+                    width: "100px",
+                    field: "ReportPlacementType",
+                    filterable: true,
+                    title: "Placement in Report"
+                },
+                {
+                    width: "100px",
+                    field: "ViewOrder",
+                    filterable: true,
+                    title: "View Order"
+                },
+                {
+                    width: "50px",
+                    title: 'Edit',
+                    template: function (dataItem) {
+                        var escapedName = encodeURIComponent(dataItem.CCForOfficeOrderNameView);
+                        return '<div class="text-center"><a href="#" OnClick="EditInformation(' + "'" + dataItem.CCForOfficeOrderId + "'" + ',' + "\'" + escapedName + "'" + ',' + "'" + dataItem.ViewOrder + "'" + ',' + "'" + dataItem.ReportPlacementType + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                }
+            ]
+        })
+
+        .data("kendoGrid");
+
+        grid.table.on("click", ".k-checkbox", selectRow);
+
+        $('#header-chb').change(function (ev) {
+            debugger;
+            var checked = ev.target.checked;
+            $('.row-checkbox').each(function (idx, item) {
+                if (checked) {
+                    if (!($(item).closest('tr').is('.k-state-selected'))) {
+                        $(item).click();
+                    }
+                } else {
+                    if ($(item).closest('tr').is('.k-state-selected')) {
+                        $(item).click();
+                    }
+                }
+            });
+        });
+
+    }
+
+    function onDataBound(e) {
+        var view = this.dataSource.view();
+        for (var i = 0; i < view.length; i++) {
+            if (checkedIds[view[i].id]) {
+                this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                  .addClass("k-state-selected")
+                  .find(".checkbox")
+                  .attr("checked", "checked");
+            }
+        }
+    }
+
+    //on click of the checkbox:
+    function selectRow() {
+        var checked = this.checked,
+            row = $(this).closest("tr"),
+            grid = $("#grid").data("kendoGrid"),
+            dataItem = grid.dataItem(row);
+
+        checkedIds[dataItem.id] = checked;
+        if (checked) {
+            row.addClass("k-state-selected");
+        } else {
+            row.removeClass("k-state-selected");
+        }
+    }
+
+</script>
+
+
+<h2 class="page-title">Transfer Office Order Report</h2>
+<br />
+<div class="row">
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+           
+             <div class="row ordno">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 required">OrderNo</label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.OrderNo, new { @class = "form-control required" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row reportDate">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date From</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date To</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="officeOrderHeader">
+    <h2 class="page-title">CC For Office Order</h2>
+    @using (Html.BeginForm("SaveTransferOfficeOrder", "TransferReport", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <br /><br />
+
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Office Order Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextAreaFor(model => model.CCForOfficeOrderNameView, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">View Order</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.ViewOrder, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Text Placement In Report</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.ReportPlacementType, Model.ReportPlacementList, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @*<label class="control-label col-sm-4 required">View Order</label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.ViewOrder, new { @class = "form-control required" })
+                        </div>*@
+
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-8">
+                        <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdateCCForOfficeOrder()" />
+                        <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetForm()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                @Html.HiddenFor(model => model.CCForOfficeOrderId)
+            </div>
+        </div>
+
+    }
+</div>
+<div class="officeOrderContent">
+
+    <h2 class="page-title"> Report Footer </h2>
+    &nbsp;
+
+    <div class="row">
+        <div class="col-sm-12">
+            &nbsp;
+        </div>
+    </div>
+
+    <div id="grid"></div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            &nbsp;
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="pull-right" style="margin-right: 15px;">
+            <input type="button" id="btnPrintWithpr" value="Print(Pdf)" class="btn btn-success">
+            @if (ViewBag.TRANSFER_OFFICE_ORDER_REPORT_SHOW_BTN_COMPANYREPORT)
+            {
+                <input type="button" value="@ViewBag.CompanyCode Transfer Planning Proposal Report(Pdf)" class="btn btn-success" onclick="Page.TransferPlanningProposalReport()" style="margin-left: 10px;">
+                <input type="button" value="@ViewBag.CompanyCode Office Order Report(Pdf)" class="btn btn-success" onclick="Page.TransferPlanningOfficeOrderReport()" style="margin-left: 10px;">
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="pull-right" style="margin-right: 15px; margin-top:20px;">
+            <input type="button" id="btnPrintWithpr2" value="Print(Doc)" class="btn btn-success">
+            @if (ViewBag.TRANSFER_OFFICE_ORDER_REPORT_SHOW_BTN_COMPANYREPORT)
+            {
+                <input type="button" value="@ViewBag.CompanyCode Transfer Planning Proposal Report(Doc)" class="btn btn-success" onclick="Page.TransferPlanningProposalReport2()" style="margin-left: 10px;">
+                <input type="button" value="@ViewBag.CompanyCode Office Order Report(Doc)" class="btn btn-success" onclick="Page.TransferPlanningOfficeOrderReport2()" style="margin-left: 10px;">
+            }
+        </div>
+    </div>
+
+</div>
+

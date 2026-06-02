@@ -1,0 +1,770 @@
+﻿@{
+    ViewBag.Title = "CV and Experience Certificate";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement ?? "True";
+}
+<style>
+    .modal-backdrop {
+        z-index: 900;
+    }
+
+    .vertical-alignment-helper {
+        display: table;
+        height: 100%;
+        width: 100%;
+        pointer-events: none; /* This makes sure that we can still click outside of the modal to close it */
+    }
+
+    .vertical-align-center {
+        /* To center vertically */
+        display: table-cell;
+        vertical-align: middle;
+        pointer-events: none;
+    }
+
+    .modal-content {
+        /* Bootstrap sets the size of the modal in the modal-dialog class, we need to inherit it */
+        width: inherit;
+        max-width: inherit; /* For Bootstrap 4 - to avoid the modal window stretching full width */
+        height: inherit;
+        /* To center horizontally */
+        margin: 0 auto;
+        pointer-events: all;
+    }
+
+    .modal-header {
+        background: #008d4c;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .modal-header {
+        color: #fff;
+    }
+</style>
+
+<h2>CV and Experience Certificate</h2>
+
+<br />
+
+<h6 style="color:#ff0000">
+    <u>Instruction<br /></u><br />
+
+
+    গ্রামীণ ব্যাংক এ আবেদন করার জন্য Doc ও Pdf ফরম্যাটে দেয়া CV Format ডাউনলোড বাটনে ক্লিক করে ডাউনলোড করুন এবং<br />
+    আপনার প্রয়োজনীয় তথ্য পূরণ করুন। CV তে  সাক্ষর করুন । <br />  আপনার fill up  করা  CV, Upload  CV   বাটন  অপশন এ  এবং experience certificate , <br /> Upload Experience Certificate  বাটন  অপশন  ব্যবহার করে আপলোড করুন ।
+    <br />
+    যারা ইতিমধ্যে আবেদন করেছেন  তাদের এখানে আবেদন করার  প্রয়োজন নেই। ব্যাংক ড্রাফট করে আপনার কাছে রাখুন। </br> Helpdesk Number : 01713371440<br />
+</h6>
+
+
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                @Html.Label("Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-8">
+                    @Html.TextBox("EmployeeCode", "", new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="form-group">
+                @Html.Label("Employee Name (কর্মকর্তা/কর্মচারীর নাম  )", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-8">
+                    @Html.TextBox("EmployeeName", "", new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    <div class="row" id="print">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+
+                    <a href="cv.docx" download>
+                        <button class="btn btn-primary" style="color:darkgreen;">CV Print(Doc)</button>
+                    </a>
+                    &nbsp;&nbsp;
+                    <a href="cv.pdf" download>
+                        <button class="btn btn-default" style="color:crimson;">CV Print(Pdf)</button>
+                    </a>
+
+
+                    @*<input type="button" id="btnSave" value="CV Print(Doc)" class="btn btn-primary" formtarget="_blank" />
+                        <input type="button" id="btnSave2" value="CV Print(Pdf)" class="btn btn-default" formtarget="_blank" />*@
+                    <input style="margin-left:10px;" type="button" id="btnBack" value="Experience Certificate Print" class="btn btn-success" />
+
+                    <input style="margin-left:10px;" type="button" id="btnTermination" value="Termination Letter Print" class="btn btn-danger" />
+
+                    <input style="margin-left:10px;" type="button" id="btnTermination" value="Download Official Letters" class="btn btn-primary" data-toggle="modal" data-target="#myModal" />
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">CV Upload(.doc/.docx/.pdf) </legend>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <input class="form-control" id="File_CV" name="File_CV" type="file" value="">
+                        </div>
+
+                        <div class="col-md-8">
+                            <input style="margin-left:10px;" type="button" id="btnCVfile" value="Upload CV for Grameen Bank" class="btn btn-success" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
+
+    <div class="container-fluid">
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">Experience Certificate Upload(.doc/.docx/.pdf) </legend>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <input class="form-control" id="File_Exp" name="File_Exp" type="file" value="">
+                        </div>
+
+                        <div class="col-md-8">
+                            <input style="margin-left:10px;" type="button" id="btnFileExp" value="Upload Experience Certificate for Grameen Bank" class="btn btn-success" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </div>
+
+    <div class="row">
+        &nbsp;
+        <div id="grid2">
+
+        </div>
+
+    </div>
+
+
+
+
+</div>
+
+
+
+<div class="modal" id="myModal" role="dialog" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Download Official Documents 
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group">
+                           
+                            <div class="col-sm-12">
+                                <select name="ddlLetters" id="ddlLetters" class="form-control">
+                                    <option value="1" >প্রাতিষ্ঠানিক শৃঙ্খলা বজায় রেখে কাজে যোগদান </option>
+                                    <option value="2" selected>প্রাতিষ্ঠানিক শৃঙ্খলা বজায় রেখে কাজে যোগদানের পুনঃ  নির্দেশ  </option>
+                                    <option value="3">তথ্য ব্যবস্থাপনা কেন্দ্রের  জি ব্যাংকার ডাটা সরানো , সার্ভারের পাসওয়ার্ড পরিবর্তন , ও ভি পি এন  কানেকশন প্রসঙ্গে  </option>
+                                    
+                                </select>
+                               
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; text-align: right;">
+                        <input type="button" value="Download" id="btnDownloadLetters" class="btn btn-success" onclick="DownloadLetters()" />
+                    </div>
+                </div>
+                <div class="modal-footer" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+    $('#EmployeeCode').val('@SessionHelper.LoggedInEmployee.EmployeeCode')
+
+
+    function DownloadLetters() {
+        var ddlList = $('#ddlLetters').val();
+        window.location.href = '@Url.Action("DownloadLetters", "EmployeeReport")?ddlList=' + ddlList +'+&EmployeeCode=@SessionHelper.LoggedInEmployee.EmployeeCode';
+        }
+
+        function GetDownloadFile(FileUploadId) {
+        //alert("Do");
+        window.location.href = '@Url.Action("DownloadFile", "EmployeeReport")?types=CV&FileUploadId=' + FileUploadId;
+    }
+
+      function GetDownloadFile2(FileUploadId) {
+        //alert("Do");
+          window.location.href = '@Url.Action("DownloadFile2", "EmployeeReport")?types=EXP&FileUploadId=' + FileUploadId;
+    }
+
+    function GetPrintDataById(ID) {
+
+        url = '/FeedbackRegister/Print?Id=' + ID;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+    function GetDataGrid() {
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 25,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/EmployeeReport/GetFeedBackRegisterList?EmployeeCode=@SessionHelper.LoggedInEmployee.EmployeeCode'
+            },
+            fields: {
+                FeedbackRegisterID: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Employee ID',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '20%'
+                },
+                FeedbackDateSTR: {
+                    title: 'CV Upload Date',
+                    width: '15%'
+                },
+                ChkStatus: {
+                    title: 'CV Status',
+                    width: '10%'
+                },
+                SolvedStatus: {
+                    title: 'Exp Status',
+                    width: '10%'
+                },
+                DownloadLink1: {
+                    title: "CV Download",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' OnClick= GetDownloadFile('" + data.record.FeedbackRegisterID + "'" + ");><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+                DownloadLink2: {
+                    title: "Exp Download",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' OnClick= GetDownloadFile2('" + data.record.FeedbackRegisterID + "'" + ");><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+
+
+            }
+        });
+        $('#grid2').jtable('load');
+    }
+
+
+    function LoadEmpInfoByCode(employee_code) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeData", "FeedbackRegister", "http")',
+            data: { EmpId: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#OfficeId").val(data.OfficeId);
+
+                    }
+                    else {
+
+                        $("#EmployeeName").val('');
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                    }
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message","Employee not Found.");
+                //alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetData() {
+
+        var EmployeeCode = $("#EmployeeCode").val();
+
+        if (EmployeeCode.length > 3) {
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/EmployeeReport/CVAndExperienceLetter_Get?EmployeeCode=' + EmployeeCode,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.Result == 0) {
+                        $.alert.open('Error', data.Message);
+                        $('#print').hide();
+                        $("#EmployeeCode").val('');
+                    }
+
+                    if (data.Result == 1) {
+
+                        $('#print').show();
+
+                        if (data.Message == 1 || data.Message == 2 || data.Message == 7) {
+                            $("#EmployeeCode").attr("readonly", false);
+                        }
+
+                        //var url = "/EmployeeReport/ExperienceLetterReport?id=" + data.data
+                        //window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+                        //$.alert.open('Success', 'Saved Successfully!');
+                        //getExperienceLetterList();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                    $('#print').hide();
+                    $("#EmployeeCode").val('');
+                }
+            });
+
+             LoadEmpInfoByCode(EmployeeCode);
+
+        }
+    }
+
+    $(document).ready(function () {
+
+        const fixedDate = new Date(2023, 7, 31);
+        GetData();
+        LoadEmpInfoByCode('@SessionHelper.LoggedInEmployee.EmployeeCode');
+
+        $('#EmployeeCode').keyup(function () {
+
+            GetData();
+
+
+        });
+
+        GetDataGrid();
+
+        $('#btnTermination').click(function () {
+
+           // $("#Date").datepicker('setDate', fixedDate);
+            var Date = fixedDate;
+            var EmployeeCode = $("#EmployeeCode").val();
+
+            if (Date == '') {
+                $.alert.open('Print date is needed!');
+                return false;
+            }
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/EmployeeReport/TerminationSaveSign?Date=' + Date + '&EmployeeCode=@SessionHelper.LoggedInEmployee.EmployeeCode',
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    if (data.result == 1) {
+
+                        var url = "/EmployeeReport/TerminationReportSign?id=" + data.data
+                        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+                       // $.alert.open('Success', 'Saved Successfully!');
+                      //  getTerminationList();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+
+        $('#btnCVfile').click(function () {
+
+            debugger;
+
+            var selectedFile = document.getElementById('File_CV').files[0];
+            var allowedTypes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'application/pdf'];
+
+            if (!allowedTypes.includes(selectedFile.type)) {
+                $.alert.open('Invalid file type. Please upload a doc, docx, pdf only.');
+                document.getElementById('File_Exp').value = '';
+                return;
+            }
+
+
+            var EmployeeCode = $("#EmployeeCode").val();
+
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+
+            var fileUpload = $("#File_CV").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            fileData.append('EmployeeCode', EmployeeCode);
+
+
+            $.ajax({
+                type: "POST",
+                contentType: false,
+                processData: false,
+                url: '/EmployeeReport/CVFileUpload',
+                data: fileData,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    //if (data.result == 1) {
+                        $.alert.open("Message", "CV Upload  Successfully");
+                       // var url = "/EmployeeReport/ExperienceLetterReport2?id=" + data.data
+                       // window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+                    //}
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+
+        $('#btnFileExp').click(function () {
+
+            debugger;
+
+
+            var selectedFile = document.getElementById('File_Exp').files[0];
+            var allowedTypes = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/msword', 'application/pdf'];
+
+            if (!allowedTypes.includes(selectedFile.type)) {
+                $.alert.open('Invalid file type. Please upload a doc, docx, pdf only.');
+                document.getElementById('File_Exp').value = '';
+                return;
+            }
+
+            var EmployeeCode = $("#EmployeeCode").val();
+
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+            var fileUpload = $("#File_Exp").get(0);
+
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            fileData.append('EmployeeCode', EmployeeCode);
+
+            $.ajax({
+                type: "POST",
+                contentType: false,
+                processData: false,
+                url: '/EmployeeReport/ExperienceFileUpload',
+                data: fileData,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    $.alert.open("Message", "Experience Certificate Upload  Successfully");
+
+                    if (data.result == 1) {
+
+                      //  var url = "/EmployeeReport/ExperienceLetterReport2?id=" + data.data
+                     //   window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+
+
+        $('#btnSave').click(function () {
+
+
+            var EmployeeCode = $("#EmployeeCode").val();
+
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/EmployeeReport/ExperienceLetterSave2?Date=' + '' + '&EmployeeCode=' + EmployeeCode,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    if (data.result == 1) {
+
+                        var url = "/EmployeeReport/ExperienceLetterReport2?id=" + data.data
+                        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+        $('#btnSave2').click(function () {
+
+
+            var EmployeeCode = $("#EmployeeCode").val();
+
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/EmployeeReport/ExperienceLetterSave3?Date=' + '' + '&EmployeeCode=' + EmployeeCode,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    if (data.result == 1) {
+
+                        var url = "/EmployeeReport/ExperienceLetterReport3?id=" + data.data
+                        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+
+        $('#btnBack').click(function () {
+
+
+            var EmployeeCode = $("#EmployeeCode").val();
+
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/EmployeeReport/ExperienceLetterSave?Date=' + '' + '&EmployeeCode=' + EmployeeCode,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    if (data.result == 1) {
+
+                        var url = "/EmployeeReport/ExperienceLetterReport?id=" + data.data
+                        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+    });
+
+    ////// Kendo Grid Integration
+
+
+
+    function Edit(id) {
+        console.log(id);
+         $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetEmployeeExperienceLetter", "EmployeeReport", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            $.each(data, function (index, data) {
+                                if (data != "Error") {
+                                    // alert(data.PermanentAddress);
+                                    $('#Date').val(data.DateOfBirthMsg);
+                                    $("#EmployeeCode").val(data.EmployeeCode);
+
+                                }
+                                else {
+
+                                    $("#EmployeeCode").val('');
+                                    alert("Wrong Employe Code");
+                                    $("#EmployeeCode").focus();
+                                }
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+    }
+    function Delete(id) {
+        console.log(id);
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+              $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("DeleteEmployeeExperienceLetter", "EmployeeReport", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open('Error', 'Employee Code Invalid!');
+                            }
+
+                            if (data.result == 1) {
+                                $.alert.open('Success', 'Deleted Successfully!');
+                                getExperienceLetterList();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+
+     }
+    function Print(id) {
+        console.log(id);
+        var url = "/EmployeeReport/ExperienceLetterReport?id="+id
+          window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+    @section Scripts {
+
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/jtable")
+        @Scripts.Render("~/bundles/alert")
+    }

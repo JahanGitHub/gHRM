@@ -1,0 +1,89 @@
+﻿@model gHRM.Web.ViewModels.Discipline.DiscCrimeViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            defaultSorting: 'CrimeCode ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/DiscCrime/GetCrimeList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+                //listAction: '/LeaveType/GetLeaveType'
+            },
+            fields: {
+                CrimeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                CrimeCode: {
+                    title: 'Crime Code (অপরাধ কোড) ',
+                    width: '15%',
+                },
+                CrimeName: {
+                    title: 'Crime Name (অপরাধের নাম)',
+                    width: '35%'
+                },
+                Remarks: {
+                    title: 'Remarks (মন্তব্য)',
+                    width: '40%'
+                },
+                EditLink: {
+                    title: "Edit (সম্পাদন)",
+                    width: '10%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/DiscCrime/Edit/" + data.record.CrimeId + "'><i title='Edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+
+                }
+            }
+        });
+        reloadGrid();
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: '', filterValue: '' });
+    }
+</script>
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Crime List (অপরাধের তালিকা)</h2>
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+    <div id="grid"></div>
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+
+
+

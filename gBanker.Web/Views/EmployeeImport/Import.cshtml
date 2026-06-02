@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewBag.Title = "Import Exsting Employee";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@section AdminPageBreadCrumb {
+    <div class="row">
+        <ol class="breadcrumb breadcrumb-arrow">
+            <li><a href="/employeeimport/import">@ViewBag.Title</a></li>
+            <li><a href="/employeeimport/import">Import Exsting Employee Information</a></li>
+        </ol>
+    </div>
+}
+
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<h2 class="page-title">@ViewBag.Title</h2>
+&nbsp;
+
+@using (Html.BeginForm("ImportExistingEmployee", "EmployeeImport", FormMethod.Post,
+                                                                new
+                                                                {
+                                                                    @enctype = "multipart/form-data",
+                                                                    @role = "form",
+                                                                    @class = "form-horizontal",
+                                                                    @id = "import-employee-form"
+                                                                }))
+{
+
+    <h1> Exception</h1>
+    <div id="eceptionError">
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div>You can upload an Excel (.xls or .xlsx) file containing your employee's Employee ID, Employee Name, Contact No, Email, Birthday etc.</div>
+        </div>
+    </div>
+    <div class="panel panel-default panel-padding-import-imployee">
+        <div class="panel-body panel-body-import-imployee">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="control-group">
+                        <h3><i class="fa fa-cog light-gray"></i> Step 1 - Prepare Your Excel Import File</h3>
+                        <p>Click on the button below to download our sample file. </p>
+                        <h4>
+                            <a target="_blank" href="~/Assets/docs/employee/employee-import-sample-file.xlsx">
+                                <i class="fa fa-download"></i> Click Here to Download a Sample Import File
+                            </a>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3><i class="fa fa-folder light-gray"></i> Step 2 - Select & Upload Your File</h3>
+                    <p>Click the 'Choose File' button below to search for your contact list file in your computer.</p>
+                    <div class="control-group">
+                        <div class="controls">
+                            <div class="widget-main">
+                                <input class="input-file-drag-drop" type="file" id="file" name="file" />
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h3><i class="fa fa-cogs light-gray"></i> Step 3 - Click Button Below to Run Import Process</h3>
+                </div>
+            </div>
+            <div>
+                <div class="alert alert-warning"><i class="fa fa-info-circle"></i> Note: depending on your employee list file size, the import can take a couple minutes to process. Please do not refresh this page.</div>
+                <button type="submit" class="btn btn-success btn-import-employee"><i class="fa fa-cloud-upload"></i> Click Here to Import Your Employees </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+@Html.Partial("_ImportValidationErrorModalPartial")
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+
+    <script src="~/Assets/js/app/employee/employeeImportManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

@@ -1,0 +1,75 @@
+﻿@model gHRM.Web.ViewModels.Payroll.EmployeeAllowanceViewModel
+
+@{
+    ViewBag.Title = "Employee Allowance List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Configure Employee Allowance</h2>
+&nbsp;
+
+@using (Html.BeginForm("Create", "EmployeeAllowence", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+
+            @Html.HiddenFor(model => model.Id)
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EmpGradeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.EmpGradeId, Model.GradeList, new { @class = "form-control chosen-select", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EmpTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.EmpTypeId, Model.EmployeeTypeList, new { @class = "form-control chosen-select", @required = "required" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmpStatusId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.EmpStatusId, Model.EmployeeStatusList, new { @class = "form-control chosen-select", @required = "required" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group form-action">
+                        <input type="button" id="btnSave" value="Save" class="btn btn-default" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/employeeAllowanceListManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

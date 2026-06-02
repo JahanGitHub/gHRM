@@ -1,0 +1,509 @@
+﻿@model gHRM.Web.ViewModels.Discipline.DiscCaseEnquiryOfficerViewModel
+
+@{
+    ViewBag.Title = "EnquiryOfficer";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EnquererList = Model == null ? null : Model.EnqueryOfficerList;
+}
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    .required {
+        color: red;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+    .table > tbody > tr > td:first-child::before {
+        content: counter(rowNumber);
+    }
+   .txtcapitalize {
+        text-transform: capitalize;
+    }
+</style>
+<script type="text/javascript">
+
+
+    @*function EnquiryOfficerListLoad() {
+        $('#AjaxLoader').show()
+        var EnqueryOfficer = $("#EnqueryOfficerId");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEnquiryOfficerList", "DiscCaseEntry", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+               
+                EnqueryOfficer.html('');
+                $.each(data, function (id, option) {
+                    EnqueryOfficer.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                $('#AjaxLoader').hide()
+            },
+            error: function (request, status, error) {
+                $('#AjaxLoader').hide()
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }*@
+
+    function LoadEmpInfo(employee_code) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeTransferNew", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+
+                        $('#EmployeeId').val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#OfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#DesignationName").val(data.EmployeeCurrentDesignation);
+                       
+                    });
+
+                }
+
+                else {
+
+                    $('#EmployeeId').val("");
+                    $("#EmployeeName").val("");
+                    $("#OfficeName").val("");
+                    $("#DesignationName").val("");
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+    }
+
+    function deleteDeOfficerRow(CaseEnquiryOfficerId)
+    {
+        $('#AjaxLoader').show()
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteInqueryOfficer", "DiscCaseEntry", "http")',
+                    data: { CaseEnquiryOfficerId: CaseEnquiryOfficerId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        EnquiryOfficerLoad();
+                    },
+                    error: function (request, status, error) {
+                        $('#AjaxLoader').hide()
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function CaseChargeSheetSave() {
+        $('#AjaxLoader').show();
+        var EnqueryofficerId = $("#EmployeeId").val();
+                var rowCount = $('#tblEnquiryOfficerList >tbody >tr').length;
+
+                for (i = 1; i <= rowCount; i++) {
+                    var officerId = $("#txtEnqueryOfficerId" + i).val();//EnqueryOfficerId
+                   // alert(EnqueryofficerId)
+                    //alert(officerId);
+                    if (officerId == EnqueryofficerId) {
+                        $('#AjaxLoader').hide()
+                        $.alert.open("error", "This officer has been added")
+                       
+                        return false;
+                    }
+                }
+                var Enqueryofficer_Id = $("#EmployeeId").val();
+                var EnqOfficerAssignedDt = $("#EnquiryOfficerAssignedDt").val();
+                var InvestigationDt = $("#InvestigationDt").val();
+                var ReportReceivedDt = $("#ReportReceivedDt").val();
+                var EnquiryRemarks = $("#EnquiryRemarks").val();
+                var DespatchNo = $("#DespatchNo").val();
+                var masterId = $("#CaseMasterId").val();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("EnquiryOfficerSave", "DiscCaseEntry", "http")',
+                    data: { EnqueryofficerId: Enqueryofficer_Id, EnqOfficerAssignedDt: EnqOfficerAssignedDt, InvestigationDt: InvestigationDt, ReportReceivedDt: ReportReceivedDt, EnquiryRemarks: EnquiryRemarks, DespatchNo: DespatchNo, masterId: masterId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        EnquiryOfficerLoad();
+                    },
+                    error: function (request, status, error) {
+                        $('#AjaxLoader').hide()
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+       }
+
+    function EditEnquiryOfficerRow(CaseEnquiryOfficerId, SlNo) {
+        $('#AjaxLoader').show()
+        var EnquiryOfficerAssignedDt = $("#txtEnquiryOfficerAssignedDt" + SlNo).val();
+        var CrimeFindOutFromMsg = $("#txtCrimeFindOutFrom" + SlNo).val();
+        var CrimeFindOutToMsg = $("#txtCrimeFindOutTo" + SlNo).val();
+        var InvestigationDtMsg = $("#txtInvestigationDt" + SlNo).val();
+        var ReportReceivedDtMsg = $("#txtReportReceivedDt" + SlNo).val();
+        var EnquiryRemarks = $("#txtEnquiryRemarks" + SlNo).val();
+        var DespatchNo = $("#txtDespatchNo" + SlNo).val();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("EnquiryoffEdit", "DiscCaseEntry", "http")',
+            data: { CaseEnquiryOfficerId: CaseEnquiryOfficerId, EnquiryOfficerAssignedDt: EnquiryOfficerAssignedDt, CrimeFindOutFromMsg: CrimeFindOutFromMsg, CrimeFindOutToMsg: CrimeFindOutToMsg, InvestigationDtMsg: InvestigationDtMsg, ReportReceivedDtMsg: ReportReceivedDtMsg, EnquiryRemarks: EnquiryRemarks, DespatchNo: DespatchNo },
+            dataType: 'json',
+            async: true,
+            success: function (result) {
+                if (result == 1) {
+                    $('#AjaxLoader').hide()
+                    $.alert.open("info", "Update Successfully");
+                }
+                else {
+                    $('#AjaxLoader').hide()
+                    $.alert.open("info", "Save fail");
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+    }
+
+
+    function EnquiryOfficerLoad() {
+        //$('#AjaxLoader').show()
+        var MasterId = $("#CaseMasterId").val();
+        var dtTable = $('#tblEnquiryOfficerList');
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEnquiryOfficer", "DiscCaseEntry", "http")',
+            data: { MasterId: MasterId },
+            dataType: 'json',
+            async: true,
+            success: function (DisEnquiryOfficer) {
+                // var sl = rowCount + 1;
+                var tableBody = dtTable.find('tbody');
+                tableBody.empty();
+                $.each(DisEnquiryOfficer, function (index, en) {
+                    var rowCo = index + 1;
+                    tableBody.append('<tr  id="table_Row' + en.SlNo + '"+>' +
+                                    '<td></td>' +
+                                    '<td>' + en.DespatchNo + '<input type="text" style="display:none;"  value="' + en.DespatchNo + '" name="DespatchNo" id="txtDespatchNo' + en.SlNo + '" /></td>' +
+                                    '<td>' + en.EnqueryOfficerName + ' <input type="text" value="' + en.EmployeeId + '" style="display:none;" name="EnqueryOfficerId" id="txtEnqueryOfficerId' + en.SlNo + '" /><input type="text" value="U" style="display:none;" name="ReportReceivedDt" id="txtMode' + en.SlNo + '" /></td>' +
+                                    '<td><input type="text" value="' + en.EnquiryOfficerAssignedDtMsg + '" name="EnquiryOfficerAssignedDt" id="txtEnquiryOfficerAssignedDt' + en.SlNo + '" /></td>' +                                 
+                                    '<td><input type="text" value="' + en.InvestigationDtMsg + '"  name="InvestigationDt" id="txtInvestigationDt' + en.SlNo + '" /></td>' +
+                                    '<td><input type="text" value="' + en.ReportReceivedDtMsg + '"  name="ReportReceivedDt" id="txtReportReceivedDt' + en.SlNo + '" /></td>' +
+                                    '<td><input type="text" value="' + en.EnquiryRemarks + '"  name="EnquiryRemarks" id="txtEnquiryRemarks' + en.SlNo + '" /></td>' +
+                                    '<td style="text-align:center;"><a href="javascript:;" onclick="EditEnquiryOfficerRow(' + en.CaseEnquiryOfficerId + ',' + en.SlNo + ')"><i class="fa fa-pencil-square-o"></i></a>' +
+                                    '<td style="text-align:center;"><a href="javascript:;" onclick="deleteDeOfficerRow(' + en.CaseEnquiryOfficerId + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                                    '</tr>'
+
+                 )
+
+                    $("#txtEnquiryOfficerAssignedDt" + en.SlNo).datepicker(
+                        {
+                            dateFormat: "dd-M-yy",
+                            showAnim: "scale",
+                            changeMonth: true,
+                            changeYear: true,
+                            yearRange: "1920:2025"
+                        });
+
+                    $("#txtInvestigationDt" + en.SlNo).datepicker(
+                        {
+                            dateFormat: "dd-M-yy",
+                            showAnim: "scale",
+                            changeMonth: true,
+                            changeYear: true,
+                            yearRange: "1920:2025"
+                        });
+                    $("#txtReportReceivedDt" + en.SlNo).datepicker(
+                       {
+                           dateFormat: "dd-M-yy",
+                           showAnim: "scale",
+                           changeMonth: true,
+                           changeYear: true,
+                           yearRange: "1920:2025"
+                       });
+
+                });
+                $('#AjaxLoader').hide()
+            },
+            error: function (request, status, error) {
+                $('#AjaxLoader').hide()
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+
+    }
+
+    $(document).ready(function () {
+
+        EnquiryOfficerLoad();
+        //EnquiryOfficerListLoad();
+       
+        $("#InvestigationDt").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2025"
+          });
+        $("#ReportReceivedDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+        $("#EnquiryOfficerAssignedDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+
+        $("#txtEmployeeCode").blur(function () {
+
+            var employee_Code = $("#txtEmployeeCode").val();
+            LoadEmpInfo(employee_Code);
+        });
+
+        $("#btnEnquirySave").click(function () {
+           
+            var EmployeeCode = $("#txtEmployeeCode").val();
+            if (EmployeeCode != "") {               
+                CaseChargeSheetSave();
+            }
+            else {
+                $.alert.open("error", "Please select enquiry officer");
+            }
+
+        });
+    });
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+<br />
+<h2 class="page-title">Enquiry Officer</h2>
+@using (Html.BeginForm("EnquiryOfficer", "DiscCaseEntry", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "EnquiryOfficer" }))
+{
+    
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+     <div id="AjaxLoader" class="ajaxLoader"></div>   
+<fieldset>
+    <legend>Enquiry Officer</legend>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Case No</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.CaseNo, new { htmlAttributes = new { @class = "form-control",@readonly="true" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        @*<div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Enquiry Officer Name<b class="required"></b></label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("EnqueryOfficerList", null, new { @ID = "EnqueryOfficerId", @class = "form-control" })
+                        @Html.HiddenFor(model=>model.CaseMasterId)
+                    </div>
+                </div>
+            </div>*@
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Employee Code</label>
+                <div class="col-sm-8">
+                    @Html.TextBox("txtEmpCode", "", new { @class = "form-control", id = "txtEmployeeCode" })
+                    @Html.HiddenFor(model => model.EmployeeId)
+                    @Html.HiddenFor(model => model.CaseMasterId)
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Name</label>
+                <div class="col-sm-8">
+                   @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Designation</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Office</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+    </div>
+    
+    @*<div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Crime Find Out Duration From <b></b></label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.CrimeFindOutFrom, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">To<b></b></label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.CrimeFindOutTo, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>*@
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Enquiry Officer Assign Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.EnquiryOfficerAssignedDt, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Investigation Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.InvestigationDt, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>     
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Report Received Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.ReportReceivedDt, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Despatch No</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.DespatchNo, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Remarks</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.EnquiryRemarks, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-6">
+            <input type="button" value="Save" id="btnEnquirySave" style="height:30px;width:60px" />
+        </div>
+    </div>
+    <br />
+    <div class="row">        
+        <div class="col-sm-12">
+            <div>
+                @*class="box-body no-padding table-responsive"*@
+                <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblEnquiryOfficerList">
+                    <thead>
+                        <tr class="headings">
+                            <th class="column-title">Sl</th>
+                            <th class="column-title">Despatch</th>
+                            <th class="column-title">Enquiry Officer Name</th>
+                            <th class="column-title">Enquiry Officer Assigned Date</th>
+                            @*<th class="column-title">Crime Find Out Date From </th>
+                            <th class="column-title">Crime Find Out Date To</th>*@
+                            <th class="column-title">Investigation Date</th>
+                            <th class="column-title">Report Received Date</th>
+                            <th class="column-title">Remarks</th>
+                            <th class="column-title">Edit</th>
+                            <th class="column-title">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</fieldset>
+}

@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <title></title>
+    <style>
+        table.table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .table td,
+        .table th {
+            border: 1px solid #000;
+            text-align: left;
+            padding: 8px;
+        }
+
+        .table th {
+            text-align: center;
+        }
+    </style>
+    <script type="text/javascript">
+        (function () {
+            window.history.pushState("", "", 'Printed By: Abul');
+        });
+    </script>
+    @RenderSection("HeaderScripts", required: false)
+</head>
+<body>
+    <div>
+        <table>
+            <thead>
+                @RenderSection("ReportHeader", required: false)
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@RenderBody()</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <!--<tr><td style="border: none;">Printed By: Abul</td></tr>-->
+                @RenderSection("ReportFooter", required: false)
+            </tfoot>
+        </table>
+    </div>
+</body>
+</html>

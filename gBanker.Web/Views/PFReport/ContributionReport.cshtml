@@ -1,0 +1,776 @@
+﻿@model gHRM.Web.ViewModels.PF.ContributionCollectionViewModel
+
+@{
+    ViewBag.Title = "ContributionReport";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    function GetSearchZOOffice() {
+        var ddlZOOffice = $("#ddlSearchZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZOOfficeList", "Employee", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    //HO
+    function getAllHeadOffice() {
+
+        $('#HODeparementList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Head Office';
+        var selectedValue = '';
+
+
+        $('#HODeparementList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAllHeadOffice", "PFReport", "http")',
+            dataType: 'json',
+            data: { },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#HODeparementList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#HODeparementList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    //Audit Zone
+    function getAllZoneAuditOffice() {
+
+        $('#ZoneAuditList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Zonal Audit Office';
+        var selectedValue = '';
+
+
+        $('#ZoneAuditList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAllAuditZoneOffice", "PFReport", "http")',
+            dataType: 'json',
+            data: { },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#ZoneAuditList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#ZoneAuditList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function setDefault(selector, defaultValue, defaultText) {
+        $(selector).empty();
+        $(selector).append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+    }
+
+    function getAreaOffice(zoneOfficeId) {
+
+        $('#AreaOfficeList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Area Office';
+        var selectedValue = '';
+
+
+        $('#AreaOfficeList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAreaOffice", "PFReport", "http")',
+            dataType: 'json',
+            data: { zoneOfficeId: zoneOfficeId },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#AreaOfficeList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#AreaOfficeList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function getBranchOffice(areaOfficeId) {
+
+        $('#BranchOfficeList').empty();
+
+        var defaultValue = '';
+        var defaultText = 'Select Area Office';
+        var selectedValue = '';
+
+
+        $('#BranchOfficeList').append('<option value="' + defaultValue + '">' + defaultText + '</option>');
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBranchOffice", "PFReport", "http")',
+            dataType: 'json',
+            data: { areaOfficeId: areaOfficeId },
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    if (option.Value == selectedValue)
+                        $('#BranchOfficeList').append('<option value="' + option.Value + '" ' + " selected='selected' " + '>' + option.Text + '</option>');
+                    else
+                        $('#BranchOfficeList').append('<option value="' + option.Value + '">' + option.Text + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                console.log(status.statusText);
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    //New
+    //HO
+    function PrintHeadOfficeContributionReport(officeType, fromDate, toDate, headOfficeId) {
+        var url = '/PFReport/PrintHeadOfficeContributionReport?officeType=' + officeType + '&fromDate=' + fromDate + '&toDate=' + toDate + '&headOfficeId=' + headOfficeId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    //Zone
+    function PrintZoneOfficeContributionReport(officeType, fromDate, toDate, zoneId, areaId, branchId) {
+
+        var url = '/PFReport/PrintZoneOfficeContributionReport?officeType=' + officeType + '&fromDate=' + fromDate + '&toDate=' + toDate + '&zoneId=' + zoneId + '&areaId=' + areaId + '&branchId=' + branchId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintEmployeeWiseContributionByOfficeId(officeType, fromDate, toDate, zoneId, areaId, branchId) {
+
+        var url = '/PFReport/PrintEmployeeWiseContributionByOfficeId?officeType=' + officeType + '&fromDate=' + fromDate + '&toDate=' + toDate + '&zoneId=' + zoneId + '&areaId=' + areaId + '&branchId=' + branchId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    //
+    //Audit Zone
+    function PrintZoneAuditOfficeContributionReport(reportType, fromDate, toDate, zoneAuditId) {
+        var url = '/PFReport/PrintZoneAuditOfficeContributionReport?reportType=' + reportType + '&fromDate=' + fromDate + '&toDate=' + toDate + '&zoneAuditId=' + zoneAuditId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintEmployeeSpecificLedger(employeeCode, startDate, endDate) {
+        var url = '/PFReport/PrintEmployeeSpecificLedger?employeeCode=' + employeeCode + '&startDate=' + startDate + '&endDate=' + endDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintContributionSumByMonth(monthId, year) {
+        var url = '/PFReport/PrintContributionSumByMonth?monthId=' + monthId + '&year=' + year;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintPFReport(reportType, employeeCode, startDate, endDate, monthId, year, voucherNo) {
+        var url = "/PFReport/PrintPFReport?reportType= " + reportType + "&employeeCode=" + employeeCode + "&startDate=" + startDate + "&endDate=" + endDate + "&monthId=" + monthId + "&year=" + year + "&voucherNo=" + voucherNo;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function clear() {
+        $('#MonthList').val('');
+    }
+
+    function initialSetup() {
+        initializeOfficeWiseContribution();
+        officeSpecificContribution();
+    }
+
+    function initializeOfficeWiseContribution() {
+        $('#dvMonth').hide();
+        $('#dvYear').hide();
+        $('#dvZone').hide();
+        $('#dvArea').hide();
+        $('#dvBranch').hide();
+    }
+
+    function officeSpecificContribution() {
+        $('#dvStartDateES').hide();
+        $('#dvEndDateES').hide();
+        $('#dvEmployeeCodeES').hide();
+
+        $('#dvMonthES').hide();
+        $('#dvYearES').hide();
+        $('#dvVoucherNo').hide();
+        $('#dvVoucherNo').val('');
+        emptyContributionES();
+    }
+
+    function emptyContributionES() {
+        $('#EmployeeCodeES').val('');
+        $('#StartDateES').val('');
+        $('#EndDateES').val('');
+        $('#MonthIdES').val('');
+        $('#YearES').val('');
+        $('#VoucherNo').val('');
+    }
+
+    $(document).ready(function () {
+        initialSetup();
+
+        $("#FromDateNew,#ToDateNew,#FromDate,#ToDate,#StartDateES,#EndDateES").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+                changeYear: true,
+                yearRange: '@DateTime.Now.AddYears(-35).Year:@DateTime.Now.AddYears(1).Year'
+         });
+
+        
+
+        $('#ZoneOfficeList').change(function () {
+
+            var contributionType = $('#ContributionTypeNew option:selected').val();
+            var zoneOfficeId = $('#ZoneOfficeList option:selected').val();
+
+            if (contributionType == '2' && zoneOfficeId != '') {
+
+                getAreaOffice(zoneOfficeId);
+                $('#BranchOfficeList').empty();
+            }
+        });
+
+        $('#AreaOfficeList').change(function () {
+            var areaOfficeId = $('#AreaOfficeList option:selected').val();
+            if (areaOfficeId != '')
+                getBranchOffice(areaOfficeId);
+        });
+
+        //Start: New- ContributionTypeNew
+        $('#OfficeType').change(function () {
+            $('#FromDateNew').val('');
+            $('#ToDateNew').val('');
+            $('#ZoneOfficeList').val('');
+            $('#AreaOfficeList').empty();
+            $('#BranchOfficeList').empty();
+
+            var officeType = $('#OfficeType option:selected').val();
+
+            if (officeType == '1') {//1
+                $('#dvHODeparement').show();
+                $('#dvZoneAudit').hide();
+                $('#dvZone').hide();
+                $('#dvArea').hide();
+                $('#dvBranch').hide();
+                $('#btnPrintEmployeeWiseNew').hide();
+                getAllHeadOffice();
+            }
+            if (officeType == '2') {//1
+                $('#dvHODeparement').hide();
+                $('#dvZoneAudit').hide();
+                $('#dvZone').show();
+                $('#dvArea').show();
+                $('#dvBranch').show();
+
+                setDefault('#AreaOfficeList', '', 'Select Area');
+                setDefault('#BranchOfficeList', '', 'Select Branch');
+
+                $('#btnPrintEmployeeWiseNew').show();
+            }
+            if (officeType == '3') {//1
+                $('#dvHODeparement').hide();
+                $('#dvZoneAudit').show();
+                $('#dvZone').hide();
+                $('#dvArea').hide();
+                $('#dvBranch').hide();
+                $('#btnPrintEmployeeWiseNew').hide();
+                getAllZoneAuditOffice();
+            }
+
+        });
+
+
+        $("#btnOfficeType").click(function () {
+
+            //Zone
+            var officeType = $('#OfficeType option:selected').val();
+            var fromDate = $('#FromDateNew').val();
+            var toDate = $('#ToDateNew').val();
+
+            var zoneId = $('#ZoneOfficeList option:selected').val();
+            var areaId = $('#AreaOfficeList option:selected').val();
+            var branchId = $('#BranchOfficeList option:selected').val();
+
+            var headOfficeId = $('#HODeparementList option:selected').val();
+            var zoneAuditId = $('#ZoneAuditList option:selected').val();
+
+            if (officeType == '')
+            {
+                $.alert.open("Info", "Select Office Type");
+                return;
+            }
+
+            if (fromDate == '' || toDate == '') {
+                $.alert.open("Info", "Enter Date");
+                return
+            }
+
+            if (new Date(fromDate) > new Date(toDate) ) {
+                $.alert.open("Info", "From Date should not be greater than To Date");
+                return
+            }
+
+            if (officeType == '1') {
+                PrintHeadOfficeContributionReport(officeType, fromDate, toDate, headOfficeId);
+                //$.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                //    if (button == 'yes') {
+                        //PrintHeadOfficeContributionReport(officeType, fromDate, toDate, headOfficeId);
+                    //}
+                    //else {
+                    //    return false;
+                    //}
+                //});
+            }
+            if (officeType == '2') {
+                PrintZoneOfficeContributionReport(officeType, fromDate, toDate, zoneId, areaId, branchId);
+                //$.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                //    if (button == 'yes') {
+                       // PrintZoneOfficeContributionReport(officeType, fromDate, toDate, zoneId, areaId, branchId);
+                    //}
+                    //else {
+                    //    return false;
+                    //}
+               // });
+            }
+            if (officeType == '3') {
+                PrintZoneAuditOfficeContributionReport(officeType, fromDate, toDate, zoneAuditId);
+                //$.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                //    if (button == 'yes') {
+                //        
+                //    }
+                //    else {
+                //        return false;
+                //    }
+                //});
+            }
+        });
+
+        $("#btnPrintEmployeeWiseNew").click(function () {
+
+            //Zone
+            var reportType = $('#ContributionTypeNew option:selected').val();
+            var fromDate = $('#FromDateNew').val();
+            var toDate = $('#ToDateNew').val();
+
+            var zoneId = $('#ZoneOfficeList option:selected').val();
+            var areaId = $('#AreaOfficeList option:selected').val();
+            var branchId = $('#BranchOfficeList option:selected').val();
+
+            if (fromDate == '' || toDate == '') {
+                $.alert.open("Info", "Enter Date");
+                return;
+            }
+
+            if (zoneId == '' && areaId == '' && branchId == '') {
+                $.alert.open("Info", "Please select any office");
+                return;
+            }
+
+            if (reportType == '2') {
+                $.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+                    if (button == 'yes') {
+                        PrintEmployeeWiseContributionByOfficeId(reportType, fromDate, toDate, zoneId, areaId, branchId);
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            }
+        });
+        //End
+
+        //Start of Employee Specific Contribution
+        $('#ContributionTypeES').change(function () {
+            emptyContributionES();
+
+            var reportType = $('#ContributionTypeES option:selected').val();
+            if (reportType == "") {
+                $('#dvStartDateES').hide();
+                $('#dvEndDateES').hide();
+                $('#dvEmployeeCodeES').hide();
+                $('#dvMonthES').hide();
+                $('#dvYearES').hide();
+                $('#dvVoucherNo').hide();
+
+            }
+            else if (reportType == "1") {
+                $('#dvStartDateES').show();
+                $('#dvEndDateES').show();
+                $('#dvEmployeeCodeES').show();
+
+                $('#dvMonthES').hide();
+                $('#dvYearES').hide();
+                $('#dvVoucherNo').hide();
+            }
+            //else if (reportType == "2" || reportType == "3") {
+            else if (reportType == "2") {
+                $('#dvStartDateES').hide();
+                $('#dvEndDateES').hide();
+                $('#dvEmployeeCodeES').hide();
+
+                $('#dvMonthES').show();
+                $('#dvYearES').show();
+                $('#dvVoucherNo').hide();
+            }
+
+            else if (reportType == "3") {
+                $('#dvStartDateES').hide();
+                $('#dvEndDateES').hide();
+                $('#dvEmployeeCodeES').hide();
+
+                $('#dvMonthES').hide();
+                $('#dvYearES').hide();
+                $('#dvVoucherNo').show();
+            }
+           else if (reportType == "4") {
+                $('#dvStartDateES').hide();
+                $('#dvEndDateES').show();
+                $('#dvEmployeeCodeES').show();
+
+                $('#dvMonthES').hide();
+                $('#dvYearES').hide();
+                $('#dvVoucherNo').hide();
+           }
+           else if (reportType == "5") {
+               $('#dvEmployeeCodeES').hide();
+               $('#dvStartDateES').show();
+               $('#dvEndDateES').show();
+
+               $('#dvMonthES').hide();
+               $('#dvYearES').hide();
+               $('#dvVoucherNo').hide();
+           }
+           else if (reportType == "6") {
+               $('#dvEmployeeCodeES').hide();
+               $('#dvStartDateES').show();
+               $('#dvEndDateES').show();
+
+               $('#dvMonthES').hide();
+               $('#dvYearES').hide();
+               $('#dvVoucherNo').hide();
+           }
+        });
+        //End of Employee Specific Contribution
+
+        $("#btnReset").click(function () { // Reset form
+         //   clear();
+        });
+
+       $("#btnPrintReportES").click(function () {
+            var reportType = $('#ContributionTypeES option:selected').val();
+            var employeeCode = $('#EmployeeCodeES').val();
+            var startDate = $('#StartDateES').val();
+            var endDate = $('#EndDateES').val();
+            var monthId = $('#MonthIdES option:selected').val();
+            var year = $('#YearES option:selected').val();
+            var voucherNo = $('#VoucherNo').val();
+
+
+            if (reportType == "1") {
+                if (employeeCode == '') {
+                    $.alert.open('Message', 'Please Enter Employee Code');
+                    return;
+                }
+
+                if (startDate == '') {
+                    $.alert.open('Message', 'Please Select Start Date');
+                    return;
+                }
+                if (endDate == '') {
+                    $.alert.open('Message', 'Please Select End Date');
+                    return;
+                }
+
+                var sDate = Date.parse(startDate);
+                var eDate = Date.parse(endDate);
+                if (sDate > eDate) {
+                    $.alert.open('Info', 'Start Date should not be greater than End Date');
+                    return;
+                }
+            }
+            if (reportType == "2") {//Monthly Employee Specific Sum
+                if (monthId == '') {
+                    $.alert.open('Message', 'Please Select Month');
+                    return;
+                }
+
+                if (year == '') {
+                    $.alert.open('Message', 'Please Select Year');
+                    return;
+                }
+            }
+            if (reportType == "3") {
+                if (voucherNo == '') {
+                    $.alert.open('Message', 'Please Enter valid Voucher Number');
+                    return;
+                }
+            }
+
+            if (reportType == "4") {
+                if (employeeCode == '' || endDate == '') {
+                    $.alert.open('Message', 'Please Enter valid Information');
+                    return;
+                }
+            }
+            if (reportType == "5" || reportType == "6") {
+
+                if (startDate == '') {
+                    $.alert.open('Message', 'Please Select Start Date');
+                    return;
+                }
+                if (endDate == '') {
+                    $.alert.open('Message', 'Please Select End Date');
+                    return;
+                }
+
+                var sDate = Date.parse(startDate);
+                var eDate = Date.parse(endDate);
+                if (sDate > eDate) {
+                    $.alert.open('Info', 'Start Date should not be greater than End Date');
+                    return;
+                }
+           }
+           PrintPFReport(reportType, employeeCode, startDate, endDate, monthId, year, voucherNo);
+            //$.alert.open('confirm', 'Are you sure you want to see report?', function (button) {
+            //    if (button == 'yes') {
+            //        
+            //    }
+            //    else {
+            //        return false;
+            //    }
+            //});
+        });
+
+});
+</script>
+
+@*@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;*@
+<h2 class="page-title">PF Contribution Reports</h2>
+&nbsp
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        
+        <div class="panel panel-default" style="width:90%;">
+            <div class="panel-heading">
+                <h2 class="panel-title">Office Wise Contribution</h2>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        @Html.Label("Office Type", new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownList("OfficeType", Model.OfficeTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="row" id="dvFromDateNew">
+                    <div class="form-group">
+                        <label for="FromDateNew" class="control-label col-md-2">Start Date</label>
+                        <div class="col-md-4">
+                            @Html.Editor("FromDateNew", new { htmlAttributes = new { @class = "form-control", @placeholder = "Enter Start date" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvToDateNew">
+                    <div class="form-group">
+                        <label for="ToDateNew" class="control-label col-md-2">End Date</label>
+                        <div class="col-md-4">
+                            @Html.Editor("ToDateNew", new { htmlAttributes = new { @class = "form-control", @placeholder = "Enter End date" } })
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="row" id="dvZone">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ZoneOfficeList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.ZoneOfficeList, Model.ZoneOfficeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="dvArea">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AreaOfficeList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.AreaOfficeList, new List<SelectListItem>(), new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvBranch">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BranchOfficeList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.BranchOfficeList, new List<SelectListItem>(), new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvHODeparement" style="display:none;">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.HODeparementList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.HODeparementList, new List<SelectListItem>(), new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvZoneAudit" style="display:none;">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ZoneAuditList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.ZoneAuditList, new List<SelectListItem>(), new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-4">
+                            <input type="button" value="Show" id="btnOfficeType" class="btn btn-success" />&nbsp;&nbsp;
+                            <input type="button" value="Employee Wise" id="btnPrintEmployeeWiseNew" class="btn btn-success" style="display:none;"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="panel panel-default" style="width:90%;">
+            <div class="panel-heading">
+                <h2 class="panel-title">Contribution</h2>
+            </div>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="form-group">
+                        @Html.Label("Contribution Type", new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            <select id="ContributionTypeES" class="form-control">
+                                <option value="">Select Report Type</option>
+                                <option value="1">Indivisual Contribution Ledger</option>
+                                <option value="2">PF Collection for the Month</option>
+                                @*<option value="3">Contribution Voucher Details</option>*@
+                                <option value="4">Statement of PF Balance</option>
+                                <option value="5">Employee Wise Contribution List</option>
+                                <option value="6">Office Wise Contribution Summary</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="dvEmployeeCodeES">
+                    <div class="form-group">
+                        <label for="EmployeeCodeES" class="control-label col-md-2">Employee Code</label>
+                        <div class="col-md-4">
+                            @Html.Editor("EmployeeCodeES", new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="dvStartDateES">
+                    <div class="form-group">
+                        <label for="StartDateES" class="control-label col-md-2">Start Date</label>
+                        <div class="col-md-4">
+                            @Html.Editor("StartDateES", new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvEndDateES">
+                    <div class="form-group">
+                        <label for="EndDateES" class="control-label col-md-2">End Date</label>
+                        <div class="col-md-4">
+                            @Html.Editor("EndDateES", new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row" id="dvMonthES">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.MonthIdES, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-4">
+                            @Html.DropDownListFor(model => model.MonthIdES, Model.MonthList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="dvYearES">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.YearES, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(model => model.YearES, Model.YearList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="dvVoucherNo">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.VoucherNo, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model=> model.VoucherNo, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-4">
+                            <input type="button" value="Show" id="btnPrintReportES" class="btn btn-success" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

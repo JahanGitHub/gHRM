@@ -1,0 +1,204 @@
+﻿@model gHRM.Web.ViewModels.Payroll.ComponentPayrollViewModel
+@{
+    ViewBag.Title = "Employee Salary Statement";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#DepartmentId").change(function () {
+            var DesignationId = $("#DesignationId").val();
+            if (DesignationId != "" || DesignationId != null) {
+                LoadInfo();
+            }
+        });
+        $("#DesignationId").change(function () {
+            LoadInfo();
+        });
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+        });
+       
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });       
+
+        $("#btnPrint").click(function () {
+
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var EmployeeCode = $("#EmployeeCode").val();
+            var EmployeeNameSig = $("#EmployeeId option:selected").text();
+            var DepartmentNameSig = $("#DepartmentId option:selected").text();
+            var departmentId = $("#DepartmentId").val();
+
+            var DesignationNameSig = $("#DesignationId option:selected").text();
+            var designationId = $("#DesignationId").val();
+
+            if (!departmentId || departmentId === 0) {
+                $.alert.open("Warning", "Department is Required");
+                return false;
+            }
+
+            if (!designationId || designationId === 0) {
+                $.alert.open("Warning", "Designation is Required");
+                return false;
+            }
+
+            if (!EmployeeCode || EmployeeCode === '') {
+                $.alert.open("Warning", "Employee Code is Required");
+                return false;
+            }
+
+            if (dateFrom === "" || dateTo === "") {
+                $.alert.open("Warning", "From/To Date is Required");
+                return false;
+            }
+
+            if (dateFrom != "" && dateTo != "") {
+                url = '/PRSalaryStatement/EmployeeSalaryStatementReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&EmployeeCode=' + EmployeeCode + '&EmployeeNameSig=' + EmployeeNameSig + '&DepartmentNameSig=' + DepartmentNameSig + '&DesignationNameSig=' + DesignationNameSig;
+                PrintReport(url);
+            }
+            else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+
+        });
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function LoadInfo() {
+        var DepartmentId = $("#DepartmentId").val();
+        var DesignationId = $("#DesignationId").val();
+        var EmployeeId = $("#EmployeeId");
+        if (DepartmentId != "" || DepartmentId != null || DesignationId != "" || DesignationId != null) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetDepartmentAndDesignationByEmployee", "PRSalaryStatement", "http")',
+                data: { DepartmentId: DepartmentId, DesignationId: DesignationId },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.length > 0) {
+                        EmployeeId.html("");
+                        EmployeeId.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            EmployeeId.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        EmployeeId.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            EmployeeId.html('<option value="">Please Select</option>');
+        }
+    }
+
+</script>
+
+
+<h2 class="page-title">Employee Salary Statement Report</h2>
+<div class="container-fluid">
+
+    <div class="row">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required">Department Name</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4  required">Designation Name</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DesignationId, Model.DesignationNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required">Employee Code</label>
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control required" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Employee Name For Singature</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmployeeId, Model.EmployeeNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="DateDuration">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4  required"> Date From </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Date To </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateTo, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <br>
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">                   
+                    <button type="button" id="btnPrint" class="btn btn-success"><i class="fa fa-print"></i> Print</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

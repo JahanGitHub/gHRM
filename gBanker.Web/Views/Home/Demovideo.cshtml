@@ -1,0 +1,20 @@
+﻿
+@model gHRM.Web.ViewModels.Dashboard.DemoVideoViewModel
+
+@{
+    ViewBag.Title = "Build Capacity";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";   
+}
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12 bg-img">
+        <video width="800" controls>
+            <source src="@Model.VideoUrl" type="@Model.VideoType" >           
+        </video>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")      
+}

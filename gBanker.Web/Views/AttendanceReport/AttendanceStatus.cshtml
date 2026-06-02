@@ -1,0 +1,118 @@
+﻿@model gHRM.Web.ViewModels.AttAttendanceViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var empCodeEditable = gHRM.Web.Helpers.SessionHelper.UserNameType == "SA" ? true : false;
+}
+
+<script>
+    $(document).ready(function () {
+        $("#DateFrom").val('');
+        $("#DateTo").val('');
+        $("#DateFrom").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1950:2050"
+
+       });
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+
+        $("#btnPrint").click(function () {
+            var empCode = $("#EmployeeCode").val();
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var officeId = '@Model.OfficeId';
+
+            if (empCode != "" && dateFrom != "" && dateTo != "") {
+                url = '/AttendanceReport/EmployeeCodeReport?EmpCode=' + empCode + '&DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&OfficeId=' + officeId;
+                PrintReport(url);
+            }
+
+        });
+
+
+    });
+
+
+    function PrintReport(PrintUrl) {
+        debugger;
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+</script>
+
+
+<h2 class="page-title">Attendance Status</h2>
+&nbsp;
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Employee Code</label>
+                <div class="col-sm-8">
+                    @if (empCodeEditable)
+                    {
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control", @readonly="readonly" })
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DateFrom, new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control", @autocomplete = "off" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DateTo, new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control", @autocomplete = "off" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6 ">
+            <div class="form-group col-md-offset-4">
+                <div class="col-md-8">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/alert")
+}

@@ -1,0 +1,466 @@
+﻿@{
+    ViewBag.Title = "Final Payment To Bank";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement ?? "True";
+}
+
+
+<h2>Printed Acknowledgement List for  Final Payment To Bank/  প্রাপ্তি স্বীকার পত্র </h2>
+
+<br />
+
+<div class="form-horizontal">
+
+    <div class="container-fluid">
+
+ 
+
+        <div class="row">
+
+            <h2 class="page-title">Printed Acknowledgement for Final Payment  List (Not Approved)</h2>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+
+
+            <br />
+            <div class="box-content">
+
+
+                <div class="table-responsive">
+                    <div id="gridKendo"></div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+
+
+        $("#EmployeeCode").blur(function (e) {
+            debugger;
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+         function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeProfileReport", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                debugger;
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        //$("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        //$("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        //$("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        //$("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        //$("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        //$("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                    });
+                    //LoadPreviousDataList($("#EmployeeId").val());
+                }
+
+                else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+
+
+        var ddlSection = $("#Purpose");
+        var ddlSection2 = $("#Bank");
+
+         $.ajax({
+                     type: 'GET',
+                     contentType: "application/json; charset=utf-8",
+                     url: '@Url.Action("GetPurposeNameList", "EmployeeReport", "http")',
+                     //data: { deptId: deptId },
+                     dataType: 'json',
+                     async: true,
+                     success: function (data) {
+                         if (data.length > 0) {
+                             ddlSection.html("");
+                             $.each(data, function (id, option) {
+                                 ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                             });
+                         } else {
+                             ddlSection.html("<option value=''>Please Select</option>");
+                         }
+                     },
+                });
+
+
+         $.ajax({
+                     type: 'GET',
+                     contentType: "application/json; charset=utf-8",
+                     url: '@Url.Action("GetBankList", "EmployeeReport", "http")',
+                     //data: { deptId: deptId },
+                     dataType: 'json',
+                     async: true,
+                     success: function (data) {
+                         if (data.length > 0) {
+                             ddlSection2.html("");
+                             $.each(data, function (id, option) {
+                                 ddlSection2.append($('<option></option>').val(option.Value).html(option.Text));
+                             });
+                         } else {
+                             ddlSection2.html("<option value=''>Please Select</option>");
+                         }
+                     },
+         });
+
+               getExperienceLetterList();
+
+                $('#btnSave').click(function () {
+
+                    var PaymentDate = $("#PaymentDate").val();
+                    var IssueDate = $("#IssueDate").val();
+                    var BankBranch = $("#BankBranch").val();
+                    var Bank = $("#Bank").val();
+                    var ChequeNo = $("#ChequeNo").val();
+                    var Amount = $("#Amount").val();
+                    var Purpose = $("#Purpose").val();
+                    var EmployeeCode = $("#EmployeeCode").val();
+
+
+                    if (EmployeeCode == '') {
+                        $.alert.open('Employee ID is needed!');
+                        return false;
+                    }
+
+                    if (IssueDate == '') {
+                        $.alert.open('Issue Date is needed!');
+                        return false;
+                    }
+
+                    if (Amount == '') {
+                        $.alert.open('Amount is needed!');
+                        return false;
+                    }
+
+                    if (Purpose == '') {
+                        $.alert.open('Purpose is needed!');
+                        return false;
+                    }
+
+                    if (Bank == '') {
+                        $.alert.open('Bank is needed!');
+                        return false;
+                    }
+
+                    if (ChequeNo == '') {
+                        $.alert.open('ChequeNo is needed!');
+                        return false;
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/EmployeeReport/FinalPaymentVoucherSave?PaymentDate=' + PaymentDate + '&EmployeeCode=' + EmployeeCode + '&IssueDate=' + IssueDate + '&BankBranch=' + BankBranch + '&Bank=' + Bank + '&ChequeNo=' + ChequeNo + '&Amount=' + Amount + '&Purpose=' + Purpose,
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open('Error', 'Employee Code Invalid!');
+                            }
+
+                            if (data.result == 1) {
+
+                               // var url = "/EmployeeReport/FinalPaymentVoucherReport?id=" + data.data
+                              //  window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+                                 $.alert.open('Success', 'Saved Successfully!');
+                                 getExperienceLetterList();
+                            }
+
+                        },
+                        error: function (xhr, status, error) {
+                            // Handle the error here
+                            console.log(error);
+                        }
+                    });
+                });
+
+
+                $("#IssueDate").datepicker({
+                dateFormat: "dd/mm/yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:2050"
+                });
+                // const fixedDate = new Date(2023, 7, 31);
+                $("#IssueDate").datepicker('setDate', new Date());
+
+                $("#PaymentDate").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                // const fixedDate = new Date(2023, 7, 31);
+               $("#PaymentDate").datepicker('setDate', new Date());
+
+    });
+
+    ////// Kendo Grid Integration
+
+    function getExperienceLetterList() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+
+                    url: '@Url.Action("getFinalPaymentToBankAckListPrinted", "EmployeeReport", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "LoanId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "10px",
+                    filterable: false,
+                },//OfficeTypeName
+                {
+                    field: "EmployeeCode",
+                    title: "ID",
+                    width: "20px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeName",
+                    title: "Batch No",
+                    width: "25px",
+                    filterable: true,
+                },
+                //{
+                //    field: "DepartmentName",
+                //    title: "Department",
+                //    width: "25px",
+                //    filterable: true,
+                //},
+                //{
+                //    field: "DesignationName",
+                //    title: "Designation",
+                //    width: "25px",
+                //    filterable: false,
+                //},
+                {
+                    field: "LoanStartDateMsg",
+                    title: "Purpose",
+                    width: "30px",
+                    filterable: false,
+                },
+
+                {
+                    field: "InstallmentAmount",
+                    title: "Amount",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "LoanStatus",
+                    title: "Bank",
+                    width: "30px",
+                    filterable: false,
+                },
+                {
+                    field: "LoanEndDateMsg",
+                    title: "Cheque No",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "LoanType",
+                    title: "Issue Date",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "LoanScheme",
+                    title: "Payment Date",
+                    width: "25px",
+                    filterable: false,
+                }
+
+                // {
+                //     title: "Edit",
+                //     width: "20px",
+
+                //         template: function (dataItem) {
+                //             return "<a href='#' OnClick='Edit(" + dataItem.LoanId + ");'><i class='fa fa-edit'></i></a>";
+                //         }
+
+
+                // },
+                //    {
+                //        title: "Delete",
+                //        width: "20px",
+                //        template: function (dataItem) {
+                //            return "<a href='#' OnClick='Delete(" + dataItem.LoanId + ");'><i class='fa fa-trash-o'></i></a>";
+                //        }
+                //}
+                , {
+                    title: "Print Report ",
+                    width: "20px",
+                    template: function (dataItem) {
+                        return "<a href='#' OnClick='Print(" + dataItem.LoanId + ");'><i class='fa fa-print'></i></a>";
+                    }
+                }
+                //, {
+                //    title: "Print Cheque",
+                //    width: "20px",
+                //    template: function (dataItem) {
+                //        return "<a href='#' OnClick='PrintCheque(" + dataItem.LoanId + ");'><i class='fa fa-print'></i></a>";
+                //    }
+                //}
+            ]
+        });
+    }
+
+    function Edit(id) {
+        console.log(id);
+         $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetFinalPaymentDataEdit", "EmployeeReport", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            $.each(data, function (index, data) {
+                                if (data != "Error") {
+                                    // alert(data.PermanentAddress);                                  
+                                    $("#PaymentDate").val(data.OfficeDesignationName);
+                                    $("#IssueDate").val(data.DepartmentName);
+                                    $("#Bank").val(data.DesignationId);
+                                    $("#ChequeNo").val(data.DateOfBirthMsg);
+                                    $("#Amount").val(data.GrossSalary);
+                                    $("#EmployeeName").val(data.EmployeeName);
+                                    $("#Purpose").val(data.SignatureDesignationId);
+                                    $("#EmployeeCode").val(data.EmployeeCode);
+                                }
+                                else {
+
+                                    $("#EmployeeCode").val('');
+                                    alert("Wrong Employe Code");
+                                    $("#EmployeeCode").focus();
+                                }
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+    }
+    function Delete(id) {
+        console.log(id);
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+              $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("DeleteFinalPaymentVoucher", "EmployeeReport", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open('Error', 'Payment Already Approved, No Delete Possible !');
+                            }
+
+                            if (data.result == 1) {
+                                $.alert.open('Success', 'Deleted Successfully!');
+                                getExperienceLetterList();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+
+     }
+    function Print(id) {
+        console.log(id);
+        var url = "/EmployeeReport/FinalPaymentVoucherReport?id="+id
+          window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintCheque(id) {
+        console.log(id);
+        var url = "/EmployeeReport/FinalPaymentChequeReport?id=" + id
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

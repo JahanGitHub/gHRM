@@ -1,0 +1,293 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOfficeDesignationViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var offcDesigList = Model == null ? null : Model.OfficeDesignationNameList;
+}
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script> 
+<script type="text/javascript">
+    function currentDate() {
+        var fullDate = new Date();
+        var monthStr = "";
+        var twoDigitMonth = ((fullDate.getMonth().length + 1) === 1) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+
+        var month = fullDate.getMonth() + 1;
+        if (month == 1) {
+            monthStr = "Jan";
+        }
+        else if (month == 2) {
+            monthStr = "Feb";
+        }
+        else if (month == 3) {
+            monthStr = "Mar";
+        }
+        else if (month == 4) {
+            monthStr = "Apr";
+        }
+        else if (month == 5) {
+            monthStr = "May";
+        }
+        else if (month == 6) {
+            monthStr = "Jun";
+        }
+        else if (month == 7) {
+            monthStr = "Jul";
+        }
+        else if (month == 8) {
+            monthStr = "Aug";
+        }
+        else if (month == 9) {
+            monthStr = "Sep";
+        }
+        else if (month == 10) {
+            monthStr = "Oct";
+        }
+        else if (month == 11) {
+            monthStr = "Nov";
+        }
+        else {
+            monthStr = "Dec";
+        }
+        if (fullDate.getDate() < 10) {
+            var currentDate = "0" + fullDate.getDate() + "-" + monthStr + "-" + fullDate.getFullYear();
+            $('#SartDate').val(currentDate);
+        }
+        else {
+            var currentDate = fullDate.getDate() + "-" + monthStr + "-" + fullDate.getFullYear();
+            $('#SartDate').val(currentDate);
+        }
+
+    }
+
+    function EmpOfficeDesignationSave()
+    {
+        var EmployeeId = $("#EmployeeId").val();
+        var OffDesiId = $("#ddlOfficeDesignation").val();
+        var startDate = $("#SartDate").val();
+        $("#loading").show();
+            $.ajax({
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("EmpOfficeDesignationSave", "EmployeeOfficeDesignation", "http")',
+                type: "GET",
+                dataType: 'json',
+                async: true,
+                data: { EmployeeId: EmployeeId, OffDesiId: OffDesiId, startDate: startDate },
+                success: function (EmpOfficeDesigId) {
+                    if (EmpOfficeDesigId > 0) {
+                        $.alert.open("info", "Saved Sucessfully");
+                        }
+                        else {
+                        $.alert.open("info", "Fail to save");
+                    }
+                    $("#loading").hide();
+                },
+                error: function (request, status, error) {
+                    $("#loading").hide();
+                    $("#dvMessage").attr('class', 'failed');
+                    $("#dvMessage").html(request.statusText);
+                    $("#dvMessage").show();
+                }
+            });
+    }
+
+    function GetOfficeDesignation() {
+
+        var ddlOfficeDesignation = $("#ddlOfficeDesignation");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetOfficeDesignation", "EmployeeOfficeDesignation", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlOfficeDesignation.html('');
+                $.each(data, function (id, option) {
+                    ddlOfficeDesignation.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeOfficeDesignation", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        $("#OfficeName").val(data.OfficeName);
+                        $("#DesignationName").val(data.DesignationName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $('#OfficeDesignationId').val(data.OfficeDesignationId);
+                    }
+                    else {
+                        $("#OfficeName").empty();
+                        $("#DesignationName").empty();
+                        $("#EmployeeName").empty();
+                        $('#OfficeDesignationId').empty();
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                        //$("#OfficeDesignationId").val(0);
+                    }
+                });
+                //alert($('#OfficeDesignationId').val());
+                if ($('#OfficeDesignationId').val() != 0) {
+                    $('#ddlOfficeDesignation').val($('#OfficeDesignationId').val());
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    $(document).ready(function () {
+        currentDate()
+        //radioChk();
+        GetOfficeDesignation();
+        
+        $("#SartDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",            
+         });
+
+        $("#txtEmpName").blur(function (e) {
+            
+            if ($("#txtEmpName").val() != '') {                
+                LoadEmpInfoByCode($("#txtEmpName").val());
+                
+            }
+            else {
+                $("#EmployeeName").empty();
+                $("#OfficeName").empty();                
+                $("#DesignationName").empty();                
+            }
+        });
+
+        //$("#SartDate").click(function () {
+
+        //    if($("#EmployeeId").val() == '0')
+        //    {
+        //        $("#EmployeeId").addClass("errorClass");
+        //    }
+        //    else
+        //    {
+        //        $("#EmployeeId").removeClass("errorClass");
+        //    }
+        //});
+
+        $("#btnoffiDesSave").click(function (e) {
+            e.preventDefault();
+            if ($("#SartDate").val() == '') {
+                $("#SartDate").addClass("errorClass");                
+                return false;
+            }            
+            else
+            {
+                EmpOfficeDesignationSave();
+            }           
+        });
+    });
+
+</script>
+
+@using (Html.BeginForm("Create", "EmployeeOfficeDesignation", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "EmployeeOfficeDesignationProfile" }))
+{    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <h2 class="page-title">Office Designation Entry</h2>
+        <br />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                        @Html.HiddenFor(model => model.EmployeeId)                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">            
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Office Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Rank</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeDesignationId, new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @*@Html.DropDownList("OfficeDesignationList", null, new { @ID = "ddlOfficeDesignation", @class = "form-control" })*@
+                        @Html.DropDownListFor(model => model.OfficeDesignationId, offcDesigList, new { @ID = "ddlOfficeDesignation", @class = "form-control" })
+                        @Html.HiddenFor(model => model.OfficeDesignationId)
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SartDate, new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.SartDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "Date" } })
+                    </div>
+                </div>
+            </div>
+        </div>                        
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin-left:50px;">
+                    <input type="submit" value="Save" id="btnoffiDesSave" class="btn btn-primary" />
+                    @*<div class="success" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Saved Sucessfully</p>
+                    </div>
+                    <div class="failed" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Fail to save</p>
+                    </div>*@
+                </div>
+            </div>            
+        </div>
+    </div>
+
+}
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}
+
+
+

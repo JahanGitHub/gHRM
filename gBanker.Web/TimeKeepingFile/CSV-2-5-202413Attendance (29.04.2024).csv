@@ -1,0 +1,198 @@
+Date,ID,User Name,Department,Shift,First-In Time,Last-Out Time,Result,First-In,Last-Out,New Time Category,New Time Category (KTI),BreakTime,WorkTime
+4/29/2024,1,Md. Ashraful Hassan,Management,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,2,Sultan Ahmed Bhuiyan,F&A,GTT Employee,13:07,15:43,Late In/Early Out,,,155,0,0,2.58
+4/29/2024,4,Shamima Nargis Liza,F&A,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,5,Sikder Hasan Zafry,IT ,GTT Employee,10:12,17:35,Early Out,,,455,0,0,7.58
+4/29/2024,6,Md. Zakir Hossain,Driver-GTT,GTT Employee,16:05,16:10,Late In/Early Out,,,4,0,0,0.06
+4/29/2024,7,Md. Abu Zafar,Driver-GTT,GTT Employee,10:29,15:44,Expired User,,,314,0,0,5.23
+4/29/2024,9,Md. Kamrul Islam,F&A,GTT Employee,10:30,18:16,Late In,,,449,0,0.28,7.48
+4/29/2024,10,Shakil Mahmud,L&A Mgt,GTT Employee,10:02,17:05,Early Out,,,425,0,0,7.08
+4/29/2024,12,Md. Ansar Ali,Driver-GTT,GTT Employee,13:12,13:15,Late In/Early Out,,,2,0,0,0.03
+4/29/2024,13,Farhana Hoque Sharker,HR & Admin,GTT Employee,10:41,17:54,Late In,,,438,0,0,7.3
+4/29/2024,14,Md. Jahirul Islam Khan,PID,GTT Employee,11:36,16:15,Late In/Early Out,,,278,0,0,4.63
+4/29/2024,15,Yeakub Ali,Driver-GTT,GTT Employee,10:16,15:16,Late In/Early Out,,,299,0,0,4.98
+4/29/2024,18,Ishrat Haque,F&A,GTT Employee,10:09,17:45,Normal,,,480,0,0,8
+4/29/2024,19,Fahina Yesmin Happy,F&A,GTT Employee,10:14,17:37,Early Out,,,457,0,0,7.61
+4/29/2024,20,Abu Bakkar Siddique,Driver-GTT,GTT Employee,13:09,15:20,Late In/Early Out,,,130,0,0,2.16
+4/29/2024,22,Forhad Karim Khan,IAudit,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,24,Md. Asadullah Dewan,PID,GTT Employee,9:51,18:55,Normal,,,480,0,1.06,8
+4/29/2024,25,Md. Yusuf Ali,Driver-GTT,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,29,Shamsunnahar,HR & Admin,GTT Employee,9:22,17:18,Early Out,,,438,0,0.63,7.3
+4/29/2024,30,Kamar Parvin Tarana,F&A,GTT Employee,9:40,17:18,Early Out,,,438,0,0.33,7.3
+4/29/2024,31,Sohana Sabreen,HR & Admin,GTT Employee,10:14,17:16,Early Out,,,436,0,0,7.26
+4/29/2024,33,Al  Mamunur Rahaman,F&A,GTT Employee,10:03,18:01,Normal,,,480,0,0,8
+4/29/2024,39,Dewan Fuad Hasan,F&A,GTT Employee,10:18,18:16,Late In,,,461,0,0.28,7.68
+4/29/2024,42,Md. Sarwar Uddin Khan,HR & Admin,GTT Employee,10:07,18:10,Normal,,,480,0,0.05,8
+4/29/2024,45,Md. Sohag Hossain,HR & Admin,GTT Employee,10:12,17:53,Normal,,,480,0,0,8
+4/29/2024,49,Md. Monirul Haque,Driver-GTT,GTT Employee,11:31,11:32,Late In/Early Out,,,0.48,0,0,0
+4/29/2024,57,Muhammad Faisal Alam,IT ,GTT Employee,9:45,17:51,Normal,,,480,0,0.1,8
+4/29/2024,67,Mohammed Anwar Hossain,SB,GTT Employee,10:16,17:46,Late In,,,463,0,0,7.71
+4/29/2024,68,Jayanta Kumar Bosu,SB,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,69,Syeda Sakina Begum (Sakila),SB,GTT Employee,9:36,17:07,Early Out,,,427,0,0.4,7.11
+4/29/2024,70,Nazma Begum,HR & Admin,GTT Employee,9:57,18:01,Normal,,,480,0,0.06,8
+4/29/2024,76,Md. Shariful Islam Bhuiyan,IAudit,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,82,Md. Sohel Hosen,HR & Admin,GTT Employee,11:08,16:57,Late In/Early Out,,,348,0,0,5.8
+4/29/2024,90,Shoma Shams Suzana,L&A Mgt,GTT Employee,10:15,17:05,Late In/Early Out,,,409,0,0,6.81
+4/29/2024,95,S. M.Mizanur Rahman,L&A Mgt,GTT Employee,10:28,17:05,Late In/Early Out,,,396,0,0,6.6
+4/29/2024,96,Md. Abul Hashem,PID,GTT Employee,10:03,17:45,Normal,,,480,0,0,8
+4/29/2024,98,Biswajit Kumar Biswas,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,102,Mahbubur Rahman Khan,PID,GTT Employee,9:51,17:32,Early Out,,,452,0,0.15,7.53
+4/29/2024,103,K.M.Waheduzzaman,IT ,GTT Employee,9:59,17:12,Early Out,,,432,0,0,7.2
+4/29/2024,105,Md. Elius Ibna Rahman,PID,GTT Employee,10:10,17:55,Normal,,,480,0,0,8
+4/29/2024,108,Md. Shah Alam,SB,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,114,Mahfuzur Rahman,F&A,GTT Employee,10:15,18:16,Late In,,,464,0,0.28,7.73
+4/29/2024,116,K. M. Saleheen,SB,GTT Employee,9:56,17:48,Normal,,,480,0,0,8
+4/29/2024,117,Md. Rafiquel Islam,SB,GTT Employee,9:08,17:33,Early Out,,,453,0,0.86,7.55
+4/29/2024,120,Shaymol Mitra,SB,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,121,Md. Sharif Uddin Rana,IAudit,GTT Employee,10:07,17:49,Normal,,,480,0,0,8
+4/29/2024,134,Md. Shakhawat Hossain,HR & Admin,GTT Employee,10:02,17:20,Early Out,,,440,0,0,7.33
+4/29/2024,135,Md. Mahmudul Hasan,PID,GTT Employee,9:48,17:46,Normal,,,480,0,0,8
+4/29/2024,136,Md. Rafiqul Islam,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,154,Dewan Masnun Nafi,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,155,Noor-A-Laila,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,161,Kazi Shaila Sharmin,F&A,GTT Employee,9:50,18:16,Normal,,,480,0,0.43,8
+4/29/2024,163,Tuhin Sheikh,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,164,Md. Abdullah Al Masum Billah,SB,GTT Employee,9:52,17:49,Normal,,,480,0,0,8
+4/29/2024,168,Shahela Katun Akhi,F&A,GTT Employee,10:27,14:10,Late In/Early Out,,,222,0,0,3.7
+4/29/2024,173,Rokeya Sultana,F&A,GTT Employee,10:07,18:10,Normal,,,480,0,0.05,8
+4/29/2024,174,Md. Shihab Hassan,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,175,Rafika Khanom,PID,GTT Employee,10:06,17:19,Early Out,,,439,0,0,7.31
+4/29/2024,189,Mohammad Sadmani Iqbal,PID,GTT Employee,10:06,17:45,Normal,,,480,0,0,8
+4/29/2024,193,Md. Tajul Islam Bhuiyan,IAudit,GTT Employee,8:49,17:31,Early Out,,,451,0,1.18,7.51
+4/29/2024,194,Md. Rasel Mollah,HR & Admin,GTT Employee,10:03,17:53,Normal,,,480,0,0,8
+4/29/2024,195,Md. Bokul Mia,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,197,Ghazi Tanvir Hasan,IT ,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,204,Md. Mahbubur Rahman Bhuiyan,SB,GTT Employee,9:46,17:50,Normal,,,480,0,0.06,8
+4/29/2024,211,Md. Rezaur Rashid Dewan,F&A,GTT Employee,9:46,17:17,Early Out,,,437,0,0.23,7.28
+4/29/2024,212,Md. Maniruzzaman,PID,GTT Employee,9:56,17:44,Early Out,,,464,0,0.06,7.73
+4/29/2024,214,Md. Main Uddin,IAudit,GTT Employee,10:03,17:31,Early Out,,,451,0,0,7.51
+4/29/2024,220,Rafi Akter,HR & Admin,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,222,Rahul Dey,SB,GTT Employee,9:56,17:40,Early Out,,,460,0,0.06,7.66
+4/29/2024,224,Md Rakib Molik,PID,GTT Employee,12:14,19:17,Late In,,,345,0,1.3,5.75
+4/29/2024,226,Md. Habibur Rahman,Driver-GTT,GTT Employee,10:40,0:00,Missing Out,,,0,0,0,0
+4/29/2024,227,Md. Suibal Kabir,PID,GTT Employee,9:36,17:24,Early Out,,,444,0,0.4,7.4
+4/29/2024,228,Mohammed Mamun Talukder,L&A Mgt,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,229,Md. Rafiqul Islam,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,231,Yousuf Ali Siddique,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,235,S.M. Belal,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,237,Nadim Sarker,L&A Mgt,GTT Employee,12:30,17:05,Late In/Early Out,,,274,0,0,4.56
+4/29/2024,282,Md Hosen Howlader,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,289,Md. Uzzal Mia,IT ,GTT Employee,9:28,17:51,Normal,,,480,0,0.38,8
+4/29/2024,297,Rayhanul Islam,HR & Admin,GTT Employee,10:01,18:06,Normal,,,480,0,0.08,8
+4/29/2024,298,Md. Shafikul Islam,SB,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,304,Md. Abul Bashar,HR & Admin,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,307,Md. Mohiuddin Mohin,PID,GTT Employee,9:59,18:05,Normal,,,480,0,0.1,8
+4/29/2024,308,Md.Rayhan Sharif,SB,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,310,Major (Retd) Benazir Ahmed,HR & Admin,GTT Employee,9:50,17:53,Normal,,,480,0,0.05,8
+4/29/2024,311,Angela Malakar,SB,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,316,Abdur Rahim,IT ,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,317,Mst. Roshna Khatun,HR & Admin,GTT Employee,9:45,17:52,Normal,,,480,0,0.11,8
+4/29/2024,318,S.M. Mizanur Rahman,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,319,Jesmin Sultana,F&A,GTT Employee,10:03,17:36,Early Out,,,456,0,0,7.6
+4/29/2024,350,Major (Retd) Mustafizur Rahman,SCC,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,353,Shafin Ahmed,SCC,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,356,Abdul Kuddus,HR & Admin,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,362,Shohrab Alam,HR & Admin,GTT Employee,9:52,17:46,Normal,,,480,0,0,8
+4/29/2024,365,Md. Sohel Rana,Driver-GTT,GTT Employee,11:17,16:47,Late In/Early Out,,,329,0,0,5.48
+4/29/2024,367,Bashir Ahmed Mazumder,IAudit,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,398,Shahriar Rahman,PID,GTT Employee,9:52,17:42,Early Out,,,462,0,0.13,7.7
+4/29/2024,400,Md. Nasir Uddin,PID,GTT Employee,14:31,14:59,Late In/Early Out,,,27,0,0,0.45
+4/29/2024,401,Md. Rezaul Karim,HR & Admin,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,402,Adnan Ahmed,HR & Admin,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,403,Sanjana Rahman,HR & Admin,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,445,Md. Mostafizur Rahman,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,446,Md. Feroz Alom,PID,GTT Employee,8:04,16:08,Early Out,,,368,0,1.93,6.13
+4/29/2024,447,Tanvir Ahmed,HR & Admin,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,452,Flora Sultana,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,454,Md. Din Islam,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,457,Zahid Al Mamun,SCC,GTT Employee,10:12,18:16,Normal,,,480,0,0.06,8
+4/29/2024,459,Md. Angur Mia ,IT ,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,460,Md. Nazrul Islam,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,463,Md. Eakub Ali Forazi,L&A Mgt,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,482,Monir Hossain,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,493,Mohammad Jabed Amin,IAudit,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,494,Md. Mizanur Rahman,HR & Admin,GTT Employee,18:27,19:49,Absence,,,0,0,1.36,0
+4/29/2024,495,Md. Raishul Islam,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,507,Md. Towhidul Islam Chowdhury,L&A Mgt,GTT Employee,11:09,16:41,Late In/Early Out,,,331,0,0,5.51
+4/29/2024,508,Md. Asaduzzaman,SCC,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,513,Manoj Kumar Saha,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,531,F. A. M. Munirujjaman Raju,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,534,Asif Mahmood Sajib,HR & Admin,GTT Employee,10:08,17:54,Normal,,,480,0,0,8
+4/29/2024,537,Mehdi Imam,F&A/TIAC,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,541,Ashish Charles Rozario,HR & Admin,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,543,Sharmin Sultana Urmi,F&A,GTT Employee,11:10,18:03,Late In,,,409,0,0.06,6.81
+4/29/2024,562,Maruf Ahamed,PID,GTT Employee,10:20,14:20,Late In/Early Out,,,239,0,0,3.98
+4/29/2024,566,Muhammad Ashraf Ali,PID,GTT Employee,9:37,17:50,Normal,,,480,0,0.21,8
+4/29/2024,567,Syed Naimur Rahman,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,601,Md. Abul Hossain,HR & Admin,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,623,Muhammad Ashifur Rahman,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,626,Md. Rafiqul Islam,IAudit,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,627,Md. Maruf Billah Piyash,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,629,Muhammad Manirul Alam,PID,GTT Employee,9:44,17:35,Early Out,,,455,0,0.26,7.58
+4/29/2024,630,Md. Jahidul Bapari,Driver-GTT,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,631,Md. Shehab Uddin,PID,GTT Employee,10:04,18:07,Normal,,,480,0,0.05,8
+4/29/2024,647,Mahfuzur Rahman,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,672,M Shahjahan,Management,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,673,Md. Rana Hamid,Driver-GTT,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,674,Md. Maidul Bapari,Driver-GTT,GTT Employee,11:12,17:23,Late In/Early Out,,,370,0,0,6.16
+4/29/2024,676,Zayed Mahmud,PID,GTT Employee,10:10,17:39,Early Out,,,459,0,0,7.65
+4/29/2024,677,Imtiaz Masrur,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,678,Md. Rasel Hossain,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,679,Faruq Mia,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,680,Md. Sanjuarul Islam,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,681,Md. Monir Hosen,PID,GTT Employee,9:32,18:15,Normal,,,480,0,0.71,8
+4/29/2024,682,Md. Nasir Uddin,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,683,Md. Iqbal Hossain,PID,GTT Employee,9:10,17:19,Early Out,,,439,0,0.83,7.31
+4/29/2024,684,Tapas Chandra Paik,PID,GTT Employee,22:00,0:00,Absence,,,0,0,0,0
+4/29/2024,685,Md. Yusuf,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,686,Sajib Chandra Ghosh,PID,GTT Employee,8:59,18:48,Normal,,,480,0,1.81,8
+4/29/2024,730,Mojammel Hossain,PID,GTT Employee,14:21,22:00,Late In,,,218,0,4.01,3.63
+4/29/2024,824,Mohammed Shabab Habib Khan,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,826,Norul Haque Miah,PID,GTT Employee,9:40,18:19,Normal,,,480,0,0.65,8
+4/29/2024,829,Md. Forhad Karim Khan,IAudit,GTT Employee,9:57,17:50,Normal,,,480,0,0,8
+4/29/2024,839,Papia Amin Suchita,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,868,S.M Murshed Monowar,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,869,Md. Abdullah,SB,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,870,Md. Ismail,Driver-GTT,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,871,Mohammad Mahbubul Alam,PID,GTT Employee,10:28,10:28,Absence,,,0,0,0,0
+4/29/2024,872,Md. Liton Chowdhury,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,874,Md. Sharifuzzaman Al Amin,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,876,Khokon Chowdhury,PID,GTT Employee,8:50,17:55,Normal,,,480,0,1.08,8
+4/29/2024,877,Kazi Farah Jabeen,F&A,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,932,S.M. Mahmudul Hassan,F&A/TIAC,GTT Employee,10:20,17:30,Late In/Early Out,,,429,0,0,7.15
+4/29/2024,940,Md. Maruf Billah Piyash,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,971,Syed Zakir Hussain,Consultant,GTT Employee,11:15,0:00,Missing Out,,,0,0,0,0
+4/29/2024,973,Md. Kabir Rana,GDH,GTT Employee,9:21,17:00,Early Out,,,420,0,0.65,7
+4/29/2024,986,Mahmud Hossain,Advisor,GTT Employee,12:42,12:58,Late In/Early Out,,,15,0,0,0.25
+4/29/2024,987,Md. Lutfar Rahman,Advisor,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,991,Md. Abdul Khalek,PID,GTT Employee,10:17,17:34,Late In/Early Out,,,436,0,0,7.26
+4/29/2024,992,Sujan Kumar Ghosh,PID,GTT Employee,10:10,17:54,Normal,,,480,0,0,8
+4/29/2024,1022,Md. Nazmul Hasan Mithun,GDH,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,1023,Waqar Ahmed Kazi,Advisor,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,1024,Brig Gen Dr. Md Jalal Uddin,Advisor,GTT Employee,10:06,16:14,Early Out,,,374,0,0,6.23
+4/29/2024,1124,Abdur Rahim,HR & Admin,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,1126,Sakibul Islam,F&A/TIAC,GTT Employee,9:45,17:45,Normal,,,480,0,0,8
+4/29/2024,1127,Major Mustafizur Rahman,Consultant,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,1128,Md. Ahad,PID,GTT Employee,8:36,18:12,Normal,,,480,0,1.6,8
+4/29/2024,1129,Mobashser Ahmed,PID,GTT Employee,9:33,17:18,Early Out,,,438,0,0.45,7.3
+4/29/2024,1130,Mohammad Monir Hossain,PID,GTT Employee,9:29,17:51,Normal,,,480,0,0.36,8
+4/29/2024,1131,Lamia Shubha,PID,GTT Employee,9:37,17:27,Early Out,,,447,0,0.38,7.45
+4/29/2024,1134,Fariya Rahman Mitu,PID,GTT Employee,9:36,17:28,Early Out,,,448,0,0.4,7.46
+4/29/2024,1135,Farzana Akther,PID,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,1136,Md.Sohidul,PID,GTT Employee,9:45,17:57,Normal,,,480,0,0.2,8
+4/29/2024,1137,Rabbay Noor Begum,PID,GTT Employee,10:33,17:22,Late In/Early Out,,,408,0,0,6.8
+4/29/2024,7310,Md. Abdul Motin,GDL,GTT Employee,9:06,15:58,Early Out,,,358,0,0.9,5.96
+4/29/2024,7375,Palash Kanti Bhowmik,GDL,GTT Employee,9:49,17:30,Early Out,,,450,0,0.18,7.5
+4/29/2024,7498,Kazi Salah Uddin,GDL,GTT Employee,10:07,17:32,Early Out,,,452,0,0,7.53
+4/29/2024,7517,Badadur Bapary,GDL,KTI Staff,11:39,17:26,Late In/Early Out,,,0,346,0,5.76
+4/29/2024,50400,Md. Rashed Sheick,Driver-GTT,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,50401,Sojib Mia,Driver-GTT,GTT Employee,10:29,16:06,Late In/Early Out,,,336,0,0,5.6
+4/29/2024,60001,Ahmed Armaan Siddiqui,GDH,GTT Employee,9:35,18:02,Normal,,,480,0,0.45,8
+4/29/2024,60002,Scion M. Anjir Hossain,GDH,GTT Employee,9:56,19:01,Normal,,,480,0,1.08,8
+4/29/2024,60003,Hasibul Hasan,GDH,GTT Employee,9:57,13:08,Early Out,,,188,0,0.05,3.13
+4/29/2024,60004,Md Tanbir Hossen,GDH,GTT Employee,11:28,18:50,Late In,,,391,0,0.85,6.51
+4/29/2024,60005,Mohammad Mahmudul Hasan,GDH,GTT Employee,14:56,19:35,Late In,,,183,0,1.6,3.05
+4/29/2024,60006,Asfe All Arafat,GDH,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,60007,Saeef Muhammad Zulker Naeen,GDH,GTT Employee,0:00,0:00,Absence,,,0,0,0,0
+4/29/2024,80027,Nasifa Alam,PID,GTT Employee,0:00,0:00,Expired User,,,0,0,0,0
+4/29/2024,80030,Md. Zahirul Islam,HR & Admin/Intern,GTT Employee,0:00,0:00,Absence,,,0,0,0,0

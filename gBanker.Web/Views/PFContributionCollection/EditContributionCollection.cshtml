@@ -1,0 +1,196 @@
+﻿@model gHRM.Web.ViewModels.PF.ContributionCollectionViewModel
+
+@{
+    ViewBag.Title = "EditContributionCollection";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+    
+    function UpdateContributionCollection(collectionId, employeeId, selfContribution, orgContribution) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateContributionCollection", "PFContributionCollection", "http")',
+            data: { collectionId: collectionId, employeeId: employeeId, selfContribution: selfContribution, orgContribution: orgContribution },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                setTimeout(function () {
+                    window.location.href = "/PFContributionCollection/ContributionCollectionList";
+                }, 1500);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+            }
+        });
+    }
+
+    function clear() {
+        $("#CollectionId").val('');
+        $("#EmployeeId").val('');
+        $("#SelfContribution").val('');
+        $("#OrgContribution").val('');
+    }
+
+    function DisableAll(flag)
+    {
+        $('#SelfContribution').prop('disabled', flag);
+        $('#OrgContribution').prop('disabled', flag);
+        $('#btnUpdateContribution').prop('disabled', flag);
+    }
+
+    function Update() {
+        var collectionId = $("#CollectionId").val();
+        var employeeId = $("#EmployeeId").val();
+        var selfContribution = $("#SelfContribution").val();
+        var orgContribution = $("#OrgContribution").val();
+
+        if (collectionId == '' || employeeId == '') {
+            $.alert.open("Please enter valid data");
+            return;
+        }
+        UpdateContributionCollection(collectionId, employeeId, selfContribution, orgContribution);
+    }
+
+    $(document).ready(function () {
+         $("input[type=text]:visible:enabled").first().focus();
+       
+
+        //PF Setup
+        @if(Model.PFType == "GPF"){
+             <text>
+             $("#divOrgContribution").hide();
+             </text>
+         }
+        @if(Model.PFType == "CPF"){
+             <text>
+             $("#divOrgContribution").show();
+             </text>
+         }
+
+        //Day Status
+        @if (Model.IsOpen == true)
+         {
+             <text>
+             DisableAll(false); 
+             </text>
+         }
+        
+        @if(Model.IsOpen == false){
+             <text>
+             DisableAll(true); 
+             </text>
+         }
+   
+        $('#SelfContribution').keypress(function (event) {
+            return isNumber(event, this)
+        });
+        $('#OrgContribution').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+        $("#btnUpdateContribution").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+
+
+@Html.ActionLink("Back to List", "ContributionCollectionList", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Contribution
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        @*EmployeeCode*@
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    @Html.HiddenFor(model => model.CollectionId)
+                    @Html.HiddenFor(model => model.EmployeeId)
+                </div>
+            </div>
+        </div>
+        @*<div class="row">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                    <div class="col-md-3">
+                        @Html.EditorFor(model => model.EmployeeId, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                        @Html.HiddenFor(model => model.CollectionId)
+                    </div>
+                </div>
+            </div>*@
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SelfContribution, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.SelfContribution, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Self Contribution" } })
+                </div>
+            </div>
+        </div>
+        <div class="row" id="divOrgContribution">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OrgContribution, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.OrgContribution, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Org. Contribution" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Update" id="btnUpdateContribution" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,95 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRComponentViewModel_designation
+
+@{
+    ViewBag.Title = "Component Listings";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var empTypeConfigList = Model == null ? null : Model.EmployeeTypeList;
+    var employeeStatusList = Model == null ? null : Model.EmployeeStatusList;
+
+    var desigList = Model == null ? null : Model.DesignationList;
+    var offcDesigList = Model == null ? null : Model.OfficeDesignationList;
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRComponent">PRComponent</a></li>
+    </ol>
+</div>
+
+@Html.ActionLink("Add New", "Create_designation", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Component List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmployeeTypeId, empTypeConfigList, new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.EmployeeTypeId)
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeStatusId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmployeeStatusId, employeeStatusList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <div class="col-md-4 ">                  
+                    <label class="control-label required" style="padding-top:8px;">Payroll Designation (পদবী)</label>
+                </div>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DesignationId, desigList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br/>
+    <div class="row">
+        @*<div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Component Name</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.ComponentName, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>*@
+
+        <div class="col-sm-6 col-md-offset-2">
+            <div class="form-group">
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <div class="col-md-8">
+                    <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+    &nbsp;
+    @*<div id="grid">
+
+    </div>*@
+    <div class="row" style="margin-top:15px;">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <div id="gridKendo"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+<script src="~/Assets/js/app/payroll/prComponentManager_designation.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

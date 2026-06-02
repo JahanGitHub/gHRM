@@ -1,0 +1,357 @@
+﻿@model gHRM.Web.ViewModels.AttendancePenaltyConfigurationViewModel
+
+@{
+    ViewBag.Title = "AttendancePenaltyConfiguration";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#statusMultiTextDiv").show();
+        $("#statusTextDiv").hide();
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+      
+        GetAttendancePenaltyInfoKendo();
+    });
+
+    function SaveAttendancePenalty() {
+        var totalLateDays = $("#TotalLateDays").val();
+        var leaveType = $("#LeaveType").val();
+        var leaveDeduction = $("#LeaveDeduction").val();
+        var leaveOrder = $("#LeaveOrder").val();
+        var status = $('#SelectedStatusId').val();
+
+        if (totalLateDays != "" && leaveType != "" && leaveDeduction != "" && leaveOrder != "" && status.length > 0) {
+            var obj = {
+                TotalLateDays: totalLateDays,
+                LeaveType: leaveType,
+                LeaveDeduction: leaveDeduction,
+                LeaveOrder: leaveOrder,
+                SelectedStatusId: status
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveAttendancePenalty", "AttendancePenaltyConfiguration", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                        
+                        GetAttendancePenaltyInfoKendo();
+                        $.alert.open("Success", data.message);
+                        
+                        Clearform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+            $.alert.open("Error", "Please Provide all required fields");
+            return false;
+        }
+
+    }
+
+    function Clearform() {
+        $("#statusMultiTextDiv").show();
+        $("#statusTextDiv").hide();
+        $("#TotalLateDays").val('');
+        $("#LeaveType").val('');
+        $("#LeaveDeduction").val('');
+        $("#LeaveOrder").val('');
+    }
+
+
+
+    function GetAttendancePenaltyInfoKendo() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    //url: baseURL + '/ProcessCategory/GetProcessCategoryList?QueryOption=' + 1,
+                    url: '@Url.Action("GetAttendancePenaltyInfoKendo", "AttendancePenaltyConfiguration", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "Id",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "20px",
+                    filterable: false,
+                },//OfficeTypeName
+                {
+                    field: "TotalLateDays",
+                    title: "Total Late Days",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "LeaveDeduction",
+                    title: "Leave Deduction",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "LeaveTypeName",
+                    title: "Leave Type",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeStatusFull",
+                    title: "Employee Status",
+                    width: "100px",
+                    filterable: false,
+                },
+                {
+                    field: "LeaveOrder",
+                    title: "Leave Order",
+                    width: "40px",
+                    filterable: false,
+                },
+                 {
+                     title: "Edit",
+                     width: "20px",
+                     template: function (dataItem) {
+                         //return "<a href='#' onclick='EditAttendancePenalty('" + dataItem.Id + "','" + dataItem.TotalLateDays + "', '" + dataItem.LeaveType + "', '" + dataItem.LeaveDeduction + "', '" + dataItem.LeaveOrder + "', '" + dataItem.EmployeeStatus + "')><i class='fa fa-pencil-square-o'></i></a>";
+                         
+                         return "<a href='#' OnClick='EditAttendancePenalty(" + dataItem.Id + "," + dataItem.TotalLateDays + ", \"" + dataItem.LeaveType + "\", " + dataItem.LeaveDeduction + ", " + dataItem.LeaveOrder + ", \"" + dataItem.EmployeeStatusFull + "\");'><i class='fa fa-pencil-square-o'></i></a>";
+                     }
+                 },
+            {
+                title: "Delete",
+                width: "25px",
+                template: function (dataItem) {
+                    return "<a href='#' OnClick='DeleteAttendancePenalty(" + dataItem.Id + ");'><i class='fa fa-trash-o'></i></a>";
+                }
+            }
+            ]
+        });
+    }
+   
+
+   
+   
+    function EditAttendancePenalty(Id, TotalLateDays, LeaveType,LeaveDeduction, LeaveOrder, EmployeeStatus) {
+        $("#statusMultiTextDiv").hide();
+        $("#statusTextDiv").show();
+        $("#Id").val(Id);
+        $("#TotalLateDays").val(TotalLateDays);
+        $("#LeaveType").val(LeaveType);
+        $("#LeaveDeduction").val(LeaveDeduction);
+        $("#LeaveOrder").val(LeaveOrder);
+        $('#textEmployeeStatus').val(EmployeeStatus);
+       
+
+        $("#btnUpdate").show();
+        $("#btnRestore").show();
+        $("#btnSave").hide();
+    }
+
+    function ResetAttendancePenalty() {
+        $("#statusMultiTextDiv").show();
+        $("#statusTextDiv").hide();
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+        $("#btnSave").show();
+        Clearform();
+    }
+
+
+    function UpdateAttendancePenalty() {
+        var id = $("#Id").val();
+        var totalLateDays = $("#TotalLateDays").val();
+        var leaveType = $("#LeaveType").val();
+        var leaveDeduction = $("#LeaveDeduction").val();
+        var leaveOrder = $("#LeaveOrder").val();
+        if (totalLateDays != "" && leaveType != "" && leaveDeduction != "" && leaveOrder != "") {
+            var obj = {
+                TotalLateDays: totalLateDays,
+                LeaveType: leaveType,
+                LeaveDeduction: leaveDeduction,
+                LeaveOrder: leaveOrder,
+                Id: id
+            }
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateAttendancePenalty", "AttendancePenaltyConfiguration", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        GetAttendancePenaltyInfoKendo();
+                        Clearform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+        }
+
+    }
+
+    function DeleteAttendancePenalty(id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteAttendancePenalty", "AttendancePenaltyConfiguration", "http")',
+                    data: { id: id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            GetAttendancePenaltyInfoKendo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+
+
+
+</script>
+
+
+<h2 class="page-title">Attendance Penalty Configuration</h2> &nbsp;
+<div class="form-horizontal">
+    @Html.HiddenFor(model => model.Id)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Total Late Days</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.TotalLateDays, Model.TotalLateDaysCount, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Leave Deduction</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.LeaveDeduction, Model.TotalDeductionDays, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Leave Type</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.LeaveType, Model.LeaveTypeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6" id="statusMultiTextDiv">
+                <div class="form-group">
+                    <div class="col-md-4 ">
+                        <label class="control-label" style="padding-top:8px;">Status (অবস্থা)</label>
+                    </div>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @id = "SelectedStatusId", @multiple = "multiple", @class = "selectpicker form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6" id="statusTextDiv">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeStatusId, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeStatusId, new { htmlAttributes = new {@id="textEmployeeStatus" ,@class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Leave Order</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.LeaveOrder, Model.TotalOrderList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-sm-offset-2">
+                <input type="button" id="btnSave" value="Save" class="btn btn-primary" onclick="SaveAttendancePenalty()" />
+                <input type="button" id="btnUpdate" value="Update" class="btn btn-primary" onclick="UpdateAttendancePenalty()" /> &nbsp;
+                <input type="button" id="btnRestore" value="Reset" class="btn btn-primary" onclick="ResetAttendancePenalty()" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            @*<div class="col-md-12">
+                    <div id="grid"></div>
+                </div>*@
+            <div class="table-responsive">
+                <div id="gridKendo"></div>
+            </div>
+        </div>
+    </div>
+</div>

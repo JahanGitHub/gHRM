@@ -1,0 +1,390 @@
+﻿@model gHRM.Web.ViewModels.ApplicantMasterViewModel
+@*  *@
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Apply">Apply</a></li>
+        <li><a href="/Apply/PersonalInfo">PersonalInfo</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Personal Information";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<style>
+    .frmRow {
+        margin-bottom: 10px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    function InputShowHide(allInputList, targetInputList) {
+        for (var i = 0; i < allInputList.length; i++) {
+            var element = allInputList[i];
+            if (targetInputList.includes(element)) {
+                $(element).show();
+            } else {
+                $(element).hide();
+            }
+        }
+    }
+    function clearData() {
+        $("#OfficeTypeId").val("").trigger('change');
+        $("#ZoneCode").val("").trigger('change');
+        //$("#OfficeTypeId").val("").trigger('change');
+        $("#OfficeCode").val("");
+        $("#OfficeName").val("");
+        $("#OfficeNameBn").val("");
+        $("#DateofBirth").datepicker('setDate', new Date());
+        $("#OfficeAddress").val("");
+        $("#Phone").val("");
+        $("#Email").val("");
+    }
+
+    function test() {
+        location.href = "/Apply/Info?AppplicantId=" + 4;
+    }
+
+    $(document).ready(function () {
+        //CheckInputLengthLessOrEqual("#Phone", "11");
+
+        $("#Phone").blur(function () {
+            var phoneNo = $("#Phone").val();
+            if (phoneNo != "" && phoneNo != '' && phoneNo != null && phoneNo.length > 0) {
+                if (phoneNo.length != 11) {
+                    $.alert.open("Alert", "Phone number must be 11 digit");
+                    $("#Phone").val('');
+                }
+                else {
+                    return false;
+                }
+                //CheckInputLengthEqual("#Phone", "11");
+            }
+        });
+
+
+        $("#DateofBirth").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2025",
+        });
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+            debugger;
+
+            var FirstName = $("#FirstName").val();
+            var LastName = $("#LastName").val();
+            var FatherName = $("#FatherName").val();
+            var MotherName = $("#MotherName").val();
+            var GuardianName = $("#GuardianName").val();
+            var DateofBirth = $("#DateofBirth").val();
+            var Gender = $("#Gender").val();
+            var Religion = $("#Religion").val();
+            var MaritalStatus = $("#MaritalStatus").val();
+            var Nationality = $("#Nationality").val();
+            var NationalId = $("#NationalId").val();
+            var PassportNumber = $("#PassportNumber").val();
+            var PrimaryMobile = $("#PrimaryMobile").val();
+            var SecondaryMobile = $("#SecondaryMobile").val();
+            var BloodGroup = $("#BloodGroup").val();
+            //if ($("#OfficeLocationId").val() == "") {
+            //    $.alert.open("Error", "Please Insert Office Location.");
+            //    return false;
+            //}
+            //if (officeTypeId == 5) {
+            //    if ($("#ZoneCode").val() == "") {
+            //        $.alert.open("Error", "Please Insert Zone Name");
+            //        return false;
+            //    }
+            //} else if (officeTypeId == 6) {
+            //    if ($("#ZoneCode").val() == "") {
+            //        $.alert.open("Error", "Please Insert Zone Name");
+            //        return false;
+            //    }
+            //    if ($("#AreaCode").val() == "") {
+            //        $.alert.open("Error", "Please Insert Area Name");
+            //        return false;
+            //    }
+            //}
+
+            /*if (officeCode != "" && officeName != "" && officeNameBn != "" && OfficeLocationId != "") {*/
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "GET", //GET or POST or PUT or DELETE verb
+                url: '/Apply/SavePersonalInfo', // Location of the service
+                data: {
+                    FirstName: FirstName, LastName: LastName, FatherName: FatherName, MotherName: MotherName, GuardianName: GuardianName, DateofBirth: DateofBirth, Gender: Gender,
+                    Religion: Religion, MaritalStatus: MaritalStatus, Nationality: Nationality, NationalId: NationalId, PassportNumber: PassportNumber, PrimaryMobile: PrimaryMobile, SecondaryMobile: SecondaryMobile,
+                    BloodGroup: BloodGroup
+                }, //Data sent to server
+                dataType: "json", //Expected data format from server
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $('#AjaxLoader').hide();
+                    $.alert.open("Alert", data.message);
+                    clearData();
+                },
+                error: function (data) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open('error', 'Error');
+                }
+            });
+            //} else {
+            //    $.alert.open("Error", "Please Insert required fields");
+            //}
+
+        });
+        $("#btnEdit").click(function (e) {
+            e.preventDefault();
+            debugger;
+
+            var ApplicantId =3;
+  
+            //if ($("#OfficeLocationId").val() == "") {
+            //    $.alert.open("Error", "Please Insert Office Location.");
+            //    return false;
+            //}
+            //if (officeTypeId == 5) {
+            //    if ($("#ZoneCode").val() == "") {
+            //        $.alert.open("Error", "Please Insert Zone Name");
+            //        return false;
+            //    }
+            //} else if (officeTypeId == 6) {
+            //    if ($("#ZoneCode").val() == "") {
+            //        $.alert.open("Error", "Please Insert Zone Name");
+            //        return false;
+            //    }
+            //    if ($("#AreaCode").val() == "") {
+            //        $.alert.open("Error", "Please Insert Area Name");
+            //        return false;
+            //    }
+            //}
+
+            /*if (officeCode != "" && officeName != "" && officeNameBn != "" && OfficeLocationId != "") {*/
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "GET", //GET or POST or PUT or DELETE verb
+                url: '/Apply/Info', // Location of the service
+                data: {
+                    AppplicantId: ApplicantId
+                }, //Data sent to server
+                dataType: "json", //Expected data format from server
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $('#AjaxLoader').hide();
+                    $.alert.open("Alert", data.message);
+                    clearData();
+                },
+                error: function (data) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open('error', 'Error');
+                }
+            });
+            //} else {
+            //    $.alert.open("Error", "Please Insert required fields");
+            //}
+
+        });
+
+    });
+
+
+</script>
+@*@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })*@
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <button type="button" class="btn btn-success col-sm-offset-5" onclick="test()">Edit</button>
+        </div>
+    </div>
+</div>
+
+&nbsp;
+<h2 class="page-title">Add Personal Information</h2>
+&nbsp;
+@using (Html.BeginForm("Info", "Apply", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "ApplicantProfile" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="">
+        @*@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)*@
+
+        @*<hr/>*@
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.LastName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FatherName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.FatherName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.FatherName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MotherName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.MotherName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.MotherName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.GuardianName, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.GuardianName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.GuardianName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DateofBirth, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.DateofBirth, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.DateofBirth, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Gender, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Religion, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Religion, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Religion, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.MaritalStatus, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.MaritalStatus, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.MaritalStatus, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Nationality, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.Nationality, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Nationality, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.NationalId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.NationalId, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.NationalId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.PassportNumber, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.PassportNumber, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.PassportNumber, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.PrimaryMobile, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.PrimaryMobile, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.PrimaryMobile, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SecondaryMobile, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.SecondaryMobile, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.SecondaryMobile, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.BloodGroup, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.BloodGroup, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.BloodGroup, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <button type="button" class="btn btn-success col-sm-offset-5" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}
+
+
+
+

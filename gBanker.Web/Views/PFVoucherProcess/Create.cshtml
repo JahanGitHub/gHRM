@@ -1,0 +1,58 @@
+﻿@model gHRM.Web.ViewModels.PF.VoucherProcessViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+&nbsp;
+<h2 class="page-title">Voucher Processing</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.IsOpen)
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DayStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.DayStatus, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransactionDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Process" id="btnProcessVoucher" class="btn btn-success" tabindex="4" />
+                    &nbsp;
+                    <input type="button" value="Verify" id="btnVerifyVoucher" class="btn btn-success" tabindex="5" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="grid2">
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Assets/js/app/pf/pfVoucherProcessManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

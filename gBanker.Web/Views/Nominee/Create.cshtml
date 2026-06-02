@@ -1,0 +1,735 @@
+﻿@model gHRM.Web.ViewModels.NomineeViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Nominee/Create">Nominee</a></li>
+        <li class="active"><span>Create</span></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var nominee_type = Model == null ? null : Model.NomineeTypeList;
+    var relationship_type = Model == null ? null : Model.RelationshipList;
+}
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    <a href="~/Views/Nominee/Create.cshtml" > ~ /Views/Nominee/Create.cshtml</a > .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+</style>
+
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script type="text/javascript">
+
+    var NomineeDetail_Id = 0;
+    var NomineeAvailablePercentage = 0;
+
+    $(document).ready(function () {
+
+        $("#btnUpdate").hide();
+        $("#btnReset").hide();
+        $("#btnSave").show();
+        $("#NomineeAvailablePercentageDiv").hide();
+
+        $("#NomineeTypeId").change(function () {
+            $('#NomineePercentage').val(0);
+            Percentage();
+        });
+
+
+        CheckInputLengthEqual("#NomineeNationalId", "10,13,17");
+        CheckInputLengthEqual("#ContactNo1", "11");
+        CheckInputLengthEqual("#ContactNo2", "11");
+
+        $("#NomineePercentage").blur(function () {
+            var percentage = $('#NomineePercentage').val();
+            if (percentage > 100) {
+                $.alert.open("Error", "Percentage can never be greater than 100");
+                $('#NomineePercentage').val("");
+                return false;
+            }
+            if (percentage > parseInt(NomineeAvailablePercentage)) {
+                $.alert.open("Error", "Maximum Available Nominee Percentage " + NomineeAvailablePercentage +"%");
+                $('#NomineePercentage').val("");
+            }
+        });
+
+        $("#NomineePercentage").keypress(function (e) {
+            return checkDecimal(e);
+        });
+
+        $("#txtEmployeeCode").blur(function () {
+
+            var employee_Code = $("#txtEmployeeCode").val();
+            $("#EmployeeCode").val(employee_Code);
+            if (employee_Code != "") {
+                LoadEmpInfoByCode(employee_Code);
+            }
+        });
+    });
+
+
+    function Percentage() {
+        $("#NomineePercentage").attr('readonly', false);
+        var percentage = $('#NomineePercentage').val();
+        if (!percentage) {
+            percentage = 0;
+        }
+
+        var EmployeeId = $("#EmployeeId").val();
+        var NomineeTypeId = $('#NomineeTypeId option:selected').val();
+        if (EmployeeId==0) {
+            $.alert.open("Error", "Please Enter Employee Code");
+            return false;
+        }
+        if (NomineeTypeId == 0) {
+            // $.alert.open("Error", "Please Enter Nominee Type");
+            $("#NomineeAvailablePercentageDiv").hide();
+            $("#NomineeAvailablePercentage").text("");
+            NomineeAvailablePercentage = 0;
+            return false;
+        }
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAvailablePersentage", "Nominee", "http")',
+            data: { EmployeeId: EmployeeId, NomineeTypeId: NomineeTypeId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $("#NomineeAvailablePercentageDiv").show();           
+                NomineeAvailablePercentage = parseInt(data.AvailablePersentage) + parseInt(percentage);
+                $("#NomineeAvailablePercentage").text(NomineeAvailablePercentage);
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function getEmployeeNominee() {
+
+        $("#btnUpdate").hide();
+        $("#btnReset").hide();
+
+        $('#gridNominee').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            defaultSorting: 'InventoryId ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var employeId = $("#EmployeeId").val();
+                        $.ajax({
+                            url: '/Nominee/ListEmployeeNomineeInformation?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&EmployeeId=' + employeId,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+
+                SNO: {
+                    title: 'SL',
+                    width: '5%'
+                },
+                NomineeImage: {
+                    title: 'Image',
+                    create: false,
+                    edit: false,
+                    display: function (data) {
+                        return "<div class='text-center'><img src='/Nominee/RetrieveNomineeImage/" + data.record.NomineeId + "' alt='No Image' height=50 width=50 class='img-circle' /></div>";
+                    }
+                },
+                NomineeName: {
+                    title: 'NomineeName',
+                    width: '15%'
+                },
+                NomineeType: {
+                    title: 'Type',
+                    width: '15%'
+                },
+                NomineeRelation: {
+                    title: 'Relation',
+                    width: '15%'
+                },
+                NomineePercentage: {
+                    title: 'Persentage',
+                    width: '15%'
+                },
+                NomineeAddress: {
+                    title: 'Address',
+                    width: '15%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditNomineeInformation(' + "'" + data.record.NomineeId + "'" + ',' + "'" + data.record.NomineeName + "'" + ',' + "'" + data.record.NomineeRelationId + "'" + ',' + "'" + data.record.NomineeAddress + "'" + ',' + "'" + data.record.NomineeAge + "'" + ',' + "'" + data.record.NomineePercentage + "'" + ',' + "'" + data.record.ContactNo1 + "'" + ',' + "'" + data.record.ContactNo2 + "'" + ',' + "'" + data.record.BirthCertificateNo + "'" + ',' + "'" + data.record.NomineeNationalId + "'" + ',' + "'" + data.record.NomineeRemarks + "'" + ',' + "'" + data.record.NomineeTypeId + "'" + ',' + "'" + data.record.EmployeeId + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+
+                Delete: {
+                    title: "Delete",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.NomineeId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                },
+            }
+        });
+        $('#gridNominee').jtable('load');
+    }
+
+    function EditNomineeInformation(NomineeId, NomineeName, NomineeRelationId, NomineeAddress, NomineeAge, NomineePercentage, ContactNo1, ContactNo2, BirthCertificateNo, NomineeNationalId, NomineeRemarks, NomineeTypeId, EmployeeId) {
+        $("#NomineeId").val(NomineeId);
+        $("#NomineeName").val(NomineeName);
+        $("#NomineeRelationId").val(NomineeRelationId);
+        $("#NomineeAddress").val(NomineeAddress);
+        $("#NomineeAge").val(NomineeAge);
+        $("#ContactNo1").val(ContactNo1);
+        $("#ContactNo2").val(ContactNo2);
+        $("#BirthCertificateNo").val(BirthCertificateNo);
+        $("#NomineeNationalId").val(NomineeNationalId);
+        $("#NomineeRemarks").val(NomineeRemarks);
+        $("#NomineeTypeId").val(NomineeTypeId);
+        $("#NomineePercentage").val(NomineePercentage);    
+        $("#EmployeeId").val(EmployeeId);
+        if (NomineeId > 0) {
+            GetNomineeImage(NomineeId);
+        }
+        $("#btnUpdate").show();
+        $("#btnReset").show();
+        $("#btnSave").hide();
+      
+        Percentage();
+    }
+
+
+    function InformationDelete(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationDeleteNomineeInformation", "Nominee", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridNominee').jtable('load');
+
+                            $.alert.open("Success", data.message);
+                        } else {
+
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+    function SaveEmployeeNomineeInformations() {
+        var empMasterId = $("#EmployeeId").val();
+        var NomineeTypeId = $("#NomineeTypeId option:selected").val();
+        var NomineeName = $("#NomineeName").val();
+        var NomineePercentage = $("#NomineePercentage").val();
+        var NomineeAge = $("#NomineeAge").val();
+        var NomineeAddress = $("#NomineeAddress").val();
+        var NomineeNationalId = $("#NomineeNationalId").val();
+        var NomineeRelationId = $("#NomineeRelationId option:selected").val();
+
+        if (empMasterId > 0 && NomineeTypeId != "" && NomineeName != "" && NomineePercentage != "" && NomineeRelationId != "") {
+            var employeeNominee = GenerateEmployeeNomineeInformation();
+            var img = document.getElementById("NomineeImage").value;
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                cache: false,
+                url: '@Url.Action("SaveEmployeeNomineeInformation", "Nominee")',
+                data: JSON.stringify({ employeeNominee: employeeNominee }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+
+                    if (data.result > 0) {
+                        var nomineeId = data.result;
+                        var xhr = new XMLHttpRequest();
+                        var fd = new FormData();
+                        fd.append("file", document.getElementById("NomineeImage").files[0]);
+                        fd.append("NomineeId", nomineeId);
+                        xhr.open("POST", "/Nominee/UploadNomineeImage/", true);
+                        xhr.send(fd);
+                        xhr.addEventListener("load", function (event) {
+                            if (event.target.response > 0) {
+                                $(".panel-body .create-success").show(800).fadeToggle(3000);
+                            } else {
+                                $.alert.open("Error", "Image couldn't Save");
+                            }
+                        }, false);
+
+                        $.alert.open('Success', data.message);
+                        $('#gridNominee').jtable('load');
+                        ClearControl();
+                    } else {
+                        $.alert.open('Error', data.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+            $.alert.open("Error", "Please Insert Required Fields");
+        }
+    }
+
+
+    function GenerateEmployeeNomineeInformation() {
+
+        var empMasterId = $("#EmployeeId").val();
+        var item = {};
+        item.EmployeeId = empMasterId;
+        item.NomineeId = $("#NomineeId").val();
+        item.NomineeTypeId = $("#NomineeTypeId option:selected").val();
+        item.NomineeName = $("#NomineeName").val();
+        item.NomineePercentage = $("#NomineePercentage").val();
+        item.NomineeAge = $("#NomineeAge").val();
+        item.NomineeAddress = $("#NomineeAddress").val();
+        item.NomineeNationalId = $("#NomineeNationalId").val();
+        item.NomineeRelationId = $("#NomineeRelationId option:selected").val();
+        item.ContactNo1 = $("#ContactNo1").val();
+        item.ContactNo2 = $("#ContactNo2").val();
+        item.BirthCertificateNo = $("#BirthCertificateNo").val();
+        item.NomineeRemarks = $("#NomineeRemarks").val();
+        item.NomineeImagePath = document.getElementById("NomineeImage").value;
+
+        return item;
+    }
+
+    function ResetNominee() {
+        $("#btnUpdate").hide();
+        $("#btnSave").show();
+        $("#btnReset").hide();
+        ClearControl();
+    }
+
+    function ClearControl() {
+        $("#NomineeId").val('');
+        $("#NomineeTypeId").val('');
+        $("#NomineeName").val('');
+        $("#NomineePercentage").val('');
+        $("#NomineeAge").val('');
+        $("#NomineeAddress").val('');
+        $("#NomineeNationalId").val('');
+        $("#NomineeRelationId").val('');
+        $("#ContactNo1").val('');
+        $("#ContactNo2").val('');
+        $("#BirthCertificateNo").val('');
+        $("#NomineeRemarks").val('');
+        $("#NomineeImage").val('');
+        $("#thumbnil").attr("src", "/Images/blank-headshot.jpg");
+        $("#NomineeAvailablePercentageDiv").hide();
+    }
+
+
+    function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "Nominee", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#OfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#DesignationName").val(data.EmployeeCurrentDesignation);
+                        $("#ConfirmationDateMsg").val(data.ConfirmationDateMsg);
+                        $("#DateOfBirthMsg").val(data.DateOfBirthMsg);
+
+                    });
+                    Percentage();
+                    getEmployeeNominee();
+                }
+
+                else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+
+    function LoadPersentage(EmployeeId) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetPersentage", "Nominee", "http")',
+            data: { employee: EmployeeId, NomineeId: NomineeId, newPersen: newp },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open('Message', "test");
+                // $.alert.open('Message', data.message);
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function showNomineeImage(fileInput) {
+        $("#blaImage").show();
+        $("#imgNominee").hide();
+        var files = fileInput.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var imageType = /image.*/;
+
+            if (file.type.match(imageType)) {
+                var size = Math.round(file.size / 1024);
+                if (size <= 200) {
+                    var img = document.getElementById("thumbnil");
+                    img.file = file;
+                    var reader = new FileReader();
+                    reader.onload = (function (aImg) {
+                        return function (e) {
+                            aImg.src = e.target.result;
+                        };
+                    })(img);
+                    reader.readAsDataURL(file);
+                }
+                else
+                    alert('Image file cannot be greater than 200 KB.');
+            }
+            else {
+                $("#NomineeImage").replaceWith($("#NomineeImage").clone(true));
+                alert('Please select a valid image file');
+            }
+        }
+    }
+
+    function checkNumberic(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 46 || e.which > 57)) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+
+    function GetNomineeImage(NomineeId) {
+        var urlString = 'url(/Nominee/RetrieveNomineeImage/' + NomineeId + ')';
+        var img = document.getElementById('thumbnil').src = '/Nominee/RetrieveNomineeImage/' + NomineeId;
+    }
+
+
+</script>
+
+<br />
+<h2 class="page-title">Nominee Information</h2>
+
+@using (Html.BeginForm("Create", "Nominee", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "NomineeCreate" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="create-success create-content alert alert-success alert-dismissible" role="alert" style="display: none;">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p class="message-content">  </p>
+    </div>
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+
+        <fieldset>
+            <legend>Employee Info</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtEmpCode", "", new { @class = "form-control", id = "txtEmployeeCode" })
+                            @Html.HiddenFor(model => model.EmployeeCode)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ConfirmationDateMsg, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.ConfirmationDateMsg, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DateOfBirthMsg, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DateOfBirthMsg, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+    </div>
+}
+
+
+@using (Html.BeginForm("CreateNomineeDetails", "Nominee", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "NomineeDetails" }))
+{
+    <div class="row">
+        <div class="col-md-12">
+            &nbsp;
+        </div>
+    </div>
+    <fieldset id="fldNomineeInfo">
+        <legend>Nominee Information</legend>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeTypeId, new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.NomineeTypeId, nominee_type, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeName, new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.HiddenFor(model => model.EmployeeId)
+                        @Html.HiddenFor(model => model.NomineeId)
+                        @Html.EditorFor(model => model.NomineeName, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineePercentage, new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.NomineePercentage, new { htmlAttributes = new { @class = "form-control", @readonly = "false" } })
+                    </div>
+                    <div id="NomineeAvailablePercentageDiv" class="col-md-4" style="color:red;font-size:12px;">
+                        Available Persentage: <label id="NomineeAvailablePercentage"></label>%
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeAge, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.NomineeAge, new { htmlAttributes = new { @class = "form-control", @onkeypress = "return checkNumeric(event)" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeAddress, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.NomineeAddress, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeNationalId, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.NomineeNationalId, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeRelationId, new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.NomineeRelationId, relationship_type, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ContactNo1, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.ContactNo1, new { @class = "form-control txtcapitalize" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ContactNo2, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.ContactNo2, new { @class = "form-control txtcapitalize" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BirthCertificateNo, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.BirthCertificateNo, new { @class = "form-control txtcapitalize" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NomineeRemarks, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.NomineeRemarks, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ImgFile_NomineeImage, new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        <div id="imgNominee">
+
+                        </div>
+                        <div id="blaImage">
+                            <img id="thumbnil" style="width:100px; height:100px;" src="~/Images/blank-headshot.jpg" alt="Employee Image" class="img-responsive" />
+                        </div>
+                        @Html.TextBoxFor(model => model.ImgFile_NomineeImage, new { type = "file", @id = "NomineeImage", @onchange = "showNomineeImage(this);", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-8">
+                        <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveEmployeeNomineeInformations()" />
+                        <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="SaveEmployeeNomineeInformations()" />
+                        <input type="button" value="Reset" id="btnReset" style="margin-left: 20px" class="btn btn-primary" onclick="ResetNominee()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset id="fldNomineeList">
+        <legend>Nominee List</legend>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="gridNominee"></div>
+            </div>
+        </div>
+    </fieldset>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}

@@ -1,0 +1,506 @@
+﻿
+@model gHRM.Web.ViewModels.EmployeeReportViewModel
+
+@{
+    ViewBag.Title = "Employee Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .companyreport-control {
+        display: none;
+    }
+</style>
+
+<h2 class="page-title">Employee Report</h2>
+<br />
+
+<div class="row">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" data-id="typewise" href="#typewise">Type Wise</a></li>
+        <li><a data-toggle="tab" data-id="othersreport" href="#typewise">Others</a></li>
+        @if (ViewBag.PERSONAL_INFO_EMPLOYEE_REPORT_HIDE_TAB_COMPANYREPORT)
+        {
+            <li><a data-toggle="tab" data-id="companyreport" href="#">@ViewData["CompanyCode"] Reports</a></li>
+        }
+    </ul>
+    <div class="tab-content">
+        <div id="typewise" class="tab-pane fade in active">
+            &nbsp;
+            &nbsp;
+            <div class="container-fluid">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="row companyreport-control">
+                    <div class="col-sm-6" style="margin-top: 35px;">
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="padding: 0;">Report Type (রিপোর্টের ধরন)</label>
+                            <div class="col-md-8">
+                                <select class="form-control" id="CRReportType" name="CRReportType" onchange="Page.CRReportTypeChange()">
+                                    <option selected="selected" value="0">Please Select</option>
+                                    <option value="1">Employee Education Information</option>
+                                    <option value="2">Employee Education Information Summary</option>
+                                    <option value="3">Employee District Information</option>
+                                    <option value="4">Employee District Information Summary</option>
+                                    <option value="5">Department Wise Employee Information</option>
+                                    <option value="6">Delay Confirmation Employee List</option>
+                                    <option value="7">Confirmation Eligible Employee List</option>
+                                    <option value="8">Confirmation Eligible Employee Summary</option>
+                                    <option value="9">Transferable Employee List</option>
+                                    <option value="10">Transferable Employee Summary</option>
+                                    <option value="11">Increment Eligible Employee List</option>
+                                    <option value="12">Increment Eligible Employee Summary</option>
+                                    <option value="13">Promotion Eligible Employee List</option>
+                                    <option value="14">Promotion Eligible Employee Summary</option>
+                                    <option value="15">Final Sattlement</option>
+                                    <option value="16">GC-HO Confirmation Eligible Employee List</option>
+                                    <option value="17">GC-FO Confirmation Eligible Employee List</option>
+                                    <option value="18">GC-HO Separation Employee List</option>
+                                    <option value="19">GC-FO Separation Employee List</option>
+                                    <option value="20">Employee Highest Degree Report</option>
+                                    <option value="21">Gender Wise Employee Details Report</option>           <option value="100">Employee Joining And Resign Information</option>                       
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row companyreport-control education-control" style="margin-top: 15px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label  col-sm-4 required" style="padding: 0;" for="DegreeLevel" aria-required="true">Degree Level (খেতাব সমতা)</label>
+                            <div class="col-sm-8">
+                                <select class="form-control valid" data-val="true" data-val-length="The field Degree Level (খেতাব সমতা) must be a string with a maximum length of 150." data-val-length-max="150" id="DegreeLevel" name="DegreeLevel" aria-invalid="false" aria-describedby="DegreeLevel-error">
+                                    <option selected="selected" value="0">Please Select</option>
+                                    @foreach (var DegreeItem in ViewBag.DegreeList)
+                                    {
+                                        <option value="@DegreeItem["DegreeLevelId"]">@DegreeItem["DegreeLevel"]</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label  col-sm-4 required" style="padding: 0;" for="DegreeTitle" aria-required="true">Degree/Title (খেতাব)</label>
+                            <div class="col-sm-8">
+                                <select class="form-control valid" id="DegreeTitle" name="DegreeTitle" aria-invalid="false">
+                                    <option value="">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row companyreport-control education-control" style="margin-top: 15px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label  col-sm-4 required" style="padding: 0;" for="Concentration" aria-required="true">Concentration Name (মূল বিষয়)</label>
+                            <div class="col-sm-8">
+                                <select class="form-control valid" data-val="true" data-val-length="The field Concentration Name (মূল বিষয়) must be a string with a maximum length of 250." data-val-length-max="250" id="Concentration" name="Concentration" aria-invalid="false" aria-describedby="Concentration-error">
+                                    <option value="">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hideReportTypeOther">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.ReportTypeOther, htmlAttributes: new { @class = "control-label col-md-4 required", @style = "padding: 0;" })
+                            <div class="col-sm-6">
+                                @Html.DropDownListFor(model => model.ReportTypeOther, DropdownListHelper.GetDropdownList(DropdownListTypes.EmployeeOthersReport, Model.ReportTypeOther), "Please Select", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="row hideReason">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.ReasonId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                <div class="col-sm-6">
+                                    @Html.DropDownListFor(model => model.ReasonId, Model.ReasonList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row hideOfficeType">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.OfficeTypeIdNew, htmlAttributes: new { @class = "control-label col-md-4" })
+                                <div class="col-sm-6">
+                                    @Html.DropDownListFor(model => model.OfficeTypeIdNew, Model.OfficeTypeList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row hideDateFrom">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DateFromNew, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                <div class="col-sm-6">
+                                    @Html.TextBoxFor(model => model.DateFromNew, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row hideDateTo">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DateToNew, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                <div class="col-sm-6">
+                                    @Html.TextBoxFor(model => model.DateToNew, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+
+            </div>
+            @Html.Partial("_TypeWiseEmployeeReportPartial", Model)
+
+        <div class="container-fluid" id="FinalSattlementGridList" style="display:none;">
+            <br />
+            <br />
+            <h2 class="page-title">Final Sattlement List</h2>
+            &nbsp;
+            <input type="text" id="filterInput" placeholder="Filter by ID" onkeydown="FinalSattlementFilter(this);">
+            <div id="grid"></div>
+
+        </div>
+
+
+            &nbsp;
+            <div class="container-fluid" style="margin-top: -15px;">
+                <div class="row hideReason">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.ReasonId, htmlAttributes: new { @class = "control-label col-md-4", @style = "padding: 0;" })
+                            <div class="col-sm-8" style="padding:2px">
+                                @Html.DropDownListFor(model => model.ReasonId, Model.ReasonList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="row hideOfficeType">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.OfficeTypeIdNew, htmlAttributes: new { @class = "control-label col-md-4", @Style = "text-align: right;" })
+                                <div class="col-sm-6" style="padding:2px">
+                                    @Html.DropDownListFor(model => model.OfficeTypeIdNew, Model.OfficeTypeList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="row hideDateFrom" style="margin-top: 15px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.DateFromNew, htmlAttributes: new { @class = "control-label col-md-4 required", @style = "padding: 0;" })
+                            <div class="col-sm-8" style="padding:3px">
+                                @Html.TextBoxFor(model => model.DateFromNew, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row hideDateTo" style="margin-top: 15px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.DateToNew, htmlAttributes: new { @class = "control-label col-md-4 required", @style = "padding: 0;" })
+                            <div class="col-sm-8" style="padding:3px">
+                                @Html.TextBoxFor(model => model.DateToNew, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row hidePrintExcelView" style="margin-left:140px; text-align:center">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <input type="button" value="View" id="btnViewOtherReport" class="btn btn-facebook" />
+                            <input type="button" value="Excel Download" id="btnExcel" class="btn btn-facebook" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="othersreport" class="tab-pane fade">
+            <div class="form-horizontal" style="padding-top: 20px;">
+                @*<div class="container-fluid">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <div class="row hideReportTypeOther">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.ReportTypeOther, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                    <div class="col-sm-6">
+                                        @Html.DropDownListFor(model => model.ReportTypeOther, DropdownListHelper.GetDropdownList(DropdownListTypes.EmployeeOthersReport, Model.ReportTypeOther), "Please Select", new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row hideReason">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.ReasonId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                    <div class="col-sm-6">
+                                        @Html.DropDownListFor(model => model.ReasonId, Model.ReasonList, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row hideOfficeType">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.OfficeTypeIdNew, htmlAttributes: new { @class = "control-label col-md-4" })
+                                    <div class="col-sm-6">
+                                        @Html.DropDownListFor(model => model.OfficeTypeIdNew, Model.OfficeTypeList, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row hideDateFrom">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.DateFromNew, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                    <div class="col-sm-6">
+                                        @Html.TextBoxFor(model => model.DateFromNew, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row hideDateTo">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.DateToNew, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                                    <div class="col-sm-6">
+                                        @Html.TextBoxFor(model => model.DateToNew, new { @class = "form-control ddl-datepicker", @autocomplete = "off" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-left:140px">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                                        &nbsp;
+                                        <input type="button" value="View" id="btnViewOtherReport" class="btn btn-facebook" />
+                                        <input type="button" value="Excel Download" id="btnExcel" class="btn btn-facebook" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<script>
+
+    $(document).ready(function () {
+
+        InformationStatus(true);
+
+        $('input[name=empStatus]').click(function () {
+            $('.selectpicker').selectpicker('deselectAll');
+            let status_text = $('input[name=empStatus]:checked').val();
+
+            if (status_text == "Active") {
+                InformationStatus(true);
+            }
+            else if (status_text == "InActive") {
+                InformationStatus(false);
+            }
+            else {
+                $('.selectpicker').selectpicker('selectAll');
+                //$('.selectpicker').selectpicker('val', statusArray);
+                //$('.selectpicker').selectpicker('val', 'Probationary');
+                //$('#typeFilterColumn').val(['1', '2', '3', '4', '9']);
+                //$("#typeFilterColumn option:contains('Probationary')").val();
+                //$("#typeFilterColumn option:contains('Probationary')").attr('selected', true);
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+
+         $("#DepartmentId").change(function () {
+             var deptId = $("#DepartmentId").val();
+             var ddlSection = $("#Section");
+             if (deptId != "") {
+                 $.ajax({
+                     type: 'GET',
+                     contentType: "application/json; charset=utf-8",
+                     url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                     data: { deptId: deptId },
+                     dataType: 'json',
+                     async: true,
+                     success: function (data) {
+                         if (data.length > 0) {
+                             ddlSection.html("");
+                             $.each(data, function (id, option) {
+                                 ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                             });
+                         } else {
+                             ddlSection.html("<option value=''>Please Select</option>");
+                         }
+                     },
+                 });
+             } else {
+
+                 ddlSection.html("<option value='0'>Please Select</option>");
+             }
+         });
+
+                    $("#filterColumn").change(function () {
+                    $("#filterValue").val('');
+                        if ($(this).val() != "ViewAll") {
+                            if ($(this).val() == "Joining") {
+                                $("#filterValue").datepicker(
+                                    {
+                                        dateFormat: "dd-M-yy",
+                                        showAnim: "scale",
+                                    });
+                            }
+                            else if ($(this).val() == "Posting") {
+                                $("#filterValue").datepicker(
+                                    {
+                                        dateFormat: "dd-M-yy",
+                                        showAnim: "scale",
+                                    });
+                            }
+                            else if ($(this).val() == "Promotion") {
+                                $("#filterValue").datepicker(
+                                    {
+                                        dateFormat: "dd-M-yy",
+                                        showAnim: "scale",
+                                    });
+                            }
+                            else {
+                                $("#filterValue").datepicker("destroy");
+
+                            }
+                        }
+
+                    });
+         $("#DegreeLevel").change(function () {
+             GetDegreesByDegreeLevel();
+         });
+
+         $("#DegreeTitle").change(function () {
+             GetSubjectsByDegree();
+         });
+
+        var system = '@SessionHelper.CompanyName';
+        console.log(system);
+        if (system != 'Mousumi') {
+            var selectElement = document.getElementById("ReportTypeOther");
+            var options = selectElement.options;
+            for (var i = 0; i < options.length; i++) {
+                if (options[i].value === "DropoutByReasonForMousumi") {
+                    selectElement.remove(i);
+                    break;
+                }
+            }
+        }
+
+
+
+     });// END Document Ready
+
+
+    function InformationStatus(stsvalue) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("InformationStatus", "Employee", "http")',
+            data: { stsvalue: stsvalue },
+            dataType: 'json',
+            async: true,
+            success: function (response) {
+                $.each(response.Data, function (index, status) {
+                    if (status.Value) {
+                        $("#typeFilterColumn option").filter(function () {
+                            return $(this).text() == status.Text;
+                        }).prop("selected", true);
+                    }
+                });
+
+                $('.selectpicker').selectpicker('refresh');
+
+            },
+        });
+    }
+
+    function GetDegreesByDegreeLevel() {
+
+        var degreeLevelId = $("#DegreeLevel").val();
+        var ddlDegreeTitle = $("#DegreeTitle");
+
+        if (degreeLevelId != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetDegreesByDegreeLevel", "EducationSubjects", "http")',
+                data: { degreeLevelId: degreeLevelId },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        ddlDegreeTitle.html("");
+                        ddlDegreeTitle.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            ddlDegreeTitle.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        ddlDegreeTitle.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            ddlDegreeTitle.html('<option value="">Please Select</option>');
+        }
+    };
+
+    function GetSubjectsByDegree() {
+
+        var degreeCode = $("#DegreeTitle").val();
+        var ddlConcentration = $("#Concentration");
+
+        if (degreeCode != "") {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetSubjectsByDegree", "EducationSubjects", "http")',
+                data: { degreeCode: degreeCode },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        ddlConcentration.html("");
+                        ddlConcentration.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            ddlConcentration.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        ddlConcentration.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            ddlConcentration.html('<option value="">Please Select</option>');
+        }
+    }
+
+
+
+
+
+</script>
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/employee/employeeReportManager.js?v=@(gHRM.Core.Utilities.CommonHelper.DEV_VERSION()+DateTime.Now.ToString())"></script>
+
+}

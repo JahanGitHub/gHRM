@@ -1,0 +1,190 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRSalaryStatement">PRSalaryStatement</a></li>
+        <li><a href="/PRSalaryStatement/OfficeWiseApprovedSalary">OfficeWiseApprovedSalary</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Office Wise Approved Salary";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    pvOfficeNevigation.OfficeTypeId = Convert.ToInt32(Model.OfficeTypeId);
+    if (Convert.ToInt32(Model.OfficeTypeId) == 1)
+    {
+        pvOfficeNevigation.PVHeadOfficeId = Model.HeadOfficeId.ToString();
+        
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 3)
+    {
+        pvOfficeNevigation.PVProjectId = Model.ProjectId.ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 4)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 5)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+        pvOfficeNevigation.AreaId = (Model.AreaId).ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 6)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+        pvOfficeNevigation.AreaId = (Model.AreaId).ToString();
+        pvOfficeNevigation.UnitId = Model.UnitId.ToString();
+    }
+}
+
+
+<script type="text/javascript">
+
+    function PrintSalaryReportAfterApproval(year, month) {
+        url = '/PRSalaryStatement/PrintSalaryReportAfterApproval?Year=' + year + '&Month=' + month;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintSalaryBankSummaryReportAfterApproval(year, month, bankName) {
+        url = '/PRSalaryStatement/PrintSalaryBankSummaryReportAfterApproval?Year=' + year + '&Month=' + month + '&BankName=' + bankName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function clear() {
+        //$("#WorkAreaName").val('');
+        //$("#PRWorkAreaID").val('');
+    }
+
+
+    $(document).ready(function () {
+        $("#OfficeTypeId").attr('Disabled', true);
+        $("#PVHeadOfficeId").attr('Disabled', true);
+        $("#PVProjectId").attr('Disabled', true);
+        $("#ZoneId").attr('Disabled', true);
+        $("#AreaId").attr('Disabled', true);
+        $("#UnitId").attr('Disabled', true);
+        
+        $("#Process1Date").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2100"
+          });
+
+        $("#Process1Date").datepicker('setDate', new Date());
+
+        $("#btnApprovedSalaryPrint").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+
+            if (year != "" && year != '0' && month != "" && month != '0') {
+                PrintSalaryReportAfterApproval(year, month);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnBankSummary").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName!="") {
+                PrintSalaryBankSummaryReportAfterApproval(year, month, bankName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+    });// End Document Rready
+</script>
+
+<h2 class="page-title">Office Wise Approved Salary</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+        <div class="container-fluid">
+            
+            <div class="row">
+                <div id="MonthlySalaryProcess">
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4"> Year</label>
+                                <div class="col-md-8">
+                                    @*<input type="number" id="SalaryYear" value="1987" class="form-control" />*@
+                                    @Html.DropDownList("Years", null, new { @ID = "Year1", @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4"> Month</label>
+                                <div class="col-md-8">
+                                    @*<input type="number" id="SalaryMonth" value="1" class="form-control" />*@
+                                    @Html.DropDownList("Months", null, new { @ID = "Month1", @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="Process1Date" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Bank Name</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.BankCode, Model.BankList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*</div>*@
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-group form-action" style="padding-top:10px;margin:5px;">
+                                &nbsp;&nbsp;&nbsp;
+                                <input type="button" value="Print" id="btnApprovedSalaryPrint" class="btn btn-success" />
+                                @*&nbsp;&nbsp;&nbsp;
+                                <input type="button" value="Salary At Bank" id="btnBankSummary" class="btn btn-success" />*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+            </div> <!-- End of Monthly Salary Process -->
+        </div>
+
+    </div> <!--Main Container Fluid-->
+
+
+    <!--Form Horizontal-->
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

@@ -1,0 +1,180 @@
+﻿@model gHRM.Web.ViewModels.OfficeNevigationPartialViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Reports";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#FromDate,#ToDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            yearRange: "@DateTime.Now.AddYears(-40).Year:@DateTime.Today.Year",
+            changeYear: true
+        });
+        $("#ReportName").change(function () {
+            ($(this).val() == "topsheet" | $(this).val() == "balance" | $(this).val() == "mon_ins" ? $("#dvOffice,#dvDate").show() : $("#dvOffice,#dvDate").hide());
+            ($(this).val() == "ledger2" ? $("#dvEmp,#dvLoan").show() : $("#dvEmp,#dvLoan").hide());
+            if ($(this).val() == "mon_ins") {
+                $("#dvTo").hide();
+                $("#lblFrom").text("Upto");
+
+            }
+            else {
+                $("#dvTo").show()
+                $("#lblFrom").text("From");
+            }
+        });
+        $("#EmployeeCode").blur(function () {
+            var obj = GenerateAjaxRequist('/Employee/GetEmployeeByEmployeeCode', { employeeCode: $(this).val() }, "GET");
+            $("#LoanNo").html('')
+            if (obj.EmployeeId) {
+                $("#EmployeeId").val(obj.EmployeeId);
+                $("#EmployeeCode").val(obj.EmployeeCode);
+                $("#EmployeeName").val(obj.EmployeeName);
+
+                var ddlObj = GenerateAjaxRequist('/Loan/GetLoanNoByEmployeeForDropdown4', { employeeId: obj.EmployeeId }, "GET");
+                var htm = "";
+                $.each(ddlObj, function (key, val) {
+                    htm += `<option value="${val.Value}">${val.Text}</option>`
+                });
+                $("#LoanNo").html(htm);
+            }
+        });
+        $("#btnReport").click(function (e) {
+            e.preventDefault();
+            if (!$("#ReportName").val()) $.alert.open("Warning", "Report Type is required.");
+            else {
+                var url = fn_Url();
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+        });
+    });
+    function fn_Url() {
+        var officeId = 0,url="";
+        var reportname = $("#ReportName").val();
+        if (reportname == "balance" | reportname == "coll" | reportname == "mon_ins") {
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId != "") {
+                if (officeTypeId == 1)
+                    officeId = $("#PVHeadOfficeId").val();
+                else if (officeTypeId == 3)
+                    officeId = $("#PVProjectId").val();
+                else if (officeTypeId == 4)
+                    officeId = $("#ZoneId").val();
+                else if (officeTypeId == 5)
+                    officeId = $("#AreaId").val();
+                else if (officeTypeId == 6)
+                    officeId = $("#UnitId").val();
+            }
+            url = `?officeid=${officeId}`;
+            if (reportname == "balance" | reportname == "coll") {
+                if (!$("#FromDate").val() || !$("#ToDate").val()) { $.alert.open("Warning", "Both date is required."); return true };
+                url += `&fromDate=${$("#FromDate").val()}&toDate=${$("#ToDate").val()}`;
+            }
+            else if (reportname == "mon_ins") {
+                if (!$("#FromDate").val()) { $.alert.open("Warning", "date is required."); return true };
+                url += `&uptoDate=${$("#FromDate").val()}`;
+            }
+
+        } else if (reportname == "ledger2") {
+            url = `?loanid=${$("#LoanNo").val()}`;
+        }
+        url = `/LoanReport/CommonReports2${url}`;
+
+
+        return url + `&reportName=${reportname}`;
+    }
+</script>
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="">Reports</a></li>
+    </ol>
+</div>
+@using (Html.BeginForm("LoanEligibility", "LoanConfig", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "LoanEligibility" }))
+{
+    <div class="">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4" for="ReportName">Report Name</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" id="ReportName">
+                            <option value="">Please Select</option>
+                            @*<option value="topsheet">Top Sheet</option>*@
+                            <option value="ledger2">Ledger</option>
+                            @*<option value="coll">Collection Detail</option>*@
+                            @*<option value="mon_ins">Monthly Installment</option>*@
+                            <option value="balance">Balance Sheet</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="dvOffice" style="display:none;">
+            @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", Model)
+        </div>
+        <div class="row" id="dvDate" style="display:none;">
+            <div class="col-md-6">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="FromDate" id="lblFrom">From</label>
+                        <div class="col-sm-8">
+                            <input type="text" autocomplete="off" id="FromDate" name="FromDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="dvTo">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4" for="ToDate">To</label>
+                        <div class="col-sm-8">
+                            <input type="text" autocomplete="off" id="ToDate" name="ToDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" id="dvEmp" style="display:none;">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4" for="EmployeeCode">Employee Code</label>
+                    <div class="col-sm-8">
+                        <input type="text" autocomplete="off" id="EmployeeCode" name="EmployeeCode" class="form-control" />
+                        <input type="hidden" id="EmployeeId" name="EmployeeId" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4" for="EmployeeName">Employee Name</label>
+                    <div class="col-sm-8">
+                        <input type="text" autocomplete="off" id="EmployeeName" name="EmployeeName" readonly="readonly" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="dvLoan" style="display:none;">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4" for="LoanNo">Loan Name</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" id="LoanNo"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-5">
+                <button type="button" id="btnReport" class="btn btn-success">Report</button>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

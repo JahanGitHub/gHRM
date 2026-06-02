@@ -1,0 +1,299 @@
+﻿.border-1 {
+    border-width: 1px !important;
+}
+
+.border {
+    border: 1px solid #dee2e6 !important;
+}
+
+.digital-id-card {
+    margin-left: -7px !important;
+}
+
+.img-id-card-qr {
+    width: 80px !important;
+    height: 80px;
+}
+
+.img-id-card-profile {
+    width: 130px !important;
+    height: 148px;
+    margin-top: 2px;
+}
+
+.img-id-card-org-logo {
+    padding-top: 6px;
+    width: 68px !important;
+    height: 60px;
+}
+
+.img-id-card-org-logo-ptb {
+    padding-top: 14px !important;
+    padding-bottom: 15px;
+}
+
+.id-card-back-part p {
+    margin: 0px 0px 0px 0px;
+    font-size: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.id-card-back-part .contact-info {
+    font-size: 9px;
+    font-weight: bold;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.id-card-back-part p-pf {
+    padding-left: 15px;
+}
+
+.id-card-back-part .program-name {
+    padding-left: 20px;
+}
+
+.id-card-back-part .blood-group {
+    padding-left: 20px;
+}
+
+.id-card-back-part .issue-date {
+    padding-left: 20px;
+}
+
+.id-card-front-part h5 {
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+}
+
+.id-card-front-part p.slogan {
+    font-size: 10px !important;
+    margin-bottom: 1px;
+}
+
+.id-card-front-part p.emp-name {
+    font-size: 14px;
+    margin-bottom: 2px;
+    margin-top: 3px;
+}
+
+.id-card-front-part p.emp-pin {
+    font-size: 12px;
+    margin-bottom: 2px;
+    margin-top: -5px;
+}
+
+.id-card-front-part p.emp-dsgnation {
+    font-size: 12px;
+    margin-bottom: 2px;
+    margin-top: -4px;
+}
+
+.card .col-md-6 {
+    padding-right: 0px;
+    padding-left: 0px;
+    height: 321px !important;
+    width: 207px !important;
+    background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%);
+}
+
+.signature {
+    position: relative;
+    left: 0;
+    top: 35px;
+}
+
+    .signature img {
+        width: 70px;
+        height: 25px;
+        position: absolute;
+        top: -17px;
+        left: 117px;
+    }
+
+    .signature .authorized-sign {
+        position: absolute;
+        top: 8px;
+        left: 115px;
+        font-weight: bold;
+    }
+
+.trapezoid-card-bottom {
+    border-bottom: 17px solid #5797db;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0;
+    width: 127px;
+    margin-left: 38px;
+    margin-top: 6px;
+}
+
+.trapezoid-card-top {
+    border-top: 17px solid #5797db;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0;
+    width: 127px !important;
+    margin-left: 38px !important;
+}
+
+.digital-id-card .col-md-5 {
+    width: 420px !important;
+    position: relative;
+    min-height: 1px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+
+
+@media print {
+    body {
+        -webkit-print-color-adjust: exact;
+    }
+
+    .border-1 {
+        border-width: 1px !important;
+    }
+
+    .border {
+        border: 1px solid #dee2e6 !important;
+    }
+
+    .img-id-card-qr {
+        width: 80px !important;
+        height: 80px;
+    }
+
+    .img-id-card-profile {
+        width: 130px !important;
+        height: 148px;
+        margin-top: 2px;
+    }
+
+    .img-id-card-org-logo {
+        padding-top: 6px;
+        width: 68px !important;
+        height: 60px;
+    }
+
+    .img-id-card-org-logo-ptb {
+        padding-top: 14px !important;
+        padding-bottom: 15px;
+    }
+
+    .id-card-back-part p {
+        margin: 0px 0px 0px 0px;
+        font-size: 10px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .id-card-back-part .contact-info {
+        font-size: 9px;
+        font-weight: bold;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .id-card-back-part p-pf {
+        padding-left: 15px;
+    }
+
+    .id-card-back-part .program-name {
+        padding-left: 20px;
+    }
+
+    .id-card-back-part .blood-group {
+        padding-left: 20px;
+    }
+
+    .id-card-back-part .issue-date {
+        padding-left: 20px;
+    }
+
+    .id-card-front-part h5 {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .id-card-front-part p.slogan {
+        font-size: 10px !important;
+        margin-bottom: 1px;
+    }
+
+    .id-card-front-part p.emp-name {
+        font-size: 14px;
+        margin-bottom: 2px;
+        margin-top: 3px;
+    }
+
+    .id-card-front-part p.emp-pin {
+        font-size: 12px;
+        margin-bottom: 2px;
+        margin-top: -5px;
+    }
+
+    .id-card-front-part p.emp-dsgnation {
+        font-size: 12px;
+        margin-bottom: 2px;
+        margin-top: -4px;
+    }
+
+    .card .col-md-6 {
+        padding-right: 0px;
+        padding-left: 0px;
+        height: 321px !important;
+        width: 207px !important;
+        background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%);
+    }
+
+    .signature {
+        position: relative;
+        left: 0;
+        top: 35px;
+    }
+
+        .signature img {
+            width: 70px;
+            height: 25px;
+            position: absolute;
+            top: -17px;
+            left: 117px;
+        }
+
+        .signature .authorized-sign {
+            position: absolute;
+            top: 8px;
+            left: 115px;
+            font-weight: bold;
+        }
+
+    .trapezoid-card-bottom {
+        border-bottom: 17px solid #5797db;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        height: 0;
+        width: 127px;
+        margin-left: 38px;
+        margin-top: 6px;
+    }
+
+    .trapezoid-card-top {
+        border-top: 17px solid #5797db;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        height: 0;
+        width: 127px !important;
+        margin-left: 38px !important;
+    }
+
+    .digital-id-card .col-md-5 {
+        width: 420px !important;
+        position: relative;
+        min-height: 1px;
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+}

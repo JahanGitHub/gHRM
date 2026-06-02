@@ -1,0 +1,62 @@
+﻿
+@{
+    ViewBag.Title = "Edit Cost Centers (SL)";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h3>Edit Cost Centers (SL)</h3>
+<table id="editGrid" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Cost Center Name</th>
+            <th>SL</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        loadEditGrid();
+    });
+
+    function loadEditGrid() {
+    $.get('@Url.Action("GetSavedCostCentersSL", "CostCenter")', function (res) {
+        console.log(res);  // 🔍 Debug JSON response
+        var rows = '';
+        $.each(res.data, function (i, item) {
+            rows += `<tr>
+                        <td><input type="text" value="${item.CostCenterName}" id="cc_${item.Id}" class="form-control" /></td>
+                        <td><input type="text" value="${item.SL}" id="sl_${item.Id}" class="form-control" /></td>
+                        <td><button class="btn btn-sm btn-success" onclick="updateRow(${item.Id})">Update</button></td>
+                     </tr>`;
+        });
+        $("#editGrid tbody").html(rows);
+    });
+}
+
+
+    function updateRow(id) {
+    var cc = $("#cc_" + id).val();
+    var sl = $("#sl_" + id).val();
+
+    $.post('@Url.Action("UpdateCostCenterSL", "CostCenter")',
+        { Id: id, CostCenterName: cc, SL: sl },
+        function (res) {
+            if (res.result == 1) {
+                alert("Updated successfully!");
+                loadEditGrid();
+            } else {
+                alert(res.Message);
+            }
+        });
+}
+
+
+    function htmlEncode(value) {
+        return $('<div/>').text(value ?? '').html();
+    }
+</script>
+
+

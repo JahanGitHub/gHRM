@@ -1,0 +1,91 @@
+﻿@model gHRM.Web.ViewModels.PF.PFWithdrawanViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@Html.ActionLink("Back to List", "ContributionCollectionList", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">
+    Edit Contribution Collection
+    @*&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>*@
+</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Under Construction</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+
+        @*<div class="form-group">
+            @Html.LabelFor(model => model.WithdrawanId, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.WithdrawanId)
+                @Html.ValidationMessageFor(model => model.WithdrawanId)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeId, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.EmployeeId)
+                @Html.ValidationMessageFor(model => model.EmployeeId)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SelfContribution, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.SelfContribution)
+                @Html.ValidationMessageFor(model => model.SelfContribution)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.OrgContribution, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.OrgContribution)
+                @Html.ValidationMessageFor(model => model.OrgContribution)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.InterestAmount, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.InterestAmount)
+                @Html.ValidationMessageFor(model => model.InterestAmount)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.WithdrawnDate, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.WithdrawnDate)
+                @Html.ValidationMessageFor(model => model.WithdrawnDate)
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>*@
+
+    </div>
+}
+
+@*<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>*@
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

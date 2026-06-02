@@ -1,0 +1,191 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanTypeViewModel
+          
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    function SaveLoanType(loanTypeId, loanTypeName, intersetRate, interestRateTypeId, loanPercentage) {
+       
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveLoanType", "PFLoanType", "http")',
+            data: { loanTypeId: loanTypeId, loanTypeName: loanTypeName, intersetRate: intersetRate, interestRateTypeId: interestRateTypeId, loanPercentage: loanPercentage },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                clear();
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+                
+            }
+        });
+    }
+
+    function clear() {
+        $("#LoanTypeId").val('');
+        $("#LoanTypeName").val('');
+        $("#InterestRate").val('');
+        $("#LoanPercentage").val('');
+        $("#InterestRateTypeList").val('');
+    }
+    
+
+    function Add() {
+        var loanTypeId = $("#LoanTypeId").val();
+        var loanTypeName = $("#LoanTypeName").val();
+        var intersetRate = $('#InterestRate').val();
+        var loanPercentage = $('#LoanPercentage').val();
+        var interestRateTypeId = $('#InterestRateTypeList option:selected').val();
+        
+
+        if (loanTypeId == '') {
+            $.alert.open("Please enter loan type Id");
+            return;
+        }         
+        if (loanTypeName == '') {
+            $.alert.open("Please enter loan type");
+            return;
+        }         
+        if (intersetRate == '') {
+            $.alert.open("Please enter interest rate");
+            return;
+        }
+        if (interestRateTypeId == '') {
+            $.alert.open("Please select Interest rate type");
+            return;
+        }
+        
+
+        SaveLoanType(loanTypeId, loanTypeName, intersetRate, interestRateTypeId, loanPercentage);       
+        
+    }
+
+    $(document).ready(function () {
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#LoanTypeId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $('#InterestRate').keypress(function (event) {
+            return isNumber(event, this)
+        });
+        $('#LoanPercentage').keypress(function (event) {
+            return isNumber(event, this)
+        });
+        
+        $("#btnReset").click(function () { // Reset form
+            clear();
+        });
+
+        $("#btnSaveLoanType").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to add?', function (button) {
+                if (button == 'yes') {
+                    Add();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Create Loan Type</h2>
+&nbsp;
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+
+
+        @Html.ValidationSummary(true)
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanTypeId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanTypeId, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Enter Loan Type Id" } })
+                </div>
+                @Html.LabelFor(model => model.LoanTypeName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanTypeName, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Enter  Loan Type" } })
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InterestRate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InterestRate, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Enter  Interest Rate" } })
+                </div>
+                @Html.LabelFor(model => model.LoanPercentage, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanPercentage, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Enter  Loan Percentage" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InterestRateTypeList, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.InterestRateTypeList, Model.InterestRateTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <hr />
+           
+            <div class="row">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10">
+                    <div class="form-group" style="padding-left:5px;">
+                        <input type="button" value="Save" id="btnSaveLoanType" class="btn btn-success" />
+                        &nbsp;
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="grid2" style="width:80%;">
+                </div>
+            </div>
+        </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

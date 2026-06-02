@@ -1,0 +1,125 @@
+﻿@{
+    ViewBag.Title = "Co-Operative Ledger Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/CooperativeConfiguration/CooperativeReport">Co-Operative Report</a></li>
+    </ol>
+</div>
+<br />
+<div class="form-horizontal">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Report</label>
+                    <div class="col-md-8">
+                        <select id="report" class="form-control">
+                            <option value="conInfo">Employee configuration Info</option>
+                            <option value="empDetails">Employee Deatils configuration Info</option>
+                            <option value="ledger">Daily Ledger</option>
+                            <option value="empledger">Employee wise Ledger</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="dvEmp" style="display:none;">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4" for="Employee_Code">Employee Code</label>
+                    <div class="col-md-8">
+                        <input class="form-control" id="EmployeeCode" name="EmployeeCode" type="text" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="dvDate" style="display:none;">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("From Date", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("FromDate", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.Label("To Date", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("ToDate", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <div class="col-sm-6"></div>
+                    <div class="col-sm-6">
+                        <input type="button" id="btnView" value="View" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+        $("#report").change(function () {
+            $(this).val() == "empDetails" || $(this).val() == "empledger" ? $("#dvEmp").show() : $("#dvEmp").hide()
+            $(this).val() == "empDetails" || $(this).val() == "conInfo" ? $("#dvDate").hide() : $("#dvDate").show()
+            $("#EmployeeCode").val("");
+        });
+
+
+        $('#btnView').click(function () {
+
+            var fromDate = $("#FromDate").val();
+            var toDate = $("#ToDate").val();
+            var employeeCode = $("#EmployeeCode").val();
+            var report = $("#report").val();
+            var status = ((report == "empDetails" && employeeCode) ? true
+                : (report == "empledger" /*&& employeeCode*/ && fromDate && toDate) ? true
+                    : (report == "ledger" && fromDate && toDate) ? true
+                        : report == "conInfo" ? true : false);
+            if (status) {
+                var url = `/CooperativeConfiguration/CooperativeReportView?FromDate=${fromDate}&ToDate=${toDate}&EmployeeCode=${employeeCode}&report=${$("#report").val()}&reportFormat=pdf`;
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+            else
+                $.alert.open("warning", "Fill the all required field.");
+        });
+
+
+
+
+        $("#FromDate,#ToDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+        });
+    });
+
+
+
+
+</script>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

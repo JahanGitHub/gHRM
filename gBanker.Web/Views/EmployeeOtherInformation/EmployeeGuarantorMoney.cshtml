@@ -1,0 +1,701 @@
+﻿@model gHRM.Web.ViewModels.EmployeeGuarantorMoneyViewModel
+
+@{
+    ViewBag.Title = "Guarantor Money";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+
+    function ClearGrantorMoney() {
+          $("#TransactionType").val('');
+          $("#TransactionDate").val('');
+          $("#TransactionAmount").val('');
+          $("#PaymentType").val('');
+
+          $("#BankName").val('');
+          $("#AccountNo").val('');
+          $("#CheckNo").val('');
+    }
+
+
+    function reloadGrantorMoneyGrid() {
+        var empMasterId = $("#EmployeeId").val();
+        $("#hdnEmpEducationSave").val('S');
+        var dtTable = $('#tblEducation');
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetGrantorMoneyList", "Employee", "http")',
+            data: { empMasterId: empMasterId },
+            dataType: 'json',
+            async: true,
+            success: function (List_GrantorMoneyViewModel) {
+                var tableBody = dtTable.find('tbody');
+                tableBody.empty();
+                $.each(List_GrantorMoneyViewModel, function (index, emp) {
+                    var sl = index + 1;
+                    tableBody.append('<tr>' +
+                        '<td>' + emp.SNO + '</td>' +
+                        '<td>' + emp.EmployeeCode + ' <input type="text" value="' + emp.TransactionType + '" style="display:none;" name="TransactionType" id="TransactionType' + sl + '" /></td>' +
+                        '<td>' + emp.EmployeeName + ' <input type="text" value="' + emp.TransactionDate + '" style="display:none;" name="TransactionDate" id="TransactionDate' + sl + '" /></td>' +
+                        '<td>' + emp.TransactionType + ' <input type="text" value="' + emp.TransactionAmount + '" style="display:none;" name="TransactionAmount" id="TransactionAmount' + sl + '" /></td>' +
+                        '<td>' + emp.TransactionDate + ' <input type="text" value="' + emp.BankName + '" style="display:none;" name="BankName" id="BankName' + sl + '" /></td>' +
+                        '<td>' + emp.TransactionAmount + '</td>' +
+                        '<td>' + emp.PaymentType + '<input type="text" value="' + emp.AccountNo + '" style="display:none;" name="AccountNo" id="AccountNo' + sl + '" /></td>' +
+                        '<td>' + emp.CheckNo + '<input type="text" value="' + emp.PaymentType + '" style="display:none;" name="PaymentType" id="PaymentType' + sl + '" /></td>' +
+                         '<td><a href="#" OnClick="LoadEdit(' + sl + ');"><i class="fa fa-pencil-square-o"></i></a></td>' +
+                        '<td><a href="#" OnClick="Delete(' + sl + ')"><i class="fa fa-trash-o"></i></a>' +
+                        '<input type="text" value="' + emp.CheckNo + '" style="display:none;" name="CheckNo" id="CheckNo' + sl + '" />' +
+                        '<input type="text" value="' + emp.ID + '" style="display:none;" name="ID" id="ID' + sl + '" />' +
+                        '<input type="text" value="' + emp.Division + '" style="display:none;" name="Division" id="txtDivision' + sl + '" />' +
+                        '<input type="text" value="' + emp.CGPAScale + '" style="display:none;" name="CGPAScale" id="txtCGPAScale' + sl + '" />' +
+                        '<input type="text" value="' + emp.DegreeLevelId + '" style="display:none;" name="DegreeLevelId" id="txtDegreeLevelId' + sl + '" />' +
+                        '<input type="text" value="' + emp.DegreeLevel + '" style="display:none;" name="DegreeLevel" id="txtDegreeLevel' + sl + '" />' +
+                        '<input type="text" value="' + emp.Concentration + '" style="display:none;" name="txtConcentration" id="txtConcentration' + sl + '" />' +
+                        '</tr>');
+                });
+
+            },
+            error: function (request, status, error) {
+                $("#loading").hide();
+                $("#dvMessage").attr('class', 'failed');
+                $("#dvMessage").html(request.statusText);
+                $("#dvMessage").show();
+            }
+        });
+    }
+
+
+    function Delete(rowSl) {
+        $.alert.open('confirm', 'Are you sure, you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                var empEduId = $("#ID" + rowSl).val();
+              //  alert(empEduId);
+                var empMasterId = $("#EmployeeId").val();
+            //    alert(empMasterId);
+
+
+
+                if (empEduId == '') {
+                    empEduId = 0;
+                }
+
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteGrantorMoney", "Employee", "http")',
+                    data: { empEduId: empEduId, empMasterId: empMasterId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (empEduId) {
+                        if (empEduId > 0) {
+                            reloadGrantorMoneyGrid();
+                            $("#hdnEmpEducationSave").val('S');
+                            $.alert.open("Success", "Deleted Successfully");
+
+                            var employee_code = $("#EmployeeCode").val();
+                            LoadEmpInfoByCode(employee_code);
+
+                        } else {
+                            // not save
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+
+        });
+    }
+
+
+    function LoadEdit(rowSl) {
+
+        var TransactionType = $("#TransactionType" + rowSl).val();
+        $("#TransactionType").val(TransactionType);
+
+        var TransactionDate = $("#TransactionDate" + rowSl).val();
+        $("#TransactionDate").val(TransactionDate);
+
+        var TransactionAmount = $("#TransactionAmount" + rowSl).val();
+        $("#TransactionAmount").val(TransactionAmount);
+
+        var PaymentType = $("#PaymentType" + rowSl).val();
+        $("#PaymentType").val(PaymentType);
+
+
+        var BankName = $("#BankName" + rowSl).val();
+        $("#BankName").val(BankName);
+
+
+        var AccountNo = $("#AccountNo" + rowSl).val();
+        $("#AccountNo").val(AccountNo);
+
+
+        var CheckNo = $("#CheckNo" + rowSl).val();
+        $("#CheckNo").val(CheckNo);
+
+        var empEduId = $("#ID" + rowSl).val();
+        $("#hdnEmpEducationEditId").val(empEduId);
+        $("#hdnEmpEducationSave").val('U');
+
+
+
+        if (PaymentType == "Bank") {
+            $('.CheckNoContainer').show();
+            $('.AccountNoContainer').show();
+            $('.BankNameContainer').show();
+        }
+        else {
+            $('.CheckNoContainer').hide();
+            $('.AccountNoContainer').hide();
+            $('.BankNameContainer').hide();
+        }
+
+
+
+    }
+
+
+
+    function SaveGuarantorInfo() {
+
+        $.alert.open('confirm', 'Are you sure, you want to save this transaction?', function (button) {
+            if (button == 'yes') {
+
+                try {
+                    // e.preventDefault();
+                    var flag = 0;
+                    var TransactionType = $("#TransactionType option:selected").val();
+                    var TransactionDate = $("#TransactionDate").val();
+                    var TransactionAmount = $("#TransactionAmount").val();
+                    var PaymentType = $("#PaymentType").val();
+                    var BankName = $("#BankName").val();
+                    var AccountNo = $("#AccountNo").val();
+                    var CheckNo = $("#CheckNo").val();
+                    var EmployeeId = $("#EmployeeId").val();
+                    var mode = $("#hdnEmpEducationSave").val();
+                    var eduEditId = $("#hdnEmpEducationEditId").val();
+
+
+                    if (EmployeeId == "") {
+                        $.alert.open("error", "Please type employee code first  !");
+                        return false;
+                    }
+
+
+
+                    if (TransactionType == "") {
+                        $.alert.open("error", "Please select transaction type !");
+                        return false;
+                    }
+
+
+                    if (TransactionDate == "") {
+                        $.alert.open("error", "Please select transaction date   !");
+                        return false;
+                    }
+
+                    if (TransactionAmount == "" || TransactionAmount == "0.00") {
+                        $.alert.open("error", "Transaction amount can not be empty and Transaction amount should be greater than 0   !");
+                        return false;
+                    }
+
+
+                    if (PaymentType == "") {
+                        $.alert.open("error", "Please select payment type   !");
+                        return false;
+                    }
+
+
+
+                    if (PaymentType == "Bank") {
+
+
+                        if (BankName == "") {
+                            $.alert.open("error", "BankName  Needed!");
+                            return false;
+                        }
+
+
+                        if (AccountNo == "") {
+                            $.alert.open("error", "Account No Needed!");
+                            return false;
+                        }
+
+                        if (CheckNo == "") {
+                            $.alert.open("error", "CheckNo No Needed!");
+                            return false;
+                        }
+
+
+
+                    }
+
+
+
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("SaveGuarantorMoney", "Employee", "http")',
+                        data: { TransactionType: TransactionType, TransactionDate: TransactionDate, TransactionAmount: TransactionAmount, PaymentType: PaymentType, BankName: BankName, AccountNo: AccountNo, CheckNo: CheckNo, EmployeeId: EmployeeId, mode: mode, eduEditId: eduEditId },
+                        dataType: 'json',
+                        async: true,
+                        success: function (Grantor_Id) {
+                            if (Grantor_Id == 0) {
+                                //$(".panel-body .create-success").show(800).fadeToggle(3000);
+                                $.alert.open("Success", "Saved Successfully");
+                                var employee_code = $("#EmployeeCode").val();
+                                LoadEmpInfoByCode(employee_code);
+                                reloadGrantorMoneyGrid();
+                                $("#hdnEmpEducationSave").val('S');
+                                ClearGrantorMoney();
+                            } else {
+                                // not save
+
+                                $.alert.open("error", "Current Transaction Amount is Greater than Guarantee Money !");
+                                var employee_code = $("#EmployeeCode").val();
+                                LoadEmpInfoByCode(employee_code);
+                                reloadGrantorMoneyGrid();
+                                $("#hdnEmpEducationSave").val('S');
+                                ClearGrantorMoney();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(error);
+                        }
+                    });
+                }
+                catch (ex) {
+                    alert(ex.message);
+                }
+            }
+
+            });
+
+       }
+
+
+
+     function LoadEmpInfoByCode(employee_code) {
+      //  $("#EmployeeCode").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetDepositMoney", "EmployeeProfileReport", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                debugger;
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        $("#deposit").val(data.deposit);
+                        $("#balance").val(data.balance);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+
+                        if (data.deposit == 0) {
+                            alert("Please add guarantor money in profile!");
+                            $('#deposit').css('background-color', '#F00;')
+                        }
+                        else {
+                            $('#deposit').css('background-color', '#FFF;')
+                        }
+                    });
+                    //LoadPreviousDataList($("#EmployeeId").val());
+
+                   
+
+                    reloadGrantorMoneyGrid();
+                }
+
+                else {
+                    $("#OrderNo").val("");
+                    $("#EmployeeName").val("");
+                    $("#CurrentOfficeType").val("");
+                    $("#EmployeeCurrentOfficeName").val("");
+                    $("#EmployeeCurrenOfficeId").val("");
+                    $("#EmployeeCurrentDepartmentName").val("");
+                    $("#EmployeeCurrentDesignation").val("");
+
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+
+
+
+
+    var Page = {
+        ControlList: ["DateContainer", "BasicOfficeTypeContainer", "DesignationContainer", "TotalServiceYearContainer", "ServiceYearFromLastPromotionContainer"],
+        ReportControlConfig: {
+            EFPOD: ["DateContainer", "BasicOfficeTypeContainer", "DesignationContainer", "TotalServiceYearContainer", "ServiceYearFromLastPromotionContainer"]
+        },
+        ReportControlConfigMousumiCode: {
+            EPRCode: ["EmployeeCodeContainer"]
+        },
+
+        ReportControlConfigMousumiDate: {
+            EPRDate: ["CheckNoContainer", "AccountNoContainer","BankNameContainer"]
+        },
+
+        IsNumber: function (Value) {
+            return ![null, ""].includes(Value) && !isNaN(Value);
+        },
+        Load: function () {
+            this.BindEvents();
+        },
+        BindEvents: function () {
+            $("#TransactionDate").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true
+                });
+          //  $("#DateFrom").datepicker('setDate', new Date());
+
+
+            $("#DateTo").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true
+                });
+        //    $("#DateTo").datepicker('setDate', new Date());
+
+
+
+            $("#PaymentType").change(function () {
+                var PaymentType = $(this).val();
+                //alert(PaymentType);
+
+
+                if (PaymentType == "Bank") {
+                    $('.CheckNoContainer').show();
+                    $('.AccountNoContainer').show();
+                    $('.BankNameContainer').show();
+                }
+                else {
+                    $('.CheckNoContainer').hide();
+                    $('.AccountNoContainer').hide();
+                    $('.BankNameContainer').hide();
+                }
+
+            });
+        },
+        PrintReport: function (DownloadExcel) {
+
+            var EmployeeCode = $("#OrderNo").val();
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+
+          //  alert(ReportType);
+
+           // alert(EmployeeCode);
+         //   alert(DateFrom);
+          //  alert(DateTo);
+
+            if (EmployeeCode == "" )  {
+                var url = '/TransferReport/TransferReportDateWiseForStaf?'+
+                    '&Date=' + $("#DateFrom").val() +
+                    '&DateTo=' + $("#DateTo").val() +
+                    '&EmployeeCode=' + $("#OrderNo").val() +
+                    '&DownloadExcel=' + (DownloadExcel ? "true" : "false");
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+            else {
+                var url = '/TransferReport/TransferReportEmpCodeForStaf?' +
+                    '&EmployeeCode=' + $("#OrderNo").val() +
+                    '&DownloadExcel=' + (DownloadExcel ? "true" : "false");
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+        }
+    };
+
+    $(function () {
+        Page.Load();
+    });
+
+</script>
+
+
+<script type="text/javascript">
+    var IsEmployeeCodeEditAllowed = "True" == "@ViewBag.IsEmployeeCodeEditAllowed";
+
+    $(document).ready(function () {
+
+        $("#EmployeeCode").blur(function (e) {
+            debugger;
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+
+
+    });
+
+
+</script>
+
+
+<h2 class="page-title">Guarantor Money</h2>
+<br />
+
+
+
+
+<div class="row">
+
+    <div class="form-horizontal">
+      
+        <div class="container-fluid">
+
+            <div class="row ordno">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">EmployeeCode </label>
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control required" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                        </div>
+                    </div>
+                </div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div><br>
+
+
+            <div class="row reportDate">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Deposit Amount : </label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.deposit, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Balance : </label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.balance, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Previous guarantor money transaction list</h3>
+            </div>
+            <div class="box-body no-padding table-responsive">
+                <table class="table table-striped" id="tblEducation">
+                    <thead>
+                        <tr>
+                            <th>Sl</th>
+                            <th>Employee ID</th>
+                            <th>Employee Name</th>
+                            <th>Transaction Type</th>
+                            <th>Transaction Date</th>
+                            <th>Amount</th>
+                            <th>Payment Type</th>
+                            <th>Cheque No </th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="form-horizontal">
+
+
+        @*collapse4*@
+        <div class="panel-heading">
+            <h4 class="panel-title panel-title-2">
+                <a data-toggle="" data-parent="#accordion" href="">&nbsp;Guarantor Transaction Save </a>
+            </h4>
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TransactionType, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.TransactionType, Model.TransactionTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TransactionDate, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", @placeholder = "Transaction Date" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TransactionAmount, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TransactionAmount, new { htmlAttributes = new { @class = "form-control", @placeholder = "Trasaction Amount" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PaymentType, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.PaymentType, Model.PaymentTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 BankNameContainer" style="display: none;">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BankName, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.BankName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Bank Name" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="divisionDivId">
+                <div class="col-sm-6 AccountNoContainer" style="display: none;">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AccountNo, htmlAttributes: new { @class = "control-label  col-sm-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.AccountNo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Account No" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 CheckNoContainer" style="display:none;">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CheckNo, htmlAttributes: new { @class = "control-label  col-sm-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CheckNo, new { htmlAttributes = new { @class = "form-control", @placeholder = "Check No" } })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <!-- Message zone -->
+                    <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Gurantor information has been saved successfully.</p>
+                    </div>
+                    <!-- End message zone-->
+                    &nbsp;
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <input type="button" value="Save" id="btnSave" onclick="SaveGuarantorInfo();" class="btn btn-primary" />
+                        <input type="hidden" value="" id="EmployeeId" />
+                        <input type="hidden" value="" id="hdnEmpEducationEditId" />
+                        <input type="hidden" value="" id="hdnEmpEducationSave" />
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+</div>
+
+

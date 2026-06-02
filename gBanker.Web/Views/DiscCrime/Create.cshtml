@@ -1,0 +1,98 @@
+﻿@model gHRM.Web.ViewModels.Discipline.DiscCrimeViewModel
+
+@{
+    ViewBag.Title = "Create";
+    var CrimeTypeList = Model == null ? null : Model.CrimeTypeList;
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnCrimeSave").click(function (e) {
+
+            if ($("#CrimeCode").val() == '' && $("#CrimeName").val() == '') {
+                $("#CrimeCode").addClass("errorClass");
+                $("#CrimeName").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CrimeCode").val() == '' && $("#CrimeName").val() != '') {
+                $("#CrimeCode").addClass("errorClass");
+                return false;
+            }
+            else if ($("#CrimeCode").val() != '' && $("#CrimeName").val() == '') {
+                $("#CrimeName").addClass("errorClass");
+                return false;
+            }
+            else
+                return true;
+        });
+    });
+
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Add Crime</h2>
+<br />
+@using (Html.BeginForm("Create", "DiscCrime", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "DiscCrimeProfile" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        <div class="form-group">
+            @Html.HiddenFor(model => model.CrimeId, new { @class = "control-label col-md-4 " })
+            <div class="col-sm-6">
+                @Html.HiddenFor(model => model.CrimeId, new { htmlAttributes = new { @class = "form-control" } })
+                @*@Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })*@
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CrimeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.CrimeCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Crime Code" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentParentId, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CrimeName, htmlAttributes: new { @class = "control-label col-md-3 required" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.CrimeName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Crime Name" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentCode, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Crime Type</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.CrimeType, CrimeTypeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Remarks, new { @class = "control-label col-md-3" })
+                    <div class="col-md-9">
+                        @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="submit" value="Save" id="btnCrimeSave" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,66 @@
+﻿@model gHRM.Web.ViewModels.TaDa.TADAPurposeViewModel
+
+@{
+    ViewBag.Title = "TADA Purpose";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+    &nbsp;
+<h2 class="page-title">TADA Purpose</h2>
+    &nbsp;
+<div class="container-fluid">
+    @using (Html.BeginForm("AddTADAPurpose", "TADAPurpose", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "add-or-edit-form" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Purpose, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Purpose, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Remarks, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextAreaFor(model => model.Remarks, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <button type="submit" id="btnSave" class="btn btn-success">Save</button>
+                        &nbsp;
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" onclick="tadaPurposeManager.clearform()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <h2 class="page-title">TADA Purpose List</h2><br>
+    <div id="grid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+
+    <script src="~/Assets/js/app/payroll/tadaPurposeManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

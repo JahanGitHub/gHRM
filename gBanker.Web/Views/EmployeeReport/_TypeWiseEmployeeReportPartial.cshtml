@@ -1,0 +1,273 @@
+﻿@model gHRM.Web.ViewModels.EmployeeReportViewModel
+
+@{
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    pvOfficeNevigation.OfficeTypeId = Convert.ToInt32(Model.OfficeTypeId);
+
+    if (Convert.ToInt32(Model.OfficeTypeId) == 1)
+    {
+        pvOfficeNevigation.PVHeadOfficeId = Model.HeadOfficeId.ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 3)
+
+
+
+    {
+        pvOfficeNevigation.PVProjectId = Model.ProjectId.ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 4)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 5)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+        pvOfficeNevigation.AreaId = (Model.AreaId).ToString();
+    }
+    else if (Convert.ToInt32(Model.OfficeTypeId) == 6)
+    {
+        pvOfficeNevigation.ZoneId = (Model.ZoneId).ToString();
+        pvOfficeNevigation.AreaId = (Model.AreaId).ToString();
+        pvOfficeNevigation.UnitId = Model.UnitId.ToString();
+    }
+
+    // NEW Search Options
+    var ofTypeList = Model == null ? null : Model.OfficeTypeList;
+    var desigList = Model == null ? null : Model.DesignationList;
+    var offcDesigList = Model == null ? null : Model.OfficeDesignationList;
+    var employeeStatusList = Model == null ? null : Model.EmployeeStatusList;
+
+
+
+
+
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+@*<link href="~/Content/bpopup/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+<script src="~/Content/bpopup/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="https://kendo.cdn.telerik.com/2021.2.616/js/kendo.all.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>*@
+
+
+
+<div class="form-horizontal" style="padding-top: 15px;">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <div class="row hideReportType">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4" style="text-align: left;">Report Type (রিপোর্টের ধরন)</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ReportType, Model.ReportList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row hideEmpCode">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4" style="text-align: left;">Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)</label>
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row ManualOfficeTypeDiv" style="display: none;">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4" style="text-align: left;">Office Type</label>
+                    <div class="col-md-8">
+                        <select id="ManualOfficeType" class="form-control">
+                            <option value="0">All</option>
+                            <option value="1">Head Office</option>
+                            <option value="2">Field Office</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row hideBloodGroup">
+            <div class="row" style="margin-top:15px; margin:15px;">
+                @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+            </div>
+                <div class="row" style="margin: 0;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div class="col-md-4 ">
+                                @*text-right*@
+                                <label class="control-label" style="padding-top:8px;">Payroll Designation (পদবী)</label>
+                            </div>
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.DesignationId, desigList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <div class="col-md-4">
+                                <label class="control-label" style="padding-top:8px;">Responsibility (অফিস পদবী)</label>
+                            </div>
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.OfficeDesignationId, offcDesigList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin: 0;">
+
+                    @*<div class="col-md-2 col-md-offset-4">
+                    <div class="form-group text-left">
+
+                        <input type="radio" name="empStatus" id="empStatus" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="empStatus" id="empStatus" value="All"> All
+
+
+                    </div>
+                </div>*@
+
+                    <div class="col-sm-6 emp-status-container">
+                        <div class="form-group text-right">
+                            <div class="col-md-4 ">
+
+                            </div>
+                            <div class="col-md-8">
+                                <input type="radio" name="empStatus" id="empStatus" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                                <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                                <input type="radio" name="empStatus" id="empStatus" value="All"> All
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 emp-status-container">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EmployeeStatus, htmlAttributes: new { @class = "control-label col-sm-4 required", @style = "text-align: left;" })
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @id = "typeFilterColumn", @multiple = "multiple", @class = "selectpicker form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4" style="text-align: left;">Department (বিভাগ)</label>
+                            <div class="col-sm-8">
+                                @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align: left;">Section (সেকশন)</label>
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.Section, Model.SectionList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row BloodGroupControlContainer" style="margin: 0;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4 blood-group-label" style="text-align: left;">Blood Group (রক্তের গ্রুপ)</label>
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.BloodGroup, Model.BloodGroupList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row employeeStatus">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Status</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.EmployeeStatus, Model.EmployeeStatusList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row reportDate">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align: left;">Date From (তারিখ হতে)</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4" style="text-align: left;">Date To (তারিখ পর্যন্ত)</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="officeNavigation">
+                @*@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)*@
+            </div>
+
+            <div class="employeeServiceBook digitalIDCardSection">
+                @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align: left;">Department (বিভাগ)</label>
+                            <div class="col-md-8">
+                                @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentList, "-Select One-", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 row hideEmpCode2">
+                        <div class="form-group">
+                            <label class="control-label col-md-4" style="text-align: left;">Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)</label>
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control employeeCode" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @*<div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Code</label>
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.EmployeeCodeMultiple, new { @class = "form-control employeeCodeMultiple" })
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"></label>
+                        <div class="col-md-4">
+                            <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                        </div>
+
+                        <div class="exelPrint">
+                            <input type="button" id="btnExelPrint" value="Print Exel" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>

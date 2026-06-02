@@ -1,0 +1,125 @@
+﻿@model gHRM.Web.ViewModels.PF.PFWithdrawanViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+         @if (Model.IsOpen == true)
+         {
+             <text>
+             $("#create").removeClass('disabled');
+             </text>
+         }
+        
+        @if(Model.IsOpen == false){
+            <text>
+            $("#create").addClass('disabled');
+            </text>
+        }
+
+        $("#btnSearch").click(function () {
+            var employeeId = $("#EmployeeId").val();
+            if (employeeId == "") {
+                $('#grid2').jtable('load', {});
+            }
+            $('#grid2').jtable('load', { id: employeeId });
+        });
+
+        $('#grid2').jtable({
+            //title: 'Loan Type List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFWithdrawan/GetPFWithdrawanList'
+            },
+            fields: {
+                WithdrawanId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    title: 'Employee ID',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'EmployeeName',
+                    width: '15%'
+                },
+                SelfContribution: {
+                    title: 'Self Contribution',
+                    width: '15%'
+                },
+                OrgContribution: {
+                    title: 'Org Contribution',
+                    width: '15%'
+                },
+                SelfInterestAmount: {
+                    title: 'Self Interest Amount',
+                    width: '15%'
+                },
+                OrgInterestAmount: {
+                    title: 'Org Interest Amount',
+                    width: '15%'
+                },
+                WithdrawnDate: {
+                    title: 'Withdrawn Date',
+                    width: '10%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '10%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFWithdrawan/Edit/" + data.record.WithdrawanId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+            }
+        });
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });        
+        }
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Withdrawn", "Create", null, new { @class = "btn btn-success btn-sm pull-right", id = "create" })
+&nbsp;
+<h2 class="page-title">PF Withdrawn List
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+    </h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()    
+    <div id="grid2" style="width:100%;">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}
+
+

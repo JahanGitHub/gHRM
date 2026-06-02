@@ -1,0 +1,107 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOfficeDesignationViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            defaultSorting: 'EmpOfficeDesigId ASC',
+            actions: {
+                listAction: '/EmployeeOfficeDesignation/GetEmployeeOfficeDesignationList'
+            },
+            fields: {
+                EmpOfficeDesigId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    title: ' Employee Code',
+                    width: '15%',
+                },
+                EmployeeName: {
+                    title: 'Name',
+                    width: '30%'
+                },
+                OfficeDesignationId: {
+                    title: 'Office Designation Id',
+                    list: false,
+                    width: '20%'
+                },
+                OfficeDesignationName: {
+                    title: 'Office Designation',
+                    width: '30%'
+                },
+                SartDate: {
+                    title: 'Start Date',
+                    width: '30%'
+                },
+                EndDate: {
+                    title: 'End Date',
+                    list: false,
+                },
+                Duration: {
+                    title: 'Duration',
+                    list: false,
+                },
+                EditLink: {
+                    title: "Edit",
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/EmployeeOfficeDesignation/Edit/" + data.record.EmpOfficeDesigId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    display: function (data) {
+                        //return '<div class="text-center delete-link"><a href="/Branch/Delete/' + data.record.BranchId + '" ' + " onclick=' return confirm(" + '"Are you sure you want to delete this item?");' + "'" + "'><i title='Delete' class='fa fa-trash-o'></i></a></div>";
+                        return '<div class="text-center"><a href="#" onclick="EmployeeOfficeDesignationDelete(' + data.record.EmpOfficeDesigId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+        });
+
+        $('#grid').jtable('load');
+
+        reloadGrid();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+            else if ($(this).val() === "BranchId") {
+                $("#filterValue").val('');
+            }
+            else {
+                $("#filterValue").val('');
+            }
+        });
+    });
+
+    function reloadGrid() {
+        //$("#loading").show();
+        $('#grid').jtable('load');
+        //$("#loading").hide();
+    }
+
+
+</script>
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Employee Designation List</h2>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        &nbsp;
+    </div>
+</div>
+<div id="grid"></div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

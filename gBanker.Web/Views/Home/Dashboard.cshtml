@@ -1,0 +1,313 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var employeeMaping = ViewBag.EmployeeOfficeMappings as List<SelectListItem> ?? new List<SelectListItem>();
+    var showBranchPopup = (bool)ViewBag.ShowPopup; 
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var date = new Date();
+        var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+        var monthNames = [
+              "Jan", "Feb", "Mar",
+              "Apr", "May", "Jun", "Jul",
+              "Aug", "Sep", "Oct",
+              "Nov", "Dec"
+        ];
+        
+        var FromDay = firstDay.getDate();
+        var FromMonthIndex = firstDay.getMonth();
+        var FromYear = firstDay.getFullYear();
+
+        var ToDay = lastDay.getDate();
+        var ToMonthIndex = lastDay.getMonth();
+        var ToYear = lastDay.getFullYear();
+
+
+        $("#txtDtFrom").val(FromDay + '-' + monthNames[FromMonthIndex] + '-' + FromYear);
+        $("#txtDtTo").val(ToDay + '-' + monthNames[ToMonthIndex] + '-' + ToYear);
+
+        $("#txtDtFrom").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+         });
+        $("#txtDtTo").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+         });
+
+        $("#btnSearch").click(function (e) {
+            e.preventDefault();           
+            $('#grid').jtable('load', { DtFrom: $("#txtDtFrom").val(), DtTo: $("#txtDtTo").val() });
+        });
+
+        $('#grid').jtable({
+            paging: false,
+            pageSize: 50,
+            sorting: false,           
+            actions: {
+                listAction: '/Home/GetZoneDashboard?DtFrom=' + $("#txtDtFrom").val() + '&DtTo=' + $("#txtDtTo").val()
+            },
+            fields: {                
+                ZoneName: {
+                    title: 'Zone'                    
+                },
+                TotalPO: {
+                    title: 'Total Posting',
+                    display: function (data) {
+                        if (data.record.TotalPO != 0)
+                            return "<label>" + data.record.TotalPO + "</label>";
+                        else
+                            return "<label style='color:red; font-weight:bold;'>" + data.record.TotalPO + "</label>";
+                    }
+                },
+                TotalJoin: {
+                    title: 'Total Join',
+                    display: function (data) {
+                        if (data.record.TotalJoin != 0)
+                            return "<label>" + data.record.TotalJoin + "</label>";
+                        else
+                            return "<label style='color:red; font-weight:bold;'>" + data.record.TotalJoin + "</label>";
+                    }
+                },
+                TotalLeaveSale: {
+                    title: 'EL Encashment',
+                    display: function (data) {
+                        if (data.record.TotalLeaveSale != 0)
+                            return "<label>" + data.record.TotalLeaveSale + "</label>";
+                        else
+                            return "<label style='color:red; font-weight:bold;'>" + data.record.TotalLeaveSale + "</label>";
+                    }
+                }                                
+            }
+        });
+        $('#grid').jtable('load');
+    });
+
+    @*$(document).ready(function () {
+        loadDashboardItems();
+        $("#officeSelectDialog").dialog({
+            autoOpen: false,
+            height: 200,
+            width: 400,
+            modal: true,
+            buttons: {
+                "Ok": function () {
+                    selectOffice();
+                    $(this).dialog("close");
+                },
+                Cancel: function () {
+                    //alert("No Office selected. Employee office will be used.");
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+        var showPopup = '@showBranchPopup';
+        if (showPopup == "True") {
+            $("#officeSelectDialog").dialog('open');
+        }
+
+    });
+
+    function selectOffice() {
+        //e.preventDefault();
+        var officeId = $("#ddlOffice").val();
+        var obj = new Object();
+        obj.officeId = officeId;
+        var json = JSON.stringify(obj)
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SelectOffice", "Home")',
+            data: json,
+            dataType: 'json',
+            async: true,
+            success: function (result) {
+               // var ddl = $("#ddlOffice option:selected").text();
+               // $("#officeName").text(ddl);
+                $("#dayInitialInfo").html(result.TransactionDashBoardString);
+              //  $("#spTransactionDay").text(result.TransactionDay);
+               // $("#spLastDayEnd").text(result.LastDayEndDate);
+
+            },
+            error: function (request, status, error) {
+                alert("Error occured.");
+            }
+        });
+    }
+    function showOfficeDialog() {
+        $("#officeSelectDialog").dialog('open');
+    }*@
+
+    @*function loadDashboardItems(){
+        $.ajax({
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetDashboardItems", "Home")',
+            dataType: 'json',
+            async: true,
+            success: function (result) {
+
+                //$("#totalBranchDashboard").html(result.TotalOfficeCount);
+                //$("#totalMemberDashboard").html(result.TotalOrganizationMemberCount);
+
+            },
+            error: function (request, status, error) {
+                alert("Error occured.");
+            }
+        });
+    }*@
+</script>
+
+@*<div class="row">
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-aqua"><i class="fa fa-user-plus"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total Employee</span>
+                <span class="info-box-number">52000</span>
+                <span class="info-box-text">Year : <small>(2015)</small></span>
+            </div><!-- /.info-box-content -->
+        </div><!-- /.info-box -->
+    </div><!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-red"><i class="fa fa-trophy"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total Promotion<small>(2015)</small></span>
+                <span class="info-box-number">875</span>
+                <span class="info-box-text">Year : <small>(2015)</small></span>
+            </div><!-- /.info-box-content -->
+        </div><!-- /.info-box -->
+    </div><!-- /.col -->
+    <!-- fix for small devices only -->
+    <div class="clearfix visible-sm-block"></div>
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-green"><i class="fa  fa-refresh"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total Transfer</span>
+                <span class="info-box-number">203</span>
+                <span class="info-box-text">Year : <small>(2015)</small></span>
+            </div><!-- /.info-box-content -->
+        </div><!-- /.info-box -->
+    </div><!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-yellow"><i class="fa  fa-bar-chart"></i></span>
+            <div class="info-box-content">
+                <span class="info-box-text">Total Time Scale</span>
+                <span class="info-box-number">69</span>
+                <span class="info-box-text">Year : <small>(2015)</small></span>
+            </div><!-- /.info-box-content -->
+        </div><!-- /.info-box -->
+    </div><!-- /.col -->
+</div><!-- /.row -->*@
+
+
+@*<div class="row">
+    <div class="col-md-6">
+        <!-- AREA CHART -->
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">Last five(5) years employee joining status</h3>
+                <div class="box-tools pull-right">
+                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <div class="box-body chart-responsive">
+                <div class="chart" id="revenue-chart" style="height: 300px;"></div>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        <!-- DONUT CHART -->
+        <div class="box box-danger">
+            <div class="box-header with-border">
+                <h3 class="box-title">Last five(5) years employee joining status</h3>
+                <div class="box-tools pull-right">
+                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <div class="box-body chart-responsive">
+                <div class="chart" id="sales-chart" style="height: 300px; position: relative;"></div>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    </div><!-- /.col (LEFT) -->
+    <div class="col-md-6">
+        <!-- LINE CHART -->
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">Employee summary on employee status</h3>
+                <div class="box-tools pull-right">
+                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <div class="box-body chart-responsive">
+                <div class="chart" id="line-chart" style="height: 300px;"></div>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        <!-- BAR CHART -->
+        <div class="box box-success">
+            <div class="box-header with-border">
+                <h3 class="box-title">Last five(5) years employee joining status</h3>
+                <div class="box-tools pull-right">
+                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <div class="box-body chart-responsive">
+                <div class="chart" id="bar-chart" style="height: 300px;"></div>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    </div><!-- /.col (RIGHT) -->
+</div>*@
+<h2 class="page-title">Dashboard</h2>
+<br />
+<div class="row">
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label class="control-label col-md-4">Date From</label>
+            <div class="col-sm-8">
+                <input type="text" id="txtDtFrom" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label class="control-label col-md-4">Date To</label>
+            <div class="col-sm-8">
+                <input type="text" id="txtDtTo" class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="form-group">
+            <input type="submit" value="Search" id="btnSearch" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
+        <div id="grid"></div>
+    </div>
+    <div class="col-sm-2"></div>
+</div>
+@section Scripts {
+@Scripts.Render("~/bundles/jqueryval")
+@Scripts.Render("~/bundles/jqueryui")
+}
+
+
+
+

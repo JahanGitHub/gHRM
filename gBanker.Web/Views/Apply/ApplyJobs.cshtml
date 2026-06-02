@@ -1,0 +1,184 @@
+﻿@model gHRM.Web.ViewModels.Apply.AppliedPostViewModel
+
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Apply/ApplyJobs">JobApply</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Apply your Suitable Post";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<style>
+    @@import url('//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+    .frmRow {
+        margin-bottom: 10px;
+    }
+
+    .accordion-toggle:after {
+        font-family: 'FontAwesome';
+        content: "\f078";
+        float: right;
+    }
+
+    .accordion-opened .accordion-toggle:after {
+        content: "\f054";
+    }
+</style>
+
+<style type="text/css" media="print">
+    .nonPrintable {
+        display: none;
+    }
+    /*class for the element we don’t want to print*/
+</style>
+<script type="text/javascript">
+    function Step_01() {
+        location.href = "/Apply/Step_01"
+    }
+    function SubmitApply(JobId) {
+
+        var check = $('#Apply' + JobId).val();
+
+        if (check < 1) {
+            location.href="/Apply/Step_01?JobId=" + JobId
+        }
+        else {
+            $.alert.open("Error", "You have already Applied this Post");
+
+        }
+    }
+
+    function IndividualJobPdf(JobId)
+    {
+        
+        window.open('/Apply/ViewPdfIndividualJob?JobId=' + JobId, 'mywindow', 'resizable=yes, width = 800 px, height =600px scrollbars=auto');
+    }
+
+</script>
+
+
+@using (Html.BeginForm("ApplyJobs", "Apply", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "ApplyJobs" }))
+
+{
+    @Html.AntiForgeryToken()
+    if (ViewBag.CvNotCompleted != 1)
+    {
+        <div>
+            <fieldset>
+
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-10">
+                        <p style="color:red">
+                            ***Do not Apply without Complete your profile.
+                        <p> Applicant can upload photo/signature from Edit resume in case of absent photo Application will be disqualified.</p>
+
+                        </p>
+                    </div>
+                </div>
+                &nbsp;
+                &nbsp;
+                
+                <div class="row">
+
+                    <div class="col-md-12">
+                        <table class="col-md-12" style="width:100%">
+
+                            <thead style="background-color:#CCCC99 ">
+                            <th style="font:300;font-size:medium ;text-align:center">Advertisement published by: Human Resources Department</th>
+                            </thead>
+
+                        </table>
+                        <table class="col-md-12" style="width: 100%" border="1">
+                            <tr style="text-align:center">
+                                <td> <b>Post Name</b></td>
+                                <td><b>Post Description</b></td>
+                                <td><b>View Full Circular</b></td>
+                                <td><b>Apply</b></td>
+
+                            </tr>
+                            &nbsp;
+                            <tr>
+                            </tr>
+
+                            @foreach (var item in Model.AppliedPostList)
+                            {
+                                if (item.AlreadyApplied == 1)
+                                {
+                                    <tr>
+                                        <td style="font: 40; text-align: center; font-size: small; width: 25%;" id="JobId">
+                                            @item.PostName
+                                            <input type="hidden" id=@item.CheckButton value=@item.AlreadyApplied />
+                                        </td>
+                                        <td style="font: 40; font-size: small; text-align: center; padding: 2px 3px 2px 3px; width: 40%">@item.PostDescription</td>
+                                        <td style="font: 20; font-size: small; text-align: center; padding: 2px 3px 2px 3px; width: 15%">
+                                            <a href="" onclick="IndividualJobPdf(@item.JobId)"> <i class="fa fa-file-pdf-o" style="color:red"></i></a>
+                                        </td>
+                                        <td style="text-align: center; padding: 5px 0px 5px 0px;">
+                                            <button type="button" onclick="SubmitApply(@item.JobId)" style="color: red; width: 85%"> <b>@item.AppliedOrNot</b></button>
+
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                        <tr>
+                            <td style="font: 70; text-align: center; font-size: small; width: 25%; " id="JobId">
+                                @item.PostName
+                                <input type="hidden" id=@item.CheckButton value=@item.AlreadyApplied />
+                            </td>
+                            <td style="font: 70; font-size:small; padding:2px 3px 2px 3px; text-align: center; width: 40%;">@item.PostDescription</td>
+                            <td style="font: 20; font-size: small; text-align: center; padding: 2px 3px 2px 3px; width: 15%">
+                            <a href="" onclick="IndividualJobPdf(@item.JobId)"> <i class="fa fa-file-pdf-o" style="color:red"></i></a>
+                            </td>
+                            <td style="text-align: center; padding: 5px 0px 5px 0px;">
+                                <button type="button" onclick="SubmitApply(@item.JobId)" style="color:forestgreen; width: 75%"> <b>@item.AppliedOrNot</b></button>
+
+                            </td>
+                        </tr>
+                                }
+                            }
+                        </table>
+                    </div>
+
+                </div>
+                &nbsp;
+                &nbsp;
+
+            </fieldset>
+        </div>
+    }
+
+    else
+    {
+        <div>
+            <fieldset>
+                <div class="row" id="ÄpplyforJobs">
+                    <div class="col-sm-12">
+                        <div class="form-group form-action" style="padding:10px;margin:5px; text-align:center">
+                            <p style="text-align:center "><b style="color:red"> Please Comple your Profile to see Job Post</b> </p>
+                            <button type="button" class="btn btn" onclick="Step_01()" style="color:red"><i class="fa fa-check-circle-o"></i> <b>Click here to fill up your Profile</b></button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    }
+
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}
+

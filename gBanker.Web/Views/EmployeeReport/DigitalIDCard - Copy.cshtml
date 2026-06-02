@@ -1,0 +1,163 @@
+﻿@model gHRM.Web.ViewModels.DigitalIDCardListViewModel
+
+@{
+    ViewBag.Title = "Digital ID Card";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">@ViewBag.Title</h2>
+<br />
+
+<button type="button" class="btn btn-success" id="btnPrint" > <i class="fa fa-print"></i> Print</button>
+
+<div class="row digital-id-card print-section">
+
+
+    <div class="" style=" width: 420px !important; position: relative; min-height: 1px; padding-right: 0px; padding-left: 0px; float: left; margin: 5px;">
+        <div style=" padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; float: left; margin: 1px; width: 207px !important; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; " class="id-card-front-part text-center border border-1">
+            <img class="img-id-card-org-logo" src="https://jcf.org.bd/jcfwebport/wp-content/uploads/2018/07/logo.png" alt="John" style="width:100%">
+            <h5>Jagoroni Chakra Foundation</h5>
+            <p class="slogan">(A National Social Welfare Organization)</p>
+            <img class="img-id-card-profile" src="https://preview.keenthemes.com/metronic-v4/theme/assets/pages/media/profile/profile_user.jpg" alt="John" style="width:100%">
+            <p class="emp-name">MD. Ziaur Rahman</p>
+            <p class="emp-pin">PIN: 014502</p>
+            <p class="emp-dsgnation">Officer</p>
+            <div class="trapezoid-card-bottom "></div>
+
+        </div>
+        <div style="padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; width: 207px !important; float: left; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; margin:1px; " class="id-card-back-part border border-1">
+            <div class="trapezoid-card-top"></div>
+            <div class="text-center img-id-card-org-logo-ptb">
+                <img class="img-id-card-qr" src="https://www.kaspersky.com/content/en-global/images/repository/isc/2020/9910/a-guide-to-qr-codes-and-how-to-scan-qr-codes-2.png" alt="John" style="width:100%">
+            </div>
+            <p class="p-pf program-name">Name of Program <span style="padding-left:0px">: MFP</span></p>
+            <p class="p-pf blood-group">Blood Group     <span style="padding-left:21px">: A(+)ve</span></p>
+            <p class="p-pf issue-date">Issue Date      <span style="padding-left:31px">: Octobar 2020</span></p>
+            <p class="contact-info">If found, Please inform : +880-421-68823</p>
+
+            <p><i class="fa fa-map-marker"></i> 46 Mujib Sarak, Jeshore-7400, Bangladesh</p>
+            <p><i class="fa fa-phone"></i> +880-421-68823</p>
+            <p><i class="fa fa-at"></i> jcfsr@gmail.com</p>
+            <p><i class="fa fa-edge"></i> jcf.org.bd</p>
+            <p class="signature">
+                <img src="https://www.startupblog.com/wp-content/uploads/2017/05/signature-523237_960_720.jpg" alt="Signature" />
+                <span class="authorized-sign">Authorized Sign</span>
+            </p>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <!--id single end -->
+
+    <div class="" style=" width: 420px !important; position: relative; min-height: 1px; padding-right: 0px; padding-left: 0px; float: left; margin: 5px;">
+        <div style=" padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; float: left; margin: 1px; width: 207px !important; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; " class="id-card-front-part text-center border border-1">
+            <img class="img-id-card-org-logo" src="https://jcf.org.bd/jcfwebport/wp-content/uploads/2018/07/logo.png" alt="John" style="width:100%">
+            <h5>Jagoroni Chakra Foundation</h5>
+            <p class="slogan">(A National Social Welfare Organization)</p>
+            <img class="img-id-card-profile" src="https://preview.keenthemes.com/metronic-v4/theme/assets/pages/media/profile/profile_user.jpg" alt="John" style="width:100%">
+            <p class="emp-name">MD. Ziaur Rahman</p>
+            <p class="emp-pin">PIN: 014502</p>
+            <p class="emp-dsgnation">Officer</p>
+            <div class="trapezoid-card-bottom "></div>
+
+        </div>
+        <div style="padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; width: 207px !important; float: left; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; margin:1px; " class="id-card-back-part border border-1">
+            <div class="trapezoid-card-top"></div>
+            <div class="text-center img-id-card-org-logo-ptb">
+                <img class="img-id-card-qr" src="https://www.kaspersky.com/content/en-global/images/repository/isc/2020/9910/a-guide-to-qr-codes-and-how-to-scan-qr-codes-2.png" alt="John" style="width:100%">
+            </div>
+            <p class="p-pf program-name">Name of Program <span style="padding-left:0px">: MFP</span></p>
+            <p class="p-pf blood-group">Blood Group     <span style="padding-left:21px">: A(+)ve</span></p>
+            <p class="p-pf issue-date">Issue Date      <span style="padding-left:31px">: Octobar 2020</span></p>
+            <p class="contact-info">If found, Please inform : +880-421-68823</p>
+
+            <p><i class="fa fa-map-marker"></i> 46 Mujib Sarak, Jeshore-7400, Bangladesh</p>
+            <p><i class="fa fa-phone"></i> +880-421-68823</p>
+            <p><i class="fa fa-at"></i> jcfsr@gmail.com</p>
+            <p><i class="fa fa-edge"></i> jcf.org.bd</p>
+            <p class="signature">
+                <img src="https://www.startupblog.com/wp-content/uploads/2017/05/signature-523237_960_720.jpg" alt="Signature" />
+                <span class="authorized-sign">Authorized Sign</span>
+            </p>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <!--id single end -->
+
+    <div class="" style=" width: 420px !important; position: relative; min-height: 1px; padding-right: 0px; padding-left: 0px; float: left; margin: 5px;">
+        <div style=" padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; float: left; margin: 1px; width: 207px !important; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; " class="id-card-front-part text-center border border-1">
+            <img class="img-id-card-org-logo" src="https://jcf.org.bd/jcfwebport/wp-content/uploads/2018/07/logo.png" alt="John" style="width:100%">
+            <h5>Jagoroni Chakra Foundation</h5>
+            <p class="slogan">(A National Social Welfare Organization)</p>
+            <img class="img-id-card-profile" src="https://preview.keenthemes.com/metronic-v4/theme/assets/pages/media/profile/profile_user.jpg" alt="John" style="width:100%">
+            <p class="emp-name">MD. Ziaur Rahman</p>
+            <p class="emp-pin">PIN: 014502</p>
+            <p class="emp-dsgnation">Officer</p>
+            <div class="trapezoid-card-bottom "></div>
+
+        </div>
+        <div style="padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; width: 207px !important; float: left; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; margin:1px; " class="id-card-back-part border border-1">
+            <div class="trapezoid-card-top"></div>
+            <div class="text-center img-id-card-org-logo-ptb">
+                <img class="img-id-card-qr" src="https://www.kaspersky.com/content/en-global/images/repository/isc/2020/9910/a-guide-to-qr-codes-and-how-to-scan-qr-codes-2.png" alt="John" style="width:100%">
+            </div>
+            <p class="p-pf program-name">Name of Program <span style="padding-left:0px">: MFP</span></p>
+            <p class="p-pf blood-group">Blood Group     <span style="padding-left:21px">: A(+)ve</span></p>
+            <p class="p-pf issue-date">Issue Date      <span style="padding-left:31px">: Octobar 2020</span></p>
+            <p class="contact-info">If found, Please inform : +880-421-68823</p>
+
+            <p><i class="fa fa-map-marker"></i> 46 Mujib Sarak, Jeshore-7400, Bangladesh</p>
+            <p><i class="fa fa-phone"></i> +880-421-68823</p>
+            <p><i class="fa fa-at"></i> jcfsr@gmail.com</p>
+            <p><i class="fa fa-edge"></i> jcf.org.bd</p>
+            <p class="signature">
+                <img src="https://www.startupblog.com/wp-content/uploads/2017/05/signature-523237_960_720.jpg" alt="Signature" />
+                <span class="authorized-sign">Authorized Sign</span>
+            </p>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <!--id single end -->
+
+    <div class="" style=" width: 420px !important; position: relative; min-height: 1px; padding-right: 0px; padding-left: 0px; float: left; margin: 5px;">
+        <div style=" padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; float: left; margin: 1px; width: 207px !important; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; " class="id-card-front-part text-center border border-1">
+            <img class="img-id-card-org-logo" src="https://jcf.org.bd/jcfwebport/wp-content/uploads/2018/07/logo.png" alt="John" style="width:100%">
+            <h5>Jagoroni Chakra Foundation</h5>
+            <p class="slogan">(A National Social Welfare Organization)</p>
+            <img class="img-id-card-profile" src="https://preview.keenthemes.com/metronic-v4/theme/assets/pages/media/profile/profile_user.jpg" alt="John" style="width:100%">
+            <p class="emp-name">MD. Ziaur Rahman</p>
+            <p class="emp-pin">PIN: 014502</p>
+            <p class="emp-dsgnation">Officer</p>
+            <div class="trapezoid-card-bottom "></div>
+
+        </div>
+        <div style="padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; width: 207px !important; float: left; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; margin:1px; " class="id-card-back-part border border-1">
+            <div class="trapezoid-card-top"></div>
+            <div class="text-center img-id-card-org-logo-ptb">
+                <img class="img-id-card-qr" src="https://www.kaspersky.com/content/en-global/images/repository/isc/2020/9910/a-guide-to-qr-codes-and-how-to-scan-qr-codes-2.png" alt="John" style="width:100%">
+            </div>
+            <p class="p-pf program-name">Name of Program <span style="padding-left:0px">: MFP</span></p>
+            <p class="p-pf blood-group">Blood Group     <span style="padding-left:21px">: A(+)ve</span></p>
+            <p class="p-pf issue-date">Issue Date      <span style="padding-left:31px">: Octobar 2020</span></p>
+            <p class="contact-info">If found, Please inform : +880-421-68823</p>
+
+            <p><i class="fa fa-map-marker"></i> 46 Mujib Sarak, Jeshore-7400, Bangladesh</p>
+            <p><i class="fa fa-phone"></i> +880-421-68823</p>
+            <p><i class="fa fa-at"></i> jcfsr@gmail.com</p>
+            <p><i class="fa fa-edge"></i> jcf.org.bd</p>
+            <p class="signature">
+                <img src="https://www.startupblog.com/wp-content/uploads/2017/05/signature-523237_960_720.jpg" alt="Signature" />
+                <span class="authorized-sign">Authorized Sign</span>
+            </p>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <!--id single end -->
+
+
+</div>
+
+@section Scripts {
+    <link href="~/Assets/css/digitalIDCard.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <script type="text/javascript" src="https://jasonday.github.io/printThis/printThis.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/js/app/employee/digitalIDCardManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

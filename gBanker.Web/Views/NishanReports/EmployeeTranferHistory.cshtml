@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+
+<script>
+    $(document).ready(function () {
+     
+    });// END Ready
+    function PrintReport(PrintUrl) {
+        debugger;
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+</script>
+
+<h2 class="page-title">Leave Report</h2>
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<br /><br />
+<div id="AjaxLoader" class="ajaxLoader"></div>
+ 
+<br />
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-2">
+        <div class="form-group">
+            <div class="col-sm-8">
+                <input type="button" value="Print" id="btnPrint" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+</div>
+
+

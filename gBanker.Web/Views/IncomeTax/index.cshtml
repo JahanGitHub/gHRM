@@ -1,0 +1,245 @@
+@model IEnumerable<gHRM.Web.ViewModels.IncomeTax.IncomeTaxViewModel>
+
+@{
+    ViewBag.Title = "Income Tax";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<h2>Income Tax</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
+    <input type="button" id="btnReport" value="Report" class="btn btn-primary" formtarget="_blank" style="margin-left:10px;" />
+</p>
+
+<script type="text/javascript">
+
+        function clearForm() {
+        $("#txtEmpName").val('');
+        $("#EmployeeName").val('');
+        $("#EmployeeID").val('');
+        $("#OfficeID").val('');
+        $("#NationalID").val('');
+        $("#TIN").val('');
+        $("#ReturnRegisterSlNo").val('');
+        $("#ReturnRegisterVolNo").val('');
+        $("#Circle").val('');
+        $("#TaxArea").val('');
+        $("#FiscalYear").val('');
+        $("#ReturnFillingDate").datepicker('setDate', new Date());
+        $("#TotalIncome").val('');
+        $("#TotalTaxPaid").val('');
+        $("#FileLocation").val('');
+    }
+
+    function reloadGrid() {
+        $('#grid').jtable('load');
+    }
+
+    function GetDownloadFile(empId) {
+        @*window.location.href = '@Url.Action("DownloadFile", "IncomeTax")?employeeId=' + empId;*@
+        window.location.href = '/IncomeTax/DownloadFile?id=' + empId;
+
+    }
+
+    function Delete(id) {
+    $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+        if (button === 'yes') {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Delete", "IncomeTax")',
+                data: { id: id },
+                dataType: 'json',
+                success: function (result) {
+                    reloadGrid(); // Refresh the grid to exclude the soft-deleted row
+                    $.alert.open("Message", "Deleted successfully");
+                },
+                error: function () {
+                    alert("An error occurred while deleting.");
+                }
+            });
+        }
+    });
+}
+
+
+    function reloadGrid() {
+        $('#grid').jtable('load');
+    }
+
+
+    function openDatePopup() {
+        document.getElementById('datePopup').style.display = 'block';
+    }
+
+    function closePopup() {
+        document.getElementById('datePopup').style.display = 'none';
+    }
+
+    function submitReport() {
+        var fiscalyear = document.getElementById('fiscalyear').value;
+       // var toDate = document.getElementById('toDate').value;
+
+        if (!fiscalyear ) {
+            alert("Please select fiscalyear.");
+            return;
+        }
+
+        // Example: Redirect to report URL (pass dates as query parameters)
+        var reportUrl = "/IncomeTax/Report22?fiscalyear=" + encodeURIComponent(fiscalyear);
+
+        // Open in new tab
+        window.open(reportUrl, '_blank');
+
+        closePopup();
+    }
+
+    $(document).ready(function () {
+
+
+        $('#btnReport').click(function () {
+            openDatePopup();
+
+        });
+
+
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 100,
+            sorting: true, // Enable sorting
+            defaultSorting: 'EmployeeID ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var sorting = jtParams.jtSorting || 'EmployeeID ASC'; // fallback sorting
+                        $.ajax({
+                            url: '/IncomeTax/GetIncomeTaxList',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {
+                                ...postData,
+                                jtStartIndex: jtParams.jtStartIndex,
+                                jtPageSize: jtParams.jtPageSize,
+                                jtSorting: sorting
+                            },
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+
+            fields: {
+                Id: {
+                    key: true,
+                    list: false
+                },
+                EmployeeCode: {
+                    title: 'ID',
+                    width: '11%'
+                },
+                EmployeeName: {
+                    title: 'Employee<br>Name',
+                    width: '11%'
+                },
+                OfficeName: {
+                    title: 'Office',
+                    width: '9%'
+                },
+                NationalID: {
+                    title: 'NID',
+                    width: '5%'
+                },
+                TIN: {
+                    title: 'TIN',
+                    width: '5%'
+                },
+                FiscalYear: {
+                    title: 'Fiscal Year',
+                    width: '10%'
+                },
+                ReturnFillingDate: {
+                    title: 'Return Filing<br/>Date',
+                    width: '10%'
+                },
+                ReturnRegisterSlNo: {
+                    title: 'Return Reg.<br/>Serial No.',
+                    width: '15%'
+                },
+                ReturnRegisterVolNo: {
+                    title: 'Return Reg.<br/>Volume No.',
+                    width: '15%'
+                },
+                TotalIncome: {
+                    title: 'Total Income',
+                    width: '15%'
+                },
+                TotalTaxPaid: {
+                    title: 'Tax Paid',
+                    width: '15%'
+                },
+                DownloadLink: {
+                    title: "Download",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' onClick='GetDownloadFile(" + data.record.Id + ");'><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/IncomeTax/Edit/" + data.record.Id + "'><i class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='#' onClick='Delete(" + data.record.Id + ");'><i class='fa fa-trash-o'></i></a></div>";
+                    }
+                },
+                ReportLink: {  // TODO: Need to Update
+                    title: "Report",
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/IncomeTax/Details/" + data.record.Id + "' target='_blank'><i class='fa fa-file-pdf-o'></i></a></div>";
+                    }
+                }
+            }
+        });
+
+        reloadGrid();
+    });
+</script>
+
+<div id="datePopup" style="display:none; position:fixed; top:30%; left:40%; background:white; border:1px solid #ccc; padding:20px; z-index:9999;">
+    <h5>Fiscal Year</h5>
+    
+    <input type="text" id="fiscalyear" class="form-control" placeholder="2022-2023" /><br />
+   
+    <button class="btn btn-success" onclick="submitReport()">Submit</button>
+    <button class="btn btn-secondary" onclick="closePopup()">Cancel</button>
+</div>
+
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

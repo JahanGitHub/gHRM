@@ -1,0 +1,665 @@
+﻿@model gHRM.Web.ViewModels.LeaveHistoryViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveHistory">LeaveHistory</a></li>
+        <li><a href="/LeaveHistory/LeaveApproved">LeaveApproved</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Leave Approved";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<link href="~/Content/css/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+<script src="~/Scripts/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<style>
+    .modal-backdrop {
+        z-index: 900;
+    }
+
+    .vertical-alignment-helper {
+        display: table;
+        height: 100%;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    .vertical-align-center {
+        display: table-cell;
+        vertical-align: middle;
+        pointer-events: none;
+    }
+
+    .modal-content {
+        width: inherit;
+        max-width: inherit;
+        height: inherit;
+        margin: 0 auto;
+        pointer-events: all;
+    }
+
+    /* Vertical Grid/Card Layout Styles */
+    .vertical-grid-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .leave-card {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .leave-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .card-header {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-bottom: 1px solid #e0e0e0;
+        margin: -15px -15px 15px -15px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header .badge {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    .card-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #f0f0f0;
+    }
+
+    .card-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .card-label {
+        font-weight: bold;
+        color: #495057;
+        min-width: 140px;
+        padding-right: 10px;
+        font-size: 13px;
+    }
+
+    .card-value {
+        color: #6c757d;
+        flex: 1;
+        font-size: 13px;
+    }
+
+    .card-actions {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .status-pending {
+        color: #ffc107;
+        font-weight: bold;
+    }
+
+    .status-approved {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .status-rejected {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px dashed #dee2e6;
+    }
+
+    .pagination-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .k-pager-wrap {
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+    }
+
+    /* Mobile Responsive */
+    @@media (max-width: 768px) {
+        .card-row {
+            flex-direction: column;
+        }
+
+        .card-label {
+            min-width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .card-actions {
+            flex-direction: column;
+        }
+
+        .card-actions .btn {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+
+<script type="text/javascript">
+    // Attachment Modal Function
+    function OpenLeaveAttachmentModal(LeaveHistoryId, e) {
+        e.preventDefault();
+
+        if (!LeaveHistoryId || LeaveHistoryId <= 0) {
+            $.alert.open("Alert", "Invalid leave record selected.");
+            return;
+        }
+
+        $.ajax({
+            url: '/LeaveHistoryNew/GetLeaveAttachmentList',
+            type: 'POST',
+            data: { LeaveHistoryId: LeaveHistoryId },
+            dataType: 'json',
+            success: function (response) {
+                if (!response.success) {
+                    $.alert.open("Alert", response.message);
+                    console.log(response);
+                    return;
+                }
+
+                if (!response.data || response.data.length === 0) {
+                    $.alert.open("Alert", "No attachments were found.");
+                    return;
+                }
+
+                var html = "";
+                $.each(response.data, function (i, x) {
+                    const fileUrl = x.Location;
+                    const fileName = x.Name;
+
+                    if (/\.(jpg|jpeg|png|gif|bmp)$/i.test(fileName)) {
+                        html += `
+                            <li class='list-group-item text-center'>
+                                <a href='${fileUrl}' target='_blank' title='Click to open in new tab'>
+                                    <img src='${fileUrl}' alt='${fileName}'
+                                         style='max-width:200px; max-height:200px; border-radius:8px; margin:5px; border:1px solid #ccc;' />
+                                </a>
+                                <div>${fileName}</div>
+                            </li>`;
+                    }
+                    else if (/\.(pdf)$/i.test(fileName)) {
+                        html += `
+                            <li class='list-group-item text-center'>
+                                <embed src='${fileUrl}' type='application/pdf' width='100%' height='500px' style='border:1px solid #ccc; border-radius:8px;' />
+                                <div>${fileName}</div>
+                            </li>`;
+                    }
+                    else {
+                        html += `
+                            <li class='list-group-item'>
+                                <a href='${fileUrl}' target='_blank'>
+                                    <i class='fa fa-file-pdf-o text-danger'></i> ${fileName}
+                                </a>
+                            </li>`;
+                    }
+                });
+
+                $("#AttachmentListContainer").html(html);
+                $("#AttachmentListModal").modal("show");
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr.responseText);
+                $.alert.open("Error", "Failed to load attachments.");
+            }
+        });
+    }
+
+    var EditLeaveId = 0;
+    var currentDataSource = null;
+
+    function GridLoad(qType) {
+        $("#verticalGridContainer").html("<div class='text-center'><i class='fa fa-spinner fa-spin fa-2x'></i><p>Loading...</p></div>");
+
+        currentDataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 10,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetLeaveForApproveList", "LeaveApprove", "http")',
+                    dataType: 'json',
+                    data: { qType: qType }
+                }
+            }
+        });
+
+        currentDataSource.read().then(function() {
+            renderVerticalGrid(currentDataSource.view());
+            setupPager(currentDataSource);
+        });
+
+        // Listen for data changes
+        currentDataSource.bind("change", function() {
+            renderVerticalGrid(currentDataSource.view());
+            setupPager(currentDataSource);
+        });
+    }
+
+    function renderVerticalGrid(data) {
+        if (!data || data.length === 0) {
+            $("#verticalGridContainer").html(`
+                <div class="empty-state">
+                    <i class="fa fa-inbox fa-3x mb-3"></i>
+                    <h4>No Leave Applications Found</h4>
+                    <p>There are no leave applications matching your criteria.</p>
+                </div>
+            `);
+            return;
+        }
+
+        var html = '<div class="vertical-grid-container">';
+
+        $.each(data, function(index, item) {
+            var statusClass = '';
+            var statusText = '';
+
+            if (item.IsApproved == false && item.IsAdjustment == false) {
+                statusClass = 'status-pending';
+                statusText = 'Pending';
+            } else if (item.IsApproved == true && item.IsAdjustment == true) {
+                statusClass = 'status-approved';
+                statusText = 'Approved';
+            } else if (item.IsApproved == false && item.IsAdjustment == true) {
+                statusClass = 'status-rejected';
+                statusText = 'Rejected';
+            }
+
+            var actionButtons = '';
+            if (item.IsApproved == false && item.IsAdjustment == false) {
+                if (item.DispatchLeaveId == 0 || item.DispatchLeaveId == null) {
+                    actionButtons = `
+                        <button type="button" style="width:100px" onclick="leaveConfirm(${item.LeaveId}, ${item.NotificationId}, ${item.ApprovalMasterId}, ${item.ApprovalDetailId}, ${item.LeaveId});" class="btn btn-success btn-sm">Approve</button>
+                        <button type="button" style="width:100px" onclick="LeaveReject(${item.LeaveId}, ${item.NotificationId});" class="btn btn-danger btn-sm">Reject</button>
+                        <button type="button" style="width:100px" onclick="LeaveEdit(${item.LeaveId});" class="btn btn-warning btn-sm">Modify</button>
+                    `;
+                }
+            }
+
+            html += `
+                <div class="leave-card">
+                    <div class="card-header">
+                        <div>
+                            <span class="badge badge-secondary">${item.Rowsl}</span>
+                            <strong>${item.EmployeeCode} - ${item.EmployeeName}</strong>
+                        </div>
+                        <div>
+                            <span class="${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Office:</span>
+                        <span class="card-value">${item.OfficeName || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Department:</span>
+                        <span class="card-value">${item.DepartmentName || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Designation:</span>
+                        <span class="card-value">${item.SignatureName || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Leave Type:</span>
+                        <span class="card-value">${item.LeaveTypeName || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Reason:</span>
+                        <span class="card-value">${item.LeaveReason || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Period:</span>
+                        <span class="card-value">${item.LeaveStartDateMsg || '-'} to ${item.LeaveEndDateMsg || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Duration:</span>
+                        <span class="card-value">${item.TotalDays || '0'} days (Available: ${item.MaxLeaveDays || '0'} days)</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Address During Leave:</span>
+                        <span class="card-value">${item.AddressDuringLeave || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Replacement:</span>
+                        <span class="card-value">${item.ReplacementEmployeeName || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Previous Approver:</span>
+                        <span class="card-value">${item.PreviousApprover || '-'}</span>
+                    </div>
+
+                    <div class="card-row">
+                        <span class="card-label">Attachment:</span>
+                        <span class="card-value">
+                            ${item.Attachment ? `<a href="#" onclick="OpenLeaveAttachmentModal(${item.LeaveId}, event);"><i class="fa fa-paperclip"></i> View Attachment</a>` : 'No Attachment'}
+                        </span>
+                    </div>
+
+                    ${actionButtons ? `
+                    <div class="card-actions">
+                        ${actionButtons}
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        $("#verticalGridContainer").html(html);
+    }
+
+    function setupPager(dataSource) {
+        $("#pager").kendoPager({
+            dataSource: dataSource,
+            buttonCount: 5,
+            info: true,
+            messages: {
+                display: "Showing {0}-{1} of {2} items",
+                empty: "No items to display",
+                page: "Page",
+                of: "of {0}",
+                itemsPerPage: "items per page",
+                first: "Go to the first page",
+                previous: "Go to the previous page",
+                next: "Go to the next page",
+                last: "Go to the last page",
+                refresh: "Refresh"
+            }
+        });
+    }
+
+    function leaveConfirm(LeaveId, NotificationId, ApprovalMasterId, ApprovalDetailId, ApplicationId) {
+        $.alert.open('confirm', 'Are you sure you want to approve this leave?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("leaveConfirm", "LeaveApprove", "http")',
+                    data: { LeaveId: LeaveId, NotificationId: NotificationId, ApprovalMasterId: ApprovalMasterId, ApprovalDetailId: ApprovalDetailId, ApplicationId: ApplicationId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result.result == 1) {
+                            GridLoad(qType);
+                            $.alert.open("Success", Result.message);
+                        } else {
+                            $.alert.open("Error", Result.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+    function LeaveReject(LeaveId, NotificationId) {
+        var reason = prompt("Please write the rejection note", "");
+
+        if (reason != '' && reason.length > 0) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("ApproveReject", "LeaveApprove", "http")',
+                data: { LeaveId: LeaveId, NotificationId: NotificationId, reason: reason },
+                dataType: 'json',
+                async: true,
+                success: function (Result) {
+                    if (Result.result == 1) {
+                        GridLoad(qType);
+                        $.alert.open("Success", Result.message);
+                    } else {
+                        $.alert.open("Error", Result.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+            return true;
+        }
+        else {
+            $.alert.open("Error", "Please write the rejection note");
+            return false;
+        }
+    }
+
+    function LeaveEdit(LeaveId) {
+        EditLeaveId = LeaveId;
+        var Data = currentDataSource.data().find(function (x) { return x.LeaveId == LeaveId });
+
+        if (null == Data) {
+            $.alert.open("Error", "Invalid Leave! Modify not possible");
+        } else {
+            $("#LeaveEditModal_EmployeeInfo").html(Data.EmployeeName + " (" + Data.EmployeeCode + ")");
+            $("#LeaveEditModal_LeaveType").html(Data.LeaveTypeName);
+            $("#LeaveEditModal_StartDate").html(Data.LeaveStartDateMsg.replaceAll(' ', '-'));
+            $("#LeaveEditModal_EndDate").val(Data.LeaveEndDateMsg.replaceAll(' ', '-'));
+            $("#LeaveEditModal_Update").prop("disabled", false);
+            $('#LeaveEditModal').modal('show');
+        }
+    }
+
+    function UpdateLeave() {
+        $("#LeaveEditModal_Update").prop("disabled", true);
+        var Data = {
+            LeaveId: EditLeaveId,
+            LeaveEndDate: $("#LeaveEditModal_EndDate").val()
+        };
+        $.ajax({
+            url: '/LeaveApprove/UpdateLeave',
+            type: 'Post',
+            data: JSON.stringify(Data),
+            dataType: 'json',
+            async: true,
+            contentType: 'application/json',
+            success: function (response) {
+
+                if (!response.success) {
+                    $.alert.open("Error", response.message);
+                    return;
+                }
+                $('#LeaveEditModal').modal('hide');
+                currentDataSource.read();
+            },
+            error: function (data, textStatus, jqXHR) {
+                $.alert.open("Error", data + ": " + textStatus + ": " + jqXHR, 'Error!!!');
+                $("#LeaveEditModal_Update").prop("disabled", false);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        qType = 'N';
+        $("#chkNonApproved").prop('checked', true);
+
+        $(document).on("click", "#AttachmentListModal .list-group-item", function () {
+            var url = $(this).attr("data-url");
+            window.open(url, '_blank');
+        });
+
+        GridLoad(qType);
+
+        $("#LeaveEditModal_EndDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+        });
+
+        $("#chkNonApproved").click(function () {
+            var checkVal = $("#chkNonApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "N";
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkApproved").click(function () {
+            var checkVal = $("#chkApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "A";
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkReject").click(function () {
+            var checkVal = $("#chkReject").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkApproved").prop('checked', false);
+                qType = "R";
+                GridLoad(qType);
+            }
+        });
+    });
+</script>
+
+&nbsp;
+<h2 class="page-title">Leave Approve List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-2" style="float:left">
+            <input type="checkbox" name="app" id="chkNonApproved" />&nbsp;&nbsp;&nbsp;<label>Non-Approved</label><br />
+            <input type="checkbox" name="app" id="chkApproved" />&nbsp;&nbsp;&nbsp;<label>Approved</label><br />
+            <input type="checkbox" name="app" id="chkReject" />&nbsp;&nbsp;&nbsp;<label>Reject</label>
+        </div>
+    </div>
+</div>
+
+&nbsp;
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="verticalGridContainer"></div>
+            <div id="pager" class="pagination-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals remain the same -->
+<div class="modal" id="LeaveEditModal" role="dialog" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Modify Leave for: <b id="LeaveEditModal_EmployeeInfo"></b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Leave Type</label>
+                        <span id="LeaveEditModal_LeaveType" class="form-control" disabled></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <span id="LeaveEditModal_StartDate" class="form-control" disabled></span>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input id="LeaveEditModal_EndDate" type="text" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="LeaveEditModal_Update" type="button" class="btn btn-success" onclick="UpdateLeave()">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="AttachmentListModal" role="dialog" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Attachment List
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="modal-body" style="text-align:center;">
+                    <div id="AttachmentListContainer"></div>
+                </div>
+                <div class="modal-footer" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

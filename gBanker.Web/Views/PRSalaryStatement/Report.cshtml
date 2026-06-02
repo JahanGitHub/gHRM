@@ -1,0 +1,193 @@
+﻿@model gHRM.Web.ViewModels.Payroll.ComponentPayrollViewModel
+@{
+    ViewBag.Title = "Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#EmployeeCode_Section").hide();
+
+        $("#IsEmpCode").change(function () {
+            var IsEmpCode = $("#IsEmpCode").val();
+            if (IsEmpCode == 1) {
+                $("#EmployeeCode_Section").show();
+            } else {
+                $("#EmployeeCode").val('');
+                $("#EmployeeCode_Section").hide();
+            }
+        });
+
+        $("#ComponentCategory").change(function () {
+            var ComponentCategory = $("#ComponentCategory option:selected").text();
+            var ComponentName = $("#ComponentName");
+
+            if (ComponentCategory != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetCategoryByCategoryGroup", "PRSalaryStatement", "http")',
+                    data: { ComponentCategory: ComponentCategory },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ComponentName.html("");
+                            ComponentName.html('<option value="">Please Select</option>');
+                            $.each(data, function (id, option) {
+                                ComponentName.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ComponentName.html('<option value="">Please Select</option>');
+                        }
+                    },
+                });
+            } else {
+                ComponentName.html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+        });
+        $("#DateFrom").datepicker('setDate', new Date());
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+        $("#DateTo").datepicker('setDate', new Date());
+
+        $("#btnPrint").click(function () {
+            debugger;
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var ComponentCategory = $("#ComponentCategory option:selected").text();
+            var ComponentName = $("#ComponentName option:selected").text();
+            var IsApproved = $("#IsApproved option:selected").val();
+            var EmployeeCode = $("#EmployeeCode").val();
+            if (ComponentName != "Please Select") {
+                url = '/PRSalaryStatement/ComponentPayrollReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&ComponentCategory=' + ComponentCategory + '&ComponentName=' + ComponentName + '&IsApproved=' + IsApproved + '&EmployeeCode=' + EmployeeCode;
+                PrintReport(url);
+            }
+            else {
+                $.alert.open("Error", "Please Select ComponentName");
+                return false;
+            }
+
+        });
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+<h2 class="page-title">Component Payroll Report</h2>
+<div class="container-fluid">
+
+    <div class="row">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required">Component Category</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.ComponentCategory, Model.ComponentCategoryList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Component Name</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.ComponentName, Model.ComponentNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="DateDuration">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date From </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date To </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateTo, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">IsApproved</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.IsApproved, Model.IsApprovedList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">IsEmpCode</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.IsEmpCode, Model.IsEmpCodeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6" id="EmployeeCode_Section">
+            <div class="form-group">
+                <label class="control-label col-md-4">Employee Code</label>
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div><br>
+
+    <div class="row">
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

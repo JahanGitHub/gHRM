@@ -1,0 +1,317 @@
+﻿@model gHRM.Web.ViewModels.LeaveHistoryViewModel
+
+@{
+    ViewBag.Title = "Leave Adjust";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveHistory">LeaveHistory</a></li>
+    </ol>
+</div>
+
+<script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<link href="~/Content/css/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+<script src="~/Scripts/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script type="text/javascript">
+
+    var qType = "N";
+
+    function LeaveAdjustPrint(EmployeeId, LeaveId) {
+        var url;
+        url = '/LeaveHistoryNew/FinalAdjustmentLeaveReport?LeaveId=' + LeaveId + '&EmployeeId=' + EmployeeId + '&adjusted=' + 'Y' + '&QType=' + $('#QType').val();
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        // window.location.href = "/LeaveHistory/Index";
+    }
+
+
+    function deleteApprovedLeave(LeaveId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this leave?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("deleteApprovedLeave", "LeaveHistoryNew", "http")',
+                    data: { LeaveId: LeaveId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result == 1) {
+                            GridLoad(qType);
+                            $.alert.open("Success", "Leave Application Deleted Successfully");
+                        } else {
+                            $.alert.open("Error", "Failed To Delete Leave Application");
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+
+    function GridLoad(qType) {
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetLeaveForAdjustList", "LeaveHistoryNew", "http")',
+                    dataType: 'json',
+                    data: { qType: qType }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "LeaveId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "LeaveTypeId",
+                     title: "Leave Type Id",
+                     width: "50px",
+                     hidden: true,
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false
+                     //locked: true,
+                     //lockable: false,
+                 },
+                 {
+                     field: "EmployeeId",
+                     title: "Employee Id",
+                     width: "50px",
+                     hidden: true,
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false
+                     //locked: true,
+                     //lockable: false,
+                 },
+                 {
+                     field: "Rowsl",
+                     title: "Sl.",
+                     width: "30px",
+                     filterable: true,
+
+                 },
+                 {
+                     width: "60px",
+                     field: "EmployeeCode",
+                     filterable: true,
+                     title: "Code",
+                     //locked: true
+                 },
+                 {
+                     width: "100px",
+                     field: "EmployeeName",
+                     title: "Name",
+                     //locked: true
+                 },
+                {
+                    width: "80px",
+                    field: "DesignationName",
+                    title: "Designation",
+                    //locked: true
+                },
+                {
+                    width: "80px",
+                    field: "LeaveReason",
+                    title: "Reason"
+                },
+
+                {
+                    width: "60px",
+                    field: "LeaveTypeName",
+                    title: "Type Name"
+                },
+                {
+                    width: "90px",
+                    field: "LeaveStartDateMsg",
+                    title: "Start Date"
+                },
+                {
+                    width: "80px",
+                    field: "LeaveEndDateMsg",
+                    title: "End Date"
+                },
+                {
+                    width: "60px",
+                    field: "TotalDays",
+                    title: "Total Days"
+                },
+                {
+                    width: "100px",
+                    field: "AddressDuringLeave",
+                    title: "Address"
+                },
+                //{
+                //    width: "100px",
+                //    field: "Remarks",
+                //    title: "Remarks"
+                //},
+                //{
+                //    width: "100px",
+                //    field: "ReplacementEmployeeName",
+                //    title: "Replacement Employee"
+                //},
+
+                 {
+                     width: "70px",
+                     title: 'Action',
+                     template: function (data) {
+                         if (data.comment == "N") {
+                             var empName = data.EmployeeCode + ', ' + data.EmployeeName;
+                             var btn = '';
+
+                             if (data.DispatchLeaveId == 0 || null) {
+                                 btn = btn + "<div class='text-center' style='float:left; margin-right: 5px;'><a href='/LeaveHistoryNew/LeaveAdjustment/" + data.LeaveId + "'><i title='Adjustment' class='fa fa-th'></i></a></div>";
+                             }
+                             else {
+                                 return "";
+                             }
+                             btn = btn + '<div class="text-center"><a title="Delete Approved Leave" href="#" OnClick="deleteApprovedLeave(' + data.LeaveId + ');"><i class="fa fa-times"></i></a></div>';
+                             return btn;
+                         }
+                         else if (data.comment == "A") {
+                             return '<div class="text-center"><a title="Adjust Approval Print" href="#" OnClick="LeaveAdjustPrint(' + data.EmployeeId + ',' + data.LeaveId + ');"><i class="fa fa-print"></i></a></div>';
+                         }
+                         else {
+                             return "";
+                         }
+                         //if (data.comment == "N") {
+                         //    return '<div class="text-center"><a title="Delete Approved Leave" href="#" OnClick="deleteApprovedLeave(' + data.LeaveId + ');"><i class="fa fa-times"></i></a></div>';
+                         //}else {
+                         //    return "";
+                         //}
+                     }
+                 },
+            ]
+        });
+    }
+
+
+
+    $(document).ready(function () {
+        qType = 'N';
+        $("#QType").val(qType);
+        $("#chkNonApproved").prop('checked', true);
+
+        GridLoad(qType);
+
+        $("#chkNonApproved").click(function () {
+            var checkVal = $("#chkNonApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "N"
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkApproved").click(function () {
+            var checkVal = $("#chkApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "A"
+                $("#QType").val(qType);
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkReject").click(function () {
+            var checkVal = $("#chkReject").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkApproved").prop('checked', false);
+                qType = "R"
+                $("#QType").val(qType);
+                GridLoad(qType);
+            }
+        });
+
+
+        $("#chkNotGetNotification").click(function () {
+            var checkVal = $("#chkNotGetNotification").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "NR"
+                $("#QType").val(qType);
+                GridLoad(qType);
+            }
+        });
+    });
+
+
+</script>
+
+<h2 class="page-title">Leave Adjust List</h2>
+&nbsp;
+<input type="hidden" id="QType" value="" />
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-2" style="float:left">
+            <input type="checkbox" name="app" id="chkNonApproved" />&nbsp;&nbsp;&nbsp;<label>Non-Adjust</label><br />
+            <input type="checkbox" name="app" id="chkApproved" />&nbsp;&nbsp;&nbsp;<label>Adjusted</label><br />
+            <input type="checkbox" name="app" id="chkReject" />&nbsp;&nbsp;&nbsp;<label>Reject</label>
+            @*<input type="checkbox" name="app" id="chkNotGetNotification" />&nbsp;&nbsp;&nbsp;<label>Approve Leave (Not Get)</label>*@
+        </div>
+    </div>
+</div>
+
+&nbsp;
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

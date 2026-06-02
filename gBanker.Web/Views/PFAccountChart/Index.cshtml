@@ -1,0 +1,184 @@
+﻿@model gHRM.Web.ViewModels.PF.AccountChartViewModel
+
+@{
+    ViewBag.Title = "CreateAcChart";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+    
+    //function GetParentAccount(accountTypeCode, glLevelId) {
+    function GetParentAccount() {
+
+        $('#ParentAccountCode').empty();
+        var accountTypeCode = $("#AccountTypeCode option:selected").val();
+        var glLevelId = $("#GLLevelId option:selected").val();
+        if (accountTypeCode == '' || glLevelId == '') {
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetParentAccount", "PFAccountChart", "http")',
+            data: { accountTypeCode: accountTypeCode, glLevelId: glLevelId },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    //Testing
+                    $('#ParentAccountCode').append($('<option></option>').val(option.Value).html(option.Text));
+                    //Correct: Another way
+                    //$('#ParentAccountCode').append('<option value="' + option.AccountTypeCode + '">' + option.AccountName + '</option>');
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    
+    $(document).ready(function () {
+
+        $("#btnSearch").click(function () {
+            var accountCode = $("#AccountCode").val();
+            var accountName = $("#AccountName").val();
+            var parentAccountCode = $("#ParentAccountCode").val();
+
+            if (accountCode == "" && accountName == "" && parentAccountCode == "") {
+                $('#grid').jtable('load', {});
+            }
+            $('#grid2').jtable('load', { accountCode: accountCode, accountName: accountName, parentAccountCode: parentAccountCode });
+        });
+
+
+        //$("#AccountTypeCode").change(function () {
+        //    GetParentAccount();
+        //});
+        //$("#GLLevelId").change(function () {
+        //    GetParentAccount();
+        //});
+
+      
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFAccountChart/GetAccountChartList'
+            },
+            fields: {
+                AccountId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                AccountCode: {
+                    title: 'Account Code',
+                    width: '15%'
+                },
+                AccountName: {
+                    title: 'Account Name',
+                    width: '45%'
+                },
+                ParentAccountCode: {
+                    title: 'Parent Code',
+                    width: '15%'
+                },
+                GLLevelId: {
+                    title: 'GL Level',
+                    width: '10%'
+                },
+                IsVoucher: {
+                    title: 'Is Voucher',
+                    width: '10%',
+                    display: function (data) {
+                        if (data.record.IsVoucher == true)
+                            return "Yes";
+                        if (data.record.IsVoucher == false)
+                            return "No";
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFAccountChart/Edit/" + data.record.AccountCode + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                }
+            }
+        });
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+    });
+</script>
+
+@Html.ActionLink("Add Account Chart", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Account Chart List</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.AccountCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.AccountCode, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Account Code" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.AccountName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.AccountName, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Account Name" } })
+                </div>
+            </div>
+        </div>
+       
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ParentAccountCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.ParentAccountCode, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Parent Account Code" } })
+                </div>
+                <div class="col-sm-4">
+                    <input type="button" value="Search" id="btnSearch" class="btn btn-warning" />
+                </div>
+            </div>
+        </div>
+     
+        <div id="grid2">
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="grid2">
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

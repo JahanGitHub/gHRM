@@ -1,0 +1,48 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRSalaryConfigurationViewModel
+
+@{
+    ViewBag.Title = "Promotion & Salary Configuration";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var model = new gHRM.Web.ViewModels.PromotionNevigationPartialViewModel
+    {
+        DesignationList = Model == null ? null : Model.DesignationList,
+        EmployeeSalaryType = Model.EmployeeSalaryType,
+        SalaryGenerationTypeList = Model.SalaryGenerationTypeList,
+        GradeList = Model.GradeList,
+        SalaryScaleList = Model.SalaryScaleList,
+        OverTimeList = Model.OverTimeList,
+        PFTypeList = Model == null ? null : Model.PFTypeList,
+        PromotionTypeList = Model == null ? null : Model.PromotionTypeList,
+        MonthList = Model.MonthList,
+        IncrementYearFromList = Model.IncrementYearFromList,
+        BankList = Model.BankList,
+        EmployeeStatusList = Model.EmployeeStatusList,
+        txtEmpName=Model.EmployeeCode,
+        PromotionId= Model.PromotionId
+    };
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="javascript:void(0);">Promotion & Salary Configuration</a></li>
+    </ol>
+</div>
+
+<h2 class="page-title">Employee Salary Configuration</h2>
+
+<div id="AjaxLoader" class="ajaxLoader"></div>
+
+<div class="pt-15px">
+    @Html.Partial("_PromotionConfigurationPartial", model)
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+
+    <link href="~/Content/wickedpicker.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <script src="~/Scripts/wickedpicker.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <link href="~/Assets/css/promotion-payroll-config.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <script src="~/Assets/js/app/promotion/promotionAndPayrollConfigurationManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()@DateTime.Now"></script>
+}

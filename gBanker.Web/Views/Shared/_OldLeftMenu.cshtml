@@ -1,0 +1,77 @@
+﻿@*
+    This partial controls the left menu of the AdminLTE dashboard and is called automatically by _AdminLteLayout
+       This is where you can add, modify, or remove navigation options in your app
+       TODO: This preserves the links as-is for the demo, which lead to broken pages!
+       It's up to you to make sure these links either get deleted or lead somewhere REAL!
+*@
+
+
+@{
+    Layout = null;
+}
+@{
+    var parentModules = gHRM.Web.Helpers.SessionHelper.AllPrentModules ?? new List<gHRM.Data.CodeFirstMigration.AspNetSecurityModule>();
+    var userModules = gHRM.Web.Helpers.SessionHelper.UserSecurityModules ?? new List<gHRM.Data.CodeFirstMigration.AspNetSecurityModule>();
+    var parent_Modules = parentModules.OrderBy(w => w.DisplayOrder);
+}
+<aside class="main-sidebar main-sidebar-new">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+        <!-- Sidebar user panel -->
+        @*<div class="user-panel">
+                <div class="pull-left image">
+                    <img src="/Content/AdminLTE/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
+                </div>
+                <div class="pull-left info">
+                    <p><span class="hidden-xs">@gHRM.Web.Helpers.SessionHelper.UserFullName</span></p>
+                    <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                </div>
+            </div>*@
+        <!-- search form -->
+        @*<form action="#" method="get" class="sidebar-form">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Search..." />
+                    <span class="input-group-btn">
+                        <button type='submit' name='search' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                    </span>
+                </div>
+            </form>*@
+        <!-- /.search form -->
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu">
+            @foreach (var module in parent_Modules)
+            {
+                var securityModules = userModules.Where(w => w.ParentModuleId == module.AspNetSecurityModuleId && w.IsActive == true && (!w.IsMenuItem.HasValue || w.IsMenuItem.Value)).OrderBy(o => o.DisplayOrder).ToList();
+
+                if (securityModules.Count > 0)
+                {
+                    <li class="treeview">
+                        <a href="@module.AspNetSecurityModuleId">
+                            <i class="fa fa-th-large"></i>
+                            <span>@module.LinkText</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            @foreach (var childModule in securityModules)
+                            {
+                                <li><a href="~/@childModule.ControllerName/@childModule.ActionName"><i class="fa fa-arrow-circle-o-right"></i> @childModule.LinkText </a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+            }
+        </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+    </section>
+    <!-- /.sidebar -->
+</aside>

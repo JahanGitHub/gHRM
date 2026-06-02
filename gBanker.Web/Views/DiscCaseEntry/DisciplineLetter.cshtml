@@ -1,0 +1,201 @@
+﻿@model gHRM.Web.ViewModels.Discipline.CaseEntryViewModel
+
+@{
+    ViewBag.Title = "Discipline Letter ";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+<script type="text/javascript">
+
+    //GenerateLetter(' + data.record.CaseMasterId + ',' + data.record.CaseType + ')
+
+    function GenerateLetter(CaseMasterId, CaseType) {  
+        var url = '/DiscCaseEntry/FNGenerateLetter?CaseMasterId=' + CaseMasterId + '&CaseType=' + CaseType;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    
+    $(document).ready(function () {
+
+       
+        @* var LoginId =  @Html.Raw(Json.Encode(ViewData["LoginId"]));*@
+ 
+ 
+        //reloadGrid();
+
+        $("#btnSearch").click(function (e) {
+            e.preventDefault();
+            var filterType = $("#filterType").val();
+            var FilterValue = $("#txtCaseNo").val();
+
+            $('#grid').jtable('load', { filterType: filterType, FilterValue: FilterValue });
+        });
+
+
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 50,
+            sorting: false,
+            defaultSorting: 'EmployeeName ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/DiscCaseEntry/GetCasePunishmentListForLetter?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                CaseMasterId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                //SlNo: {
+                //    title: 'Sl',
+                //     width: '5%',
+                //},
+                CaseNo: {
+                    title: 'Case No',
+                    width: '10%'
+                },
+                EmployeeId: {
+                    title: 'EmployeeId',
+                    width: '8%'
+                },
+                EmployeeName: {
+                    title: 'Employee',
+                    width: '13%'
+                },
+                Crimes: {
+                    title: 'Crime',
+                    width: '15%'
+                },
+                CrimeLocationName: {
+                    title: 'CrimeLocation',
+                    width: '8%'
+                },
+                ZoneName: {
+                    title: 'Zone',
+                    width: '9%',
+                },
+                CaseType: {
+                    title: 'Case Type',
+                    width: '9%',
+                },
+
+                CaseDateFromMsg: {
+                    title: 'Case Issue Dt',
+                    width: '12%'
+                },
+
+                PunishmentDateMsg: {
+                    title: 'Punishment Dt',
+                    width: '12%'
+                },
+                PunishmentDespatchNo: {
+                    title: 'Punishment Despatch No',
+                    width: '12%'
+                },
+                PunishmentName: {
+                    title: 'Punishment(s)',
+                    width: '12%'
+                },
+                Print: {
+                    title: "Print",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {  
+                        
+                        return '<div class="text-center"><a href="#" OnClick="GenerateLetter(' + data.record.CaseMasterId + ',' + "'" + data.record.CaseType + "'" + ');"><i class="fa fa-print"></i></a></div>';
+                    
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    sorting: false,
+                    display: function (data) {
+                        
+                        return "<div class='text-center'><a href='/DiscCaseEntry/EditDisciplineLetter?CaseMasterId=" + data.record.CaseMasterId + "'><i title='Edit Discipline' class='fa fa-pencil-square-o'></i></a></div>";
+                        
+                        }
+                    } // End Of display
+
+                  
+
+            }
+        });
+        var filterType = $("#filterType").val();
+        var FilterValue = $("#txtCaseNo").val();
+
+        $('#grid').jtable('load', { filterType: filterType, FilterValue: FilterValue });
+    });
+
+    function reloadGrid() {
+        var filterType = $("#filterType").val();
+        var FilterValue = $("#txtCaseNo").val();
+
+        $('#grid').jtable('load', { filterType: filterType, FilterValue: FilterValue});
+
+    }
+
+</script>
+
+<h2 class="page-title">Generate Letter</h2>
+<br />
+@*<button id="test" onclick="GenerateLetter('explanation')" ></button>*@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label class="control-label col-sm-1">Filter Type</label>
+            <div class="col-sm-4">
+                <select id="filterType" class="form-control">
+                    <option value="ViewAll" selected="selected">View All</option>
+                    <option value="CaseNo">Case No</option>
+                    <option value="C">Case Despatch</option>
+                    <option value="P">Punishment Despatch</option>
+                    <option value="E">Employee ID</option>
+                </select>
+            </div>
+            <div class="col-md-6" id="filterValue">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" id="filterLebel"></label>
+                    <div class="col-sm-6">
+                        <input type="text" id="txtCaseNo" class="form-control" />
+                    </div>
+                    <div class="col-md-1">
+                        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<div id="grid"></div>
+
+
+ 
+
+<!-- End Of Program Entry Div -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

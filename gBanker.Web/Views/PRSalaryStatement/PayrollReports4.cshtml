@@ -1,0 +1,411 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+@{
+    ViewBag.Title = "Payroll Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var tt = SessionHelper.CompanyInfo.CompanyShortName;
+}
+
+
+<input id="system" value="@tt" type="hidden">
+
+<script type="text/javascript">
+
+    
+    function PrintFundTransferApplicationReport(officeTypeId, bankCode, branchId, accountId, month, year, salaryType) {
+        url = '/PRSalaryStatement/PrintFundTransferApplicationReport?OfficeTypeId=' + officeTypeId + '&BankCode=' + bankCode + '&BranchId=' + branchId + '&AccountId=' + accountId + '&Year=' + year + '&Month=' + month + '&SalaryType=' + salaryType;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintFundTransferAdviceReport(officeTypeId, bankCode, branchId, month, year, salaryType, accountId) {
+        url = '/PRSalaryStatement/PrintFundTransferAdviceReport?OfficeTypeId=' + officeTypeId + '&BankCode=' + bankCode + '&BranchId=' + branchId + '&Year=' + year + '&Month=' + month + '&SalaryType=' + salaryType + '&accountId=' + accountId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintFundTransferApplicationAndAdviceReport(officeTypeId, bankCode, branchId, accountId, month, year, salaryType, PersonToContactFromBankId, format) {
+        url = '/PRSalaryStatement/PrintFundTransferApplicationAndAdviceReport_2025?OfficeTypeId=' + officeTypeId + '&BankCode=' + bankCode + '&BranchId=' + branchId + "&AccountId=" + accountId + '&Year=' + year + '&Month=' + month + '&SalaryType=' + salaryType + "&PersonToContactFromBankId=" + PersonToContactFromBankId+ "&format=" + format;
+        console.log(url)
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintFundTransferAdviceReportExcel(officeTypeId, bankCode, branchId, month, year, salaryType) {
+        url = '/PRSalaryStatement/PrintFundTransferAdviceReportExcel?OfficeTypeId=' + officeTypeId + '&BankCode=' + bankCode + '&BranchId=' + branchId + '&Year=' + year + '&Month=' + month + '&SalaryType=' + salaryType;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintComponentWiseSalary(month, year, componentName, componentType) {
+        url = '/PRSalaryStatement/PrintComponentWiseSalary?month=' + month + '&year=' + year + '&componentName=' + componentName + '&componentType=' + componentType;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto')
+    }
+
+    function LoadBankAccounts(branchId) {
+        var ddlAccount = $("#AccountId");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBankAccountList2", "PRSalaryStatement", "http")',
+            data: { BranchId: branchId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAccount.html('');
+                $.each(data, function (id, option) {
+                    ddlAccount.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function LoadBankBranch(bankCode) {
+        var ddlBranch = $("#BranchId");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBankBranchList2", "PRSalaryStatement", "http")',
+            data: { BankCode: bankCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBranch.html('');
+                $.each(data, function (id, option) {
+                    ddlBranch.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                ddlBranch.trigger('change');
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    $(document).ready(function () {
+        LoadBankBranch('DBBL');
+        //$("#btnExcel").hide();
+        $("#hideComponent").hide();
+        $("#BankCode").change(function () {
+            var code = $("#BankCode").val();
+            if (code != "") {
+                LoadBankBranch(code);
+            } else {
+                $("#BranchId").html('<option value="">Please Select</option>');
+                $("#AccountId").html('<option value="">Please Select</option>');
+            }
+        });
+        $("#BranchId").change(function () {
+            var branchId = $("#BranchId").val();
+            
+            if (branchId != "" && branchId > 0) {
+                LoadBankAccounts(branchId);
+            } else {
+                $("#AccountId").html('<option value="">Please Select</option>');
+            }
+        });
+        $("#ReportName").change(function () {
+            var reportName = $("#ReportName").val();
+            $("#PersonToContactFromBankContainer").hide();
+            if (reportName === "Advice") {
+                $("#btnExcel").show();
+                $("#hideRow1").show();
+                $("#hideRow2").show();
+                $("#hideRow3").show();
+                $("#hideComponent").hide();
+            } else {
+                $("#btnExcel").hide();
+                $("#hideRow1").show();
+                $("#hideRow2").show();
+                $("#hideRow3").show();
+                $("#hideComponent").hide();
+                if (reportName == "ApplicationAdvice") {
+                    $("#PersonToContactFromBankContainer").show();
+                    $("#btnExcel").show();
+                }
+            }
+            if (reportName == "Component") {
+                $("#hideRow1").hide();
+                $("#hideRow2").hide();
+                $("#hideRow3").hide();
+                $("#hideComponent").show();
+            }
+        });
+
+        $("#btnPrint").click(function () {
+            var system = $("#system").val();
+            var reportName = $("#ReportName").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            var bankCode = $("#BankCode").val();
+            var branchId = $("#BranchId").val();
+            console.log(branchId);
+            var accountId = $("#AccountId").val();            
+            console.log(accountId);
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+            var salaryType = $("#SalaryType").val();
+            var componentName = $("#ComponentName").val();
+            var componentType= $("#ComponentType").val();
+            var PersonToContactFromBankId = $("#PersonToContactFromBankId").val();
+            if (reportName === "Application" && bankCode != "" && branchId > 0 && accountId != "" && month > 0 && year > 0 && salaryType != "") {
+                if (officeTypeId != "10000" && system == "GT") {
+                    var accountId = $('select[name=AccountId] option:selected').text();                    
+                }
+             
+                PrintFundTransferApplicationReport(officeTypeId, bankCode, branchId, accountId, month, year, salaryType);
+            } else if (reportName === "Advice" && bankCode != "" && branchId > 0 && month > 0 && year > 0 && salaryType != "") {
+                if ( system == "GT") {
+                    var accountId = $('select[name=AccountId] option:selected').text();
+                }
+                PrintFundTransferAdviceReport(officeTypeId, bankCode, branchId, month, year, salaryType, accountId );
+            } else if (reportName === "ApplicationAdvice" && bankCode != "" && branchId > 0 && month > 0 && year > 0 && salaryType != "") {
+                PrintFundTransferApplicationAndAdviceReport(officeTypeId, bankCode, branchId, accountId, month, year, salaryType, PersonToContactFromBankId,"pdf");
+            } else if (reportName == "Component" && month != "" && year != "" && componentName != "" && componentType!="") {
+                PrintComponentWiseSalary(month, year, componentName, componentType);
+            }
+            else {
+                $.alert.open("Error", "Please Insert All Required Fields");
+            }
+        });
+        $("#btnExcel").click(function () {
+            
+            var reportName = $("#ReportName").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            var bankCode = $("#BankCode").val();
+            var branchId = $("#BranchId").val();
+            var accountId = $("#AccountId").val();
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+            var salaryType = $("#SalaryType").val();
+            var PersonToContactFromBankId = $("#PersonToContactFromBankId").val();
+            if (reportName === "Advice" && officeTypeId != "" && bankCode != "" && branchId > 0 && month > 0 && year > 0 && salaryType != "") {
+                PrintFundTransferAdviceReportExcel(officeTypeId, bankCode, branchId, month, year, salaryType);
+            }
+            else if (reportName === "ApplicationAdvice" && bankCode != "" && branchId > 0 && month > 0 && year > 0 && salaryType != "") {
+                PrintFundTransferApplicationAndAdviceReport(officeTypeId, bankCode, branchId, accountId, month, year, salaryType, PersonToContactFromBankId, "excel");
+            }
+            else {
+                $.alert.open("Error", "Please Insert All Required Fields");
+            }
+        });
+
+            $("#ComponentType").change(function(){
+                var componentType = $("#ComponentType").val();
+                var ddlcomponentName = $("#ComponentName");
+                if (componentType != "") {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("LoadTypeWiseComponentList", "PRSalaryStatement", "http")',
+                        data: { componentType: componentType },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            ;
+                            ddlcomponentName.html('<option value="">Please Select</option>');
+                            $.each(data, function (id, option) {
+                                ddlcomponentName.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                } else {
+                    $.alert.open("Error", "Please Select Component Type");
+                }
+            });
+
+            $("#PersonToContactFromBank_Code").blur(function () {
+                $("#PersonToContactFromBankDetail").html("");
+                var data = JSON.stringify({ Code: $("#PersonToContactFromBank_Code").val() });
+                Req.POST.GetEmployeeShortInfoByCode(data, function (response) {
+                    if (response.EmployeeId == 0) {
+                        $("#PersonToContactFromBankId").val(0);
+                        $("#PersonToContactFromBankDetail").html("");
+                        return;
+                    }
+                    $("#PersonToContactFromBankId").val(response.EmployeeId);
+                    var Html = "Name: <b>" + response.EmployeeName + "</b>, " +
+                        "Office: <b>" + response.OfficeName + "</b>, " +
+                        "Department: <b>" + response.DepartmentName + "</b>, " +
+                        "DesignationName: <b>" + response.DesignationName + "</b>";
+                    $("#PersonToContactFromBankDetail").html(Html);
+                }, function () {
+                    $("#PersonToContactFromBankId").val(0);
+                });
+            });
+
+
+        var currentMonth = new Date().getMonth() + 1; // Get current month (0-indexed, so +1)
+        $("#Month").val(currentMonth); // Set the value in the dropdown
+
+        var currentYear = new Date().getFullYear(); // Get current year (e.g., 2025)
+        $("#Year").val(currentYear); // Set the value in the dropdown
+
+    });
+
+    var Req = {
+        POST: {
+            GetEmployeeShortInfoByCode: function (Data, callback, err_callback) {
+                $.ajax({
+                    url: '/Employee/GetEmployeeShortInfoByCode',
+                    type: 'Post',
+                    data: Data,
+                    dataType: 'json',
+                    async: true,
+                    contentType: 'application/json',
+                    success: function (response) {
+
+                        if (!response.success) {
+                            $.alert.open("Error", response.message);
+                            if (null != err_callback) { err_callback(); }
+                            return;
+                        }
+                        if (null != callback) { callback(response.data); }
+                    },
+                    error: function (data, textStatus, jqXHR) {
+                        $.alert.open("Error", data + ": " + textStatus + ": " + jqXHR, 'Error!!!');
+                        if (null != err_callback) { err_callback(); }
+                    }
+                });
+            }
+        }
+    };
+
+
+</script>
+
+
+&nbsp;
+<h2 class="page-title">Payroll Reports</h2>
+&nbsp;
+@using (Html.BeginForm("PayrollReports", "PRSalaryStatement", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "PayrollReports" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        <div class="row">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ReportName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ReportName, Model.ReportTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6" id="hideRow1">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-sm-4" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="hideRow2">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.SalaryType, Model.SalaryTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BankCode, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.BankCode, Model.BankList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="hideRow3">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.BranchId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.BranchId, Model.BranchList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AccountId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.AccountId, Model.AccountList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="hideComponent">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ComponentType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ComponentType, Model.ComponentTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ComponentName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ComponentName, Model.ComponentNameList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="PersonToContactFromBankContainer" class="row" style="display: none;">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.HiddenFor(m => m.PersonToContactFromBankId)
+                        <label class="control-label col-sm-4 required" for="Year" aria-required="true">Person To Contact From Bank</label>
+                        <div class="col-sm-8">
+                            <input id="PersonToContactFromBank_Code" class="form-control" type="text" placeholder="Employee Code"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <span id="PersonToContactFromBankDetail" style="font-size: 13px;"></span>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group" style="padding:10px; margin:5px;">
+                        <input type="button" value="Print" id="btnPrint" class="btn btn-success" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="button" value="Download Excel" id="btnExcel" class="btn btn-success" />
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+
+
+
+
+

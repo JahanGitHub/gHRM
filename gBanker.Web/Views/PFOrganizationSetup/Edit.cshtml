@@ -1,0 +1,148 @@
+﻿@model gHRM.Web.ViewModels.PF.OrganizationSetupViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    //var desigList = Model == null ? null : Model.PFTypeList;
+}
+
+
+<script type="text/javascript">
+
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    function UpdateOrganizationSetup(id, pfTypeId, yearStartDate, yearEndDate, isActive) {
+     
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateOrganizationSetup", "PFOrganizationSetup", "http")',
+            data: { id: id, pfTypeId: pfTypeId, yearStartDate: yearStartDate, yearEndDate: yearEndDate, isActive: isActive },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                setTimeout(function () {
+                    window.location.href = "/PFOrganizationSetup/Index";
+                }, 1500);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+            }
+        });
+    }
+
+
+    function Update() {
+        var id = $("#Id").val();       
+        var pfTypeId = $("#PFTypeId").val();
+        var yearStartDate = $("#YearStartDate").val();
+        var yearEndDate = $("#YearEndDate").val();
+        var isActive = $('#IsActive').is(':checked');
+
+        if (id == '' || pfTypeId == '' || yearStartDate == '' || yearEndDate == '') {
+            alert("Enter valid input");
+            return;
+        }
+        UpdateOrganizationSetup(id, pfTypeId, yearStartDate, yearEndDate, isActive);
+    }
+
+    //End Save Work Area
+    $(document).ready(function () {
+        $("input[type=text]:visible:enabled").first().focus();
+        var pfId = $('#PFTypeId').val();
+        $("#PFTypeList").val(pfId);
+
+        $("#YearStartDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true
+          });
+        $("#YearEndDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true
+          });
+
+        $('#OrgId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $("#btnUpdateOrgSetup").click(function () {
+           
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });       
+    });
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Update Organization PF Setup</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(m=>m.Id)
+        <div class="row">
+            <div class="form-group">
+                @Html.Label("PF Type", new { @class = "control-label col-md-2 required" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(model => model.PFTypeId, Model.PFTypeList, new { @class = "form-control", @tabindex = 3 })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group"> 
+                @Html.LabelFor(model => model.YearStartDate, new { @class = "control-label col-md-2 required" })
+                <div class="col-md-4">
+                    @Html.EditorFor(model => model.YearStartDate, new { htmlAttributes = new { @class = "form-control", @tabindex = 4, @Placeholder = "Year Start Date" } })
+                </div>
+                @Html.LabelFor(model => model.YearEndDate, new { @class = "control-label col-md-2 required" })
+                <div class="col-md-4">
+                    @Html.EditorFor(model => model.YearEndDate, new { htmlAttributes = new { @class = "form-control", @tabindex = 5, @Placeholder = "Year End Date" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">              
+                @Html.LabelFor(model => model.IsActive, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.CheckBoxFor(model => model.IsActive, new { @tabindex = 6 })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Update" id="btnUpdateOrgSetup" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

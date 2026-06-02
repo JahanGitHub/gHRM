@@ -1,0 +1,693 @@
+﻿@model gHRM.Web.ViewModels.LeaveHistoryViewModel
+
+<div class="row">
+    @*<ol class="breadcrumb breadcrumb-arrow">
+            <li><a href="/LeaveHistory">Backlog LeaveHistory</a></li>
+            <li><a href="/LeaveHistory/LeaveEntry">LeaveEntry</a></li>
+        </ol>*@
+</div>
+
+@{
+    ViewBag.Title = "Backlog Leave Entry";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var empList = Model == null ? null : Model.EmployeeList;
+}
+
+<script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="~/Scripts/momentjs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script type="text/javascript">
+
+    var maxLeaveAtaTime = 0;
+    var MaxLeaveDays = 0;
+    var MaxLeaveAccType = 0;
+    var leaCount = 0;
+    var OfficeTypeId = "@ViewData["OfficeTypeId"]";
+
+    function LoadEmpInfo() {
+
+        var employee_Code = $("#txtEmployeeCode").val();
+        if (employee_Code != '') {
+
+            var Employee_Id = 0;
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetEmpInfo", "LeaveHistoryNew", "http")',
+                data: { employee_Code: employee_Code },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1 && data.List_EmployeeViewModel != "") {
+                        var status = '';
+                        $("#txtEmployeeCode").val(employee_Code);
+                        var List_EmployeeViewModel = data.List_EmployeeViewModel;
+                        var adjust_ment = 0;
+                        $.each(List_EmployeeViewModel, function (index, emp) {
+                            $('#EmployeeId').val(emp.EmployeeId);
+                            $("#EmpGender").val(emp.Gender);
+                            adjust_ment = emp.Adjustment;
+
+                            $("#EmployeeName").val(emp.EmployeeName);
+                            $('#EmployeeId').val(emp.EmployeeId);
+                            $("#OfficeName").val(emp.OfficeName);
+                            $("#DesignationName").val(emp.DesignationName);
+                            $("#OffcDesignName").val(emp.OffcDesignName);
+                            $("#OfficeId").val(emp.OfficeId);
+                            $("#DepartmentName").val(emp.DepartmentName);
+                            $("#DepartmentId").val(emp.DepartmentId);
+                            $("#EmpGender").val(emp.Gender);
+                            employeeStatusId = emp.EmployeeStatusId;
+                            var empRank = emp.EmployeeRank;
+                            if (empRank == "O") {
+                                $("#EmployeeRank").val("কর্মকর্তা");
+                            }
+                            else {
+                                $("#EmployeeRank").val("কর্মচারী");
+                            }
+                            getDepartmentWiseEmployee();
+                        });
+                        var gender = $("#EmpGender").val();
+                        Employee_Id = $('#EmployeeId').val();
+                        GetLeaveType(gender, employeeStatusId);
+                    }
+                    else if (data.result == 0) {
+                        $.alert.open('Alert', data.message);
+                    }
+                    else {
+                        $.alert.open('alert', 'Invalid code');
+                    }
+                },
+                error: function (request, status, error) {
+                    $.alert.open('Alert', request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+        else {
+            $.alert.open('alert', 'Please insert employee code.');
+        }
+    }
+
+
+    function GetLeaveType(gender, statusId) {
+        LoadDropDown('/CommonDropdown/GetLeaveTypeListByEmployeeStatusAndGender', { EmployeeGender: gender, EmployeeStatusId: statusId }, '', '#LeaveTypeId');
+    }
+
+    function leavedayCalC() {
+        var startDate = new Date(MakeDate($('#LeaveStartDate').val()));
+        var endDate = new Date(MakeDate($('#LeaveEndDate').val()));
+        var leaveTyp = $('#LeaveTypeId').val();
+        var leaveTypeTxt = $('#LeaveTypeId option:selected').text();
+        var maxLeaveAtaTime = $("#hdnMaxAvailDays").val();
+        if (startDate != '' && endDate != '') {
+            if (startDate.getYear == endDate.getYear) {
+                var totalDays = GetTotalDays();
+                if (totalDays > 0) {
+                    if (leaveTypeTxt != "Leave Without Pay") {
+                        if (parseInt(totalDays) > parseInt(maxLeaveAtaTime)) {
+
+                            $.alert.open("Error", leaveTypeTxt + " Can't allow more than " + maxLeaveAtaTime + " days at a timer");// maxLeave,,maxLeaveAtaTime
+                            $("#LeaveEndDate").val("");
+                            $("#TotalDays").val(0);
+                        }
+                        else {
+                            $("#TotalDays").val(totalDays);
+                        }
+                    } else {
+                        $("#TotalDays").val(totalDays);
+                    }
+                }
+                else {
+                    $("#TotalDays").val(0);
+                    $("#LeaveEndDate").val("");
+                }
+
+            }
+            else {
+                $.alert.open("error", "Date diffrence must be within a year");
+                $("#LeaveEndDate").val('');
+                $("#TotalDays").val(0);
+            }
+        }
+    }
+
+    function LoadMaxLeaveDay(leaveTypeId, employeeId, UpTodate) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetMaxLeaveDay", "LeaveHistoryNew", "http")',
+            data: { leaveTypeId: leaveTypeId, employeeId: employeeId, UpTodate: UpTodate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                debugger;
+                if (data != null) {
+                    if (data.LeaveCategory == "CL" || data.LeaveCategory == "AL") {
+                        var maxLeaveAndAva = "Max Leave available " + data.leaveGain + ",  Used Leave " + data.LeaveCount + "/" + data.TotalDays + "";
+                        $("#MaxLeaveDaysInfo").val(maxLeaveAndAva);
+
+                    }
+                    else if (data.LeaveCategory == "ML" || data.LeaveCategory == "PL") {
+                        var maxLeaveAndAva = "Max Leave available " + data.leaveGain + ",  Used " + data.LeaveCount + " time(s).";
+                        $("#MaxLeaveDaysInfo").val(maxLeaveAndAva);
+                    }
+                    else {
+                        var maxLeaveAndAva = "Used Leave " + data.LeaveCount;
+                        $("#MaxLeaveDaysInfo").val(maxLeaveAndAva);
+                    }
+                    $("#hdnMaxAvailDays").val(data.MaxAvailDays);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetTotalDays() {
+        var startDate = new Date(MakeDate($('#LeaveStartDate').val()));
+        var endDate = new Date(MakeDate($('#LeaveEndDate').val()));
+        var start = moment(endDate);
+        var end = moment(startDate);
+        var totDay = start.diff(end, "days") + 1;
+        return totDay;
+    }
+
+    function MakeDate(stringDate) {
+        var monName = stringDate.substring(3, 6);
+        var dd = stringDate.substring(0, 2);
+        var yy = stringDate.substring(11, 7);
+        var makeDt = '';
+        var monSl;
+        switch (monName) {
+            case 'Jan':
+                monSl = '01';
+                break;
+            case 'Feb':
+                monSl = '02';
+                break;
+            case 'Mar':
+                monSl = '03';
+                break;
+            case 'Apr':
+                monSl = '04';
+                break;
+            case 'May':
+                monSl = '05';
+                break;
+            case 'Jun':
+                monSl = '06';
+                break;
+            case 'Jul':
+                monSl = '07';
+                break;
+            case 'Aug':
+                monSl = '08';
+                break;
+            case 'Sep':
+                monSl = '09';
+                break;
+            case 'Oct':
+                monSl = '10';
+                break;
+            case 'Nov':
+                monSl = '11';
+                break;
+            case 'Dec':
+                monSl = '12';
+                break;
+            default:
+                monSl = '0';
+        }
+        if (monSl != '0') {
+            makeDt = yy + ' ' + monSl + ' ' + dd;
+        }
+        return makeDt;
+    }
+
+    function getDepartmentWiseEmployee() {
+        var DepartmentId = $('#DepartmentId').val();
+        var OfficeId = $("#OfficeId").val();
+        if (DepartmentId != "" && OfficeId != "") {
+            LoadDropDown('/CommonDropdown/GetOfficeAndDepartmentWiseEmployeeList', { OfficeId: OfficeId, DepartmentId: DepartmentId }, '', '#ReplacementEmployee');
+        } else {
+            $('#ReplacementEmployee').html("<option value=''>Please Select</option>");
+        }
+    }
+
+
+    $(document).ready(function () {
+        debugger;
+        $("#txtEmployeeCode").blur(function () {
+            LoadEmpInfo();
+        });
+
+        $("#TotalDays").val(0);
+        $("#MaxLeaveDays").val(0);
+
+        $("#LeaveStartDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-40:+0",
+            maxDate: new Date()
+        });
+
+        $("#LeaveEndDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-40:+0",
+            maxDate: new Date()
+        });
+
+        $("#LeaveRequestDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-40:+0",
+            maxDate: new Date()
+        });
+
+        $("#LeaveTypeId").change(function () {
+
+            var leaveTypeId = $('#LeaveTypeId').val();
+            var employeeId = $('#EmployeeId').val();
+
+            if (leaveTypeId != 0 && employeeId != "0") {
+
+                var startDate = new Date(MakeDate($('#LeaveStartDate').val()));
+                var endDate = new Date(MakeDate($('#LeaveEndDate').val()));
+                if (startDate != '' && endDate != '') {
+                    leavedayCalC();
+                }
+                LoadMaxLeaveDay(leaveTypeId, employeeId, "");
+            }
+            else {
+                $('#MaxLeaveDaysInfo').val('');
+            }
+        });
+
+        $("#LeaveStartDate").change(function () {
+
+            var EmpId = $("#EmployeeId").val();
+            var StartDt = MakeDate($("#LeaveStartDate").val());
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("getValidLeaveDate2", "LeaveHistoryNew", "http")',
+                data: { EmpId: EmpId, StartDt: StartDt },
+                dataType: 'json',
+                async: false,
+                success: function (Result) {
+
+                    if (Result == '0') {
+                        $.alert.open("error", "Leave already taken");
+                        $("#LeaveStartDate").val('')
+                    } else if (Result == '2') {
+                        $.alert.open("error", "Assigned as replacemnet employee for this date");
+                        $("#LeaveStartDate").val('')
+                    }
+                    else {
+                        var endDate = $('#LeaveEndDate').val()
+                        if (endDate != "") {
+                            leavedayCalC();
+                        }
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        });
+
+        $("#LeaveEndDate").change(function () {
+
+            var startDate = new Date(MakeDate($('#LeaveStartDate').val()));
+            var endDate = new Date(MakeDate($('#LeaveEndDate').val()));
+
+            if (startDate <= endDate) {
+
+                var EmpId = $("#EmployeeId").val();
+                var StartDt = MakeDate($("#LeaveEndDate").val());
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("getValidLeaveDate2", "LeaveHistoryNew", "http")',
+                    data: { EmpId: EmpId, StartDt: StartDt },
+                    dataType: 'json',
+                    async: false,
+                    success: function (Result) {
+
+                        if (Result == '0') {
+                            $.alert.open("error", "Leave already taken");
+                            $("#LeaveStartDate").val('')
+                        }
+                        else if (Result == '2') {
+                            $.alert.open("error", "Assigned as replacemnet employee for this date");
+                            $("#LeaveEndDate").val('')
+                        }
+                        else {
+                            var endDate = $('#LeaveEndDate').val()
+                            if (endDate != "") {
+                                leavedayCalC();
+                            }
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ReplacementEmployee").html("<option value=''>Please Select</option>");
+
+                $.alert.open("error", " Start Date is not greater than End Date.");
+                $("#LeaveEndDate").val('');
+            }
+        });
+
+
+        $('#btnLeaveSave').click(function (e) {
+            e.preventDefault();
+
+            var totDays = $('#TotalDays').val();
+            var LeaveType = $('#LeaveTypeId').val();
+            var leaveTypeText = $('#LeaveTypeId option:selected').text();
+            var EmpId = $('#EmployeeId').val();
+            var LeaveStartDate = $("#LeaveStartDate").val();
+            var LeaveEndDate = $("#LeaveEndDate").val();
+            var LeaveReqDate = $("#LeaveRequestDate").val();
+            var LeaveReason = $("#LeaveReason").val();
+            var AddressDuringLeave = $("#AddressDuringLeave").val();
+            var employeeCode = $("#txtEmployeeCode").val();
+            var employeeName = $("#EmployeeName").val();
+            var officeName = $("#OfficeName").val();
+            var employeeRank = $("#EmployeeRank").val();
+            var departmentName = $("#DepartmentName").val();
+            var designationName = $("#DesignationName").val();
+            var offcDesignation = $("#OffcDesignName").val();
+
+            var replacementEmployee = $("#ReplacementEmployee").val();
+            maxLeaveAtaTime = $("#hdnMaxAvailDays").val();
+            if (parseInt(totDays) > parseInt(maxLeaveAtaTime) && leaveTypeText != "Leave Without Pay") {
+                $.alert.open("Warning", "Sorry your are not eligible for " + totDays + " days " + $("#LeaveTypeId option:selected").text());
+                return;
+            }
+
+            if (totDays != "" && LeaveType != "" && EmpId != "" && LeaveStartDate != "" && LeaveEndDate != "" && LeaveReqDate != "" && LeaveReason != "" && AddressDuringLeave != "" && replacementEmployee != "") {
+                if (parseInt(totDays) > 0 && EmpId > 0) {
+                    $('#AjaxLoader').show();
+
+                    $('#BackDateLeaveEntry').ajaxSubmit({
+                        type: "POST",
+                        target: '#thumbnil',
+                        data: {},
+                        dataType: 'json',
+                        resetForm: true,
+                        success: function (data) {
+
+                            $('#LeaveTypeId').val('0');
+                            $("#txtEmployeeCode").val(employeeCode);
+                            $("#EmployeeName").val(employeeName);
+                            $("#OfficeName").val(officeName);
+                            $("#EmployeeRank").val(employeeRank);
+                            $("#DepartmentName").val(departmentName);
+                            $("#DesignationName").val(designationName);
+                            $("#OffcDesignName").val(offcDesignation);
+
+                            if (data.Result > 0) {
+                                $('#AjaxLoader').hide();
+                                $.alert.open("Success", data.Message);
+                            }
+                            else {
+                                $('#AjaxLoader').hide();
+                                $.alert.open("Error", data.Message);
+                            }
+                        },
+                        error: function () {
+                            $('#AjaxLoader').hide();
+                            $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                            $("#dialog-message").dialog({
+                                modal: true,
+                                buttons: {
+                                    Ok: function () {
+                                        $(this).dialog("close");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+                else {
+                    $('#AjaxLoader').hide();
+                    $.alert.open("error", "Please insert correct date");
+                }
+            }
+            else {
+                $.alert.open("error", " Insert All Required Information.");
+                $('#AjaxLoader').hide();
+            }
+        });
+
+
+        $("#txtEmployeeCode").keyup(function (e) {
+            var keycode = e.keyCode ? e.keyCode : e.which;
+            if (keycode == 8) { // backspace
+                $("#EmployeeRank").val("");
+                $("#OfficeName").val("");
+                $('#OfficeName').val("");
+                $('#DepartmentName').val("");
+                $('#DesignationName').val("");
+                $('#LeaveTypeId').val("");
+                $('#MaxLeaveDaysInfo').val("");
+                $('#LeaveStartDate').val("");
+                $('#LeaveEndDate').val("");
+                $('#TotalDays').val("");
+                $('#LeaveReason').val("");
+                $("#AddressDuringLeave").val("");
+                $("#EmpGender").val("");
+            }
+        });
+    });
+
+</script>
+
+&nbsp;
+<h2 class="page-title">Backlog Leave Entry</h2>
+&nbsp;
+
+@using (Html.BeginForm("BackDateLeaveEntry", "LeaveHistoryNew", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "BackDateLeaveEntry" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="create-success create-content alert alert-success alert-dismissible" role="alert" style="display: none;">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p class="message-content">  </p>
+    </div>
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+        <fieldset>
+            <legend>Employee Info</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4", id = "employeeCode" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtEmpCode", "", new { @class = "form-control", id = "txtEmployeeCode" })
+                            @Html.HiddenFor(model => model.EmployeeId)
+                            @Html.HiddenFor(model => model.EmpGender)
+                            @Html.HiddenFor(model => model.DepartmentId)
+                            @Html.HiddenFor(model => model.OfficeId)
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OffcDesignName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OffcDesignName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+        <div class="row">
+            <div class="col-md-12">
+                &nbsp;
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                &nbsp;
+            </div>
+        </div>
+        <fieldset>
+            <legend>Leave Information</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveRequestDate, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.LeaveRequestDate, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveTypeId, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.LeaveTypeId, Model.LeaveTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ReplacementEmployee, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ReplacementEmployee, Model.EmployeeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.MaxLeaveDaysInfo, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.MaxLeaveDaysInfo, new { htmlAttributes = new { @class = "form-control", @readOnly = true } })
+                            @Html.HiddenFor(model => model.MaxLeaveDays)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveStartDate, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.LeaveStartDate, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.LeaveStartDate)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveEndDate, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.LeaveEndDate, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.LeaveStartDate)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotalDays, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.TotalDays, new { htmlAttributes = new { @class = "form-control", @readOnly = true } })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LeaveReason, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.LeaveReason, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AddressDuringLeave, new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.AddressDuringLeave, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <div class="save-success alert alert-success alert-dismissable" role="alert" style="display:none">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <p class="message-content">Saved Sucessfully</p>
+                        </div>
+                        <div class="save-fail alert alert-danger alert-dismissable" role="alert" style="display:none">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <p class="message-content">Fail to save</p>
+                        </div>
+                        <input type="submit" value="Save" id="btnLeaveSave" class="btn btn-primary" />
+                        <input type="hidden" value="" id="hdnLeaveSave" />
+                        <input type="hidden" value="" id="hdnLeaveId" />
+                        <input type="hidden" value="" id="hdnMaxAvailDays" />
+
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}

@@ -1,0 +1,796 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRComponentViewModel
+
+@{
+    ViewBag.Title = "PR Component Update";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var componentTypeList = Model == null ? null : Model.ComponentTypeList;
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRComponent">PRComponent</a></li>
+        <li><a href="/PRComponent/Edit">PRComponentEdit</a></li>
+    </ol>
+</div>
+
+<script src="~/Content/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script type="text/javascript">
+
+    function StyleForComponentCategory(categoryName) {
+        if (categoryName == "Allowance") {
+            $("#TransactionType").attr("disabled", true);
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentType").attr("disabled", true);
+            //$("#RatioBasedOn").attr("disabled", true);
+            $("#IsProductDependent").attr("disabled", false);
+            $("#IsProvidentFundComponent").attr("disabled", true);
+            $("#SalaryChangesByComponent").attr("disabled", false);
+            $("#IsSalaryImpactProhibited").attr("disabled", true);
+            $("#IsSalaryImpactProhibited").val("true");
+            $("#InterestRate").attr("disabled", true);
+            $("#MinDuration").attr("disabled", true);
+            $("#MaxDuration").attr("disabled", true);
+            $("#IsAdjustable").attr("disabled", true);
+            $("#LoanCalculationId").attr("disabled", true);
+            $("#ComponentAmount").attr("disabled", true);
+
+            $("#PFTypeId").attr("disabled", true);
+            //$('#PFTypeId').val('0');
+
+            return false;
+        }
+        if (categoryName == "Deduction") {
+            $("#TransactionType").attr("disabled", true);
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentType").attr("disabled", true);
+            //$("#RatioBasedOn").attr("disabled", true);
+            $("#IsProductDependent").attr("disabled", false);
+            $("#IsProvidentFundComponent").attr("disabled", true);
+            $("#SalaryChangesByComponent").attr("disabled", false);
+            $("#IsSalaryImpactProhibited").attr("disabled", true);
+            $("#InterestRate").attr("disabled", true);
+            $("#MinDuration").attr("disabled", true);
+            $("#MaxDuration").attr("disabled", true);
+            $("#IsAdjustable").attr("disabled", true);
+            $("#LoanCalculationId").attr("disabled", true);
+            $("#ComponentAmount").attr("disabled", true);
+            $("#PFTypeId").attr("disabled", true);
+            //$('#PFTypeId').val('0');
+            return false;
+        }
+        if (categoryName == "Bonus") {
+            $("#TransactionType").attr("disabled", true);
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentType").attr("disabled", false);
+            //$("#RatioBasedOn").attr("disabled", false);
+            $("#IsProvidentFundComponent").attr("disabled", true);
+            $("#SalaryChangesByComponent").attr("disabled", true);
+            $("#IsSalaryImpactProhibited").attr("disabled", true);
+            $("#InterestRate").attr("disabled", true);
+            $("#MinDuration").attr("disabled", true);
+            $("#MaxDuration").attr("disabled", true);
+            $("#IsAdjustable").attr("disabled", true);
+            $("#LoanCalculationId").attr("disabled", true);
+            $("#ComponentAmount").attr("disabled", false);
+            $("#IsProductDependent").attr("disabled", true);
+            $("#PFTypeId").attr("disabled", true);
+            //$('#PFTypeId').val('0');
+            return false;
+        }
+        if (categoryName == "Loan") {
+            $("#TransactionType").attr("disabled", true);
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentType").attr("disabled", true);
+            //$("#RatioBasedOn").attr("disabled", true);
+            $("#IsProductDependent").attr("disabled", false);
+            $("#IsProvidentFundComponent").attr("disabled", true);
+            $("#SalaryChangesByComponent").attr("disabled", true);
+            $("#IsSalaryImpactProhibited").attr("disabled", true);
+            $("#InterestRate").attr("disabled", false);
+            $("#MinDuration").attr("disabled", false);
+            $("#MaxDuration").attr("disabled", false);
+            $("#IsAdjustable").attr("disabled", false);
+            $("#LoanCalculationId").attr("disabled", false);
+            $("#ComponentAmount").attr("disabled", true);
+            $("#PFTypeId").attr("disabled", true);
+            //$('#PFTypeId').val('0');
+            return false;
+        }
+        else {
+            $("#TransactionType").attr("disabled", false);
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentType").attr("disabled", false);
+           // $("#RatioBasedOn").attr("disabled", false);
+            $("#IsProductDependent").attr("disabled", true);
+            $("#IsProvidentFundComponent").attr("disabled", true);
+            $("#SalaryChangesByComponent").attr("disabled", true);
+            $("#IsSalaryImpactProhibited").attr("disabled", false);
+            $("#InterestRate").attr("disabled", true);
+            $("#MinDuration").attr("disabled", true);
+            $("#MaxDuration").attr("disabled", true);
+            $("#IsAdjustable").attr("disabled", true);
+            $("#LoanCalculationId").attr("disabled", true);
+            $("#ComponentAmount").attr("disabled", false);
+            $("#PFTypeId").attr("disabled", true);
+            //$('#PFTypeId').val('0');
+        }
+    }
+
+    function StyleForProvidentFund(pfRequired)
+    {
+
+        if (pfRequired == null || pfRequired == '')
+        {
+            $("#PFTypeId").attr("disabled", true);
+            $('#PFTypeId').val('0');
+        }
+        if(pfRequired=='false')
+        {
+            $("#PFTypeId").attr("disabled", true);
+            $('#PFTypeId').val('0');
+
+        }
+        if(pfRequired=='true')
+        {
+            $("#PFTypeId").attr("disabled", false);
+            $('#PFTypeId').val('1');
+
+        }
+    }
+
+    function StyleForTransactionType(transactionType) {
+        if (transactionType == "Cr") {
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentGroupName").val('1');
+            return false;
+        }
+
+        if (transactionType == "Dr") {
+            $("#ComponentGroupName").attr("disabled", true);
+            $("#ComponentGroupName").val('6');
+            return false;
+        }
+        else {
+            $("#ComponentGroupName").val('6');
+            $("#ComponentGroupName").val("");
+        }
+    }
+
+    function StyleForComponentType(componentType) {
+        if (componentType == "F") {
+            $("#RatioBasedOn").attr("disabled", true);
+            $("#RatioBasedOn").val('NR');
+            return false;
+        }
+        else {
+            $("#RatioBasedOn").attr("disabled", false);
+            $("#RatioBasedOn").val("");
+            //$("select option[value*='NR']").prop('disabled', false);
+        }
+    }
+
+    function GeneratePRComponent() {
+
+        
+        var item = {};
+        item.PRComponentID= $("#PRComponentID").val();
+        item.TransactionType = $("#TransactionType").val();
+        item.PRComponentGroupID = $("#ComponentGroupName").val();
+        item.ComponentType = $("#ComponentType").val();
+        item.RatioBasedOn = item.ComponentType === 'F' ? "NR" : $("#RatioBasedOn").val();
+        item.ComponentAmount = $("#ComponentAmount").val();
+        item.EmployeeTypeId = $("#EmployeeTypeId").val();
+        item.EmployeeStatusId = $("#EmployeeStatusId").val();
+        item.EmployeeStatusIdList = $("#EmployeeStatusId").val();
+        item.IsProductDependent = $("#IsProductDependent").val();
+        item.IsProvidentFundComponent = $("#IsProvidentFundComponent").val();
+        item.EffectiveStartDateMsg = $("#EffectiveStartDateMsg").val();
+        item.EffectiveEndDateMsg = $("#EffectiveEndDateMsg").val();
+
+        item.EffectiveStartDate = $("#EffectiveStartDateMsg").val();
+        item.EffectiveEndDate = $("#EffectiveEndDateMsg").val();
+
+        item.OfficeLocationId = $("#OfficeLocationId").val();
+        item.OffLocationList = $("#OfficeLocationId").val();
+        item.SalaryRoundType = $("#SalaryRoundType").val();
+        item.MinimumLimit = $("#MinimumLimit").val();
+        item.MaximumLimit = $("#MaximumLimit").val();
+        item.MinDuration = $("#MinDuration").val();
+        item.MaxDuration = $("#MaxDuration").val();
+        item.IsAdjustable = $("#IsAdjustable").val();
+        item.InterestRate = $("#InterestRate").val();
+        var loanid = $("#LoanCalculationId option:selected").val();
+        if (loanid == "0")
+        {
+            item.LoanCalculationId = 0;
+        }
+        else
+        {
+            item.LoanCalculationId = $("#LoanCalculationId").val();;
+        }
+
+        item.SalaryAccCode = $("#SalaryAccCode").val();
+        item.AccountName = $("#AccountName").val();
+        item.SalaryChangesByComponent = $("#SalaryChangesByComponent").val();
+        item.IsSalaryImpactProhibited = $("#IsSalaryImpactProhibited").val();
+        if (item.SalaryChangesByComponent == "N/A")
+        {
+            item.SalaryEffect = false;
+        }
+        else
+        {
+            item.SalaryEffect = true;
+        }
+
+        item.PFTypeId = $('#PFTypeId').val();
+
+        return item;
+    }
+
+    function ValidateInput(model)
+    {
+        if (model.ComponentCategory == "") {
+            $.alert.open("Error", "Please Select Component Category");
+            return false;
+        }
+
+        if (model.ComponentName == "Please Select")
+        {
+            $.alert.open("Error", "Please Select Component Name");
+            return false;
+        }
+        if (model.TransactionType == "0") {
+            $.alert.open("Error", "Please Provide Transaction Type");
+            return false;
+        }
+
+        if (model.PRComponentGroupID == "") {
+            $.alert.open("Error", "Please Provide Component Group");
+            return false;
+        }
+
+        if (model.ComponentType == "") {
+            $.alert.open("Error", "Please Select Component Type");
+            return false;
+        }
+        if (model.RatioBasedOn == "") {
+            $.alert.open("Error", "Please Provide Ration Based On");
+            return false;
+        }
+
+        if (model.ComponentAmount == "") {
+            $.alert.open("Error", "Please Provide Component Amount");
+            return false;
+        }
+        if (model.EmployeeTypeId == "") {
+            $.alert.open("Error", "Please Provide Employee Type");
+            return false;
+        }
+
+        
+        if (!model.EmployeeStatusId)
+        {
+            $.alert.open("Error", "Please Provide Employee Status");
+            return false;
+        }
+
+        if (model.Productdependent == "") {
+            $.alert.open("Error", "Please Provide Product dependency");
+            return false;
+        }
+
+        if (model.IsProvidentFundComponent == "")
+        {
+            $.alert.open("Error", "Please Provide Provident Fund Integration Required or Not");
+            return false;
+        }
+
+        if (!model.OfficeLocationId) {
+            $.alert.open("Error", "Please Provide Office Location");
+            return false;
+        }
+
+        if (model.SalaryRoundType == "")
+        {
+            $.alert.open("Error", "Please Provide Salary Round Type");
+            return false;
+        }
+
+        if (model.MaximumLimit == "") {
+            $.alert.open("Error", "Please Provide Maximum Limit");
+            return false;
+        }
+        if (model.MinimumLimit == "") {
+            $.alert.open("Error", "Please Provide Minimum Limit");
+            return false;
+        }
+
+        if (model.MinDuration == "") {
+            $.alert.open("Error", "Please Provide Minimum Duration");
+            return false;
+        }
+        if (model.MaxDuration = "") {
+            $.alert.open("Error", "Please Provide Maximum Duration");
+            return false;
+        }
+
+        if (model.IsAdjustable == "")
+        {
+            $.alert.open("Error", "Please Provide Loan Configuration Changable");
+            return false;
+        }
+
+        if (model.InterestRate == "")
+        {
+            $.alert.open("Error", "Please Provide Interest Rate");
+            return false;
+        }
+
+        if (model.LoanCalculationId !="0" && model.LoanCalculationId == "") {
+            $.alert.open("Error", "Please Provide Loan Calculation");
+            return false;
+        }
+
+
+        if (model.SalaryAccCode == "") {
+            $.alert.open("Error", "Please Provide Salary Integration Code");
+            return false;
+        }
+
+
+        if (model.EffectiveStartDateMsg == "") {
+            $.alert.open("Error", "Please Provide Effective Start Date");
+            return false;
+        }
+        if (model.EffectiveEndDateMsg == "") {
+            $.alert.open("Error", "Please Provide Effective End Date");
+            return false;
+        }
+
+
+        if (model.ValidateDurtion == "") {
+            $.alert.open("Error", "Please Provide Validate Durtion");
+            return false;
+        }
+
+        if (model.SalaryChangesByComponent=="")
+        {
+            $.alert.open("Error", "Please Provide Changes in Regular Configured Salary");
+            return false;
+        }
+
+
+        if (model.IsSalaryImpactProhibited=="")
+        {
+            $.alert.open("Error", "Deny Impact on Regular Salary Component");
+            return false;
+        }
+
+        debugger;
+
+        if (model.IsProvidentFundComponent == true && model.PFTypeId=='0') {
+            $.alert.open("Error", "Provident Fund Type Required");
+            return false;
+        }
+        return true;
+    }
+
+    function UpdatePRComponent() {
+        var obj = GeneratePRComponent();
+
+        //check validation
+        if (!ValidateInput(obj)){
+            return;
+        }
+
+        if (obj.componentName != "" && obj.componentType != "" && obj.componentAmount != "") {
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                async: true,
+                cache: false,
+                url: '@Url.Action("UpdatePRComponent", "PRComponent")',
+                data: JSON.stringify({ obj: obj }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    $('#AjaxLoader').hide();
+                    if (data != "") {
+                        $.alert.open('Success', data.Message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert(error);
+                }
+            });
+        } else {
+            $.alert.open("Error", "Please insert required data");
+        }
+    }
+
+    $(document).ready(function () {
+        var data =@Html.Raw(new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(Model));
+        var efStartDate = data.EffectiveStartDateMsg;
+        var efEndDate = data.EffectiveEndDateMsg;
+
+        $("#ComponentCategory").attr("disabled", true);
+        $("#ComponentName").attr("disabled", true);
+
+        $("select option[value*='NR']").prop('disabled', false);
+
+        $("#ComponentGroupName").val(data.PRComponentGroupID);
+        var ComponentCategory = data.ComponentCategory;
+        StyleForComponentCategory(ComponentCategory);
+
+        $("#TransactionType").change(function () {
+            var transactionType = $("#TransactionType").val();
+            StyleForTransactionType(transactionType);
+        });
+
+        $("#IsProvidentFundComponent").change(function () {
+            var pfRequired = $("#IsProvidentFundComponent").val();
+            StyleForProvidentFund(pfRequired);
+        });
+
+        $("#ComponentType").change(function () {
+            var componentType = $("#ComponentType").val();
+            StyleForComponentType(componentType);
+        });
+
+        $("#EffectiveStartDateMsg").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1920:2050"
+
+            });
+        $("#EffectiveStartDateMsg").datepicker(
+      'setDate', efStartDate);
+
+        $("#EffectiveEndDateMsg").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1920:2050"
+
+            });
+        $("#EffectiveEndDateMsg").datepicker(
+      'setDate', efEndDate);
+    });
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Component</h2>
+&nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+@using (Html.BeginForm("Edit", "PRComponent", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "PRComponent" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            @*First Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ComponentCategory, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.ComponentCategory, Model.ComponentCategoryList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.ComponentCategory)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ComponentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.TextBoxFor(model => model.ComponentName, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.ComponentName)
+                            @Html.HiddenFor(model => model.PRComponentID)
+                            @Html.HiddenFor(model => model.ComponentPayrollId)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            @*Second Row*@
+            <div div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TransactionType, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.TransactionType, Model.TransactionTypeList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.TransactionType)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PRComponentGroupID, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.ComponentGroupName, Model.ComponentGroupList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.PRComponentGroupID)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Third Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ComponentType, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.ComponentType, Model.ComponentTypeList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.ComponentType)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.RatioBasedOn, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.RatioBasedOn, Model.RatioBasedList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.RatioBasedOn)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Fourth Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ComponentAmount, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.ComponentAmount, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.EmployeeTypeId, Model.EmployeeTypeList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.EmployeeTypeId)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Fifth Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeStatusId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.IsProductDependent, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.IsProductDependent, Model.ProductdependentList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.IsProductDependent)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Six Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.IsProvidentFundComponent, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.IsProvidentFundComponent, Model.ProvidentFundComponentList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EffectiveStartDate, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EffectiveStartDateMsg, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/MMM/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Seven Row*@
+            <div class="col-sm-12">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EffectiveEndDate, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EffectiveEndDateMsg, new { htmlAttributes = new { @class = "form-control", @placeholder = "dd/MMM/yyyy" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.PFTypeId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.PFTypeId, DropdownListHelper.GetDropdownList(DropdownListTypes.ProvidentFundType, Model.PFTypeId > 0 ? Model.PFTypeId.ToString() : ""), new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.PFTypeId)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Eight Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeLocationId, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.OfficeLocationId, Model.OfficeLocationList,"Please Select", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryRoundType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.SalaryRoundType, Model.SalaryRoundTypeList, new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.SalaryRoundType)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            @*Nine Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.MinimumLimit, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.MinimumLimit, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.MaximumLimit, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.MaximumLimit, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Loan Configuration*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 required"> Min Duration</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.MinDuration, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 required"> Max Duration </label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.MaxDuration, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.IsAdjustable, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.IsAdjustable, Model.IsAdjustableList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 required"> Interest Rate </label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.InterestRate, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 "> Loan Calculation Type</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.LoanCalculationId, Model.LoneCalculationList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Salary Account Code*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryAccCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.SalaryAccCode, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AccountName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.AccountName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Salary Impact Row*@
+            <div class="col-sm-12">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryChangesByComponent, htmlAttributes: new { @class = "control-label col-md-4" })
+
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.SalaryChangesByComponent, Model.SalaryChangesByComponentList, new { @class = "form-control" })
+                            <br /> <input type="button" id="btnShowDetailChangesinRegular" value="detail" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.IsSalaryImpactProhibited, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.IsSalaryImpactProhibited, Model.SalaryImpactProhibitedList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    &nbsp;
+                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" onclick="UpdatePRComponent()" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}

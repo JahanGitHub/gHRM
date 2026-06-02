@@ -1,0 +1,672 @@
+﻿@model gHRM.Web.ViewModels.LeaveHistoryViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveHistory">LeaveHistory</a></li>
+        <li><a href="/LeaveHistory/LeaveApproved">LeaveApproved</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Leave Approved";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<link href="~/Content/css/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+<script src="~/Scripts/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<style>
+    .modal-backdrop {
+        z-index: 900;
+    }
+
+    .vertical-alignment-helper {
+        display: table;
+        height: 100%;
+        width: 100%;
+        pointer-events: none; /* This makes sure that we can still click outside of the modal to close it */
+    }
+
+    .vertical-align-center {
+        /* To center vertically */
+        display: table-cell;
+        vertical-align: middle;
+        pointer-events: none;
+    }
+
+    .modal-content {
+        /* Bootstrap sets the size of the modal in the modal-dialog class, we need to inherit it */
+        width: inherit;
+        max-width: inherit; /* For Bootstrap 4 - to avoid the modal window stretching full width */
+        height: inherit;
+        /* To center horizontally */
+        margin: 0 auto;
+        pointer-events: all;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+    }
+
+        .list-group-item:hover {
+            background-color: #3e7fb8;
+            color: #fff;
+        }
+
+
+    /* Approve All Button */
+    #approveAllBtn {
+        display: block;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto 40px;
+        padding: 25px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #c0392b, 0 10px 20px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        #approveAllBtn:hover {
+            background-color: #ff3b2f;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 #c0392b, 0 14px 25px rgba(0,0,0,0.2);
+        }
+
+        #approveAllBtn:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #c0392b, 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        #approveAllBtn:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60%;
+            height: 60%;
+            background: rgba(255,255,255,0.1);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        #approveAllBtn:hover:after {
+            opacity: 1;
+        }
+
+    /* Content Section */
+    .content {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .item-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .item {
+        background-color: #f9f9f9;
+        border-left: 4px solid #3498db;
+        padding: 20px;
+        border-radius: 8px;
+        transition: transform 0.3s;
+    }
+
+        .item:hover {
+            transform: translateY(-5px);
+        }
+
+        .item h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .item p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+    .status {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .pending {
+        background-color: #ffeaa7;
+        color: #d35400;
+    }
+
+    .approved {
+        background-color: #a3e4d7;
+        color: #27ae60;
+    }
+
+    .approve-checkbox {
+        margin-right: 5px;
+        width: 10px;
+        height: 10px;
+        cursor: pointer;
+    }
+
+    .item.approved-item {
+        border-left-color: #2ecc71;
+    }
+
+    /* Stats Section */
+    .stats {
+        display: flex;
+        justify-content: space-around;
+        background-color: #34495e;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    /* Footer */
+    .footer {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+
+    /* Responsive */
+    @@media (max-width: 468px) {
+        #approveAllBtn {
+            font-size: 18px;
+            padding: 10px 5px;
+        }
+
+        .item-list {
+            grid-template-columns: 1fr;
+        }
+
+        .stats {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+</style>
+
+<script type="text/javascript">
+    function OpenLeaveAttachmentModal(LeaveId, e) {
+        e.preventDefault();
+        Req.POST.GetLeaveAttachmentList(JSON.stringify({ LeaveHistoryId: LeaveId }), function (response) {
+            if (0 == response.length) {
+                $.alert.open("Alert", "No attachments were found");
+                return;
+            }
+            var html = response.reduce(function (t, x) {
+                return t +
+                    "<li class='list-group-item' data-url='" + x.Location + "'>" + x.Name + "</li>";
+            }, "");
+            $("#AttachmentListContainer").html(html);
+            $("#AttachmentListModal").modal("show");
+        });
+    }
+
+    var Req = {
+        POST: {
+            GetLeaveAttachmentList: function (Data, callback, err_callback) {
+                $.ajax({
+                    url: '/LeaveHistoryNew/GetLeaveAttachmentList',
+                    type: 'Post',
+                    data: Data,
+                    dataType: 'json',
+                    async: true,
+                    contentType: 'application/json',
+                    success: function (response) {
+
+                        if (!response.success) {
+                            $.alert.open("Alert", response.message);
+                            if (null != err_callback) { err_callback(); }
+                            return;
+                        }
+                        if (null != callback) { callback(response.data); }
+                    },
+                    error: function (data, textStatus, jqXHR) {
+                        $.alert.open("Alert", data + ": " + textStatus + ": " + jqXHR, 'Error!!!');
+                        if (null != err_callback) { err_callback(); }
+                    }
+                });
+            }
+        }
+    }
+
+    function GridLoad(qType) {
+        $("#grid").html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetLeaveForApproveList", "LeaveApprove", "http")',
+                    dataType: 'json',
+                    data: { qType: qType }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "DesignationId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "Rowsl",
+                     title: "Sl.",
+                     width: "40px",
+                     filterable: false,
+                     columnMenu: false,
+                     groupable: false,
+                     reorderable: false,
+                     sortable: false,
+                     locked: true
+                 },
+                 {
+                     field: "EmployeeCode",
+                     title: "Code",
+                     width: "70px",
+                     filterable: true,
+                     locked: true
+                 },
+                 {
+                     width: "120px",
+                     field: "EmployeeName",
+                     title: "Name",
+                     filterable: false,
+                     locked: true
+                 },
+                  {
+                      width: "100px",
+                      field: "OfficeName",
+                      title: "Office",
+                      filterable: false,
+                      locked: true
+                  },
+                   {
+                       width: "100px",
+                       field: "DepartmentName",
+                       title: "Department",
+                       filterable: false,
+                       locked: true
+                   },
+                //{
+                //    width: "100px",
+                //    field: "DesignationName",
+                //    title: "Designation",
+                //    filterable: false,
+                //    locked: true
+                //},//
+                {
+                    width: "100px",
+                    field: "SignatureName",
+                    title: "Designation",
+                    filterable: false,
+                    locked: true
+                },
+                {
+                    width: "100px",
+                    field: "LeaveReason",
+                    title: "Reason",
+                    filterable: false,
+                },
+
+                {
+                    width: "100px",
+                    field: "LeaveTypeName",
+                    title: "Leave Type",
+                    filterable: false,
+                },
+                {
+                    width: "100px",
+                    field: "LeaveStartDateMsg",
+                    title: "Start Date",
+                    filterable: false,
+                },
+                {
+                    width: "100px",
+                    field: "LeaveEndDateMsg",
+                    title: "End Date",
+                    filterable: false,
+                },
+                {
+                    width: "150px",
+                    field: "AddressDuringLeave",
+                    title: "Address",
+                    filterable: true,
+                },
+                {
+                width: "70px",
+                field: "MaxLeaveDays",
+                title: "Available Days"
+                },
+                {
+                    width: "70px",
+                    field: "TotalDays",
+                    title: "Days"
+                },
+
+                {
+
+                    field: "ReplacementEmployeeName",
+                    title: "Replacement",
+                    width: "150px",
+                    filterable: true,
+                },
+                {
+                    field: "PreviousApprover",
+                    title: "Previous Approver",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "Attachment",
+                    title: "Attachment",
+                    width: "40px",
+                    filterable: false,
+                    template: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="OpenLeaveAttachmentModal(' + data.LeaveId + ', event);"><i class="fa fa-paperclip"></i></a></div>';
+                    }
+                },
+                 {
+                     width: "100px",
+                     //locked:true,
+                     title: 'Action',
+                     template: function (data) {
+                         if (data.IsApproved == false && data.IsAdjustment == false) {
+                             var empName = data.EmployeeCode + ', ' + data.EmployeeName;
+                             if (data.DispatchLeaveId == 0 || data.DispatchLeaveId == null) {
+                                 var btn = "<div class='text-center'>";
+                                 btn = btn + '<p style="padding:0px; margin:0px;"><button type="button" style="width:50%" OnClick="leaveConfirm(' + data.LeaveId + ',' + data.NotificationId + ',' + data.ApprovalMasterId + ',' + data.ApprovalDetailId + ',' + data.LeaveId + ');" class="btn btn-success btn-xs">Approve</button></p>';
+                                 btn = btn + '<p style="margin:0px;padding-bottom:0px;padding-top:7px;"><button style="width:50%" type="button" OnClick="LeaveReject(' + data.LeaveId + ',' + data.NotificationId + ');" class="btn btn-danger btn-xs">Reject</button></p>';
+                                 return btn;
+                             }
+                             else {
+                                 return "";
+                             }
+                         }
+                         else if (data.IsApproved == true && data.IsAdjustment == true) {
+                             return "Approved";
+                         }
+                         else if (data.IsApproved == false && data.IsAdjustment == true) {
+                             return "Rejected";
+                         }
+                         return "<div class='text-center'><a href='/EmployeePostingOrder/OrderApprove/" + data.OrderId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                     }
+                 },
+            ]
+        });
+    }
+
+
+    function leaveConfirm(LeaveId, NotificationId, ApprovalMasterId, ApprovalDetailId, ApplicationId) {
+
+        $.alert.open('confirm', 'Are you sure you want to approve this leave?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("leaveConfirm", "LeaveApprove", "http")',
+                    data: { LeaveId: LeaveId, NotificationId: NotificationId, ApprovalMasterId: ApprovalMasterId, ApprovalDetailId: ApprovalDetailId, ApplicationId: ApplicationId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result.result == 1) {
+                            GridLoad(qType);
+                            $.alert.open("Success", Result.message);
+                        } else {
+                            $.alert.open("Error", Result.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+
+
+    function leaveConfirm_all() {
+
+        $.alert.open('confirm', 'Are you sure you want to approve all leave?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("leaveConfirm_all", "LeaveApprove", "http")',
+                    data: { LeaveId: 0 },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        if (Result.result == 1) {
+                            GridLoad(qType);
+                            $.alert.open("Success", Result.message);
+                        } else {
+                            $.alert.open("Error", Result.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+    function LeaveReject(LeaveId, NotificationId) {
+        var reason = prompt("Please write the rejection note", "");
+
+        if (reason != '' && reason.length > 0) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("ApproveReject", "LeaveApprove", "http")',
+                data: { LeaveId: LeaveId, NotificationId: NotificationId, reason: reason },
+                dataType: 'json',
+                async: true,
+                success: function (Result) {
+                    if (Result.result == 1) {
+                        GridLoad(qType);
+                        $.alert.open("Success", Result.message);
+                    } else {
+                        $.alert.open("Error", Result.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+            return true;
+        }
+        else {
+            $.alert.open("Error", "Please write the rejection note");
+            return false;
+        }
+    }
+
+
+    $(document).ready(function () {
+
+        qType = 'N';
+        $("#chkNonApproved").prop('checked', true);
+
+        $(document).on("click", "#AttachmentListModal .list-group-item", function () {
+            var url = $(this).attr("data-url");
+            window.open(url, '_blank');
+        });
+
+        GridLoad(qType);
+
+        $("#chkNonApproved").click(function () {
+            var checkVal = $("#chkNonApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "N"
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkApproved").click(function () {
+            var checkVal = $("#chkApproved").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkReject").prop('checked', false);
+                qType = "A"
+                GridLoad(qType);
+            }
+        });
+
+        $("#chkReject").click(function () {
+            var checkVal = $("#chkReject").is(":checked");
+            if (checkVal == true) {
+                $("#chkNonApproved").prop('checked', false);
+                $("#chkApproved").prop('checked', false);
+                qType = "R"
+                GridLoad(qType);
+            }
+        });
+    });
+
+</script>
+
+
+&nbsp;
+<h2 class="page-title">Leave Approve List</h2>
+&nbsp;
+
+
+<!-- APPROVE ALL BUTTON -->
+<div class="approve-all-container">
+    <button id="approveAllBtn"
+            class="btn btn-danger"
+            onclick="leaveConfirm_all()">
+        APPROVE ALL
+    </button>
+
+    <div class="approve-all-info">
+        This will approve all pending leave requests currently displayed in the grid.
+    </div>
+</div>
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-md-2" style="float:left">
+            <input type="checkbox" name="app" id="chkNonApproved" />&nbsp;&nbsp;&nbsp;<label>Non-Approved</label><br />
+            <input type="checkbox" name="app" id="chkApproved" />&nbsp;&nbsp;&nbsp;<label>Approved</label><br />
+            <input type="checkbox" name="app" id="chkReject" />&nbsp;&nbsp;&nbsp;<label>Reject</label>
+        </div>
+    </div>
+</div>
+
+ &nbsp;
+<div class="row">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="AttachmentListModal" role="dialog" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Attachment List
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <ul id="AttachmentListContainer" class="list-group"></ul>
+                </div>
+                <div class="modal-footer" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

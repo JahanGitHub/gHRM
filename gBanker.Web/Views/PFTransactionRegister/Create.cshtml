@@ -1,0 +1,699 @@
+﻿@model gHRM.Web.ViewModels.PF.TransactionRegisterViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    table, th, td {
+        border: 0px solid gray;
+    }
+</style>
+
+<script type="text/javascript">
+        
+    TransactionRegister = function (
+
+    serialNo,
+	accountCode,
+	voucherNo,
+
+	amount,
+	transactionType,
+	transactionDate,
+	particulars,
+
+	createUser,
+	createDate,
+	updateUser,
+	updateDate,
+
+    isDeleted,
+	deletedUser,
+	deleteDate
+    ) {
+        this.SerialNo = serialNo,
+        this.AccountCode = accountCode,
+        this.VoucherNo = voucherNo,
+
+        this.Amount = amount,
+        this.TransactionType = transactionType,
+        this.TransactionDate = transactionDate,
+        this.Particulars = particulars,
+
+        this.CreateUser = createUser,
+        this.CreateDate = createDate,
+        this.UpdateUser = updateUser,
+        this.UpdateDate = updateDate,
+
+        this.IsDeleted = isDeleted,
+        this.DeletedUser = deletedUser,
+        this.DeleteDate = deleteDate
+    };
+
+    var accountData = [];
+    function GetVoucherableAccountChart(voucherType) {
+        accountData = [];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetVoucherableAccountChart", "PFAccountChart", "http")',
+            data: { voucherType: voucherType },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                
+                $.each(data, function (i, item) {
+                    accountData.push({ AccountCode: item.AccountCode, AccountName: item.AccountCode + ' ' + item.AccountName });
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", error);
+            }
+        });
+    }
+
+       
+    function getTransTypeDDL() {
+        var transTypeSelect = '<select class="trans-type" style="width:110px;"><option value="DR" selected>Dr</option><option value="CR">Cr</option></select>';
+        //var transTypeSelect = '<select class="trans-type" style="width:110px; border:none;"><option value="DR" selected>Dr</option><option value="CR">Cr</option></select>';
+        return transTypeSelect;
+    }
+
+    function getAccountDDL() {
+
+        var defaultValue = '';
+        var defaultText = 'Select Account Code';
+
+        var accountSelect = '';
+        var accountOptions = '<option value="' + defaultValue + '">' + defaultText + '</option>';
+
+        $.each(accountData, function (index, option) {
+            accountOptions = accountOptions + '<option value="' + option.AccountCode + '">' + option.AccountName + '</option>';
+        });
+        accountSelect = '<select class="account" style="width:180px;">' + accountOptions + '</select>';
+        //accountSelect = '<select class="account" style="width:180px; border: none;">' + accountOptions + '</select>';
+        return accountSelect;
+    }
+
+    function addRow(isFirstRow) {
+        var transType = getTransTypeDDL();
+        var accounts = getAccountDDL();
+        var particulars = '<input type="text" class="particulars" style="width:180px;" disabled="disabled"/>';
+        var debit = '<input type="text" class="debit" width="80" disabled="disabled"/>';
+
+        if(isFirstRow == true)
+            var credit = '<input type="text" class="credit" width="80" disabled="disabled" />';
+        else
+            var credit = '<input type="text" class="credit" width="80" />';
+
+        var action = '<a href="#" OnClick="Delete(this);"><i class="fa fa-trash-o delete"></i></a>';
+
+        //var bodyContent = '<tr><td>' + getTransTypeDDL() + '</td><td>' + getAccountDDL() + '</td><td>' + particulars + '</td><td>' + debit + '</td><td>' + credit + '</td><td>' + action + '</td></tr>';
+        var bodyContent = '<tr><td height="30">' + getTransTypeDDL() + '</td><td height="30">' + getAccountDDL() + '</td><td height="30">' + particulars + '</td><td height="30">' + debit + '</td><td height="30">' + credit + '</td><td height="30">' + action + '</td></tr>';
+        $("#ledger tbody").append(bodyContent);
+    }
+    
+    function Delete(element) {
+        $("#ledger").on('click', '.delete', function () {
+            var currentRow = $(this).closest("tr");
+            $(currentRow).remove();
+
+            //Newly Added
+            var isEqual = idDebitCreditEqual();
+            if (isEqual == true) {
+                $('#Narration').focus();
+            }
+        });
+    }
+
+    function isLastRow(index) {
+       
+        var totalRows = 0;
+        var totalRows = $('#ledger tbody').children('tr').length
+
+        if (totalRows == index + 1) 
+            return true;
+        else 
+            return false;
+        
+    }
+
+    function SaveVoucher(model) {
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            url: '/PFTransactionRegister/SaveVoucher',
+            data: model,
+            async: true,
+            success: function (data) {
+                alert(data.Message);
+                clear();
+            },
+            error: function (request, status, error) {
+                alert("Unable to save");
+            }
+        });
+    }
+       
+    //New
+    function resetParticularDrCr(currentRow) {
+        var transtype = currentRow.find(".trans-type option:selected").val();
+        var accountCode = currentRow.find(".account option:selected").val();
+
+        currentRow.find(".particulars").val('');
+        currentRow.find(".debit").val('');
+        currentRow.find(".credit").val('');
+
+        if (accountCode == '') {
+            currentRow.find(".particulars").attr("disabled", "disabled");
+            currentRow.find(".debit").attr("disabled", "disabled");
+            currentRow.find(".credit").attr("disabled", "disabled");
+        }
+        else {
+            currentRow.find(".particulars").removeAttr("disabled");
+            if (transtype == 'DR') {
+                currentRow.find(".debit").removeAttr("disabled");
+                currentRow.find(".credit").attr("disabled", "disabled");
+            }
+            else if (transtype == 'CR') {
+                currentRow.find(".credit").removeAttr("disabled");
+                currentRow.find(".debit").attr("disabled", "disabled");
+            }
+        }
+    }
+    //Reset
+    function resetAccountParticularDrCr(currentRow) {
+        currentRow.find(".account").val('');
+        resetParticularDrCr(currentRow);
+    }
+
+    function setFocusToDebitOrCredit(currentRow) {
+        var transtype = currentRow.find(".trans-type option:selected").val();
+        if (transtype == 'DR') {
+            currentRow.find(".debit").focus();
+        }
+        else if (transtype == 'CR') {
+            currentRow.find(".credit").focus();
+        }
+    }
+
+    function setFocusToNextRowDebitOrCredit(currentRow) {
+        var nextRow = getNextRow(currentRow);
+             
+        transactionType = $(nextRow).find(".trans-type option:selected").val();
+        var par = $(nextRow).find(".particulars").val();
+        
+        if (transactionType == 'DR') {
+            nextRow.find(".credit").attr("disabled", "disabled");
+        }
+        else if (transactionType == 'CR') {
+            nextRow.find(".debit").attr("disabled", "disabled");
+        }
+        nextRow.find(".trans-type").focus();
+    }
+
+    function getNextRow(currentRow) {
+
+        var nextRowIndex = currentRow.index() + 2;
+        var selecttor = "tbody tr:nth-child(" + nextRowIndex + ")";
+        var nextRow = $(selecttor);
+        return nextRow;
+    }
+
+    function getNextEnabled(currentRow, className) {
+
+        var nextRowIndex = currentRow.index() + 2;
+        var totalRows = $('#ledger tbody').children('tr').length
+        var clsName = "." + className;
+
+        var selecttor;
+        var nextRow;
+        var nextIndex = 0;
+        
+        for (nextIndex = nextRowIndex; nextIndex <= totalRows; nextIndex++) {
+
+            selecttor = "tbody tr:nth-child(" + nextIndex + ")";
+            nextRow = $(selecttor);
+            if (nextRow.find(clsName).prop('disabled') == false) {
+                break;
+            }
+        }      
+        return nextRow;
+    }
+
+
+    function getPrevEnabled(currentRow, className) {
+
+        var prevRowIndex = currentRow.index();
+        var totalRows = $('#ledger tbody').children('tr').length
+        var clsName = "." + className;
+
+        var selecttor;
+        var prevRow;
+        var prevIndex = 0;
+
+        for (prevIndex = prevRowIndex; prevIndex >= 0; prevIndex--) {
+
+            selecttor = "tbody tr:nth-child(" + prevIndex + ")";
+            prevRow = $(selecttor);
+            if (prevRow.find(clsName).prop('disabled') == false) {
+                break;
+            }
+        }
+        return prevRow;
+    }
+
+    function getPrevRow(currentRow) {
+
+        var prevRowIndex = currentRow.index();
+        var selecttor = "tbody tr:nth-child(" + prevRowIndex + ")";
+        var prevRow = $(selecttor);
+        return prevRow;
+    }
+
+    function clear() {
+        $('#VoucherType').val('');
+        $("#ledger tbody").empty();
+    }
+
+    function idDebitCreditEqual() {
+
+        var debitAmount = 0;
+        var creditAmount = 0;
+
+        var debit = 0;
+        var credit = 0;
+
+        $("#ledger tbody").find('tr').each(function (i) {
+                      
+            debit = 0;
+            credit = 0;
+            
+            debit = isNaN(parseFloat($(this).find(".debit").val())) ? 0 : parseFloat($(this).find(".debit").val());
+            credit = isNaN(parseFloat($(this).find(".credit").val())) ? 0 : parseFloat(parseFloat($(this).find(".credit").val()));
+            
+            debitAmount = debitAmount + debit;
+            creditAmount = creditAmount + credit;
+        });
+               
+        $('#TotalDebit').val(debitAmount);
+        $('#TotalCredit').val(creditAmount);
+
+        if (debitAmount == creditAmount) {
+            $('#Narration').removeAttr("disabled");
+            $('#btnSaveVoucher').removeAttr("disabled");
+            return true;
+        }
+        else
+        {
+            $('#Narration').attr("disabled", "disabled");
+            $('#btnSaveVoucher').attr("disabled", "disabled");
+            return false;
+        }
+    }
+
+    function calculateDebitCredit(isDebit) {
+        
+        var debitAmount = 0;
+        var creditAmount = 0;
+
+        var debit = 0;
+        var credit = 0;
+
+        $("#ledger tbody").find('tr').each(function (i) {
+            debit = 0;
+            credit = 0;
+            debit = isNaN(parseFloat($(this).find(".debit").val())) ? 0 : parseFloat($(this).find(".debit").val());
+            credit = isNaN(parseFloat($(this).find(".credit").val())) ? 0 : parseFloat(parseFloat($(this).find(".credit").val()));
+            debitAmount = debitAmount + debit;
+            creditAmount = creditAmount + credit;
+        });
+
+        if (isDebit == true)
+            return debitAmount;
+        else
+            return creditAmount;
+    }
+
+    function moveUpDown(keyCode, currentRow, className) {
+
+        var clsName = "." + className;
+        if (keyCode == 38) { //Up Arrow
+            var prevRow = getPrevEnabled(currentRow, className);
+            prevRow.find(clsName).focus();
+        }
+        if (keyCode == 40) { //Down Arrow
+            var nextRow = getNextEnabled(currentRow, className);
+            nextRow.find(clsName).focus();
+        }
+    }
+           
+    $(document).ready(function () {
+            
+            $('#VoucherType').change(function () {
+                $("#ledger tbody").empty();
+                var voucherType = $('#VoucherType option:selected').val();
+                if (voucherType == '')
+                    return;
+                GetVoucherableAccountChart(voucherType);
+                addRow(true);
+            });
+                   
+            
+            $("#ledger").on('change', '.trans-type', function () {
+                var currentRow = $(this).closest("tr");
+                resetAccountParticularDrCr(currentRow);
+            });
+
+            $("#ledger").on('change', '.account', function () {
+                var currentRow = $(this).closest("tr");
+
+                resetParticularDrCr(currentRow);
+
+                //Start: New Code for Debit/Credit Assumtion
+                var debit = calculateDebitCredit(true);
+                var credit = calculateDebitCredit(false);
+                var difference = Math.abs(debit - credit);
+                
+                var transactionType = $(currentRow).find(".trans-type option:selected").val();
+
+                if (transactionType == 'DR') {
+
+                    if(debit<credit)
+                        currentRow.find(".debit").val(difference);
+                }
+                if (transactionType == 'CR') {
+                    if(credit<debit)
+                        currentRow.find(".credit").val(difference);
+                }
+                //End
+                idDebitCreditEqual();
+            });
+
+            $("#ledger").on('blur', '.particulars', function () {
+               
+                var currentRow = $(this).closest("tr");
+
+                //if (event.keyCode == 13) {
+                //    setFocusToDebitOrCredit(currentRow);
+                //}
+            });
+                                
+      
+            $("#ledger").on('keyup', '.debit', function (event) {
+
+                var currentRow = $(this).closest("tr");
+                              
+                var debit = isNaN(parseFloat($(currentRow).find(".debit").val())) ? 0 : parseFloat($(currentRow).find(".debit").val());
+                if (debit <= 0 || isNaN(debit))
+                    return;
+                else
+                    idDebitCreditEqual();
+
+                if (event.keyCode == 13) {
+                    var isEqual = idDebitCreditEqual();
+                    if (isEqual == true) {
+                        $('#Narration').focus();
+                    }
+                    else {
+                        var index = $(currentRow).index();
+                        var isLast = isLastRow(index);
+                        if (isLast == true) {
+                            addRow(false);
+                            setFocusToNextRowDebitOrCredit(currentRow);
+                        }
+                        else {
+                            var nextRow = getNextRow(currentRow);
+                            nextRow.find(".trans-type").focus();
+                        }
+                    }
+                }
+
+            });
+
+            $("#ledger").on('keyup', '.credit', function (event) {
+                                
+                var currentRow = $(this).closest("tr");
+
+                var credit = isNaN(parseFloat($(currentRow).find(".credit").val())) ? 0 : parseFloat($(currentRow).find(".credit").val());
+                if (credit <= 0 || isNaN(credit))
+                    return;
+                else
+                    idDebitCreditEqual();
+              
+                if (event.keyCode == 13) {
+
+                    var isEqual = idDebitCreditEqual();
+                    if (isEqual == true) {
+                        $('#Narration').focus();
+                    }
+                    else {
+                        var index = $(currentRow).index();
+                        var isLast = isLastRow(index);
+                        if (isLast == true) {
+                            addRow();
+                            setFocusToNextRowDebitOrCredit(currentRow);
+                        }
+                        else {
+                            var nextRow = getNextRow(currentRow);
+                            nextRow.find(".trans-type").focus();
+                        }
+                    }
+                }
+                              
+
+                //var col1 = currentRow.find("td:eq(0)").text(); // get current row 1st TD value
+                //var col2 = currentRow.find("td:eq(1)").text(); // get current row 2nd TD
+                //var col3 = currentRow.find("td:eq(2)").text(); // get current row 3rd TD
+                //var data = col1 + "\n" + col2 + "\n" + col3;
+
+                //alert(data);
+            });
+
+            $("#ledger").on('keydown', '.particulars', function (event) {
+               
+                var currentRow = $(this).closest("tr");
+
+                if (event.keyCode == 38 || event.keyCode == 40) {
+                    moveUpDown(event.keyCode, currentRow, "particulars");
+                }
+            });
+
+            $("#ledger").on('keydown', '.debit', function (event) {
+                if (event.keyCode == 9)
+                    return false;
+
+                var currentRow = $(this).closest("tr");
+
+                if (event.keyCode == 38 || event.keyCode == 40) {
+                    moveUpDown(event.keyCode, currentRow, "debit");
+                }
+            });
+
+            $("#ledger").on('keydown', '.credit', function (event) {
+                if (event.keyCode == 9)
+                    return false;
+
+                var currentRow = $(this).closest("tr");
+
+                if (event.keyCode == 38 || event.keyCode == 40) {
+                    moveUpDown(event.keyCode, currentRow, "credit");
+                }
+            });
+
+            $('#btnSaveVoucher').click(function (e) {
+
+                var transactionRegisterObject;
+                var transactionRegisterArray = [];
+
+                var transactionType = '';
+                var accountCode = '';
+                var particulars = '';
+                var debitAmount = 0;
+                var creditAmount = 0;
+                var amount = 0;
+                
+                $("#ledger tbody").find('tr').each(function (i) {
+                    
+                    //Initialize Variables
+                    transactionType = '';
+                    accountCode = '';
+                    particulars = '';
+                    debitAmount = 0;
+                    creditAmount = 0;
+                    amount = 0;
+                    
+                    //Set Value
+                    transactionType = $(this).find(".trans-type option:selected").val();
+                    accountCode = $(this).find(".account option:selected").val();
+                    particulars = $(this).find(".particulars").val();
+                    debitAmount = parseFloat($(this).find(".debit").val());
+                    creditAmount = parseFloat($(this).find(".credit").val());
+                    
+                    if (transactionType == 'DR')
+                        amount = debitAmount;
+                    if (transactionType == 'CR')
+                        amount = creditAmount;
+                                        
+                    transactionRegisterObject = new TransactionRegister(
+                        0, //SerialNo
+                        accountCode,
+	                    0, //VoucherNo
+	                    amount,
+	                    transactionType,
+	                    new Date(),
+                        particulars,
+                        0, //CreateUser
+                        new Date(),
+                        null, //UpdateUser
+                        null, //UpdateDate
+                        false, //IsDeleted
+                        null, //DeleteUser
+                        null  //DeleteDate
+                    );
+                    transactionRegisterArray.push(transactionRegisterObject);
+                });
+                SaveVoucher(JSON.stringify(transactionRegisterArray));
+            });
+            
+
+    }); //End of document ready
+    
+
+</script>
+
+
+
+<h2 class="page-title">Voucher Entry</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+       
+        @Html.ValidationSummary(true)
+        <br />
+        <div class="row">
+                
+                <div class="col-md-3">
+                    <label for="VoucherType">Voucher Type</label> &nbsp;&nbsp;&nbsp;
+                    <select id="VoucherType" style="width:110px;">
+                        <option value="">Please Select</option>
+                        <option value="Ch">Cash</option>
+                        <option value="Jr">Journal</option>
+                        <option value="Bv">Cash</option>
+                        <option value="Ct">Journal</option>
+                    </select>
+                </div>
+
+            <div class="col-md-3">
+                <label for="TransactionDate">Transaction Date</label> &nbsp;&nbsp;&nbsp;
+                <input type="text" id="TransactionDate" width="80"/>
+            </div>
+
+                <div class="col-md-3">
+                    <label for="VoucherNo">Voucher No</label>&nbsp;&nbsp;&nbsp;
+                    <input type="text" id="VoucherNo" width="80" disabled="disabled" value="[Auto]" />
+                </div>
+                
+        </div>
+        <br /><br />
+        
+        <div class="form-group">
+            <div class="col-md-2">
+                <input id="btnAddRow" type="button" value="Add Row"/>
+            </div>
+        </div>
+
+        <div style="overflow-y:auto; height:350px;">
+            <table id="ledger" cellspacing="20">
+                <thead>
+                    <tr>
+                        <th width="130">Transaction Type</th>
+                        <th width="220">Account Code</th>
+                        <th width="220">Particulars</th>
+                        <th width="120">Debit</th>
+                        <th width="120">Credit</th>
+                    </tr>
+                </thead>
+                @*<tbody>*@
+                <tbody onkeydown="return (event.keyCode!=13)">
+                    @*<tr>
+                <td>
+                    <select class="trans-type" style="width:110px;">
+                        <option value="Dr">Dr</option>
+                        <option value="Cr">Cr</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="account" style="width:180px;">
+                        <option value="1102">National Bank Ltd. (34022495)</option>
+                        <option value="1001">Cash in Hand</option>
+                        <option value="1302">Advance Payment</option>
+
+                        <option value="1501">Computer</option>
+                        <option value="1502">Printer</option>
+                        <option value="2001">Employee Contribution</option>
+
+                        <option value="2002">Company Contribution</option>
+                        <option value="2003">Distributed Interest</option>
+                        <option value="2004">Final Payment (Contribution)</option>
+
+                        <option value="2005">Final Payment (Interest)</option>
+                    </select>
+                </td>
+
+                <td>
+                    <input type="text" class="particulars" style="width:180px;" />
+                </td>
+
+                <td>
+                    <input type="text" class="debit" width="80" />
+                </td>
+
+                <td>
+                    <input type="text" class="credit" width="80" />
+                </td>
+            </tr>*@
+
+                </tbody>
+            </table>
+            </div>
+
+            <div class="form-group" style="margin-left:0px;">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="Narration">Narration</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input id="Narration" style="width:470px;" type="text" multiple="multiple" disabled="disabled" />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" id="TotalDebit" width="80" style="margin-left:20px;" disabled="disabled" />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" id="TotalCredit" width="80" style="margin-left:-45px;" disabled="disabled" />
+                    </div>
+                </div>
+            </div>
+
+       
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input id="btnSaveVoucher" type="button" value="Save" class="btn btn-default" disabled="disabled" />
+                </div>
+            </div>
+
+        </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

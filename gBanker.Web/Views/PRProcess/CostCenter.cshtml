@@ -1,0 +1,543 @@
+﻿@model gHRM.Web.ViewModels.ChallanViewModel
+
+@{
+    ViewBag.Title = "CostCenter";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var officeTypeid = SessionHelper.LoggedInOfficeTypeId;
+    var system = SessionHelper.CompanyInfo.CompanyShortName;
+}
+<input id="system" value="@system" type="hidden">
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRProcess/CostCenter">CostCenter</a></li>
+    </ol>
+</div>
+
+<h2 class="page-title">Cost Center</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div id="example">
+            <div id="grid"></div>
+        </div>
+
+    </div>
+}
+
+
+<script type="text/javascript">
+
+
+    function grid() {
+    var dataSource = new kendo.data.DataSource({
+        type: "aspnetmvc-ajax",
+        pageSize: 350,
+        serverPaging: true,
+        serverSorting: true,
+        serverFiltering: true,
+        transport: {
+            read: {
+                url: '@Url.Action("getCostCenterData", "PRProcess", "http")',
+                dataType: 'json',
+                cache: false,
+     
+            },
+            parameterMap: function (options, operation) {
+                if (operation === "update" && options.models) {
+                    return { models: kendo.stringify(options.models) };
+                }
+            }
+            ,
+
+        },
+        batch: true,
+        schema: {
+            data: "data",
+            total: "total",
+            model: {
+                id: "SalaryMonth",
+                fields: {
+                    TransactionType: { editable: true, nullable: false },
+                    PRComponentAmount: { editable: true, nullable: false },
+
+                }
+            }
+
+        }
+    });
+
+    $("#grid").kendoGrid({
+        dataSource: dataSource,
+        height: 590,
+        //groupable: true,
+        groupable: {
+            messages: {
+                empty: "please change cost center name and serial if needed !  " // Customize the message
+            }
+        },
+        reorderable: true,
+        filterable: true,
+        sortable: true,
+        selectable: true,
+        resizable: true,
+        pageable: {
+            refresh: true,
+            pageSizes: [350, 500, 700],
+            buttonCount: 5
+        },
+        // toolbar: ["save", "cancel"],
+        // toolbar: ["save", "cancel"],
+            //toolbar: ["create", "save", "cancel"],
+        columns: [
+           
+            { field: "TransactionType", title: "Cost Center", width: "10%", filterable: false, type: "text" },
+            {
+                field: "TransactionType",
+                title: "Cost Center",
+                width: "10%",
+                filterable: false,
+                editable: false, // Keep the column non-editable
+                template: function (dataItem) {
+                    return '<span class="differencee-cell" data-value="' +
+                        kendo.htmlEncode(dataItem.TransactionType) +
+                        '" onblur="handleDifferenceBlur(this)" onkeypress="handleDifferenceKeyPress(event, this)">' +
+                        kendo.htmlEncode(dataItem.TransactionType) +
+                        '</span>';
+                }
+            },
+            { field: "PRComponentAmount", title: "SL", width: "10%", filterable: false },
+            {
+                command: [
+                    {
+                        name: "edit", // Edit command
+                        text: { edit: "Save", update: "Update" }, // Change button text based on state
+                        click: onCommandClick // Bind event for the Edit/Update button
+                    },
+
+                ],
+                title: "Action",
+                width: "10%"
+            }
+        ],
+        change: onDataChange,
+        save: function (e) {
+            console.log('save event');
+            var dataItem = e.model;
+           // set Differencee: editable: true,
+            // Calculate the difference if PassBookBalance is changed
+            if (e.values.hasOwnProperty("TransactionType")) {
+                var loanBalance = parseFloat(dataItem.LoanBalance) || 0;
+                var passBookBalance = parseFloat(e.values.PassBookBalance) || 0;
+                var difference = loanBalance - passBookBalance;
+
+                if (difference < 0) {
+                   // alert('Loan Balance and Passbook Balance difference can not be less than zero! ');
+                    dataItem.set("PassBookBalance", dataItem.LoanBalance);
+                  //  e.preventDefault();
+                  //  return false;
+                }
+                // Update the Differencee field
+                dataItem.set("Differencee", difference);
+               // set Differencee: editable: false,
+                console.log(
+                    "Updated Difference: LoanBalance - " +
+                    loanBalance +
+                    ", PassBookBalance - " +
+                    passBookBalance +
+                    ", Differencee - " +
+                    difference
+                );
+            }
+
+            if (e.field === "Differencee") {
+                // Show alert and prevent editing
+                alert("Difference cannot be editable or changed!");
+                e.preventDefault();
+            }
+        },
+        edit: function (e) {
+            console.log(e.container.html());
+
+            console.log('edit event' + e);
+
+            console.log("Edit event triggered");
+
+            // Find the input element for the field being edited
+            const input = e.container.find("input[name='Differencee']");
+
+            if (input.length) {
+                console.log("Editing Differencee field");
+
+                // Make the input non-editable by setting readonly attribute
+                input.attr("readonly", true);
+
+                // Optionally log or handle specific events
+                input.on("click", function () {
+                    console.log("Click event triggered on Differencee field.");
+                });
+
+                input.on("change", function () {
+                    console.log("Change event triggered but input is non-editable.");
+                });
+            } else {
+                console.log("Field is not Differencee or input not found.");
+            }
+
+
+
+            var model = e.model;
+            // Set the PassBookBalance to LoanBalance by default
+            if (!model.PassBookBalance) {
+                model.set("PassBookBalance", model.LoanBalance);
+            }
+
+            console.log("Setting PassBookBalance to LoanBalance: ", model.LoanBalance);
+
+            if (e.field === "Differencee") {
+                const input = e.container.find("input[name='Differencee']");
+                input.on("keypress", function (event) {
+                    console.log("Keypress event:", event.key);
+                });
+                input.on("change", function (event) {
+                    console.log("Change event. New value:", $(this).val());
+                });
+                input.on("click", function () {
+                    console.log("Click event triggered.");
+                });
+            }
+
+            if (e.field === "Differencee") {
+                // Show alert and prevent editing
+                alert("Difference cannot be editable or changed!");
+                e.preventDefault();
+            }
+
+
+            console.log("Edit event triggered for field:", e.field);
+
+            var model = e.model;
+
+            // Set default PassBookBalance to LoanBalance
+            if (!model.PassBookBalance) {
+                model.set("PassBookBalance", model.LoanBalance);
+            }
+            console.log("Setting PassBookBalance to LoanBalance:", model.LoanBalance);
+
+            // Check if the edited field is "Differencee"
+            if (e.field === "Differencee") {
+                const input = e.container.find("input[name='Differencee']");
+
+                // Ensure input exists
+                if (input.length) {
+                    console.log("Binding events to Differencee field");
+
+                    // Handle keypress
+                    input.on("keypress", function (event) {
+                        console.log("Keypress event:", event.key);
+                    });
+
+                    // Handle change
+                    input.on("change", function () {
+                        const newValue = $(this).val();
+                        console.log("Change event triggered. New value:", newValue);
+                    });
+
+                    // Handle click
+                    input.on("click", function () {
+                        console.log("Click event triggered on Differencee field.");
+                    });
+                } else {
+                    console.log("Differencee input not found in edit container.");
+                }
+            }
+
+        },
+        dataBound: function () {
+            makeAllRowsEditable(this); // Call the function to make all rows editable
+
+        },
+        editable: true
+    });
+    }
+
+
+    function handleDifferenceBlur(element) {
+        alert("Blur event triggered on Difference column! Value: " + element.getAttribute("data-value"));
+    }
+
+    function handleDifferenceKeyPress(event, element) {
+        console.log('handleDifferenceKeyPress');
+        console.log(event);
+        console.log(element)
+        if (event.key === "Enter") {
+            alert("Keypress event triggered on Difference column! Value: " + element.getAttribute("data-value"));
+        }
+    }
+
+
+
+
+    function onDataChange(e) {
+        console.log('onDataChange triggered');
+        console.log('Event type:', e.type); // Logs the event type
+        console.log(e); // Inspect the event object
+
+        //console.log('Event triggered:', e.sender.columns[15].field.change.);
+
+        const columnField = e.sender.columns[15].field;
+        if (columnField && typeof columnField === 'object' &&
+            ('change' in columnField || 'keypress' in columnField || 'click' in columnField)) {
+            if ('change' in columnField) {
+                console.log('Change event:', columnField.change);
+            }
+            if ('keypress' in columnField) {
+                console.log('Keypress event:', columnField.keypress);
+            }
+            if ('click' in columnField) {
+                console.log('Click event:', columnField.click);
+            }
+        } else {
+            console.log('The field does not have any of the specified properties or is not an object:', columnField);
+        }
+
+
+
+        if (e.type === "click") {
+            console.log("Click event triggered on the Differencee textbox");
+            // Prevent the default action, like changing the value
+            e.preventDefault();
+        }
+
+        // Check if the field being changed is "PassBookBalance"
+        if (e.field === "PassBookBalance") {
+            // Get the updated row's dataItem
+            var dataItem = e.sender.dataItem(e.container);
+
+            if (dataItem) {
+                // Calculate the Difference
+                dataItem.Difference = parseInt(dataItem.LoanBalance || 0) - parseInt(dataItem.PassBookBalance || 0);
+
+                // Manually refresh the grid row to reflect the change
+                var grid = e.sender;
+                var row = $(e.container).closest("tr");
+                grid.refreshRow(row);
+            }
+        }
+    }
+
+    function onCommandClick(e) {
+        e.preventDefault(); // Prevent default behavior
+        console.log('onCommandClick triggered');
+
+        var grid = $("#grid").data("kendoGrid");
+        var row = $(e.target).closest("tr"); // Get the row of the clicked button
+        var dataItem = grid.dataItem(row); // Get the data item for the row
+        var command = $(e.target).data("command"); // Get the command (edit or update)
+        var LoanSummaryID = dataItem.LoanSummaryID;
+        console.log(dataItem);
+        console.log('LoanSummaryID' + LoanSummaryID);
+
+        var commandName = e.data.commandName;
+
+        if (commandName === "edit") {
+            // Handle the "Edit" button click
+            var isEditMode = row.hasClass("k-grid-edit-row"); // Check if the row is in edit mode
+            console.log("Editing item:", dataItem);
+                   if (!isEditMode) {
+                        if (confirm("Are you sure you save ?")) {
+                            // User clicked "OK"
+                              console.log("User confirmed.");
+                              $.ajax({
+                                                contentType: "application/json; charset=utf-8",
+                                                url: '@Url.Action("kendo_insert_LoanAndSavingsBalanceCompareMemberWise_Buro_Edit", "SSRSReport")',
+                                                type: "GET",
+                                                dataType: 'json',
+                                                async: true,
+                                                data:
+                                                {
+                                                    LoanSummaryID: dataItem.LoanSummaryID,
+                                                    OfficeID: dataItem.OfficeID,
+                                                    MemberID: dataItem.MemberID,
+                                                    ProductID: dataItem.ProductID,
+                                                    CenterID: dataItem.CenterID,
+                                                    PassBookBalance: dataItem.PassBookBalance,
+                                                    Difference: dataItem.Differencee,
+                                                    ReportDate: dataItem.ReportDate,
+                                                    Comments: dataItem.Comments,
+                                                    LoanBalance: dataItem.LoanBalance,
+                                                },
+                                                  success: function (data) {//klm
+                                                      if (data.result == 1) {
+                                                          alert(data.message);
+                                                          reloadGrid();
+                                                         // ClearForm();
+                                                      } else {
+                                                          alert(data.message);
+                                                      }
+                                                  },
+                                                  error: function (request, status, error) {
+                                                      alert(request.statusText + "/" + request.statusText + "/" + error);
+                                                  }
+                                            });
+                        }
+                    }
+        }
+        else if (command === "save") {
+            // Handle the "Update" button click (after editing)
+            $.confirm({
+                title: 'Confirm Update',
+                content: 'Are you sure you want to save this record?',
+                buttons: {
+                    yes: function () {
+                        console.log("Updating item:", dataItem);
+
+                            var loanBalance = parseFloat(dataItem.LoanBalance) || 0;
+                            var passBookBalance = parseFloat(e.values.PassBookBalance) || 0;
+                            var difference = loanBalance - passBookBalance;
+
+                            if (difference < 0) {
+                               // alert('Loan Balance and Passbook Balance difference can not be less than zero! ');
+                                dataItem.set("PassBookBalance", dataItem.LoanBalance);
+                              //  return false;
+                            }
+                        // Perform AJAX call to update the item on the server
+                        $.ajax({
+                            url: '/api/yourUpdateEndpoint', // Replace with your API endpoint
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(dataItem), // Send the updated data
+                            success: function (response) {
+                                alert("Data updated successfully!");
+                                console.log("Update response:", response);
+
+                                // Optionally refresh the grid after update
+                                grid.dataSource.read();
+                            },
+                            error: function (error) {
+                                console.error("Error updating data:", error);
+                                alert("An error occurred while updating the data.");
+                            }
+                        });
+
+                        // Save the row after AJAX update
+                        grid.saveRow();
+                    },
+                    no: function () {
+                        console.log("Update action canceled.");
+                    }
+                }
+            });
+        } else if (command === "destroy") {
+            // Handle the "Delete" button click
+            $.confirm({
+                title: 'Confirm Delete',
+                content: 'Are you sure you want to delete this record?',
+                buttons: {
+                    yes: function () {
+                        // Perform AJAX call to delete the item from the server
+                        $.ajax({
+                            url: '/api/yourDeleteEndpoint', // Replace with your delete API endpoint
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ id: dataItem.ID }), // Send the ID of the item to delete
+                            success: function (response) {
+                                alert("Record deleted successfully!");
+                                console.log("Delete response:", response);
+
+                                // Optionally remove the row from the grid after successful deletion
+                                grid.removeRow(row);
+                            },
+                            error: function (error) {
+                                console.error("Error deleting data:", error);
+                                alert("An error occurred while deleting the record.");
+                            }
+                        });
+                    },
+                    no: function () {
+                        console.log("Delete action canceled.");
+                    }
+                }
+            });
+        }
+    }
+
+
+    function makeAllRowsEditable(grid) {
+    try {
+        // Get the grid instance if not passed
+        grid = grid || $("#grid").data("kendoGrid");
+
+        // Ensure the grid instance exists
+        if (!grid) {
+            throw new Error("Grid instance is not available.");
+        }
+
+        // Iterate over each row in the grid
+        grid.tbody.find("tr").each(function () {
+            var row = $(this);
+
+            // Iterate over each cell in the row
+            row.find("td").each(function () {
+                var cell = $(this);
+                var columnIndex = cell.index();
+                var column = grid.columns[columnIndex]; // Get the column configuration
+
+                try {
+                    // Skip cells that are not editable
+                    if (!column || column.editable === false || !column.field || !column.editor) {
+                        console.log(
+                            `Skipping row ${row.index()}, column ${columnIndex}: Not editable or lacks editor.`
+                        );
+                        return;
+                    }
+
+                    // Manually trigger the cell to become editable
+                    grid.editCell(cell);
+
+                    // Check if the column is "PassBookBalance" and set it to "LoanBalance" by default if not set
+                    var dataItem = grid.dataItem(row);
+                    if (dataItem && !dataItem.PassBookBalance) {
+                        dataItem.set("PassBookBalance", dataItem.LoanBalance);
+                    }
+
+                    console.log('Set PassBookBalance to LoanBalance for row ' + row.index());
+                } catch (cellError) {
+                    console.error(
+                        `Error making cell at row ${row.index()}, column ${columnIndex} editable:`,
+                        cellError.message
+                    );
+                }
+            });
+        });
+
+        console.log("All editable rows and cells are now editable.");
+    } catch (error) {
+        console.error("Error while making rows editable:", error.message);
+    }
+}
+
+
+
+
+    $(document).ready(function () {
+
+        grid();
+
+    });
+
+
+
+
+</script>
+
+
+
+@section Scripts {
+    @*<script src="~/Assets/js/app/payroll/prProcessManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>*@
+    @Scripts.Render("~/bundles/jqueryval")
+}

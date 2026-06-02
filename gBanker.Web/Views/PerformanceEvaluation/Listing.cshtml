@@ -1,0 +1,82 @@
+﻿@model gHRM.Web.ViewModels.PerformanceEvaluations.PerformanceEvaluationListViewModel
+
+@{
+    ViewBag.Title = "Performance Evaluation Listings";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PerformanceEvaluation/Listing">Performance Evaluation Listings</a></li>
+    </ol>
+</div>
+
+
+@Html.ActionLink("Add New", "manage", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">@ViewBag.Title</h2>
+&nbsp;
+
+<div class="row">
+    @using (Html.BeginForm("Listing", "PerformanceEvaluation", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "search-evaluation-listing-form" }))
+    {
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Year, Model.Years, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Month, Model.Months, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                  @Html.LabelFor(model => model.SearchTerm, htmlAttributes: new { @class = "control-label col-md-4" })        
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.SearchTerm, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="col-sm-6 col-md-offset-2">
+                <div class="form-group">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <div class="col-md-8">
+                        <input type="submit" id="btnSearch" value="Search" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    &nbsp;
+
+    <!--lising -->
+    <div id="grid">
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Assets/js/app/performanceEvaluation/performanceEvaluationManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

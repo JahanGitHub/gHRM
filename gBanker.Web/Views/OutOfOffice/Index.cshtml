@@ -1,0 +1,483 @@
+﻿@model gHRM.Web.ViewModels.Leave.OutOfOfficeViewModel
+
+
+@{
+    ViewBag.Title = " Out of Office ";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm("Index", "OutOfOffice", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "LeaveTypeProfile" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(model => model.EmployeeId)
+    @*@Html.EditorFor(model => model.EmployeeId)*@
+
+    <div class="container-fluid">
+
+        @*Row# 01*@
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", autocomplete = "off" } })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @*Row# 02*@
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        @*Row# 03*@
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        @*Row# 03*@
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FromDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.FromDate, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ToDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.ToDate, new { @class = "form-control required" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        @*Row# 05*@
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Category, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.Category, Model.LeaveCategoryList, null, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<div class="row">
+
+    <h2 class="page-title">Employee Out Office List</h2>
+    &nbsp;
+    &nbsp;
+    &nbsp;
+
+
+    <br />
+    <div class="box-content">
+        <div class="table-responsive">
+            <div id="LoadKendo"></div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+
+    $(document).ready(function () {
+
+
+        // Employee Code
+        $("#EmployeeCode").blur(function (e) {
+           // debugger;
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+        // Date
+        $("#FromDate").val('');
+        $("#ToDate").val('');
+
+        $("#FromDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "2023:2050"
+
+            });
+
+        $("#ToDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "2023:2050"
+
+            });
+
+
+        // Save Data
+        $("#btnSave").click(function (e) {
+
+            var employeeId = $("#EmployeeId").val();
+            var fromDate = $("#FromDate").val();
+            var toDate = $("#ToDate").val();
+            var category = $("#Category").val();
+
+            var obj = {
+                EmployeeId: employeeId,
+                FromDate: fromDate,
+                ToDate: toDate,
+                Category: category
+            }
+            if (employeeId != "" && fromDate != "" && toDate != "" && category != "") {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    url: '/OutOfOffice/EmployeeOutOfficeSave',
+                    dataType: 'json',
+                    data: JSON.stringify({ obj: obj }),
+                    async: true,
+                    success: function (data) {
+
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            getOutOfficeList();
+
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+
+                    error: function (xhr, status, error) {
+                        alert(error);
+                    }
+                });
+
+            } else {
+                $.alert.open("Error", "Please insert required data");
+            }
+
+
+
+            //        error: function (request, status, error) {
+            //            $.alert.open("Message", "Error ..");
+            //        }
+            //    });
+            //}
+        });
+
+        // Load List
+
+        getOutOfficeList();
+
+
+    });
+
+
+    // Load EmployeeData
+    function LoadEmpInfoByCode(employee_code) {
+        $("#EmployeeId").val(0);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeProfileReport", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                        $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                        $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                        $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                        $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                    });
+                    //LoadPreviousDataList($("#EmployeeId").val());
+                }
+
+                else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+
+    // Load List by Kendo
+     function getOutOfficeList() {
+         $('#LoadKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+
+                    url: '@Url.Action("GetOutofOfficeList", "OutOfOffice", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+         $("#LoadKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "OutofOfficeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "20px",
+                    filterable: false,
+                },//OfficeTypeName
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeCurrentOfficeName",
+                    title: "Office Name",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeCurrentDepartmentName",
+                    title: "Department",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeCurrentDesignation",
+                    title: "Designation",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "Category",
+                    title: "Absent Reason",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "DateFrom",
+                    title: "From Date",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "DateTo",
+                    title: "To Date",
+                    width: "40px",
+                    filterable: false,
+                },
+
+                 {
+                     title: "Edit",
+                     width: "30px",
+
+                         template: function (dataItem) {
+                             return "<a href='#' OnClick='Edit(" + dataItem.OutofOfficeId + ");'><i class='fa fa-edit'></i></a>";
+                         }
+
+
+                 },
+                    {
+                        title: "Delete",
+                        width: "25px",
+                        template: function (dataItem) {
+                            return "<a href='#' OnClick='Delete(" + dataItem.OutofOfficeId + ");'><i class='fa fa-trash-o'></i></a>";
+                        }
+                }
+                , {
+                    title: "Print",
+                    width: "25px",
+                    template: function (dataItem) {
+                        return "<a href='#' OnClick='Print(" + dataItem.OutofOfficeId + ");'><i class='fa fa-print'></i></a>";
+                    }
+                }
+            ]
+        });
+    }
+
+    // Edit
+     function Edit(id) {
+        console.log(id);
+         $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetById", "OutOfOffice", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            $.each(data, function (index, data) {
+                                if (data != "Error") {
+                                    // alert(data.PermanentAddress);
+                                   // $('#Date').val(data.DateOfBirthMsg);
+                                    $("#EmployeeCode").val(data.EmployeeCode);
+                                    $("#FromDate").val(data.DateFrom);
+                                    $("#ToDate").val(data.DateTo);
+                                    $("#Category").val(data.Category);
+                                    $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                                    $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                                    $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                                    $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+
+                                }
+                                else {
+
+                                    $("#EmployeeCode").val('');
+                                    alert("Wrong Employe Code");
+                                    $("#EmployeeCode").focus();
+                                }
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+    }
+
+    // Delete
+
+    function Delete(id) {
+        console.log(id);
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+              $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("DeleteOutofOffice", "OutOfOffice", "http")',
+                        data: { Id: id },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open('Error', 'Employee Code Invalid!');
+                            }
+
+                            if (data.result == 1) {
+                                $.alert.open('Success', 'Deleted Successfully!');
+                                getOutOfficeList();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+
+     }
+
+
+</script>
+
+
+@section Scripts {
+
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

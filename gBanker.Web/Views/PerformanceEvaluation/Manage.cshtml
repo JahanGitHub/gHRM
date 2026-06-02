@@ -1,0 +1,342 @@
+﻿@model gHRM.Web.ViewModels.PerformanceEvaluations.AddOrEditPerformanceEvaluationViewModel
+
+@{
+    ViewBag.Title = "Manage Performance Evaluation";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+@section AdminPageBreadCrumb{
+    <div class="row">
+        <ol class="breadcrumb breadcrumb-arrow">
+            <li><a href="/PerformanceEvaluation/Listing">Performance Evaluations</a></li>
+            <li><a href="#">Manage</a></li>
+        </ol>
+    </div>
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+@Html.ActionLink("Back to List", "Listing", null, new { @class = "btn btn-success btn-sm pull-right" })&nbsp;
+<h2 class="page-title">Manage Employee Wise Performance Evaluation</h2>&nbsp;
+<div class="container-fluid">
+    @using (Html.BeginForm("Manage", "PerformanceEvaluation", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "add-or-edit-form" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.PerformanceEvaluationId)
+        @Html.HiddenFor(model => model.EmployeeId)
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2"> </label>
+                    <div class="col-sm-10">
+                        <b><u>Employee Info</u></b>
+                        <br />
+                        <small class="bg-danger"><i class="fa fa-bullhorn"></i> Tip: please enter employee code and then configure performance evaluation for that valid employee.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPaneForPE.cshtml", pvOfficeNevigation)
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeEmployeeStatus, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeEmployeeStatus, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeDepartment, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeDepartment, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeDesignationStatus, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeDesignationStatus, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2"> </label>
+                    <div class="col-sm-10">
+                        <b><u>Year and Month</u></b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Year </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.EvaluationYear, Model.Years, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Month </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.EvaluationMonth, Model.Months, "Please Select", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2"> </label>
+                    <div class="col-sm-10">
+                        <b><u>Samity, Member and Loanee Info</u></b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalSamity, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.TotalSamity, new { htmlAttributes = new { @class = "form-control validateLength" } })
+                        @Html.ValidationMessageFor(model => model.TotalSamity, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalMember, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.TotalMember, new { htmlAttributes = new { @class = "form-control validateLength" } })
+                        @Html.ValidationMessageFor(model => model.TotalMember, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalLoanee, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.TotalLoanee, new { htmlAttributes = new { @class = "form-control validateLength" } })
+                        @Html.ValidationMessageFor(model => model.TotalLoanee, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2"> </label>
+                    <div class="col-sm-10">
+                        <b><u>Savings Info</u></b>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OSP, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.OSP, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                        @Html.ValidationMessageFor(model => model.OSP, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SpecialSavings, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.SpecialSavings, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                        @Html.ValidationMessageFor(model => model.SpecialSavings, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>    
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.GeneralSavings, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.GeneralSavings, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                    @Html.ValidationMessageFor(model => model.GeneralSavings, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-sm-2"> </label>
+                <div class="col-sm-10">
+                    <b><u>Loan Info</u></b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanDisburse, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.LoanDisburse, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                    @Html.ValidationMessageFor(model => model.LoanDisburse, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanRepaid, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.LoanRepaid, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                    @Html.ValidationMessageFor(model => model.LoanRepaid, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.LoanOutstanding, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.LoanOutstanding, new { htmlAttributes = new { @class = "form-control validateText" } })
+                    @Html.ValidationMessageFor(model => model.LoanOutstanding, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-sm-2"> </label>
+                <div class="col-sm-10">
+                    <b><u>Due Info</u></b>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CurrentDueNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.CurrentDueNo, new { htmlAttributes = new { @class = "form-control validateLength" } })
+                    @Html.ValidationMessageFor(model => model.CurrentDueNo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.CurrentDue, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.CurrentDue, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                    @Html.ValidationMessageFor(model => model.CurrentDueNo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OverDueNo, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.OverDueNo, new { htmlAttributes = new { @class = "form-control validateLength" } })
+                    @Html.ValidationMessageFor(model => model.OverDueNo, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OverDue, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.OverDue, new { htmlAttributes = new { @class = "form-control validateText validateLength" } })
+                    @Html.ValidationMessageFor(model => model.OverDue, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <div class="form-group form-action" style="padding:10px;padding-left: 180px;margin:5px;">
+                    &nbsp;
+                    <button type="submit" class="btn btn-success">Save</button>
+                    &nbsp;
+                    <a class="btn btn-facebook" href="/performanceevaluation/listing">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+    </div>
+
+
+    @section Scripts {
+        <script src="~/Assets/js/app/performanceEvaluation/performanceEvaluationManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+        @*<script src="~/Scripts/jquery.validate.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+            <script src="~/Scripts/jquery.validate.unobtrusive.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+            <script type="text/javascript">
+                $.validator.methods.number = function (value, element) {
+                    console.log('validate');
+                    return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:\.\d{3})+)?(?:,\d+)?$/.test(value);
+                }
+            </script>*@
+        @Scripts.Render("~/bundles/jqueryui")
+        @Scripts.Render("~/bundles/jtable")
+        @Scripts.Render("~/bundles/alert")
+    }

@@ -1,0 +1,90 @@
+﻿@model gHRM.Web.ViewModels.Loan.LoanApprovalViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Approval Level";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#grid').jtable({
+            // title: 'Product List',
+            paging: false,
+            //pageSize: 10,
+            sorting: false,
+            //defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/LoanConfig/GetAllLoanApproval',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+            },
+            fields: {
+                LoanType: {
+                    title: "Loan Type",
+                    width: "30px",
+                    display: function (dataItem) {
+                        return (dataItem.record.LoanType == "PFL" ? "PF Loan" : dataItem.record.LoanType == "CL" ? "Company Loan" : dataItem.record.LoanType == "COL" ? "Co-Operative Loan" :"");
+                    }
+                },
+                FormName: {
+                    title: "Form Name",
+                    width: "30px",
+                    display: function (dataItem) {
+                        return dataItem.record.FormName == "ACC" ? "Accounts" : dataItem.record.FormName == "DAP" ? "Disburse Application" : "";
+                    }
+                },
+                TotalLevel: {
+                    title: "Total Level",
+                    width: "20px",
+                },
+                
+                Link: {
+                    title: "Action",
+                    width: '10%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="/LoanConfig/ApprovalLevelCreate?id=' + data.record.ApprovalMasterId + '" title="Edit"><i class="fa fa-edit"></i></a> </div>';
+                    }
+                },
+            }
+        });
+        reloadGrid();
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+</script>
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="ApprovalLevel">Approval</a></li>
+    </ol>
+</div>
+<div class="row">
+    @Html.ActionLink("Add", "ApprovalLevelCreate", null, new { @class = "btn btn-success btn-sm pull-right", @id = "btnAddNew" })
+    <h2 class="page-title">Loan type wise approval</h2>
+</div>
+<br />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+    @*@Scripts.Render("~/bundles/jqueryui")*@
+}

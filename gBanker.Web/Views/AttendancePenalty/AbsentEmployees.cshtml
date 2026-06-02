@@ -1,0 +1,59 @@
+﻿@model gHRM.Web.ViewModels.AttendancePenaltyConfigurationViewModel
+
+@{
+    ViewBag.Title = "AttendancePenaltyLeaveDeduction";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml"; var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var deptList = Model == null ? null : Model.DepartmentList;
+    var desgList = Model == null ? null : Model.DesignationList;
+}
+
+<h2 class="page-title"> Leave Deduction For Absent</h2> &nbsp;
+<div class="form-horizontal">
+    @Html.HiddenFor(model => model.Id)
+    <div class="container-fluid">
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+        <div class="row">
+            <div class="col-sm-3 col-sm-offset-1">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Year</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3 col-sm-offset-1">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Month</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group" style="padding-left:10px;">
+                    <button type="button" id="btnSearch" class="btn btn-success">Search</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="gridKendo"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+   <script src="https://kendo.cdn.telerik.com/2023.2.718/js/jszip.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    @section scripts{
+        <script src="http://momentjs.com/downloads/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+        <script src="~/Scripts/momentjs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+        <script src="~/Assets/js/app/time-kepping/absentEmployeeManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()@System.DateTime.Now"></script>
+    }

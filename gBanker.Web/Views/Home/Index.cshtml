@@ -1,0 +1,45 @@
+﻿
+@model gHRM.Web.ViewModels.Dashboard.HomePageViewModel
+
+@{
+    ViewBag.Title = "gHRM+";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var employeeMaping = ViewBag.EmployeeOfficeMappings as List<SelectListItem> ?? new List<SelectListItem>();
+    var showBranchPopup = (bool)ViewBag.ShowPopup;
+}
+
+<style>
+    .content {
+        padding: 0px;
+    }
+
+    .bg-img {
+        padding: 0px;
+        margin-top: -15px;
+        margin-left: 15px;
+        background: url(../Images/HomeBanner.jpg) no-repeat top center;
+        /*background: url(../Images/HomePageBackground.jpg) no-repeat top center;*/
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+        min-height: 567px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12 bg-img">
+
+        <!--SSO Enabling-->
+        @Html.Partial("_SSOTriggeringPartial",Model)
+        <div style="display:none" id="RedirectUrl" RedirectUrl="@Model.ReturnUrl"></div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    <script src="~/Assets/js/app/dashboard/dashboardManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

@@ -1,0 +1,49 @@
+﻿@model gHRM.Web.ViewModels.EmployeeReportViewModel
+
+@{
+    ViewBag.Title = "Employee Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Employee Report</h2>
+<br />
+
+
+
+<div class="row">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#MasterEntry">Master Entry</a></li>
+        <li><a data-toggle="tab" href="#RegularOperation">Regular Operation</a></li>
+        <li><a data-toggle="tab" href="#Process">Process</a></li>
+        <li><a data-toggle="tab" href="#Reports">Reports</a></li>
+    </ul>
+
+    <div class="tab-content fixed-items" style="padding-top: 7px; padding-left:5px; padding-right:5px" >
+        <div id="MasterEntry" class="tab-pane fade in active">            
+            @Html.Partial("_MasterEntryPartial")
+        </div>
+        <div id="RegularOperation" class="tab-pane fade">
+            @Html.Partial("_RegularOperationPartial")
+        </div>
+        <div id="Process" class="tab-pane fade">
+            @Html.Partial("_ProcessPartial")
+        </div>
+        <div id="Reports" class="tab-pane fade">
+            @Html.Partial("_ReportsPartial")
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+   
+}
+
+
+
+
+
+
+
+
+

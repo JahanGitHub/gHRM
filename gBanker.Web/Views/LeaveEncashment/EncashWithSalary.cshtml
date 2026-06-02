@@ -1,0 +1,297 @@
+﻿@model gHRM.Web.ViewModels.LeaveSellViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $(".hidePaymentDate").hide();
+        $(".hidePaymentYear").hide();
+
+        $("#PaymentDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1920:2025"
+            });
+
+        ApprovalStatus = "E";
+        LoadLeaveSellGrid(ApprovalStatus);
+
+        $("#Payment").change(function () {
+            var type = $("#Payment").val();
+
+            if (type == "1") {
+                $(".hidePaymentDate").hide();
+                $(".hidePaymentYear").show();
+                $("#Month").val("");
+                $("#Year").val("");
+            }
+
+            else if (type == "2") {
+                $(".hidePaymentDate").show();
+                //$("#Month").hide();
+                $(".hidePaymentYear").hide();
+            }
+            else {
+                $(".hidePaymentDate").hide();
+                $(".hidePaymentYear").hide();
+            }
+    
+        });
+    });
+
+    function EncashmentPayment(leaveSellId, employeeCode) {
+        $.alert.open('confirm', 'Are you sure to Pay Encashment?', function (button) {
+            if (button == 'yes') {
+                debugger;
+
+                var payment = $("#Payment").val();
+                var month = $("#Month").val();
+                var year = $("#Year").val();
+                var paymentDate = $("#PaymentDate").val();
+                var remark = $("#Remark").val();
+
+                var item = {
+                    LeaveSellId: leaveSellId,
+                    Month: month,
+                    Year: year,
+                    EmployeeCode: employeeCode,
+                    Payment: payment,
+                    PaymentDate: paymentDate,
+                    Remark: remark,
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("SaveEncashment", "LeaveEncashment", "http")',
+                    //data: JSON.stringify(EncashmentList = item),
+                    data: JSON.stringify({ Encashment: item }),
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+
+                            LoadLeaveSellGrid(ApprovalStatus);
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+
+    function LoadLeaveSellGrid(ApprovalStatus) {
+
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {//LeaveSell/GetLeaveSellList
+                read: {
+
+                    url: '@Url.Action("GetLeaveSellList", "LeaveEncashment", "http")',
+                    dataType: 'json',
+                    data: { ApprovalStatus: ApprovalStatus }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "LeaveSellId",
+                     hidden: true,
+                     filterable: false
+                 },
+
+                 {
+                     field: "EmployeeId",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "Rowsl",
+                     title: "Sl.",
+                     width: "30px",
+                     filterable: false
+                 },
+                 {
+                     width: "60px",
+                     field: "EmployeeCode",
+                     filterable: true,
+                     title: "Code"
+                 },
+                 {
+                     width: "100px",
+                     field: "EmployeeName",
+                     title: "Name",
+                     filterable: false
+                 },
+                {
+                    width: "80px",
+                    field: "ScaleDate",
+                    title: "Scale Date",
+                    filterable: false
+                },
+                {
+                    width: "80px",
+                    field: "BalanceEl",
+                    title: "EL Balance",
+                    filterable: false
+                },
+
+                {
+                    width: "60px",
+                    field: "TotalDays",
+                    title: "Days Sold",
+                    filterable: false
+                },
+                {
+                    width: "60px",
+                    field: "EncashedAmount",
+                    title: "Amount",
+                    filterable: false
+                },
+                 {
+                     title: "Print",
+                     width: "30px",
+                     template: function (data) {
+                         return '<div class="text-center"><a title="EL Encashment Application" href="#" OnClick="ELEncashmentApplication(' + data.LeaveSellId + ',' + data.EmployeeId + ');"><i class="fa fa-print"></i></a></div>';
+                     }
+                 },
+
+                 {
+                     width: "60px",
+                     title: 'Action',
+                     template: function (data) {
+
+                         if (data.ActiveStatus == 'True') {
+                             if (data.IsAmountPaid == 'False' || data.IsAmountPaid == '') {
+                                 return '<div class="text-center"><a title="Complete Encashment Process" href="#" OnClick="EncashmentPayment(' + data.LeaveSellId + ',\'' + data.EmployeeCode + '\');"><i class="fa fa-check"></i></a></div>';
+                             } else {
+                                 return '<div class="text-center"> <label>Paid</label></div>';
+                             }
+                         }
+                         else {
+                             return '';
+                         }
+                     }
+                 },
+            ]
+        });
+    }
+
+</script>
+
+
+&nbsp;
+<h2 class="page-title">Approved EL Encashment List</h2>
+&nbsp;
+
+<div class="row">
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Payment, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Payment, Model.PaymentTypes, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+      
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Remark</label>
+                <div class="col-md-8">
+                    @Html.TextBoxFor(model => model.Remark, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row hidePaymentYear">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row hidePaymentDate">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Payment Date</label>
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.PaymentDate, new { htmlAttributes = new { @Value = DateTime.Now.ToString("dd-MMM-yyyy"), @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

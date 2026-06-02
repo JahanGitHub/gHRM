@@ -1,0 +1,157 @@
+﻿@model gHRM.Web.ViewModels.PF.ContributionCollectionViewModel
+
+@{
+    ViewBag.Title = "Contribution Collection";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    $(document).ready(function () {
+
+       // $('#EmployeeId').focus();
+
+        @*@if (Model.IsOpen == true)
+        {
+        <text>
+        $("#create").removeClass('disabled');
+        </text>
+        }
+        
+        @if(Model.IsOpen == false){
+        <text>
+        $("#create").addClass('disabled');
+        </text>
+        }*@
+
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#EmployeeId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        $("#btnSearch").click(function () {
+            $("#btnSearch").click(function () {
+                var employeeCode = $("#EmployeeCode").val();
+                var employeeName = $("#EmployeeName").val();
+                $('#grid2').jtable('load', { employeeCode: employeeCode, employeeName: employeeName });
+            });
+        });
+
+        $('#grid2').jtable({
+            // title: 'Investor List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFContributionCollection/GetContributionCollectionList'
+            },
+            fields: {
+                CollectionId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Employee Code',
+                    width: '10%',
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '25%',
+                },
+                CollectionType: {
+                    title: 'Collection Type',
+                    width: '12%',
+                },
+                TransactionType: {
+                    title: 'Trans Type',
+                    width: '10%',
+                },
+                TransactionDateString: {
+                    title: 'Transaction Date',
+                    width: '12%',
+                },
+                SelfContribution: {
+                    title: 'Self Contribution',
+                    width: '15%'
+                },
+                OrgContribution: {
+                    title: 'Org Contribution',
+                    width: '15%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/PFContributionCollection/EditContributionCollection/" + data.record.CollectionId + "'><i title='edit' class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                }
+            }
+        });
+
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+        }
+    });
+</script>
+
+@Html.ActionLink("Add Contribution", "CreateContributionCollection", null, new { @class = "btn btn-success btn-sm pull-right", id = "create" })
+<h2 class="page-title">Contribution Collection List</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="form-group">
+
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Employee Code" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-sm-4">
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control col-md-4", @Placeholder = "Employee Name" } })
+                </div>
+                <div class="col-sm-4">
+                    <input type="button" value="Search" id="btnSearch" class="btn btn-warning" />
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="grid2">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}

@@ -1,0 +1,1667 @@
+﻿@model gHRM.Web.ViewModels.Discipline.CaseEntryViewModel
+
+@{
+    ViewBag.Title = "ChargeSheetCreate";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var CrimeLists = Model == null ? null : Model.CrimeList;
+    var DealerList = Model == null ? null : Model.DealOfficerList;
+    var EnquererList = Model == null ? null : Model.EnqueryOfficerList;   
+}
+
+
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    .required {
+        color: red;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+    .table > tbody > tr {
+        counter-increment: rowNumber;
+    }
+
+    .table > tbody > tr > td:first-child::before {
+        content: counter(rowNumber);
+    }
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+</style>
+
+<script type="text/javascript">
+
+    function LoadCrimeLocationInfo(office_Id) {
+
+        var row_Count = $('#tblCrimeLocationDetails >tbody >tr').length;
+        for (i = 1; i <= row_Count; i++) {
+            var OfficeId = $("#txtOffice_Id" + i).val();
+
+            if (OfficeId != undefined) {
+                if (OfficeId == office_Id) {
+                    $.alert.open("error", "This office has been added")
+                    return false;
+                }
+            }
+        }
+        var dtTable = $("#tblCrimeLocationDetails")
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetCrimeLocationByCode", "DiscCaseEntry", "http")',
+            data: { office_Id: office_Id },
+            dataType: 'json',
+            async: true,
+            success: function (List_EmployeeViewModel) {
+                if (List_EmployeeViewModel != "") {
+                    var rowCount = $('#tblCrimeLocationDetails >tbody >tr').length;
+                    var sl = rowCount + 1;
+                    var tableBody = dtTable.find('tbody');
+                    $.each(List_EmployeeViewModel, function (index, off) {
+
+                        tableBody.append('<tr id="table_Row' + sl + '">' +
+                                                     '<td style="text-align: center">' + sl + '<input type="text" class="CrimeOfficeNo" value="' + off.OfficeId + '" style="display:none;" name="OfficeId" id="txtOffice_Id' + sl + '" /></td>' +
+                                                     '<td style="text-align: center">' + off.OfficeCode + '<input type="text" class="CrimeOffice" value="' + off.OfficeId + '" style="display:none;" name="OfficeId" id="txtOfficeId' + off.OfficeId + '" /></td>' +
+                                                     '<td>' + off.OfficeName + '<input type="text" value="' + off.OfficeName + '" style="display:none;" name="OfficeName" id="txtOfficeName' + off.OfficeId + '" /></td>' +
+                                                     '<td style="text-align: center"><a href="javascript:;" onclick="delete_rowCrime(' + sl + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                                                     '</td>' +
+                                                  '</tr>'
+                                )
+                    });
+                }
+                else {
+                    $.alert.open('alert', 'Invalid code');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function CrimeLocation() {
+        var CrimeLocation = 0;
+        var radHO = "";
+        var radZO = "";
+        var radZAO = "";
+
+        if ($("#radHO").is(":checked")) {
+            radHO = $("#radHO").val();
+        }
+        else if ($("#radZO").is(":checked")) {
+            radZO = $("#radZO").val();
+        }
+        else if ($("#radZAO").is(":checked")) {
+            radZAO = $("#radZAO").val();
+        }
+
+        var hoOfc = 0
+        if ($("#ddlHOOffice option:selected").val() == '')
+            hoOfc = 0;
+        else
+            hoOfc = $("#ddlHOOffice option:selected").val();
+        var zoOfc = 0;
+        if ($("#ddlZOOffice option:selected").val() == '')
+            zoOfc = 0
+        else
+            zoOfc = $("#ddlZOOffice option:selected").val();
+        var aoOfc = 0;
+        if ($("#ddlAOOffice option:selected").val() == '')
+            aoOfc = 0;
+        else
+            aoOfc = $("#ddlAOOffice option:selected").val();
+        var boOfc = 0;
+        if ($("#ddlBOOffice option:selected").val() == '')
+            boOfc = 0;
+        else
+            boOfc = $("#ddlBOOffice option:selected").val();
+        var zaoOfc = 0;
+        if ($("#ddlZAOOffice option:selected").val() == '')
+            zaoOfc = 0;
+        else
+            zaoOfc = $("#ddlZAOOffice option:selected").val();
+
+
+        if (radHO == 'HO') {
+            if (hoOfc > 0) {
+                CrimeLocation = hoOfc;
+            }
+        }
+        else if (radZO == 'ZO') {
+            if (zoOfc > 0) {
+                CrimeLocation = zoOfc;
+                if (aoOfc > 0) {
+                    CrimeLocation = aoOfc;
+                }
+                if (boOfc > 0) {
+                    CrimeLocation = boOfc;
+                }
+            }
+        }
+        else if (radZAO == 'ZAO') {
+            if (zaoOfc > 0) {
+                CrimeLocation = zaoOfc;
+            }
+        }
+        // alert(CrimeLocation);
+        return CrimeLocation;
+    }
+
+
+    function deleteDeOfficerRow(sl) {
+        $("#table_Row" + sl).remove();
+    }
+    function checkNumberic(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 46 || e.which > 57)) {
+            return false;
+        }
+        else
+            return true;
+    }
+
+    function deleteDeOfficerRow(sl) {
+        $("#table_Row" + sl).remove();
+    }
+
+    function DealingOfficerAdd() {
+
+        var DealofficerId = $("#DealOfficerId").val();
+        var DealOfficerName = $("#DealOfficerId option:selected").text();
+        var rowCount = 0;
+        var dtTable = $('#tblDealinOfficerList');
+        rowCount = $('#tblDealinOfficerList >tbody >tr').length;
+
+        for (i = 1; i <= rowCount; i++) {
+            var officerId = $("#txtDealOfficerId" + i).val();
+
+            if (officerId == DealofficerId) {
+                $.alert.open("error", "This officer has been added")
+                return false;
+            }
+        }
+        var sl = rowCount + 1;
+        var tableBody = dtTable.find('tbody');
+        tableBody.append('<tr  id="table_Row' + sl + '"+>' +
+                            '<td></td>' +
+                            '<td>' + DealOfficerName + ' <input type="text" value="' + DealofficerId + '" style="display:none;" name="DealOfficerId" id="txtDealOfficerId' + sl + '" /></td>' +
+                            '<td style="text-align:center;"><a href="javascript:;" onclick="deleteDeOfficerRow(' + sl + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                            '</tr>'
+
+            );
+    }
+
+    function GetHOOffice() {
+        var ddlHOOffice = $("#ddlHOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetHOOfficeList", "EmployeePromotion", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlHOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlHOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function GetZOOffice() {
+        var ddlZOOffice = $("#ddlZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetZOOfficeList", "EmployeePromotion", "http")',*@
+            url: '@Url.Action("GetZOOfficeListForEmbezzle", "DiscEmbezzleInfo", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                ddlZOOffice.append($('<option></option>').val("0").html("Plese Select"));
+                $.each(data, function (id, option) {
+                    //ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    ddlZOOffice.append($('<option></option>').val(option.OfficeId).html(option.OfficeName));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GetAOOffice() {
+        var ddlAOOffice = $("#ddlAOOffice");
+
+        var ddlZOOffice = $("#ddlZOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAOOfficeList", "EmployeePromotion", "http")',
+            data: { zoCode: ddlZOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GetBOOffice() {
+        var ddlBOOffice = $("#ddlBOOffice");
+        var ddlAOOffice = $("#ddlAOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBOOfficeList", "EmployeePromotion", "http")',
+            data: { aoCode: ddlAOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GetZAOOffice() {
+        var ddlZAOOffice = $("#ddlZAOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZAOOfficeList", "EmployeePromotion", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GetBOOfficeByZO() {
+        var ddlBOOffice = $("#ddlBOOffice");
+        var ddlZOOffice = $("#ddlZOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBOOfficeListByZO", "EmployeePromotion", "http")',
+            data: { zoCode: ddlZOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function radioChk() {
+        if ($("#radHO").is(":checked")) {
+            //loaddept
+            $("#HO").show();
+            $("#ZO").hide();
+            $("#ZAO").hide();
+
+            GetHOOffice();
+        }
+        else if ($("#radZO").is(":checked")) {
+            //load zone,area,branch
+            $("#HO").hide();
+            $("#ZO").show();
+            $("#ZAO").hide();
+            GetZOOffice();
+        }
+        else if ($("#radZAO").is(":checked")) {
+            //load zonal audit
+            $("#HO").hide();
+            $("#ZO").hide();
+            $("#ZAO").show();
+            GetZAOOffice();
+        }
+        else {
+            $("#HO").hide();
+            $("#ZO").hide();
+            $("#ZAO").hide();
+        }
+    }
+
+    ////////////End Office /////////////
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeePostingHistory", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        $("#EmployeeRank").val(data.EmployeeRank);
+                        $("#OfficeName").val(data.OfficeName);
+                        //$("#DepartmentName").val(data.DepartmentName);
+                        $("#DesignationName").val(data.DesignationName);
+                        $("#OffcDesignName").val(data.OffcDesignName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#OfficeDesignationId").val(data.EmpOfficeDesigId);
+                        $("#OrderNo").focus();
+                    }
+                    else {
+                        $("#EmployeeRank").empty();
+                        $("#OfficeName").empty();
+                        //$("#DepartmentName").empty();
+                        $("#DesignationName").empty();
+                        $("#EmployeeName").empty();
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                        $("#OfficeDesignationId").val(0);
+                    }
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    ///////////////////////End Employee ///////////////
+    function ValidateAddRequirement() {
+        var txtEmpName = $("#txtEmpName").val();
+        var DealOfficerId = $('#tblDealinOfficerList >tbody >tr').length;
+        var CrimeId = $("#ddlCrimeId").val();
+
+        if (txtEmpName == '' && DealOfficerId == 0 && CrimeId == '0') {
+            $("#txtEmpName").addClass("errorClass");
+            $("#DealOfficerId").addClass("errorClass");
+            $("#CrimeId").addClass("errorClass");
+            return false;
+        }
+        else if (txtEmpName == '' && DealOfficerId == 0 && CrimeId != '0') {
+            $("#txtEmpName").addClass("errorClass");
+            $("#DealOfficerId").addClass("errorClass");
+            return false;
+        }
+
+        else if (txtEmpName == '' && DealOfficerId != 0 && CrimeId == '0') {
+            $("#txtEmpName").addClass("errorClass");
+            $("#CrimeId").addClass("errorClass");
+            return false;
+        }
+        else if (txtEmpName == '' && DealOfficerId != 0 && CrimeId != '0') {
+            $("#txtEmpName").addClass("errorClass");
+            return false;
+        }
+        else if (txtEmpName != '' && DealOfficerId == 0 && CrimeId == '0') {
+            $("#DealOfficerId").addClass("errorClass");
+            $("#CrimeId").addClass("errorClass");
+            return false;
+        }
+        else if (txtEmpName != '' && DealOfficerId == 0 && CrimeId != '0') {
+            $("#DealOfficerId").addClass("errorClass");
+            return false;
+        }
+        else if (txtEmpName != '' && DealOfficerId == 0 && CrimeId == '0') {
+            $("#DealOfficerId").addClass("errorClass");
+            $("#CrimeId").addClass("errorClass");
+            return false;
+        }
+        else if (txtEmpName != '' && DealOfficerId != 0 && CrimeId == '0') {
+            $("#CrimeId").addClass("errorClass");
+            return false;
+        }
+        else if (DispatchNo == "") {
+            $("#DispatchNo").addClass("errorClass");
+            return false;
+        }
+        else
+            return true;
+    }
+
+    function ValidateSaveRequirement() {
+        var CaseDescription = $("#CaseDescription").val();
+        if (CaseDescription == '') {
+            $("#CaseDescription").addClass("errorClass");
+            return false;
+        }
+        else
+            return true;
+    }
+    //////////////////////End Validation ///////////////////
+    function delete_row(trSl) {
+        $.alert.open('confirm', 'Are you sure, you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $("#tableRow" + trSl).remove();
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('#btnCaseEntrySave').prop('disabled', true);
+        $("#divAnnexation").hide();
+        $("#divReturn").hide();
+        // $("#div_Return").hide();
+        $("#btnDeOffiser").hide();
+        $("#tblDealinOfficerList").hide();
+
+        radioChk();
+
+        $("#ddlZOOffice").change(function () {
+            debugger
+            var Zone = $("#ddlZOOffice").val();
+            if (Zone != "0") {
+                GetAOOffice();
+                GetBOOfficeByZO();
+            }
+            else {
+                $("#ddlAOOffice").val("0");
+                $("#ddlBOOffice").val("0");
+            }
+
+        });
+
+
+        $("#ddlAOOffice").change(function () {
+            var Area = $("#ddlAOOffice").val();
+            if (Area != "0") {
+                GetBOOffice();
+            }
+            else {
+                $("#ddlBOOffice").val("0");
+            }
+        });
+
+
+        $("#btnDeOffiser").click(function () {
+            $("#tblDealinOfficerList").show();
+            DealingOfficerAdd();
+        });
+
+        $("#TotalAnnexationAmount").keypress(function (e) {
+
+            return checkNumberic(e);
+        });
+        $("#AnnexationAmount").keypress(function (e) {
+
+            return checkNumberic(e);
+        });
+        $("#TotReturnAmount").keypress(function (e) {
+
+            return checkNumberic(e);
+        });
+        $("#IndiReturnAmountMsg").keypress(function (e) {
+
+            return checkNumberic(e);
+        });
+
+
+        $("#DealOfficerId").change(function () {
+
+            var DealofficerId = $("#DealOfficerId").val();
+            if (DealofficerId != "0") {
+                $("#btnDeOffiser").show();
+            }
+            else {
+                $("#btnDeOffiser").hide();
+            }
+        });
+
+
+        $("#DispatchNo").blur(function () {
+
+            var DespatchNo = $("#DispatchNo").val();
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("CheckDespatchValidation", "DiscCaseEntry", "http")',
+                data: { DespatchNo: DespatchNo },
+                dataType: 'json',
+                async: true,
+                success: function (Result) {
+                    if (Result == "error") {
+
+                        $.alert.open('alert', 'This despatch number is already use');
+                        $("#DispatchNo").val("");
+                    }
+
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        });
+
+        /////ofc//////
+        $("#ddlCrimeId").change(function () {
+            if ($("#ddlCrimeId").val() > 0) {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetCrimeType", "DiscCaseEntry", "http")',
+                    data: { crimeId: $("#ddlCrimeId").val() },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data == '1') {
+                            $("#divAnnexation").show();
+                            $("#divReturn").show();
+                            // $("#div_Return").show();
+                        }
+                        else {
+                            $("#divAnnexation").hide();
+                            $("#divReturn").hide();
+                            //$("#div_Return").hide();
+                        }
+                        $("#txtCrimeType").val(data);
+                        $('#ReturnNoticeDate').attr('disabled', false);
+                        $('#TotReturnAmount').attr('disabled', false);
+                        $('#TotalAnnexationAmount').attr('disabled', false);
+                        $('#AnnexationAmount').val('');
+                        $('#IndiReturnAmountMsg').val('');
+                        //$('#IndiReturnNoticeDate').val('');
+                        //$('#ReturnNoticeDate').val("");
+                        $('#TotReturnAmount').val("");
+                        $('#TotalAnnexationAmount').val("");
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                //alert($("#hfCrimeType").val());
+            }
+        });
+
+        $("#txtEmpName").blur(function (e) {
+
+            var employee_id = $("#txtEmpName").val();
+            //if (employee_id > 0) {
+            //    LoadEmpInfoById(employee_id);
+            //}
+            if ($("#txtEmpName").val() != '') {
+                LoadEmpInfoByCode(employee_id);
+            }
+
+            else {
+                $("#EmployeeRank").empty();
+                $("#OfficeName").empty();
+                //$("#DepartmentName").empty();
+                $("#DesignationName").empty();
+                $("#EmployeeName").empty();
+            }
+        });
+        ////////Emp///////
+
+        $("#currentDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+        $("#ChargeSheetDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+
+        $("#CrimeDateFrom").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2025"
+          });
+        $("#CrimeDateTo").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2025"
+          });
+        //
+
+
+
+
+        $("#EnquiryOfficerAssignedDt").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+
+        //$("#CrimeFindOutFrom").datepicker(
+        // {
+        //     dateFormat: "dd-M-yy",
+        //     showAnim: "scale",
+        // });
+
+        //$("#CrimeFindOutTo").datepicker(
+        //  {
+        //      dateFormat: "dd-M-yy",
+        //      showAnim: "scale",
+        //  });
+
+
+        $("#InvestigationDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+
+        $("#ReportReceivedDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+
+        $("#AuditFrom").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+        $("#AuditTo").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2025"
+          });
+
+        $("#ReturnNoticeDate").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2025"
+       });
+        //$("#IndiReturnNoticeDate").datepicker(
+        //  {
+        //      dateFormat: "dd-M-yy",
+        //      showAnim: "scale",
+        //  });
+
+        //window.globalCounter = 2;
+
+
+        $('#btnCaseEntryAdd').click(function (e) {
+            e.preventDefault();
+            var EmpId = $("#EmployeeId").val();
+            var Counttbl = 0;
+            var dtTable = $('#tblCrimeDetails');
+            Counttbl = $('#tblCrimeDetails >tbody >tr').length;
+
+            //for (i = 1; i <= Counttbl; i++) {
+            //    var EmployeeId = $("#txtEmployeeId" + i).val();
+            //    if (EmployeeId != undefined) {
+            //        if (EmployeeId == EmpId) {
+            //            $.alert.open("error", "This employee has been added")
+            //            return false;
+            //        }
+            //    }
+            //}
+
+            var CaseDate = $('#currentDate').val();
+            var EmployeeId = $("#EmployeeId").val();
+            var EmployeeCode = $("#txtEmpName").val();
+            var EmployeeName = $("#EmployeeName").val();
+            var DealOfficerId = $("#DealOfficerId option:selected").val();
+            var DealOfficerName = $("#DealOfficerId option:selected").text();
+            // var EnqueryOfficerId = $("#EnqueryOfficerId option:selected").val();
+            // var EnqueryOfficerName = $("#EnqueryOfficerId option:selected").text();
+            var CrimeDate = $("#CrimeDateFrom").val();
+            var CrimeDateTo = $("#CrimeDateTo").val();
+            var CrimeId = $("#ddlCrimeId option:selected").val();
+            var Crime = $("#ddlCrimeId option:selected").text();
+            var AnnexationAmount = $("#AnnexationAmount").val();
+            var IndiReturnAmount = $("#IndiReturnAmountMsg").val();
+
+            var invBalance = parseFloat(AnnexationAmount == '' ? '0' : AnnexationAmount) - parseFloat(IndiReturnAmount == '' ? IndiReturnAmount : IndiReturnAmount);
+
+            var IndiReturnNoticeDate = $("#IndiReturnNoticeDate").val();
+            // var CrimeLocationId = CrimeLocation();
+            var TotalAnnexationAmount = $("#TotalAnnexationAmount").val();
+            var TotReturnAmount = $("#TotReturnAmount").val();
+
+            var EmbzzleBalance = parseFloat(TotalAnnexationAmount) - parseFloat(TotReturnAmount);
+
+            var ReturnNoticeDate = $("#ReturnNoticeDate").val();
+            var txtCrimeType = $("#txtCrimeType").val();
+
+            var DisPatchNo = $("#DispatchNo").val();
+            var Remarks = $("#Remarks").val();
+
+            var dtTable = $('#tblCrimeDetails');
+            var rowCount = $('#tblCrimeDetails >tbody >tr').length;
+            var NewSl = 1;
+            var lastSl = 0;
+
+            if (rowCount > 0) {
+
+                lastSl = $('#tblCrimeDetails tr:last td:last input[type="text"]').val();
+                NewSl = parseInt(lastSl) + 1;
+            }
+            if (ValidateAddRequirement() == true) {
+                $('#btnCaseEntrySave').prop('disabled', false);
+                //var rowSl = rowCount + 1;
+                if (EmployeeId != "" && EmployeeId > 0) {
+                    if (CrimeId > 0) {
+                        var tableBody = dtTable.find('tbody');
+                        tableBody.append('<tr id="tableRow' + NewSl + '">' +
+                                             '<td></td>' +
+                                             '<td>' + EmployeeCode + '<input type="text" value="' + EmployeeCode + '" style="display:none;" name="EmployeeCode" id="txtEmployeeCode' + NewSl + '" />' +
+                                                 '<input type="text" value="' + CrimeDateTo + '" style="display:none;" name="CrimeDateTo" id="txtCrimeDateTo' + NewSl + '" />' +
+                                                 '<input type="text" value="' + txtCrimeType + '" style="display:none;" name="txtCrimeType" id="txtCrimeType' + NewSl + '" /></td>' +
+                                             '</td>' +
+                                             '<td>' + EmployeeName + '<input type="text" value="' + EmployeeId + '" style="display:none;" name="EmployeeId" id="txtEmployeeId' + NewSl + '" /></td>' +
+                                             //'<td>' + DealOfficerName + ' <input type="text" value="' + DealOfficerId + '" style="display:none;" name="DealOfficerId" id="txtDealOfficerId' + NewSl + '" /></td>' +
+                                             //'<td>' + EnqueryOfficerName + ' <input type="text" value="' + EnqueryOfficerId + '" style="display:none;" name="EnqueryOfficerId" id="txtEnqueryOfficerId' + NewSl + '" /></td>' +
+                                             '<td>' + CaseDate + '<input type="text" value="' + CrimeDate + '" style="display:none;" name="CrimeDate" id="txtCrimeDate' + NewSl + '" /></td>' +
+                                             '<td>' + DisPatchNo + '<input type="text" value="' + DisPatchNo + '" style="display:none;" name="DisPatchNo" id="txtDisPatchNo' + NewSl + '" /></td>' +
+
+                                             '<td>' + Crime + '<input type="text" value="' + CrimeId + '" style="display:none;" name="CrimeId" id="txtCrimeId' + NewSl + '" /></td>' +//<input type="text" value="' + CrimeLocationId + '" style="display:none;" name="CrimeLocationId" id="txtCrimeLocationId' + NewSl + '" /></td>' +
+                                             '<td>' + AnnexationAmount + '<input type="text" value="' + AnnexationAmount + '" style="display:none;" name="AnnexationAmount" id="txtAnnexationAmount' + NewSl + '" /></td>' +
+                                             '<td>' + IndiReturnAmount + '<input type="text" value="' + IndiReturnAmount + '" style="display:none;" name="IndiReturnAmount" id="txtIndiReturnAmount' + NewSl + '" /></td>' +
+                                             '<td>' + invBalance + '<input type="text" value="' + invBalance + '" style="display:none;" name="IndiReturnAmount" id="txtinvBalance' + NewSl + '" /></td>' +
+
+
+                                             //'<td>' + IndiReturnNoticeDate + '<input type="text" value="' + IndiReturnNoticeDate + '" style="display:none;" name="IndiReturnNoticeDate" id="txtIndiReturnNoticeDate' + NewSl + '" /></td>' +
+                                             '<td>' + TotalAnnexationAmount + '<input type="text" value="' + TotalAnnexationAmount + '" style="display:none;" name="TotalAnnexationAmount" id="txtTotalAnnexationAmount' + NewSl + '" /></td>' +
+                                             '<td>' + TotReturnAmount + '<input type="text" value="' + TotReturnAmount + '" style="display:none;" name="TotReturnAmount" id="txtTotReturnAmount' + NewSl + '" /></td>' +
+                                             '<td>' + EmbzzleBalance + '<input type="text" value="' + EmbzzleBalance + '" style="display:none;" name="EmbzzleBalance" id="txtEmbzzleBalance' + NewSl + '" /></td>' +
+
+
+
+                                           // '<td>' + ReturnNoticeDate + '<input type="text" value="' + ReturnNoticeDate + '" style="display:none;" name="ReturnNoticeDate" id="txtReturnNoticeDate' + NewSl + '" /></td>' +
+                                            // '<td>' + Remarks + '<input type="text" value="' + Remarks + '" style="display:none;" name="Remarks" id="txtRemarks' + NewSl + '" /></td>' +
+                                             '<td style="text-align:center;">' +
+                                                 '<a href="javascript:;" onclick="delete_row(' + NewSl + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +                                                 
+                                                 '<input type="text" value="' + NewSl + '" style="display:none;" name="NewSl" id="txtNewSl' + NewSl + '" />' +                                                 
+                                          '</tr>');
+                        window.globalCounter++;
+
+                    }
+                    else {
+
+                        $.alert.open("error", "Please select crime")
+                    }
+                }
+                else {
+                    $("#loading").hide();
+                    $.alert.open("error", "Please select an employee");
+                }
+            }
+            // $('#ReturnNoticeDate').attr('disabled', true);
+            $('#TotReturnAmount').attr('disabled', true);
+            $('#TotalAnnexationAmount').attr('disabled', true);
+            $('#CrimeDateFrom').attr('disabled', true);
+            $('#CrimeDateTo').attr('disabled', true);
+            $('#AnnexationAmount').val('');
+            $('#IndiReturnAmountMsg').val('');
+            // $('#IndiReturnNoticeDate').val('');
+        });
+
+        $("#btnCrimeLocationAdd").click(function (e) {
+            e.preventDefault();
+            var office_Id = CrimeLocation();
+            if (office_Id >= 1) {
+                LoadCrimeLocationInfo(office_Id);
+            }
+            else {
+                $.alert.open("error", "Please Select Office");
+            }
+        });
+
+        $('#btnCaseEntrySave').click(function (e) {
+            e.preventDefault();
+            //if (ValidateSaveRequirement() == true) {
+            //var radHO = "";
+            //var radZO = "";
+            //var radZAO = "";
+
+            //if ($("#radHO").is(":checked")) {
+            //    radHO = $("#radHO").val();
+            //}
+            //else if ($("#radZO").is(":checked")) {
+            //    radZO = $("#radZO").val();
+            //}
+            //else if ($("#radZAO").is(":checked")) {
+            //    radZAO = $("#radZAO").val();
+            //}
+
+            //var hoOfc = 0
+            //if ($("#ddlHOOffice option:selected").val() == '')
+            //    hoOfc = 0;
+            //else
+            //    hoOfc = $("#ddlHOOffice option:selected").val();
+            //var zoOfc = 0;
+            //if ($("#ddlZOOffice option:selected").val() == '')
+            //    zoOfc = 0
+            //else
+            //    zoOfc = $("#ddlZOOffice option:selected").val();
+            //var aoOfc = 0;
+            //if ($("#ddlAOOffice option:selected").val() == '')
+            //    aoOfc = 0;
+            //else
+            //    aoOfc = $("#ddlAOOffice option:selected").val();
+            //var boOfc = 0;
+            //if ($("#ddlBOOffice option:selected").val() == '')
+            //    boOfc = 0;
+            //else
+            //    boOfc = $("#ddlBOOffice option:selected").val();
+            //var zaoOfc = 0;
+            //if ($("#ddlZAOOffice option:selected").val() == '')
+            //    zaoOfc = 0;
+            //else
+            //    zaoOfc = $("#ddlZAOOffice option:selected").val();
+
+
+            var allEmoloyeeId = new Array();
+            var allDealingOfficerId = new Array();
+            var allCrimeDate = new Array();
+            var allCrimeId = new Array();
+            var allAnnexationAmt = new Array();
+            var allIndiReturnAmount = new Array();
+            var allIndiReturnNoticeDate = new Array();
+            var allTotalAnnexationAmt = new Array();
+            var allTotReturnAmount = new Array();
+            var allReturnNoticeDate = new Array();
+            var allCrimeDateTo = new Array();
+            var allCrimeType = new Array();
+            var allCrimeLocation = new Array();
+            var allNewSl = new Array();
+            var allDispatchNo = new Array();
+            var allRemarks = new Array();
+
+
+            var rowCount = $('#tblCrimeDetails >tbody >tr').length;
+            for (i = 1; i <= rowCount; i++) {
+
+                var Sl = $('#tblCrimeDetails tr:eq(' + i + ') td:last input[type="text"]').val();
+                var EmployeeId = $("#txtEmployeeId" + Sl).val();
+                var CrimeDate = $("#txtCrimeDate" + Sl).val();
+                var CrimeDateTo = $("#txtCrimeDateTo" + Sl).val();
+
+
+                var CrimeId = $("#txtCrimeId" + Sl).val();
+                var AnnexationAmount = $("#txtAnnexationAmount" + Sl).val();
+                var IndiReturnAmount = $("#txtIndiReturnAmount" + Sl).val();
+                var IndiReturnNoticeDate = $("#txtIndiReturnNoticeDate" + Sl).val();
+
+                var TotalAnnexationAmount = $("#txtTotalAnnexationAmount" + Sl).val();
+                var TotReturnAmount = $("#txtTotReturnAmount" + Sl).val();
+                var ReturnNoticeDate = $("#txtReturnNoticeDate" + Sl).val();
+                var CrimeType = $("#txtCrimeType" + Sl).val();
+                //var CrimeLocation = $("#txtCrimeLocationId" + Sl).val();
+                var NewSl = $("#txtNewSl" + Sl).val();
+
+                var DispatchNo = $("#txtDisPatchNo" + Sl).val();
+                var Remarks = $("#txtRemarks" + Sl).val();
+
+                var obj1 = new Object();
+                obj1.Key = i;
+                obj1.Value = EmployeeId;
+                allEmoloyeeId[allEmoloyeeId.length] = obj1;
+
+                var obj3 = new Object();
+                obj3.Key = i;
+                obj3.Value = CrimeDate;
+                allCrimeDate[allCrimeDate.length] = obj3;
+
+                var obj4 = new Object();
+                obj4.Key = i;
+                obj4.Value = CrimeId;
+                allCrimeId[allCrimeId.length] = obj4;//
+
+                var obj5 = new Object();
+                obj5.Key = i;
+                obj5.Value = AnnexationAmount;
+                allAnnexationAmt[allAnnexationAmt.length] = obj5;
+
+                var obj12 = new Object();
+                obj12.Key = i;
+                obj12.Value = IndiReturnAmount;
+                allIndiReturnAmount[allIndiReturnAmount.length] = obj12;
+
+                var obj13 = new Object();
+                obj13.Key = i;
+                obj13.Value = IndiReturnNoticeDate;
+                allIndiReturnNoticeDate[allIndiReturnNoticeDate.length] = obj13;
+
+                var obj6 = new Object();
+                obj6.Key = i;
+                obj6.Value = TotalAnnexationAmount;
+                allTotalAnnexationAmt[allTotalAnnexationAmt.length] = obj6;
+
+                var obj7 = new Object();
+                obj7.Key = i;
+                obj7.Value = TotReturnAmount;
+                allTotReturnAmount[allTotReturnAmount.length] = obj7;
+
+                var obj14 = new Object();
+                obj14.Key = i;
+                obj14.Value = ReturnNoticeDate;
+                allReturnNoticeDate[allReturnNoticeDate.length] = obj14;
+
+                var obj8 = new Object();
+                obj8.Key = i;
+                obj8.Value = CrimeType;
+                allCrimeType[allCrimeType.length] = obj8;
+
+                var obj9 = new Object();
+                obj9.Key = i;
+                obj9.Value = NewSl;
+                allNewSl[allNewSl.length] = obj9;
+
+                var obj10 = new Object();
+                obj10.Key = i;
+                obj10.Value = DispatchNo;
+                allDispatchNo[allDispatchNo.length] = obj10;
+
+                var obj11 = new Object();
+                obj11.Key = i;
+                obj11.Value = Remarks;
+                allRemarks[allRemarks.length] = obj11;
+
+
+                var obj15 = new Object();
+                obj15.Key = i;
+                obj15.Value = CrimeDateTo;
+                allCrimeDateTo[allCrimeDateTo.length] = obj15;
+
+                //var objLocation = new Object();
+                //objLocation.Key = i;
+                //objLocation.Value = CrimeLocation;
+                //allCrimeLocation[allCrimeLocation.length] = objLocation;
+            }
+
+            var row_Count = $('#tblDealinOfficerList >tbody >tr').length;
+
+            for (i = 1; i <= row_Count; i++) {
+                var officerId = $("#txtDealOfficerId" + i).val();
+                allDealingOfficerId[allDealingOfficerId.length] = officerId;
+
+            }
+            var $allCrimeOfficeNo = $(".CrimeOffice");
+            $allCrimeOfficeNo.each(function () {
+                var value = $(this).val();
+                allCrimeLocation[allCrimeLocation.length] = value;
+            });
+
+            var CaseNo = $("#CaseNo").val();
+            var CaseDate = $("#currentDate").val();
+            var AuditDateFrom = $("#AuditFrom").val();
+            var AuditDateTo = $("#AuditTo").val();
+            var CaseDescription = $("#CaseDescription").val();
+            //var CrimeLocation = 0;
+            //if (radHO == 'HO') {
+            //    if (hoOfc > 0) {
+            //        CrimeLocation = hoOfc;
+            //    }
+            //}
+            //else if (radZO == 'ZO') {
+            //    if (zoOfc > 0) {
+            //        CrimeLocation = zoOfc;
+            //        if (aoOfc > 0) {
+            //            CrimeLocation = aoOfc;
+            //        }
+            //        if (boOfc > 0) {
+            //            CrimeLocation = boOfc;
+            //        }
+            //    }
+            //}
+            //else if (radZAO == 'ZAO') {
+            //    if (zaoOfc > 0) {
+            //        CrimeLocation = zaoOfc;
+            //    }
+            //}
+
+            var allDetails = new Object();
+            allDetails.allEmoloyeeIds = allEmoloyeeId;
+            allDetails.allDealingOfficerIds = allDealingOfficerId;
+            allDetails.allCrimeDates = allCrimeDate;
+            allDetails.allCrimeDatesTo = allCrimeDateTo;
+            allDetails.allCrimeIds = allCrimeId;
+            allDetails.allAnnexationAmts = allAnnexationAmt;//
+            allDetails.allIndiReturnAmounts = allIndiReturnAmount;
+            allDetails.allIndiReturnNoticeDates = allIndiReturnNoticeDate;
+
+            allDetails.allTotalAnnexationAmts = allTotalAnnexationAmt;
+            allDetails.allTotReturnAmount = allTotReturnAmount;
+            allDetails.allReturnNoticeDates = allReturnNoticeDate;
+
+            allDetails.allCrimeType = allCrimeType;
+            allDetails.allNewSls = allNewSl;
+            allDetails.CaseNos = CaseNo;
+            allDetails.CaseDates = CaseDate;
+            allDetails.AuditFrom = AuditDateFrom;
+            allDetails.AuditTo = AuditDateTo;
+            allDetails.CaseDescriptions = CaseDescription;
+            //allDetails.CrimeLocations = CrimeLocation;
+            allDetails.allDispatchNos = allDispatchNo;
+            allDetails.allDesRemarks = allRemarks;
+            allDetails.allCrimeLocations = allCrimeLocation;
+
+            var json = JSON.stringify(allDetails);
+
+            $.ajax({
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveChargeSheet", "DiscCaseEntry", "http")',
+                type: "POST",
+                dataType: 'json',
+                async: true,
+                data: json,
+
+                success: function (data) {
+                    if (data.Result == "OK") {
+                        $.alert.open("info", "Save Successfully");
+                        $("#AjaxLoader").show();
+                        window.location.href = "/DiscCaseEntry/ChargeSheetCreate";
+                        //  $('#btnCaseEntrySave').prop('disabled', true);
+
+                        //  $('#AnnexationAmount').val('');
+                        //  $('#TotalAnnexationAmount').val('');
+                        //  $('#TotReturnAmount').val('');
+                        //  $('#individualAnnexationChk').prop('checked', false);
+
+
+
+                        //  $('#ReturnNoticeDate').attr('disabled', false);
+                        //  $('#TotReturnAmount').attr('disabled', false);
+                        //  $('#TotalAnnexationAmount').attr('disabled', false);
+                        //  $('#CrimeDateFrom').attr('disabled', false);
+                        //  $('#CrimeDateTo').attr('disabled', false);
+                        //  $('#AnnexationAmount').val('');
+                        //  $('#IndiReturnAmountMsg').val('');
+                        //  $('#IndiReturnNoticeDate').val('');
+
+
+                        ////  showIndividualAnnexationAmount();
+
+
+                        //  $('#tblCrimeDetails tbody tr').remove();
+
+                    }
+                    else {
+                        $.alert.open("error", "Fail to Save");
+                        //$(".failed").show(800).fadeToggle(3000);
+                    }
+                },
+                error: function () {
+                    $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                    $("#dialog-message").dialog({
+                        modal: true,
+                        buttons: {
+                            Ok: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                }
+
+            });
+            //  }
+        });
+
+    });
+
+
+    //function showIndividualAnnexationAmount() {
+    //    if ($("#individualAnnexationChk").is(":checked") == true) {
+
+    //        $('#TotalAnnexationAmount').prop('readonly', true);
+    //        $("#IndividualAnnexationAmount").show();
+    //    }
+    //    else {
+    //        $("#IndividualAnnexationAmount").hide();
+    //        $('#TotalAnnexationAmount').prop('readonly', false);
+    //    }
+    //}
+</script>
+
+<h2 class="page-title">Charge Sheet Entry Form</h2>
+@using (Html.BeginForm("Create", "DiscCaseEntry", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "CaseEntryProfile" }))
+{
+
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <br />
+      <div id="AjaxLoader" class="ajaxLoader"></div>     
+     <fieldset>
+        <legend>Employee Present Information</legend>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Employee Code<b class="required"></b></label>
+                    <div class="col-sm-8">
+                        @*@Html.DropDownListFor(model => model.EmployeeId, empList, new { @class = "form-control" })*@
+                        @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                        @Html.HiddenFor(model => model.EmployeeId)
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Employee Rank</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeRank, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Office Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Designation Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Office Designation Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.OffcDesignName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>  
+        </div>
+
+        
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Remarks</label>
+                    <div class="col-sm-10">
+                        @Html.EditorFor(model => model.Remarks, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            @*<div class="col-sm-6">
+                &nbsp;
+            </div>*@
+        </div>
+    </fieldset>
+    <br />
+    
+    <fieldset>
+        <legend>Charge Sheet Info</legend>        
+        <div class="row">
+            @*<div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Case No<b class="required"></b></label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CaseNo, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>*@
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.currentDate, new { @class = "control-label col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.currentDate, new { htmlAttributes = new { @class = "form-control", @Value = DateTime.Now.ToString("dd-MMM-yyyy") } })
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Despatch No<b class="required"></b></label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DispatchNo, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Audit Date From</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.AuditFrom, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Audit Date To </label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.AuditTo, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Crime Date From</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CrimeDateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Crime Date To</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CrimeDateTo, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Dealing Officer Name<b class="required"></b></label>
+                    <div class="col-sm-6">
+                        @Html.DropDownListFor(model => model.DealOfficerId, DealerList, new { @class = "form-control" })
+                    </div>
+                    <div>
+                        <input type="button" value="Add" id="btnDeOffiser" class="btn btn-info">
+                    </div>
+                </div>
+            </div>    
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Case Description</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CaseDescription, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">&nbsp;</div>
+        </div>
+        <div class="row">
+                  
+        </div>            
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-6">
+                <div>
+                    @*class="box-body no-padding table-responsive"*@
+                    <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblDealinOfficerList" style="width:66%">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">Sl</th>
+                                <th class="column-title">Dealing Officer Name</th>
+                                <th class="column-title">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-4">
+            </div>
+        </div>          
+       
+    </fieldset>
+    <br />
+   
+    <br />
+     <fieldset>
+        <legend>Crime Location</legend>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-3">
+                    <input type="radio" id="radHO" name="ofc" value="HO" style="margin-left: 45px;" onclick="radioChk()" />
+                    <label>Head Office</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="radio" name="ofc" id="radZO" value="ZO" style="margin-left: 45px;" onclick="radioChk()" />
+                    <label>Zone Office</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="radio" name="ofc" id="radZAO" value="ZAO" style="margin-left: 45px;" onclick="radioChk()" />
+                    <label>Zonal Audit Office</label>
+                </div>
+                @*<div class="col-sm-3">
+                    <input type="submit" value="Add" id="btnCrimeLocationAdd" class="btn btn-info" />
+                </div>*@
+            </div>
+        </div>
+        <div id="HO" style="display:none;">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Department</label>
+                        <div class="col-sm-8">
+                            @*@Html.DropDownList("HOOfficeList", null, new { @ID = "ddlHOOffice", @class = "form-control" })*@
+                            @Html.DropDownList("HOList", null, new { @ID = "ddlHOOffice", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    &nbsp;
+                </div>
+                <div class="col-sm-4">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+        <div id="ZO" style="display:none;">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Zonal Office</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlZOOffice", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Area Office</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownList("AOOfficeList", null, new { @ID = "ddlAOOffice", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Branch Office</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownList("BOOfficeList", null, new { @ID = "ddlBOOffice", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="ZAO" style="display:none;">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Zonal Audit Office</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownList("ZAOOfficeList", null, new { @ID = "ddlZAOOffice", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    &nbsp;
+                </div>
+                <div class="col-sm-4">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+         <div class="row">
+             <div class="col-sm-2">
+                 &nbsp;
+             </div>
+             <div class="col-sm-4">
+                 <input type="submit" value="Add" id="btnCrimeLocationAdd" class="btn btn-info" />
+             </div>
+         </div>
+         <br />
+         <div class="row">
+             <div class="col-sm-12">
+                 <table id="tblCrimeLocationDetails" style="width:90%;margin-left:10%" border="1">
+                     <thead style="background-color:green;color:white;">
+                         <tr class="headings">
+                             <th class="column-title" style="text-align: center">Sl</th>
+                             <th class="column-title" style="text-align: center">Office Code</th>
+                             <th class="column-title" style="text-align: center">Crime Location</th>
+                             <th class="column-title" style="text-align: center">Delete</th>
+                         </tr>
+                     </thead>
+                     <tbody></tbody>
+                 </table>
+             </div>
+         </div>
+    </fieldset>
+    <br />
+   
+    <fieldset>
+        <legend>Crime Information</legend>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Crime<b class="required"></b></label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CrimeId, CrimeLists, new { @ID = "ddlCrimeId", @class = "form-control" })
+                        <input type="text" id="txtCrimeType" style="display:none;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="divAnnexation">
+          
+            <div class="col-sm-6">
+                <div id="IndividualAnnexationAmount"> 
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Individual Embezzle</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.AnnexationAmount, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div id="IndividualAnnexationReturnAmount">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Individual Returned Amount</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.IndiReturnAmountMsg, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" id="divReturn">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Joint Embezzle</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.TotalAnnexationAmount, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Joint Returned Amnt</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.TotReturnAmount, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+         
+        </div>
+        <div class="row" id="div_Return" style="display:none">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Date of Return</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.ReturnNoticeDate, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div id="IndividualAnnexationReturnAmountDate">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Date of Individual Return</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.IndiReturnNoticeDate, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px; margin:5px;">
+                <div class="save-success alert alert-success alert-dismissable" role="alert" style="display:none">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <p class="message-content">Saved Sucessfully</p>
+                </div>
+                <div class="save-fail alert alert-danger alert-dismissable" role="alert" style="display:none">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <p class="message-content">Fail to save</p>
+                </div>
+                &nbsp;
+                <input type="submit" value="Add" id="btnCaseEntryAdd" class="btn btn-info" />
+                &nbsp;
+                
+                <input type="hidden" value="" id="hdnCaseEntrySave" />
+                <input type="hidden" value="" id="hdnCaseMasterId" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="DivTableView">
+                <div class="box-header">
+                    <h3 class="box-title">Crime List</h3>
+                </div>
+                <div class="box-body no-padding table-responsive">
+                    <table class="table table-striped responsive-utilities jambo_table" id="tblCrimeDetails">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">Sl</th>
+                                <th class="column-title">Employee Code</th>
+                                <th class="column-title">Employee Name</th>
+                                @*<th class="column-title">Dealing Officer</th>
+                                <th class="column-title">Enquery Officer</th>*@
+                                <th class="column-title">Case Issue Date</th>
+                                <th class="column-title">Despatch No</th>
+                                <th class="column-title">Crime</th>
+                                <th class="column-title">Indiv  Embezzle Amnt</th>
+                                <th class="column-title">Indiv Return Amount</th>
+                                <th class="column-title">Balance</th> <!-- (Indiv  Embezzle Amnt)-(Indiv Return Amount)   -->
+                               @* <th class="column-title">Individual Return Date</th>*@
+                                <th class="column-title">Joint Embezzle Amount</th>     
+                                <th class="column-title">Joint Return Amount</th> 
+                                <th class="column-title">Joint Embezzle Balance</th>  <!-- (Joint Embezzle Amount)-(Joint Return Amount)   -->                             
+                                @*<th class="column-title">Remarks</th>*@
+                                <th class="column-title">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <br />
+            <input type="submit" value="Save" id="btnCaseEntrySave" class="btn btn-success" />
+        </div>
+    </div>
+
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/alert")
+}
+
+
+
+
+
+

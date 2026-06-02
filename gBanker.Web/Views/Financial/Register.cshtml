@@ -1,0 +1,1791 @@
+﻿@model gHRM.Web.ViewModels.Financial.FinancialViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<style type="text/css">
+    
+    #multiSection {
+        width: 70px;
+    }
+
+    .required {
+        color: red;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 17px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+</style>
+
+<script src="~/Scripts/wickedpicker.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<link href="~/Content/wickedpicker.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+
+
+<script type="text/javascript">
+
+    function clearFields() {
+
+        //$('#tblOfficeNoteList >tbody >tr').empty();
+        $('#txtEmpName').val('');
+        $('#EmployeeName').val('');
+        $('#EmployeeOfficeDesignation').val('');
+        $("#EmployeeName").val('');
+
+        $("#custReason").val('');
+
+
+        $("#ddlOfficeDesigList").attr('selectedIndex', [0]);
+        //kk//$("#ddlSearchZoOffice").attr('selectedIndex', [0]);
+        $("#ddlReasonList").attr('selectedIndex', [0]);
+
+
+    }
+
+
+
+    function clear() {
+        $("#ddlOrgList").attr('selectedIndex', [0]);
+
+        $("#OfficeCode").val("");
+        $("#OfficeName").val("");
+        $('#ZoneCode').val("");
+        $('#ServiceCharge').val("0");
+        $('#LBUNetTaka').val("0");
+        $('#DeductionOthers').val("0");
+
+        $("#Deduction").val("0");
+        $("#DepositDraftAmount").val("0");
+        $("#SlipDraftNo").val("");
+        $("#ReferenceNo").val("");
+        $("#SendedBy").val("");
+        $("#DepositSendDate").val("");
+        $("#Remarks").val("");
+
+    }
+
+
+
+    //// Office Load
+
+    function GetSearchHOOffice() {
+        var ddlHOOffice = $("#ddlSearchHOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*//url: '@Url.Action("GetHOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetHOOfficeList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlHOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlHOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchZOOffice() {
+        var ddlZOOffice = $("#ddlSearchZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetZOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetZOOfficeList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+
+                if(OffcTyp == 2){
+                    $('#ddlSearchZOOffice').val(OffcId);
+                    //alert($('#ddlZOOffice').val());
+                    GetSearchAOOfficeByZO($("#ddlSearchZOOffice option:selected").text().split("-")[0]);
+                    //GetSearchAOOfficeByZO($("#ddlZOOffice option:selected").text().split("-")[0]);
+                    //alert($('#hfZoCode').val());
+                }
+                else if(OffcTyp != 2 && OffcTyp != 1){
+
+                    $("#ddlSearchZOOffice").val($('#hfSecondLevelId').html());
+                    GetSearchAOOfficeByZO($("#ddlSearchZOOffice option:selected").text().split("-")[0]);
+                }
+                //$("#ddlSearchZOOffice option[value='2580']").attr("disabled", true);
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchAOOfficeByZO(ZoCode) {
+        var ddlAOOffice = $("#ddlSearchAOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetAOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetAOOfficeList", "Financial", "http")',
+            data: { zoCode: ZoCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                if(OffcTyp == 4){ // AO
+                    $('#ddlSearchAOOffice').val(OffcId);
+                    var  AoCode =  OffcId;
+                    //
+                    var officCode = ($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+                    // alert(officCode); //KK
+                    // GetSearchBOOfficeByAO($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+                    GetSearchBOOfficeByAO(officCode);
+                }
+
+                else if(OffcTyp != 4 && OffcTyp != 2){
+                    $("#ddlSearchAOOffice").val(0);
+                    GetSearchBOOfficeByAO($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+                    alert($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+
+                    var  AoCode =  OffcId;              //
+                    GetSearchBOOfficeByAO(AoCode);
+
+                }
+                else{
+                    $("#ddlSearchAOOffice").val(0);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchBOOfficeByAO(AoCode) {
+        var ddlBOOffice = $("#ddlSearchBOOffice");
+        //var AoCode = $("#ddlSearchAOOffice option:selected");
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetBOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetBOOfficeList", "Financial", "http")',
+            data: { aoCode: AoCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                if(OffcTyp == 5){ // BO
+                    $('#ddlSearchBOOffice').val(OffcId);
+                }
+                else{
+                    $('#ddlSearchBOOffice').val('0');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchAOOffice() {
+        var ddlAOOffice = $("#ddlSearchAOOffice");
+        var ddlZOOffice = $("#ddlSearchZOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetAOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetAOOfficeList", "Financial", "http")',
+            data: { zoCode: ddlZOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchBOOfficeByZO() {
+        var ddlBOOffice = $("#ddlSearchBOOffice");
+        var ddlZOOffice = $("#ddlSearchZOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetBOOfficeListByZO", "Employee", "http")',*@
+            url: '@Url.Action("GetBOOfficeListByZO", "Financial", "http")',
+            data: { zoCode: ddlZOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchBOOffice() {
+        var ddlBOOffice = $("#ddlSearchBOOffice");
+        var ddlAOOffice = $("#ddlSearchAOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetBOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetBOOfficeList", "Financial", "http")',
+            data: { aoCode: ddlAOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchZAOOffice() {
+        var ddlZAOOffice = $("#ddlSearchZAOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetZAOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetZAOOfficeList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                if(OffcTyp == 3){
+                    $('#ddlSearchZAOOffice').val(OffcId);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+  
+
+    function AreaRadioSearchChk() {
+        if ($("#radSearchAO").is(":checked")) {
+
+            var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+            var OffcName = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeName"]));
+            $('#selectedOfficeId').val(OffcId);
+            $('#selectedOfficeName').val(OffcName);
+
+            $("#ddlSearchBOOffice")[0].selectedIndex = 0;
+
+            $("#ddlSearchBOOffice").attr("disabled", true);
+
+            $("#selectedOfficeTypeId").val(4);
+
+        }
+        else if($("#radSearchBO").is(":checked")){
+            $("#selectedOfficeId").val("");
+            $('#selectedOfficeName').val("");
+
+            $("#ddlSearchBOOffice").attr("disabled", false);
+
+            $("#selectedOfficeTypeId").val(5);
+        }
+
+    }//End Function
+
+    function radioSearchChk() {
+        if ($("#radSearchHO").is(":checked")) {
+            //loaddept
+            $("#SearchHO").show();
+            $("#SearchZO").hide();
+            $("#SearchZAO").hide();
+            GetSearchHOOffice();
+
+            var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+            var OffcName = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeName"]));
+            $('#selectedOfficeId').val(OffcId);
+            $('#selectedOfficeName').val(OffcName);
+
+        }
+        else if ($("#radSearchZO").is(":checked")) {
+            //load zone,area,branch
+            $("#SearchHO").hide();
+            $("#SearchZO").show();
+            $("#SearchZAO").hide();
+
+            GetSearchZOOffice();
+
+
+            var ddlSearchAOOffice = $("#ddlSearchAOOffice");
+            ddlSearchAOOffice.html('');
+
+            var ddlSearchBOOffice = $("#ddlSearchBOOffice");
+            ddlSearchBOOffice.html('');
+
+
+        }
+        else if ($("#radSearchZAO").is(":checked")) {
+            //load zonal audit
+            $("#SearchHO").hide();
+            $("#SearchZO").hide();
+            $("#SearchZAO").show();
+
+            GetSearchZAOOffice();
+
+        }
+        else {
+            $("#SearchHO").hide();
+            $("#SearchZO").hide();
+            $("#SearchZAO").hide();
+
+        }
+    }
+    function GetSearchHOOffice() {
+        var ddlHOOffice = $("#ddlSearchHOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetHOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetHOOfficeList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlHOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlHOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function GetSearchZOOffice() {
+        var ddlZOOffice = $("#ddlSearchZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetZOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetZOOfficeList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+
+                if(OffcTyp == 2){
+                   // $('#ddlSearchZOOffice').val(OffcId);
+                    GetSearchAOOfficeByZO($("#ddlSearchZOOffice option:selected").text().split("-")[0]);
+                    //alert($('#hfZoCode').val());
+                }
+                else if(OffcTyp != 2 && OffcTyp != 1){
+
+                   // $("#ddlSearchZOOffice").val($('#hfSecondLevelId').html());
+                    GetSearchAOOfficeByZO($("#ddlSearchZOOffice option:selected").text().split("-")[0]);
+                }
+                //$("#ddlSearchZOOffice option[value='2580']").attr("disabled", true);
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchAOOfficeByZO(ZoCode) {
+        var ddlAOOffice = $("#ddlSearchAOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetAOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetAOOfficeList", "Financial", "http")',
+            data: { zoCode: ZoCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                if(OffcTyp == 4){ // AO
+                    $('#ddlSearchAOOffice').val(OffcId);
+                    var  AoCode =  OffcId;
+                    //
+                    var officCode = ($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+                    // alert(officCode); //KK
+                    // GetSearchBOOfficeByAO($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+                    GetSearchBOOfficeByAO(officCode);
+                }
+
+                else if(OffcTyp != 4 && OffcTyp != 2){
+                    $("#ddlSearchAOOffice").val(0);
+                    GetSearchBOOfficeByAO($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+                    alert($("#ddlSearchAOOffice option:selected").text().split("-")[0]);
+
+                    var  AoCode =  OffcId;              //
+                    GetSearchBOOfficeByAO(AoCode);
+
+                }
+                else{
+                    $("#ddlSearchAOOffice").val(0);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchBOOfficeByAO(AoCode) {
+        var ddlBOOffice = $("#ddlSearchBOOffice");
+        //var AoCode = $('#ddlSearchAOOffice').val(OffcId); //$("#ddlSearchAOOffice option:selected").val(); //KK
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetBOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetBOOfficeList", "Financial", "http")',
+            data: { aoCode: AoCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                if(OffcTyp == 5){ // BO
+                    $('#ddlSearchBOOffice').val(OffcId);
+                }
+                else{
+                    $('#ddlSearchBOOffice').val('0');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function GetSearchAOOffice() {
+        var ddlAOOffice = $("#ddlSearchAOOffice");
+        var ddlZOOffice = $("#ddlSearchZOOffice option:selected").text().split("-")[0];
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetAOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetAOOfficeList", "Financial", "http")',
+            data: { zoCode: ddlZOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function GetSearchBOOfficeByZO() {
+        var ddlBOOffice = $("#ddlSearchBOOffice");
+        var ddlZOOffice = $("#ddlSearchZOOffice option:selected").text().split("-")[0];
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetBOOfficeListByZO", "Employee", "http")',*@
+            url: '@Url.Action("GetBOOfficeListByZO", "Financial", "http")',
+            data: { zoCode: ddlZOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function GetSearchBOOffice() {
+        var ddlBOOffice = $("#ddlSearchBOOffice");
+        var ddlAOOffice = $("#ddlSearchAOOffice option:selected").text().split("-")[0];
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetBOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetBOOfficeList", "Financial", "http")',
+            data: { aoCode: ddlAOOffice },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+    function GetSearchZAOOffice() {
+        var ddlZAOOffice = $("#ddlSearchZAOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            @*url: '@Url.Action("GetZAOOfficeList", "Employee", "http")',*@
+            url: '@Url.Action("GetZAOOfficeList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZAOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                if(OffcTyp == 3){
+                    $('#ddlSearchZAOOffice').val(OffcId);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function radioChk() {
+        if ($("#radHO").is(":checked")) {
+            //loaddept
+            $("#HO").show();
+            $("#ZO").hide();
+            $("#ZAO").hide();
+            $("#emp").show();
+            GetHOOffice();
+        }
+        else if ($("#radZO").is(":checked")) {
+            //load zone,area,branch
+            $("#HO").hide();
+            $("#ZO").show();
+            $("#ZAO").hide();
+            $("#emp").show();
+            GetZOOffice();
+        }
+        else if ($("#radZAO").is(":checked")) {
+            //load zonal audit
+            $("#HO").hide();
+            $("#ZO").hide();
+            $("#ZAO").show();
+            $("#emp").show();
+            GetZAOOffice();
+
+        }
+        else {
+            $("#HO").hide();
+            $("#ZO").hide();
+            $("#ZAO").hide();
+            $("#emp").hide();
+        }
+    }
+
+    //End of Office Selection
+
+
+
+    function PopulateOrganaization() {
+        var ddlOrgList = $("#ddlOrgList");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetOrgList", "Financial", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlOrgList.html('');
+                $.each(data, function (id, option) {
+                    ddlOrgList.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+
+    }//End of Reason List
+
+    function Calculation()
+    {
+        var A = parseFloat($("#ServiceCharge").val()); 
+        var B = parseFloat($("#LBUNetTaka").val());
+        var C = parseFloat($("#Deduction").val());
+        var D = parseFloat($("#DeductionOthers").val());
+        
+        var amount = (A+B)-(C+D);
+
+        $("#DepositDraftAmount").val( amount.toFixed(2) );
+    
+    }
+
+    $(document).ready(function () {
+
+     $("#ServiceCharge").blur(function (e) {
+            Calculation();
+        });
+
+    $("#LBUNetTaka").blur(function (e) {
+            Calculation();
+        });
+    $("#Deduction").blur(function (e) {
+            Calculation();
+        });
+    $("#DeductionOthers").blur(function (e) {
+            Calculation();
+        });
+
+
+
+        $("#dvMFIOffice").hide();
+        $("#dvBranchOffice").hide();
+    
+        $("#ddlOrgList").change(function () {
+
+            if ($("#ddlOrgList option:selected").val() == "1") {
+
+
+                $("#dvGBOffice").show();
+
+                $("#dvMFIOffice").hide();
+                $("#OfficeCode").val("");
+                $("#OfficeName").val("");
+                $("#ZoneCode").val("");
+
+
+
+                //$("#selectedOfficeId").val($("#ddlSearchZOOffice option:selected").val());
+
+                ////alert("HHU");
+                ////val.substring(3, val.length);
+                //var name = $("#ddlSearchZOOffice option:selected").text();
+                //var kname = name.substring(19, name.length);
+                ////alert(kname);
+                //$("#selectedOfficeName").val(kname);
+
+            }
+            else //if ($("#ddlOrgList option:selected").val() == "2") 
+    {
+
+                $("#dvGBOffice").hide();
+                $("#dvMFIOffice").show();
+
+            }
+        });
+
+        PopulateOrganaization();
+
+
+        var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+        var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+
+        $("#AreaDiv").hide(); //hide area radio btn
+
+      
+
+        $("#ddlSearchZOOffice").change(function () {
+
+            if ($("#ddlSearchZOOffice option:selected").val() > 0) {
+
+                $("#selectedOfficeId").val($("#ddlSearchZOOffice option:selected").val());
+
+                //alert("HHU");
+                //val.substring(3, val.length);
+                var name = $("#ddlSearchZOOffice option:selected").text();
+                var kname = name.substring(19, name.length);
+                //alert(kname);
+                $("#selectedOfficeName").val(kname);
+
+            }
+        });
+
+        $("#ddlSearchAOOffice").change(function () {
+            if ($("#ddlSearchAOOffice option:selected").val() > 0) {
+
+                $("#selectedOfficeId").val($("#ddlSearchAOOffice option:selected").val());
+                $("#selectedOfficeName").val($("#ddlSearchAOOffice option:selected").text())
+
+                GetSearchBOOffice();
+
+
+
+            }
+            else {
+                //$("#ddlSearchBOOffice").empty();
+                if ($("#ddlSearchZOOffice option:selected").val() > 0) {
+
+                    $("#selectedOfficeId").val($("#ddlSearchZOOffice option:selected").val());
+
+
+                    //val.substring(3, val.length);
+                    var name = $("#ddlSearchZOOffice option:selected").text();
+                    var kname = name.substring(19, name.length);
+                    //alert(kname);
+                    $("#selectedOfficeName").val(kname);
+
+
+                   // $("#SelectedOfficeName").val($("#ddlSearchZOOffice option:selected").text())
+
+
+                    GetSearchAOOffice();
+                    GetSearchBOOfficeByZO();
+                }
+
+            }
+        });
+
+
+
+
+        ////// End of Office Select Radio Button
+
+
+
+        ///DDL
+
+        ////////////////***************/////////////////
+        $("#ddlSearchZOOffice").change(function () {
+            if ($("#ddlSearchZOOffice option:selected").val() > 0) {
+
+                $("#selectedOfficeId").val($("#ddlSearchZOOffice option:selected").val());
+
+                //val.substring(3, val.length);
+                var name = $("#ddlSearchZOOffice option:selected").text();
+                var kname = name.substring(20, name.length);
+               // alert(kname);
+                $("#selectedOfficeName").val(kname);
+                //alert("M");
+                //$("#ddlSearchAOOffice option:selected").text().split("-")[0]
+
+                GetSearchAOOffice();
+                GetSearchBOOfficeByZO();
+            }
+            else {
+                $("#ddlSearchAOOffice").empty();
+                $("#ddlSearchZAOOffice").empty();
+            }
+        });
+
+        $("#ddlSearchAOOffice").change(function () {
+            if ($("#ddlSearchAOOffice option:selected").val() > 0) {
+                GetSearchBOOffice();
+            }
+            else {
+                //$("#ddlSearchBOOffice").empty();
+                if ($("#ddlSearchZOOffice option:selected").val() > 0) {
+                    GetSearchAOOffice();
+                    GetSearchBOOfficeByZO();
+                }
+
+            }
+        });
+
+
+
+        // Assign Selected ZA office
+
+
+        $("#ddlSearchZAOOffice").change(function () {
+            var SelectedZAO = $("#ddlSearchZAOOffice option:selected").val();
+            var SelectedZAOName = $("#ddlSearchZAOOffice option:selected").text().split("-")[1];
+            if(SelectedZAO != 0)
+            {
+                $("#selectedOfficeId").val(SelectedZAO);
+                $("#selectedOfficeName").val(SelectedZAOName);
+
+
+            }
+        });
+
+
+
+
+        // Assign Selected Head Office
+
+
+        $("#ddlSearchHOOffice").change(function () {
+            var SelectedHO = $("#ddlSearchHOOffice option:selected").val();
+            var SelectedHOName = $("#ddlSearchHOOffice option:selected").text().split("-")[1];
+            if(SelectedHO != 0)
+            {
+                $("#selectedOfficeId").val(SelectedHO);
+                $("#selectedOfficeName").val(SelectedHOName);
+
+
+            }
+        });
+
+
+
+        //Assign selected Branch OfficeId in variable.
+        $("#ddlSearchBOOffice").change(function () {
+            var SelectedBO = $("#ddlSearchBOOffice option:selected").val();
+            var SelectedBOName = $("#ddlSearchBOOffice option:selected").text().split("-")[1];
+            if(SelectedBO != 0)
+            {
+                $("#selectedOfficeId").val(SelectedBO);
+                $("#selectedOfficeName").val(SelectedBOName);
+
+
+            }
+        });
+
+        $("#ddlAreaOffice").change(function () {
+            var areaOffice_val = $("#ddlAreaOffice").val();
+            if (areaOffice_val > 0) {
+                var ddlBranchOffice = $("#ddlBranchOffice");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    @*url: '@Url.Action("GetBranchOfficeList", "EmployeePostingOrder", "http")',*@
+                    url: '@Url.Action("GetBranchOfficeList", "Financial", "http")',
+                    data: { areaOffice_val: areaOffice_val },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        ddlBranchOffice.html('');
+                        $.each(data, function (id, option) {
+                            ddlBranchOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlBranchOffices").empty();
+            }
+        });
+
+
+        $("#ddlNewBranchOffice").change(function () {
+            if ($("#ddlNewBranchOffice").val() > 0) {
+                var branch_id = $("#ddlNewBranchOffice").val();  // hidden
+                $('#NewBranchId').val(branch_id);
+            }
+        });
+
+        radioChk();
+
+
+
+        $("#ddlZOOffice").change(function () {
+            if ($("#ddlZOOffice option:selected").val() > 0) {
+                GetAOOffice();
+                GetBOOfficeByZO();
+            }
+            else {
+                $("#ddlAOOffice").empty();
+                $("#ddlZAOOffice").empty();
+            }
+        });
+        $("#ddlAOOffice").change(function () {
+            if ($("#ddlAOOffice option:selected").val() > 0) {
+                GetBOOffice();
+            }
+            else {
+                //$("#ddlBOOffice").empty();
+                if ($("#ddlZOOffice option:selected").val() > 0) {
+                    GetAOOffice();
+                    GetBOOfficeByZO();
+                }
+
+            }
+        });
+
+        radioSearchChk();
+
+        $("#ddlSearchAOOffice").change(function () {
+            if ($("#ddlSearchAOOffice option:selected").val() > 0) {
+
+                $("#selectedOfficeId").val($("#ddlSearchAOOffice option:selected").val() );
+
+                //val.substring(3, val.length);
+                var name = $("#ddlSearchAOOffice option:selected").text();
+                var kname = name.substring(7, name.length);
+
+                $("#selectedOfficeName").val(kname);
+
+
+               // $("#selectedOfficeName").val($("#ddlSearchAOOffice option:selected").text() );
+
+                GetSearchBOOffice();
+            }
+            else {
+                //$("#ddlSearchBOOffice").empty();
+                if ($("#ddlSearchZOOffice option:selected").val() > 0) {
+
+                    //$("#selectedOfficeId").val($("#ddlSearchZOOffice option:selected").val() )
+                    //$("#selectedOfficeName").val($("#ddlSearchZOOffice option:selected").text() )
+
+                    GetSearchAOOffice();
+                    GetSearchBOOfficeByZO();
+                }
+
+            }
+        });
+
+
+
+
+
+        //Populate DDL
+
+        function GetNewAOOfficeByZO(ZoCode) {
+            var ddlAOOffice = $("#ddlAOOffice");
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                @*url: '@Url.Action("GetAOOfficeList", "Employee", "http")',*@
+                url: '@Url.Action("GetAOOfficeList", "Financial", "http")',
+                data: { zoCode: ZoCode },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    ddlAOOffice.html('');
+                    $.each(data, function (id, option) {
+                        ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+                    var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                    var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                    if(OffcTyp == 4){ // AO
+                        $('#ddlAOOffice').val(OffcId);
+
+                        GetNewBOOfficeByAO($("#ddlAOOffice option:selected").text().split("-")[0]);
+                    }
+
+                    else if(OffcTyp != 4 && OffcTyp != 2){
+                        $("#ddlAOOffice").val(0);
+                        GetNewBOOfficeByAO($("#ddlAOOffice option:selected").text().split("-")[0]);
+
+                    }
+                    else{
+                        $("#ddlAOOffice").val(0);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+        function GetNewBOOfficeByAO(AoCode) {
+            var ddlBOOffice = $("#ddlBOOffice");
+            //var AoCode = $("#ddlSearchAOOffice option:selected");
+
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                @*url: '@Url.Action("GetBOOfficeList", "Employee", "http")',*@
+                url: '@Url.Action("GetBOOfficeList", "Financial", "http")',
+                data: { aoCode: AoCode },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    ddlBOOffice.html('');
+                    $.each(data, function (id, option) {
+                        ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+                    var OffcTyp = @Html.Raw(Json.Encode(ViewData["OfficeType"]));
+                    var OffcId = @Html.Raw(Json.Encode(ViewData["LoggedInOfficeId"]));
+                    if(OffcTyp == 5){ // BO
+                        $('#ddlBOOffice').val(OffcId);
+                    }
+                    else{
+                        $('#ddlBOOffice').val('0');
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+        function GetAOOffice() {
+            var ddlAOOffice = $("#ddlAOOffice");
+
+            var ddlZOOffice = $("#ddlZOOffice option:selected").text().split("-")[0];
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                @*url: '@Url.Action("GetAOOfficeList", "EmployeePromotion", "http")',*@
+                url: '@Url.Action("GetAOOfficeList", "Financial", "http")',
+                data: { zoCode: ddlZOOffice },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    ddlAOOffice.html('');
+                    $.each(data, function (id, option) {
+                        ddlAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+        function GetBOOfficeByZO() {
+            var ddlBOOffice = $("#ddlBOOffice");
+            var ddlZOOffice = $("#ddlZOOffice option:selected").text().split("-")[0];
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                @*url: '@Url.Action("GetBOOfficeListByZO", "EmployeePromotion", "http")',*@
+                url: '@Url.Action("GetBOOfficeListByZO", "Financial", "http")',
+                data: { zoCode: ddlZOOffice },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    ddlBOOffice.html('');
+                    $.each(data, function (id, option) {
+                        ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+        function GetBOOffice() {
+            var ddlBOOffice = $("#ddlBOOffice");
+            var ddlAOOffice = $("#ddlAOOffice option:selected").text().split("-")[0];
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                @*url: '@Url.Action("GetBOOfficeList", "EmployeePromotion", "http")',*@
+                url: '@Url.Action("GetBOOfficeList", "Financial", "http")',
+                data: { aoCode: ddlAOOffice },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    ddlBOOffice.html('');
+                    $.each(data, function (id, option) {
+                        ddlBOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+        function GetZAOOffice() {
+            var ddlZAOOffice = $("#ddlZAOOffice");
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                @*url: '@Url.Action("GetZAOOfficeList", "EmployeePromotion", "http")',*@
+                url: '@Url.Action("GetZAOOfficeList", "Financial", "http")',
+                data: {},
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    ddlZAOOffice.html('');
+                    $.each(data, function (id, option) {
+                        ddlZAOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+
+
+        function radioChk() {
+            if ($("#radHO").is(":checked")) {
+                //loaddept
+                $("#HO").show();
+                $("#ZO").hide();
+                $("#ZAO").hide();
+                $("#emp").show();
+                GetHOOffice();
+            }
+            else if ($("#radZO").is(":checked")) {
+                //load zone,area,branch
+                $("#HO").hide();
+                $("#ZO").show();
+                $("#ZAO").hide();
+                $("#emp").show();
+                GetZOOffice();
+            }
+            else if ($("#radZAO").is(":checked")) {
+                //load zonal audit
+                $("#HO").hide();
+                $("#ZO").hide();
+                $("#ZAO").show();
+                $("#emp").show();
+                GetZAOOffice();
+
+            }
+            else {
+                $("#HO").hide();
+                $("#ZO").hide();
+                $("#ZAO").hide();
+                $("#emp").hide();
+            }
+        }
+
+
+
+
+        //DDL
+
+
+
+
+        ///End Office Selection After Document ready
+
+        /////DATE FIELDS
+       
+
+        $("#DepositSendDate").datepicker(
+      'setDate', new Date());
+
+        ////// END of Date Fields
+
+
+    $("#ddlSendedBy").change(function () {
+            $("#SendedBy").val( $("#ddlSendedBy option:selected").val() ); 
+
+        });
+
+
+
+
+        $("#btnReset").click(function () {
+
+            clear();
+        });
+
+
+
+        $("#btnSave").click(function () {
+
+            var orgId = $("#ddlOrgList option:selected").val();
+            var OfficeCode          = $("#OfficeCode").val();
+
+            if(orgId == "1")
+            {
+                OfficeCode =  $('#selectedOfficeId').val();
+            }
+            if(OfficeCode == ''){
+                $.alert.open("Message", "Please Select Office.");
+                return false;
+                }
+
+
+
+            var Deduction = $("#Deduction").val();
+            if (Deduction == "") {
+                $.alert.open("Message", "Must input Deduction Amount.");
+                }
+
+            if (isNaN(Deduction)) {
+                $.alert.open("Message", "Must input Deduction Amount in Number");
+                $("#Deduction").focus();
+                    return false;
+            }
+
+            if (Deduction < 0) {
+                $.alert.open("Message", "Deduction can not be Negative.");
+                $("#Deduction").focus();
+                return false;
+            }
+
+            var DepositDraftAmount = $("#DepositDraftAmount").val();
+            if (DepositDraftAmount == "") {
+                $.alert.open("Message", "Must input Deposit/Draft Amount.");
+                }
+
+            if (isNaN(DepositDraftAmount)) {
+                $.alert.open("Message", "Must input Deposit/Draft Amount in Number");
+                $("#DepositDraftAmount").focus();
+                    return false;
+                }
+
+            if (DepositDraftAmount < 0) {
+                $.alert.open("Message", "Deposit/Draft Amount can not be Negative.");
+                $("#DepositDraftAmount").focus();
+                    return false;
+            }
+
+
+            var ServiceCharge = $("#ServiceCharge").val();
+            if (ServiceCharge == "") {
+                $.alert.open("Message", "Must input Service Charge Amount.");
+            }
+
+            if (isNaN(ServiceCharge)) {
+                $.alert.open("Message", "Must input Service Charge Amount in Number");
+                $("#ServiceCharge").focus();
+                return false;
+            }
+
+            if (ServiceCharge < 0) {
+                $.alert.open("Message", "Service Charge Amount can not be Negative.");
+                $("#ServiceCharge").focus();
+                return false;
+            }
+
+            var DeductionOthers = $("#DeductionOthers").val();
+            if (isNaN(DeductionOthers)) {
+                $.alert.open("Message", "Must input Deduction Others Amount in Number");
+                $("#DeductionOthers").focus();
+                return false;
+            }
+
+            if (DeductionOthers < 0) {
+                $.alert.open("Message", "Deduction Others Amount can not be Negative.");
+                $("#DeductionOthers").focus();
+                return false;
+            }
+
+
+     var LBUNetTaka = $("#LBUNetTaka").val();
+            if (isNaN(LBUNetTaka)) {
+                $.alert.open("Message", "Must input L.B.U. Net Taka Amount in Number");
+                $("#LBUNetTaka").focus();
+                return false;
+            }
+
+            if (LBUNetTaka < 0) {
+                $.alert.open("Message", "L.B.U.Net Taka Amount can not be Negative.");
+                $("#LBUNetTaka").focus();
+                return false;
+            }
+
+
+                    // Save
+                    Save();
+                    clear();
+
+        });
+
+
+    });// End of Document Ready
+
+
+    //Save
+    function Save() {
+
+        $('#AjaxLoader').show();
+        var orgId               = $("#ddlOrgList option:selected").val();
+        var OrgName             = $("#ddlOrgList option:selected").text();
+
+        var OfficeCode          = $("#OfficeCode").val();
+
+        if(orgId == "1")
+        {
+            OfficeCode =  $('#selectedOfficeId').val();
+        }
+
+        var OfficeName          = $("#OfficeName").val();
+        var ZoneCode            = $('#ZoneCode').val();
+        var ServiceCharge       = $('#ServiceCharge').val();
+        var Deduction           = $("#Deduction").val();
+        var DepositDraftAmount  = $("#DepositDraftAmount").val();
+        var SlipDraftNo         = $("#SlipDraftNo").val();
+        var ReferenceNo         = $("#ReferenceNo").val();
+        var SendedBy            = $("#SendedBy").val();
+        var DepositSendDate     = $("#DepositSendDate").val();
+        var Remarks             = $("#Remarks").val();
+
+     var DeductionOthers      = $("#DeductionOthers").val();
+     var LBUNetTaka           = $("#LBUNetTaka").val();
+
+
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("Create", "Financial", "http")', //Create(long EmployeeID, int PRComponentID, decimal ComponentAmount, string EffectiveStartDate, string EffectiveEndDate)
+            data: {
+
+                orgId                   : orgId                  ,
+                OrgName                 : OrgName                ,
+                OfficeCode              : OfficeCode             ,
+                OfficeName              : OfficeName             ,
+                ZoneCode                : ZoneCode               ,
+                ServiceCharge           : ServiceCharge          ,
+                Deduction               : Deduction              ,
+                DepositDraftAmount      : DepositDraftAmount     ,
+                SlipDraftNo             : SlipDraftNo            ,
+                ReferenceNo             : ReferenceNo            ,
+                SendedBy                : SendedBy               ,
+                DepositSendDate         : DepositSendDate        ,
+                Remarks                 : Remarks               ,
+                DeductionOthers         : DeductionOthers           ,
+                LBUNetTaka              : LBUNetTaka
+
+            },
+
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $('#AjaxLoader').hide();
+                $.alert.open("Message", data);
+            },
+            error: function (request, status, error) {
+                $('#AjaxLoader').hide();
+                $.alert.open("Message", error);
+            }
+
+        });
+    }// End of Function
+
+</script>
+
+@Html.ActionLink("Back To List", "Index", new { id = "btnBackToList" }, new { @class = "btn btn-github pull-right" })
+
+
+&nbsp;
+<h2 class="page-title">Add To Service Charge Register</h2>
+&nbsp;
+<div class="form-horizontal">
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Organaization", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownList("ReasonList", null, new { @ID = "ddlOrgList", @class = "form-control" })
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <br />
+
+        <div class="row" id="dvGBOffice">
+            <fieldset>
+                <legend>
+                    Select Office
+                </legend>
+
+
+                <input type="hidden" id="selectedOfficeId" value="" />
+                <input type="hidden" id="selectedOfficeName" value="" />
+                <input type="hidden" id="selectedOfficeTypeId" value="3" /> <!-- By Default Zone Selected -->
+                @Html.Label("" + ViewData["SecondLevel"], new { @ID = "hfSecondLevel", @Style = "display:none;" })
+                @Html.Label("" + ViewData["ThirdLevel"], new { @ID = "hfThirdLevel", @Style = "display:none;" })
+                @Html.Label("" + ViewData["FourthLevel"], new { @ID = "hfFourthLevel", @Style = "display:none;" })
+
+                @Html.Label("" + ViewData["SecondLevelId"], new { @ID = "hfSecondLevelId", @Style = "display:none;" })
+                @Html.Label("" + ViewData["ThirdLevelId"], new { @ID = "hfThirdLevelId", @Style = "display:none;" })
+                @Html.Label("" + ViewData["FourthLevelId"], new { @ID = "hfFourthLevelId", @Style = "display:none;" })
+
+
+                <div class="row" style="margin-top:15px;">
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <input type="radio" id="radSearchHO" name="ofc" value="HO" style="margin-left: 45px;" onclick="radioSearchChk()" />
+                            <label id="lblHeadOfc">Head Office</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="radio" name="ofc" id="radSearchZO" value="ZO" style="margin-left: 45px;" onclick="radioSearchChk()" />
+                            <label id="lblZoneOfc">Zone Office</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="radio" name="ofc" id="radSearchZAO" value="ZAO" style="margin-left: 45px;" onclick="radioSearchChk()" />
+                            <label id="lblZonalAuditOfc">Zonal Audit Office</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="AreaDiv" class="row" style="margin-top:15px; display:none">
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <input type="radio" id="radSearchAO" name="ofc2" value="AO" style="margin-left: 45px;" onclick="AreaRadioSearchChk()" />
+                            <label id="lblAreaOfc">Area Office</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="radio" name="ofc2" id="radSearchBO" value="BO" style="margin-left: 45px;" onclick="AreaRadioSearchChk()" />
+                            <label id="lblBranchOfc">Branch Office</label>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="row" style="margin-top:15px;">
+                    <div class="col-md-10">
+                        <div id="SearchHO" style="display:none;">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        @Html.Label("Department", new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.DropDownList("HOOfficeList", null, new { @ID = "ddlSearchHOOffice", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    &nbsp;
+                                </div>
+                                <div class="col-sm-4">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                        <div id="SearchZO" style="display:none;">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        @Html.Label("Zonal Office", new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlSearchZOOffice", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        @Html.Label("Area Office", new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.DropDownList("AOOfficeList", null, new { @ID = "ddlSearchAOOffice", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4" id="dvBranchOffice">
+                                    <div class="form-group">
+                                        @Html.Label("Branch Office", new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.DropDownList("BOOfficeList", null, new { @ID = "ddlSearchBOOffice", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="SearchZAO" style="display:none;">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        @Html.Label("Zonal Audit Office", new { @class = "control-label col-md-4" })
+                                        <div class="col-md-8">
+                                            @Html.DropDownList("ZAOOfficeList", null, new { @ID = "ddlSearchZAOOffice", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    &nbsp;
+                                </div>
+                                <div class="col-sm-4">
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        &nbsp;
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- END of Office Select -->
+
+
+
+
+
+            </fieldset>
+
+        </div>
+
+
+
+        <div class="row" id="dvMFIOffice">
+            <fieldset>
+                <legend>
+                     Office Information
+                </legend>
+
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-4">Office Code</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="OfficeCode" value="" class="form-control"  />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-4">Office Name</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="OfficeName" value="" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-4">Zone Code</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="ZoneCode" value="" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                </fieldset>
+            </div>
+
+        <br />
+        <div class="row">
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Service Charge</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="ServiceCharge" value="0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label col-md-4">L.B.U(NetTaka)</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="LBUNetTaka" value="0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Deduction(Hardware)</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="Deduction" value="0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Deduction(Others)</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="DeductionOthers" value="0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Deposit/Draft Amount</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="DepositDraftAmount" value="0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Slip/Draft No</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="SlipDraftNo" value="0" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Reference No</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="ReferenceNo" value="" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Sended By(Online/Couriar)</label>
+                    <div class="col-sm-8">
+                        <select id="ddlSendedBy" class="form-control">
+                            <option value="Online" selected="selected"> Online </option>
+                            <option value="BEFTN"> BEFTN </option>
+                            <option value="RTGS"> RTGS </option>
+                            <option value="Courier"> Courier </option>
+
+                        </select>
+
+                        <input type="hidden" id="SendedBy" value="Online" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Deposit Date</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="DepositSendDate" value="" class="form-control ddl-datepicker" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Remarks</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="Remarks" value="" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+                        &nbsp;
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        </div>
+    </div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

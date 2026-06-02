@@ -1,0 +1,37 @@
+﻿<style>
+
+    .settop {
+        top: 6px;
+    }
+</style>
+<div class="page-header">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="/images/gHRM-logo.png" alt="gHRM Logo"/>
+        </div>
+        @if (Request.IsAuthenticated)
+        {
+        <div class="col-md-6 text-right">
+            <span>@gHRM.Web.Helpers.SessionHelper.UserFullName</span>
+            @*@using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm",@class="top-logout-form" }))
+            {
+                     @Html.AntiForgeryToken()*@
+                    <a class="btn btn-warning btn-xs" href="/Account/logoff" class="btn btn-default btn-flat">Log out</a>                    
+            @*}*@            
+            
+            <a id="top-dayin-info" data-container="body" data-toggle="popover" data-placement="left" data-content="Loading......"><span class="glyphicon glyphicon-info-sign settop"></span></a>
+            <script>
+                $('#top-dayin-info').popover();
+            </script>
+            <img src="/images/client-logo-home.png" alt="Client Logo" class="clogo-top" />
+        </div>
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var trString = '@gHRM.Web.Helpers.SessionHelper.TransactionDashBoardString';
+        $("#top-dayin-info").attr('data-content',trString);
+    });
+</script>

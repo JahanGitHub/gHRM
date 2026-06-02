@@ -1,0 +1,190 @@
+﻿@model gHRM.Web.ViewModels.PF.YearEndProcessViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+
+    function ProcessYearEnd(yearStartDate, yearEndDate, transDate) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("ProcessYearEnd", "PFYearEndProcess", "http")',
+            data: { yearStartDate: yearStartDate, yearEndDate: yearEndDate, transDate: transDate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                if (data.status == 'ok') {
+                    $('#btnProcessYearEnd').prop('disabled', true);
+                }
+
+                //$('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Unable to Process");
+                //$('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+    }
+
+
+    function clear() {
+        $('#YearStartDate').val('');
+        $('#YearEndDate').val('');
+        $('#TransactionDate').val('');
+    }
+
+    function Process() {
+        var yearStartDate = $('#YearStartDate').val();
+        var yearEndDate = $('#YearEndDate').val();
+        var transDate = $('#TransactionDate').val();
+
+        if (yearStartDate == '' || yearEndDate == '' || transDate == '') {
+            alert('Sorry for inconvenience! please check organization setup and day en process log');
+            return;
+        }
+        ProcessYearEnd(yearStartDate, yearEndDate, transDate);
+    }
+
+    $(document).ready(function () {
+
+                        
+        @if (Model.IsValidYearEnd == false)
+        {
+            <text>
+            $("#btnProcessYearEnd").prop('disabled', true);
+            </text>
+        }
+        @if (Model.IsValidYearEnd == true)
+        {
+            <text>
+            $("#btnProcessYearEnd").prop('disabled', false);
+            </text>
+        }
+
+       $("#btnProcessYearEnd").click(function () {            
+
+           $.alert.open('confirm', 'Are you sure you want to process year close?', function (button) {
+               if (button == 'yes') {
+                   Process();
+                   return true;
+               }
+               else {
+                   return false;
+               }
+           });
+
+            //var yearStartDate = $('#YearStartDate').val();
+            //var yearEndDate = $('#YearEndDate').val();
+            //var transDate = $('#TransactionDate').val();
+
+            //if (yearStartDate == '' || yearEndDate == '' || transDate == '') {
+            //    alert('Sorry for inconvenience! please check organization setup and day en process log');
+            //    return;
+            //}
+            //ProcessYearEnd(yearStartDate, yearEndDate, transDate);
+            
+        });
+    });
+</script>
+
+@*@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })*@
+&nbsp;
+<h2 class="page-title">Year Closing</h2>
+<br />
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+       
+        <div class="panel panel-default">
+            <div class="panel-heading" style="background: #F9F9F9; ">
+                <h2 class="panel-title">Day Status</h2>
+            </div>
+       
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.DayStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.DayStatus, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+
+                        <label id="lblTransDate" class="control-label col-md-2">Date</label>
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+     
+        <div class="panel panel-default">
+            <div class="panel-heading" style="background: #F9F9F9; ">
+                <h2 class=" panel-title">Year Status</h2>
+        </div>
+            <br />
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.YearEndStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.YearEndStatus, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.YearStartDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.YearStartDate, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+
+                        @Html.LabelFor(model => model.YearEndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.YearEndDate, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="margin-left:3px;">
+                    <input type="button" value="Process" id="btnProcessYearEnd" class="btn btn-success" tabindex="4" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="grid2">
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

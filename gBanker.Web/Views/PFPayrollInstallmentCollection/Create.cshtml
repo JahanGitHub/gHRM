@@ -1,0 +1,154 @@
+﻿@model gHRM.Web.ViewModels.PF.PayrollInstallmentCollectionViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 40px;
+    }
+</style>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Payroll Installment Processing</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.IsOpen)
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">Day Status</h2>
+            </div>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="form-group">
+
+                        <label id="lblTransDate" class="control-label col-md-2">Date</label>
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+
+                        @Html.LabelFor(model => model.DayStatus, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.DayStatus, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*last collected installment month*@
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">Last Processed</h2>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.Month, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+                        @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.Year, new { htmlAttributes = new { @class = "form-control", @disabled = "disabled" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">Process</h2>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.MonthList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(model => model.MonthList, Model.MonthList, new { @class = "form-control", @tabindex = 1 })
+                        </div>
+                        @Html.LabelFor(model => model.YearList, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-3">
+                            @Html.DropDownListFor(model => model.YearList, Model.YearList, new { @class = "form-control", @tabindex = 2 })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8" style="margin-left:-8px;">
+                        <input type="button" value="Save" id="btnSavePayrollInstallment" class="btn btn-success" />
+                        &nbsp;
+                        <input type="button" value="Verify" id="btnVerify" class="btn btn-success" />                        
+                    </div>
+                </div>
+
+                <hr />
+                <div class="row" style="padding-right:10px;">
+                    <div class="form-group">
+
+                        <div class=" col-md-4" style="padding-left:25px;">
+                            <input id="isProcessed" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                        <label for="selfContributor" class="control-label col-md-2">Self Contributor</label>
+                        <div class="col-md-2">
+                            <input id="selfContributor" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                        <label for="selfContribution" class="control-label col-md-2">Self Contribution</label>
+                        <div class="col-md-2">
+                            <input id="selfContribution" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-right:10px;">
+                    <div class="form-group">
+
+                        <label for="orgContributor" class="control-label col-md-6">Org. Contributor</label>
+                        <div class="col-md-2">
+                            <input id="orgContributor" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                        <label for="orgContribution" class="control-label col-md-2">Org. Contribution</label>
+                        <div class="col-md-2">
+                            <input id="orgContribution" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-right:10px;">
+                    <div class="form-group">
+                        <label for="loanee" class="control-label col-md-6">Loanee</label>
+                        <div class="col-md-2">
+                            <input id="loanee" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                        <label for="loanAmount" class="control-label col-md-2">Loan Amount</label>
+                        <div class="col-md-2">
+                            <input id="loanAmount" type="text" class="form-control" disabled="disabled" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="grid2">
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Assets/js/app/pf/pfPayrollInstallmentCollectionManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

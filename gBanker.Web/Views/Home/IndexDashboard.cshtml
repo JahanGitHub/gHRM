@@ -1,0 +1,162 @@
+﻿
+@model gHRM.Web.ViewModels.Dashboard.HomePageViewModel
+
+@using gHRM.Web.ViewModels;
+@{
+    ViewBag.Title = "gHRM+";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var employeeMaping = ViewBag.EmployeeOfficeMappings as List<SelectListItem> ?? new List<SelectListItem>();
+    var showBranchPopup = (bool)ViewBag.ShowPopup;
+
+    HRDashboardViewModel Data = ViewBag.Data;
+    List<string> GenderNames = new List<string>();
+    List<int> GenderCounts = new List<int>();
+
+
+    GenderNames.Add("Male");
+    GenderCounts.Add(Data.GenderCountList["M"]);
+    GenderNames.Add("Female");
+    GenderCounts.Add(Data.GenderCountList["F"]);
+    int OtherGenderCount = 0;
+
+    foreach (KeyValuePair<string, int> Obj in Data.GenderCountList)
+    {
+        if ("M" != Obj.Key && "F" != Obj.Key)
+        {
+            OtherGenderCount += Data.GenderCountList[Obj.Key];
+        }
+    }
+    if (OtherGenderCount > 0)
+    {
+        GenderNames.Add("Unknown");
+        GenderCounts.Add(OtherGenderCount);
+    }
+    string GenderNamesStr = Newtonsoft.Json.JsonConvert.SerializeObject(GenderNames);
+    string GenderCountsStr = Newtonsoft.Json.JsonConvert.SerializeObject(GenderCounts);
+
+
+}
+
+<div class="bg-img">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="employee-overview-title">Overview</div>
+        </div>
+        @*<div class="col-md-3">
+            <div class="card-container" style="background: #c000ff; border-color: #a402da;">
+                <span class="card-head">Total DMC</span>
+                <span class="card-body"><span class="fa fa-building-o"></span> @String.Format("{0:n0}", Data.TotalBranches)</span>
+            </div>
+        </div>*@
+        <div class="col-md-4">
+            <div class="card-container" style="background: #06c836; border-color: #00b02c;">
+                <span class="card-head">Total Employee</span>
+                <span class="card-body"><span class="fa fa-users"> @String.Format("{0:n0}", Data.TotalEmployees)</span>
+                </span>
+
+                <span class="card-body2">
+                    <span class="card-subhead">H/O : @String.Format("{0:n0}", Data.TotalEmployeesHO)</span>
+                    <span class="card-subhead">F/O : @String.Format("{0:n0}", Data.TotalEmployeesFO)</span>
+                </span>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-container" style="background: #ff6a00; border-color: #e86000;">
+                <span class="card-head">Joined this Month</span>
+                <span class="card-body">
+                    <span class="fa fa-sign-in"> @String.Format("{0:n0}", Data.TotalJoinedThisMonth)</span>
+                </span>
+                <span class="card-body2">
+                    <span class="card-subhead">H/O : @String.Format("{0:n0}", Data.TotalJoinedThisMonthHO)</span>
+                    <span class="card-subhead">F/O : @String.Format("{0:n0}", Data.TotalJoinedThisMonthFO)</span>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-container" style="background: #008fff; border-color: #007fe2;">
+                <span class="card-head">Left this Month</span>
+                <span class="card-body">
+                    <span class="fa fa-sign-out"> @String.Format("{0:n0}", Data.TotalLeftThisMonth)</span>
+                </span>
+                <span class="card-body2">
+                    <span class="card-subhead">H/O : @String.Format("{0:n0}", Data.TotalLeftThisMonthHO)</span>
+                    <span class="card-subhead">F/O : @String.Format("{0:n0}", Data.TotalLeftThisMonthFO)</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 40px;">
+        <div class="col-md-12">
+            <div class="page-card">
+                <div class="page-card-header">Employee Overview</div>
+                <div class="page-card-body">
+                    <canvas id="gender-wise-employee"></canvas>
+                </div>
+            </div>
+            <div class="page-card pull-right">
+                <div class="page-card-header">Attendance Overview Today(@System.DateTime.Today.ToString("dd/MM/yyyy"))</div>
+                <div class="page-card-body">
+                    @*<canvas id="leave-overview"></canvas>*@
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="card-container2" style="background: #009999; border-color: #009999; ">
+                                <span class="card-head2">Present in Office : @String.Format("{0:n0}", Data.Present) </span>
+                                <span class="card-head2">Leave in Office : @String.Format("{0:n0}", Data.Leave) </span>
+
+                                <span class="card-head2">Absent in Office : @String.Format("{0:n0}", Data.Absent) </span>
+                                <span class="card-head2">Late in Office  : @String.Format("{0:n0}", Data.Late) </span>
+                                <span class="card-head2">Office Tour : @String.Format("{0:n0}", Data.Tour) </span>
+                            </div>
+
+
+                        </div>
+
+                        <div class="col-sm-6">
+
+                            <div class="card-container" style="background: #ff9966; border-color: #ff9966;  width:200px; height:220px;">
+                                <span class="card-head">Probation</span>
+                                <span class="card-body">
+                                    <span class="fa fa-sign-out"> @String.Format("{0:n0}", Data.TotalEmployeesProbation)</span>
+                                </span>
+                                <span class="card-body2">
+                                    <span class="card-subhead">H/O : @String.Format("{0:n0}", Data.TotalEmployeesHOProbation)</span>
+                                    <span class="card-subhead">F/O : @String.Format("{0:n0}", Data.TotalEmployeesFOProbation)</span>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                 
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!--SSO Enabling-->
+    @Html.Partial("_SSOTriggeringPartial", Model)
+    <div style="display:none" id="RedirectUrl" RedirectUrl="@Model.ReturnUrl"></div>
+</div>
+
+@section Styles {
+    @Styles.Render("/Assets/css/dashboard.css?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION()+DateTime.Now)
+}
+
+@section Scripts {
+    <script type="text/javascript">
+        var GenderNamesArr = @Html.Raw(GenderNamesStr);
+        var GenderCountsArr = @Html.Raw(GenderCountsStr);
+        @*var Leave6MonthsCountMonthNamesArr = @Html.Raw(Leave6MonthsCountMonthNamesStr);
+        var Leave6MonthsCountsArr = @Html.Raw(Leave6MonthsCountsStr);*@
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    <script src="~/Assets/js/app/dashboard/dashboardManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/plugins/Chart.js-2.9.4/dist/Chart.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/js/app/dashboard.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

@@ -1,0 +1,483 @@
+﻿@model gHRM.Web.ViewModels.ApprovalConfigurationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveApproversGlobal">Approval Configuration</a></li>
+        <li><a href="/LeaveApproversGlobal/Create">Approval Configuration Create</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    #tdHide {
+        display: none;
+    }
+
+    .pop_tbl_style {
+        width: 100%;
+    }
+
+    .tbl {
+        border-collapse: collapse;
+        border: 1px solid #CCCCCC;
+        font-family: "Arial";
+        font-size: 12px;
+        background-color: White;
+        width: 100%;
+    }
+
+    .tHead {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .tFoot {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #tableRow {
+        font-family: Arial;
+        color: Black;
+        font-size: 12px;
+    }
+
+        #tableRow:nth-child(odd) {
+            background-color: #E2E4FF;
+        }
+
+        #tableRow:nth-child(even) {
+            background-color: White;
+        }
+
+    .tbl th {
+        text-align: center;
+    }
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+
+    #element_to_pop_up {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+</style>
+
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script type="text/javascript">
+
+    function delete_row(NewSl) {
+        $.alert.open('confirm', 'Are you sure, you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $("#tableRow" + NewSl).remove();
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $("#btnAdd").click(function () {
+            var approveOfficeTypeId = $("#ApprovalOfficeTypeId").val();
+            var approveOfficeType = $("#ApprovalOfficeTypeId option:selected").text();
+            var approveOfficeId = $("#ApproveOfficeId").val();
+            var approveOffice = $("#ApproveOfficeId option:selected").text();
+            var approvalDeptId = $("#ApproveDepartmentId").val();
+            var approveDepartment = $("#ApproveDepartmentId option:selected").text();
+            var approveDesignationId = $("#ApproveDesignationId").val();
+            var approveDesignation = $("#ApproveDesignationId option:selected").text();
+            var approvalLevel = $("#ApprovalLevel").val();
+
+            var FromDay = $("#FromDay").val();
+            var ToDay = $("#ToDay").val();
+
+            if (approvalDeptId == "") {
+                approveDepartment = 'Self';
+            }
+
+            if (approveOfficeId == "") {
+                if (approveOfficeTypeId > 0) {
+                    ApproveOffice = 'Self ' + ApproveOfficeType;
+                    if (approvalDeptId == "") {
+                        $.alert.open("Error", "Please Select Department");
+                        return false;
+                    }
+                } else {
+                    approveOfficeTypeId = 0;
+                    approveOffice = 'Self';
+                }
+            }
+
+            if (approveDesignationId != "" && approvalLevel > 0) {
+                var dtTable = $('#tblLeaveApprover');
+                var rowCount = $('#tblLeaveApprover >tbody >tr').length;
+
+                for (i = 0; i <= rowCount; i++) {
+                    var tblapproveOfficeId = $("#txtApproveOfficeId" + i).val();
+                    var tblapproveDepartmentId = $("#txtApproveDepartmentId" + i).val();
+                    var tblapproveDesignationId = $("#txtApproveDesignationId" + i).val();
+                    var tblapprovalLevel = $("#txtApprovalLevel" + i).val();
+
+                    if (tblapproveOfficeId == approveOfficeId && tblapproveDepartmentId ==approvalDeptId && tblapproveDesignationId == approveDesignationId) {
+                        $.alert.open("Error", "This Designation already exist in the list.");
+                        return false;
+                    }                    
+                   else if (tblapprovalLevel == approvalLevel) {
+                        $.alert.open("Error", "This Approval Level already exist in the list.");
+                        return false;
+                    }
+                }
+                if (approvalLevel != (rowCount + 1)) {
+                    $.alert.open("Error", "This Approval Level Must be - " + (rowCount + 1));
+                    return false;
+                }
+                var NewSl = 1;
+                var lastSl = 0;
+                if (rowCount > 0) {
+
+                    lastSl = $('#tblLeaveApprover tr:last td:last input[type="text"]').val();
+                    NewSl = parseInt(lastSl) + 1;
+                }
+                var tableBody = dtTable.find('tbody');
+                tableBody.append('<tr id="tableRow' + NewSl + '">' +
+                                     '<td></td>' +
+                                     '<td>' + approveOffice + '<input type="text" value="' + approveOfficeTypeId + '" style="display:none;" name="ApproveOfficeTypeId" id="txtApproveOfficeTypeId' + NewSl + '"/><input type="text" value="' + approveOfficeId + '" style="display:none;" name="ApproveOfficeId" id="txtApproveOfficeId' + NewSl + '"/></td>' +
+                                     '<td>' + approveDepartment + '<input type="text" value="' + approvalDeptId + '" style="display:none;" name="ApproveDepartmentId" id="txtApproveDepartmentId' + NewSl + '"/></td>' +
+                                     '<td>' + approveDesignation + '<input type="text" value="' + approveDesignationId + '" style="display:none;" name="ApproveDesignationId" id="txtApproveDesignationId' + NewSl + '"/></td>' +
+                    '<td>' + approvalLevel + '<input type="text" value="' + approvalLevel + '" style="display:none;" name="ApprovalLevel" id="txtApprovalLevel' + NewSl + '" /></td>' +
+
+                    '<td>' + FromDay + '<input type="text" value="' + FromDay + '" style="display:none;" name="FromDay" id="txtFromDay' + NewSl + '" /></td>' +
+
+                    '<td>' + ToDay + '<input type="text" value="' + ToDay + '" style="display:none;" name="ToDay" id="txtToDay' + NewSl + '" /></td>' +
+
+
+                                     '<td style="text-align:center;">' +
+                                         '<a href="javascript:;" onclick="delete_row(' + NewSl + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                                         '<input type="text" value="' + NewSl + '" style="display:none;" name="NewSl" id="txtNewSl' + NewSl + '" />' +
+                                         '</td>' +
+                                  '</tr>');
+                window.globalCounter++;
+
+                $("#ApproveDesignationId").val('0');
+                $("#ApprovalLevel").val('');
+
+            } else {
+                $.alert.open("Error", "Please Select All Required Fields");
+            }
+        });
+
+
+        $("#btnSave").click(function () {
+
+            var applicantDesignationId = $("#ApplicantDesignationId").val();
+            if (applicantDesignationId > 0) {
+
+                var rowCount = $('#tblLeaveApprover >tbody >tr').length;
+                if (rowCount > 0) {
+                    var approverList = new Array();
+
+                    for (i = 1; i <= rowCount; i++) {
+                        var Sl = $('#tblLeaveApprover tr:eq(' + i + ') td:last input[type="text"]').val();
+                        var ApproveOfficeTypeId = $("#txtApproveOfficeTypeId" + Sl).val();
+                        var ApproveDesignationId = $("#txtApproveDesignationId" + Sl).val();
+                        var ApproveDepartmentId = $("#txtApproveDepartmentId" + Sl).val();
+                        var ApprovalLevel = $("#txtApprovalLevel" + Sl).val();
+                        var ApproveOfficeId = $("#txtApproveOfficeId" + Sl).val();
+
+                        var FromDay = $("#txtFromDay" + Sl).val();
+                        var ToDay = $("#txtToDay" + Sl).val();
+
+                        if (ApproveDepartmentId == "") {
+                            ApproveDepartmentId = 0;
+                        }
+                        if (ApproveOfficeId == "") {
+                            ApproveOfficeId = 0;
+                        }
+
+                        var isApproverInSelfOffice = true;
+                        if (ApproveOfficeId || ApproveDepartmentId) {
+                            isApproverInSelfOffice = false;
+                        }
+
+                        var modelObject = {
+                            ApproveOfficeTypeId: ApproveOfficeTypeId,
+                            ApproveOfficeId: ApproveOfficeId,
+                            ApproveDesignationId: ApproveDesignationId,
+                            ApproveDepartmentId: ApproveDepartmentId,
+                            ApprovalLevel: ApprovalLevel,
+                            ApplicantDesignationId: applicantDesignationId,
+                            IsApproverInSelfOffice: isApproverInSelfOffice,
+                            FromDay: FromDay,
+                            ToDay, ToDay
+                        }
+                        approverList.push(modelObject);
+                    }
+
+                    $('#AjaxLoader').show();
+
+                    $.ajax({
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("SaveConfigureLeaveApproval", "LeaveApproversGlobal", "http")',
+                        data: JSON.stringify({ ConfigDesignationId: applicantDesignationId, ApproverList: approverList }),
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 1) {
+                                $("#ApprovalOfficeTypeId").val("");
+                                $("#ApproveOfficeId").val("");
+                                $("#ApproveDepartmentId").val("");
+                                $("#ApprovalLevel").val("");
+                                $("#ApplicantDesignationId").val('0');
+                                $('#tblLeaveApprover tbody').html('');
+                                $("#FromDay").val("");
+                                $("#ToDay").val("");
+                                $('#AjaxLoader').hide();
+                                $.alert.open("Success", data.message);
+
+                            } else {
+                                $('#AjaxLoader').hide();
+                                $.alert.open("Error", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            $('#AjaxLoader').hide();
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+
+                } else {
+                    $.alert.open("Error", "Please Add Approval Authority");
+                }
+            } else {
+                $.alert.open("Error", "Please Select Applicant Designation");
+            }
+        });
+
+
+        $("#ApprovalOfficeTypeId").change(function () {
+            var officeTypeId = $("#ApprovalOfficeTypeId").val();
+            if (officeTypeId != "") {
+                LoadDropDown('/CommonDropdown/GetOfficeTypeWiseOfficeList', { OfficeTypeId: officeTypeId }, '', '#ApproveOfficeId');
+            } else {
+                $("#ApproveOfficeId").html('<option value="">Please Select</option>');
+            }          
+        });
+
+
+
+    });   
+
+</script>
+
+
+@Html.ActionLink("Back to List", "LeaveApprovalIndex", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Leave Approval Configuration</h2>
+<br />
+@using (Html.BeginForm("ConfigureLeaveApproval", "LeaveApproversGlobal", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "ConfigureLeaveApproval" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+        <div class="row">
+            @Html.HiddenFor(model => model.ConfigMasterId)
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApplicantDesignationId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApplicantDesignationId, Model.ApplicantDesignationList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="border:1px solid #ffeeff;"> </div>
+        <h2 class="page-title">Approval Authority</h2>
+        <br />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApprovalOfficeTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApprovalOfficeTypeId, Model.ApprovalOfficeTypeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApproveOfficeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApproveOfficeId, Model.ApproveOfficeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApproveDepartmentId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApproveDepartmentId, Model.ApproveDepartmentList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApproveDesignationId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApproveDesignationId, Model.ApproveDesignationList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApprovalLevel, htmlAttributes: new { @class = "control-label col-md-4 required" })
+
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApprovalLevel, Model.ApprovalLevelList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+         
+        </div>
+
+
+        <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">From Day</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.FromDay, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">To Day</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.ToDay, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-1">
+                <div class="form-group " style="padding:10px;margin:5px;">
+                    <input type="button" value="Add" id="btnAdd" class="btn btn-success" />
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="box-header">
+                    <h3 class="box-title">Approver List</h3>
+                </div>
+                <div class="box-body no-padding table-responsive">
+                    <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblLeaveApprover">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">Sl</th>
+                                <th class="column-title">Office</th>
+                                <th class="column-title">Department</th>
+                                <th class="column-title">Designation</th>
+                                <th class="column-title">Approval Level</th>
+                                <th class="column-title">From Day</th>
+                                <th class="column-title">To Day</th>
+                                <th class="column-title">Command</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <br />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <label id="lblMessage" style="color:indianred; font-family:Tahoma; font-weight:bold"></label>
+        </div>
+    </div>
+}
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}

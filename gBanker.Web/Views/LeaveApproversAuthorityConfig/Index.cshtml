@@ -1,0 +1,305 @@
+﻿@model gHRM.Web.ViewModels.LeaveAdjustmentAuthorityViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveHistory">LeaveHistory</a></li>
+        <li><a href="/LeaveHistory/AdjustmentAuthority">AdjustmentAuthority</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Leave Approvers Authority";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+<script type="text/javascript">
+
+    function GenerateLeaveAdjustmentAuthority() {
+        var item = {};
+        item.OfficeDesignationId = $("#OfficeDesignationId").val();
+        item.EmployeeId = $("#EmployeeId").val();
+        return item;
+    }
+
+    function SaveLeaveApprovarsAuthority() {
+
+        var AdjustmentlAuthority = GenerateLeaveAdjustmentAuthority();
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            async: true,
+            cache: false,
+            url: '@Url.Action("SaveLeaveApprovarsAuthority", "LeaveApproversAuthorityConfig")',
+            data: JSON.stringify({ AdjustmentlAuthority: AdjustmentlAuthority }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                if (data.result == 1) {
+                    GridLoad();
+                    $.alert.open("Success", data.message);
+                } else {
+                    $.alert.open("Error", data.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert(error);
+            }
+        });
+    }
+
+    function InformationDelete(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteLeaveApproversAuthority", "LeaveApproversAuthorityConfig", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            GridLoad();
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function GridLoad() {
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("LeaveApproversAuthorityList", "LeaveApproversAuthorityConfig", "http")',
+                    dataType: 'json'
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "Id",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "SlNo",
+                     title: "Serial",
+                     width: "30px",
+                     filterable: true
+
+                 },
+
+                 {
+                     width: "50px",
+                     field: "EmployeeCode",
+                     filterable: true,
+                     title: "Employee Code",
+                     //locked: true
+                 },
+                 {
+                     width: "150px",
+                     field: "EmployeeName",
+                     title: "Employee Name",
+                     //locked: true
+                 },
+
+                 {
+                     width: "50px",
+                     title: 'Delete',
+                     template: function (data) {
+                         return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.Id + ');"><i class="fa fa-trash-o"></i></a></div>';
+                     }
+
+
+                 },
+            ]
+        });
+    }
+    $(document).ready(function () {
+
+        $("#OfficeDesignationDiv").hide();
+        $("#DepartmentDiv").hide();
+        $("#EmpCodeDiv").hide();
+        $("#btnUpdate").hide();
+        $("#btnReset").hide();
+
+        $("#DepartmentId").change(function () {
+            var DepartmentId = $("#DepartmentId").val();
+            if (DepartmentId != "") {
+                $("#OfficeDesignationDiv").show();
+            } else {
+                $("#OfficeDesignationId").val('');
+                $("#OfficeDesignationDiv").hide();
+                $("#EmployeeId").html('<select><option value="">Please Select</option></select>');
+                $("#EmpCodeDiv").hide();
+            }
+        });
+
+        $("#OfficeTypeId").change(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId != "") {
+                GetDepartmentByOfficeTypeId(officeTypeId);
+            } else {
+                $("#DepartmentDiv").hide();
+                $("#OfficeDesignationId").val('');
+                $("#OfficeDesignationDiv").hide();
+                //$("#EmployeeId").html('<select><option value="">Please Select</option></select>');
+                $("#EmpCodeDiv").hide();
+
+            }
+        });
+
+        GridLoad();
+
+
+        $("#OfficeDesignationId").change(function () {
+
+            var OfficeDesignationId = $("#OfficeDesignationId").val();
+            var OfficeTypeId = $("#OfficeTypeId").val();
+            var DepartmentId = $("#DepartmentId").val();
+            var HeadOfficeId = $("#PVHeadOfficeId").val();
+            var ProjectId = $("#PVProjectId").val();
+            var ZoneId = $("#ZoneId").val();
+            var AreaId = $("#AreaId").val();
+            var UnitId = $("#UnitId").val();
+
+            if (OfficeTypeId == 1 && HeadOfficeId != "" && DepartmentId != "" && OfficeDesignationId != "") {
+                GetListByOfficeDepartmentDesignation(HeadOfficeId, DepartmentId, OfficeDesignationId);
+            } else if (OfficeTypeId == 3 && ProjectId != "" && DepartmentId != "" && OfficeDesignationId != "") {
+                GetListByOfficeDepartmentDesignation(ProjectId, DepartmentId, OfficeDesignationId);
+            } else if (OfficeTypeId == 4 && ZoneId != "" && DepartmentId != "" && OfficeDesignationId != "") {
+                GetListByOfficeDepartmentDesignation(ZoneId, DepartmentId, OfficeDesignationId);
+            } else if (OfficeTypeId == 5 && AreaId != "" && DepartmentId != "" && OfficeDesignationId != "") {
+                GetListByOfficeDepartmentDesignation(AreaId, DepartmentId, OfficeDesignationId);
+            } else if (OfficeTypeId == 6 && UnitId != "" && DepartmentId != "" && OfficeDesignationId != "") {
+                GetListByOfficeDepartmentDesignation(UnitId, DepartmentId, OfficeDesignationId);
+            } else {
+                $("#EmployeeId").html('<select><option value="">Please Select</option></select>');
+            }
+
+        });
+    });
+
+    function GetListByOfficeDepartmentDesignation(OfficeId, DepartmentId, OfficeDesignationId) {
+        LoadDropDown('/CommonDropdown/GetEmployeeListByOffice_Department_OfficeDesignation', { OfficeId: OfficeId, DepartmentId: DepartmentId, OfficeDesignationId: OfficeDesignationId }, '', '#EmployeeId');
+        $("#EmpCodeDiv").show();
+    }
+
+    function GetDepartmentByOfficeTypeId(OfficeTypeId) {
+        LoadDropDown('/CommonDropdown/GetAllActiveDeptList', {}, '', '#DepartmentId');
+        //LoadDropDown('/CommonDropdown/GetDeptListByOfficeType', { OfficeTypeId: OfficeTypeId }, '', '#DepartmentId');
+        $("#DepartmentDiv").show();
+    }
+
+</script>
+
+
+<h2 class="page-title"> Leave Approvers Authority</h2>
+
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<br /><br />
+<div id="AjaxLoader" class="ajaxLoader"></div>
+
+@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+<br>
+<div class="row">
+    <div class="col-md-6" id="DepartmentDiv">
+        <div class="form-group">
+            <label class="control-label col-sm-4 required">Department Name</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.DepartmentId, Model.EmployeeDepartmentList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6" id="OfficeDesignationDiv">
+        <div class="form-group">
+            <label class="control-label col-sm-4 required">OfficeDesignation Name</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.OfficeDesignationId, Model.OfficeDesignationNameList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div><br>
+
+<div class="row">
+    <div class="col-md-6" id="EmpCodeDiv">
+        <div class="form-group">
+            <label class="control-label col-sm-4 required">Employee Name</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.EmployeeId, Model.EmployeeCodeList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+    </div>
+</div><br>
+
+<div class="row">
+    <div class="col-sm-6" id="EmpCodeDiv">
+        <div class="form-group">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-8">
+                <input type="button" value="Save" id="btnSave" class="btn btn-primary" onclick="SaveLeaveApprovarsAuthority()" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-8">
+        @Html.HiddenFor(model => model.Id)
+    </div>
+</div><br>
+
+
+<h2 class="page-title"> Leave Approvers Authority List</h2>
+&nbsp;
+<div id="grid"></div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

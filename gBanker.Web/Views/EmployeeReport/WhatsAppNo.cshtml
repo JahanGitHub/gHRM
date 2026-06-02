@@ -1,0 +1,192 @@
+﻿@{
+    ViewBag.Title = "Whata App No Save ";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement ?? "True";
+}
+
+
+<h2>WhatsApp Number</h2>
+
+<br />
+
+<div class="form-horizontal">
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    @Html.Label("Employee Code (কর্মকর্তা/কর্মচারী পরিচিতি নং)", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("EmployeeCode", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    @Html.Label("Whats App Number (হোয়াটস্যাপ নাম্বার )", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("WhatsAppNo", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    @Html.Label("Email (ইমেইল )", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("Email", "", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row" id="print">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+
+
+                        <input type="button" id="btnSave" value="Save" class="btn btn-primary" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+<script>
+    $('#EmployeeCode').val('@SessionHelper.LoggedInEmployee.EmployeeCode')
+
+    function GetData() {
+
+        var EmployeeCode = $("#EmployeeCode").val();
+
+        $.ajax({
+            type: "POST",
+            url: '/EmployeeReport/WhatsAppNoEmail_Get?EmployeeCode=' + EmployeeCode,
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.Result == 0) {
+                    // $.alert.open('Error', data.Message);
+                    //$('#print').hide();
+                    $("#WhatsAppNo").val('');
+                    $("#Email").val('');
+                    // $("#EmployeeCode").val('');
+                }
+                else {
+                    $("#WhatsAppNo").val(data.Message);
+                    $("#Email").val(data.Result);
+                }
+
+
+
+            },
+            error: function (xhr, status, error) {
+                // Handle the error here
+                console.log(error);
+                //  $('#print').hide();
+                //  $("#EmployeeCode").val('');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $("#WhatsAppNo").keypress(function (e) {
+            return checkNumeric(e); //checkNumberic(e);
+        });
+
+        GetData();
+
+        $('#btnSave').click(function () {
+
+
+            var EmployeeCode = $("#EmployeeCode").val();
+
+
+            if (EmployeeCode == '') {
+                $.alert.open('EmployeeCode is needed!');
+                return false;
+            }
+
+
+            var WhatsAppNo = $("#WhatsAppNo").val();
+
+
+            if (WhatsAppNo == '') {
+                $.alert.open('WhatsAppNo is needed!');
+                return false;
+            }
+
+            CheckInputLengthEqual("#WhatsAppNo", "11");
+
+            var Email = $("#Email").val();
+
+            if (Email != '') {
+                if (Email != "" && ValidateEmail(Email) == false) {
+                    $("#Email").val("");
+                    $.alert.open("Error", "Please insert valid Email address");
+                    return false;
+                }
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '/EmployeeReport/WhatsAppNoSave?WhatsAppNo=' + WhatsAppNo + '&EmployeeCode=' + EmployeeCode + '&Email=' + Email,
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 0) {
+                        $.alert.open('Error', 'Employee Code Invalid!');
+                    }
+
+                    if (data.result == 1) {
+                        $.alert.open('Success', 'Whats App number/Email  saved successfully!');
+                        GetData();
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    // Handle the error here
+                    console.log(error);
+                }
+            });
+        });
+
+       
+
+    });
+
+    ////// Kendo Grid Integration
+
+
+
+
+
+</script>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

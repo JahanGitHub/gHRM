@@ -1,0 +1,292 @@
+﻿@model gHRM.Web.ViewModels.EmployeeMonthlySalaryViewModel
+
+@{
+    ViewBag.Title = "Monthly Salaty Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+
+
+    @*function SetSeniorityTotalDays(EmpId, totDays) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SeniorityLoss", "LeaveHistory", "http")',
+            data: { EmpId: EmpId, TotDays: totDays },
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }*@
+    function getSalaryInformation(Month, Year, EmployeeId) {
+        debugger;
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("getSalaryInformation", "PRProcess", "http")',
+                    dataType: 'json',
+                    data: { Month: Month, Year: Year, EmployeeId: EmployeeId }
+                }
+            }
+        });
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "SalaryId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "20px",
+                    filterable: false,
+                },//OfficeTypeName
+                {
+                    field: "ComponentName",
+                    title: "Component Name",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "PRComponentAmount",
+                    title: "Amount",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "TransactionType",
+                    title: "Transaction Type",
+                    width: "100px",
+                    filterable: true,
+                },
+
+            //     {
+            //         title: "Edit",
+            //         width: "20px",
+            //         template: function (dataItem) {
+            //             if (dataItem.OfficeTypeId != 1) {
+            //                 return "<a href='/Office/Create/?OfficeId=" + dataItem.OfficeId + "'><i class='fa fa-pencil-square-o'></i></a>";
+            //             } else {
+            //                 return "";
+            //             }
+            //         }
+            //     },
+            //{
+            //    title: "Delete",
+            //    width: "25px",
+            //    template: function (dataItem) {
+            //        if (dataItem.OfficeTypeId != 1) {
+            //            return "<a href='#' OnClick='OfficeDelete(" + dataItem.OfficeId + ");'><i class='fa fa-trash-o'></i></a>";
+            //        } else {
+            //            return "";
+            //        }
+            //    }
+            //}
+            ]
+        });
+    }
+
+    function LoadEmpInfo(employeeCode) {
+        debugger;
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeInfoByCode", "EmployeeLoan", "http")',
+            data: { employeeCode: employeeCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+
+                if (data == null) {
+                    $.alert.open("Error", "No Employee Found");
+                    return false;
+                } else {
+                    
+                    $('#EmployeeId').val(data.EmployeeId);
+                    $("#EmployeeName").val(data.EmployeeName);
+                    $("#OfficeName").val(data.OfficeName);
+                    $("#DesignationName").val(data.DesignationName);
+                    $("#OffcDesignName").val(data.OffcDesignName);
+                    $("#DepartmentName").val(data.DepartmentName);
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open('Alert', request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+
+    }
+    $(document).ready(function () {
+
+        $("#btnSearch").click(function () {
+
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+            var EmployeeId = $("#EmployeeId").val();
+            if (month != "" && year != "" && EmployeeId != "") {
+                getSalaryInformation(month, year, EmployeeId);
+            } else {
+                $.alert.open("Error", "Please provide all required fields");
+            }
+        });
+        $("#txtEmployeeCode").blur(function () {
+            var employeeCode = $("#txtEmployeeCode").val();
+            if (employeeCode != "") {
+                LoadEmpInfo(employeeCode);
+            }
+
+        });
+
+    });
+
+</script>
+
+
+&nbsp;
+<h2 class="page-title">Leave Entry</h2>
+&nbsp;
+
+@using (Html.BeginForm("Create", "LeaveHistory", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "LeaveHistory" }))
+{
+    @Html.AntiForgeryToken()
+
+
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+        <fieldset>
+            <legend>Employee Info</legend>
+            @Html.HiddenFor(model => model.EmployeeId)
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4", id = "employeeCode" })
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtEmpCode", "", new { @class = "form-control", id = "txtEmployeeCode" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OffcDesignName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OffcDesignName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+        <div class="row">
+            <div class="col-md-12">
+                &nbsp;
+            </div>
+        </div>
+        <h2 class="page-title">Salary Details</h2>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+            </div>
+        </div>
+        <div class="table-responsive">
+            <div id="gridKendo"></div>
+        </div>
+
+
+
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}
+
+

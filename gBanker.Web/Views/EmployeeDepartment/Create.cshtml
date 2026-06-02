@@ -1,0 +1,146 @@
+﻿@model gHRM.Web.ViewModels.EmployeeDepartmentViewModel
+<!-- Latest compiled and minified CSS -->
+<link href="~/Content/bootstrap-MultiSelect/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+<!-- Latest compiled and minified JavaScript -->
+<script src="~/Content/bootstrap-MultiSelect/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeDepartment">Department</a></li>
+        <li><a href="/EmployeeDepartment/Create">DepartmentCreate</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Department Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var deptList = Model == null ? null : Model.OfficeTypeList;
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnEmployeeDepartmentSave").click(function (e) {
+            var OfficeTypeIdList = $("#OfficeTypeIdList").val();
+            if (OfficeTypeIdList == null || OfficeTypeIdList == "") {
+                $.alert.open("Error", "Please Provide Office Type");
+                return false;
+            }
+            else if ($("#DepartmentCode").val() == '' && $("#DepartmentName").val() == '') {
+                $("#DepartmentCode").addClass("errorClass");
+                $("#DepartmentName").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DepartmentCode").val() == '' && $("#DepartmentName").val() != '') {
+                $("#DepartmentCode").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DepartmentName").val() != '' && $("#DepartmentName").val() == '') {
+                $("#DepartmentName").addClass("errorClass");
+                return false;
+            }
+            else {
+                var objDept = {
+                    DepartmentCode: $("#DepartmentCode").val(),
+                    DepartmentName: $("#DepartmentName").val(),
+                    DepartmentShortName: $("#DepartmentShortName").val(),
+                    OfficeTypeIdList: $("#OfficeTypeIdList").val()
+                };
+                //$('#AjaxLoader').show();
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("OfficeTypeWiseDepartmentAddLoop", "EmployeeDepartment", "http")',
+                    data: JSON.stringify({ model: objDept }),
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {                     
+                        //$('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                        }
+                        else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {                   
+                        //$('#AjaxLoader').hide();
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+        });
+    });
+
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Add Department(বিভাগের অন্তর্ভূক্তকরণ)</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OfficeTypeId, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "selectpicker form-control", @multiple = "multiple", @Id = "OfficeTypeIdList", @Name = "OfficeTypeIdList" })
+                        @*@Html.DropDownListFor(model => model.EmployeeStatus, Model.EmployeeStatusList, new { @class = "selectpicker form-control", @multiple = "multiple", @Id = "EmpStatusList", @Name = "EmpStatusList" })*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DepartmentName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Department Name" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentName, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DepartmentCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.DepartmentCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Department Code" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentCode, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DepartmentShortName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.DepartmentShortName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Department Short Name" } })
+                        @*@Html.ValidationMessageFor(model => model.EmployeeDeparmentShortName, "", new { @class = "text-danger" })*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                &nbsp;
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="button" value="Save" id="btnEmployeeDepartmentSave" class="btn btn-primary" />
+                <input type="hidden" value="" id="hdnEmployeeDepartmentSave" />
+                <input type="hidden" value="" id="hdnEmployeeDepartmentId" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@SessionHelper.CompanyInfo.CompanyShortName - @ViewBag.Title gERP | Log in</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <meta name="author" content="Grameen Communications">
+    <link rel="shortcut icon" href="~/Images/Icon%20_g.png">
+
+    @Styles.Render("~/bundles/logincorecss")
+    @Scripts.Render("~/bundles/jquery")
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJ3F989PEF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SJ3F989PEF');
+    </script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="row">
+                <div class="col-md-5 col-sm-8 col-xs-10 center login-header">
+                    <img src="~/Content/charisma-master/logo.png" alt="gERP Web" width="200">
+                </div>
+            </div>
+            <div class="row">
+                <div class="well col-md-4 col-sm-8 col-xs-10 center login-box">
+                    <div class="alert alert-info">@ViewBag.ServiceMessages</div>
+                    @RenderBody()
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5 col-sm-8 col-xs-10 center">
+                    Copyright &copy; <a href="http://grameencommunications.org/" target="_blank">Grameen Communications</a> @DateTime.Now.Year
+                    <br />
+                    <label id="lblKServiceMessage" style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; color:red; font-size:30px;"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

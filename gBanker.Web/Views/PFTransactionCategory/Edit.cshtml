@@ -1,0 +1,195 @@
+﻿@model gHRM.Web.ViewModels.PF.TransactionCategoryViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    //Update PF
+
+    function UpdateTransactionCategory(transCatId, TransCatName, transGroup, accountId, transType, particulars, revAccountId, revTransType, revParticulars) {
+     
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateTransactionCategory", "PFTransactionCategory", "http")',
+            data: {
+                transCatId: transCatId,
+                TransCatName: TransCatName,
+                transGroup: transGroup,
+                accountId: accountId,
+                transType: transType,
+                particulars: particulars,
+                revAccountId: revAccountId,
+                revTransType: revTransType,
+                revParticulars: revParticulars
+                },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                if (data.status == 'ok') {
+                    setTimeout(function () {
+                        window.location.href = "/PFTransactionCategory/Index";
+                    }, 1500);
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+            }
+        });
+    }
+
+    function Update() {
+        var transCatId = $("#TransCategoryId").val();
+        var TransCatName = $("#TransCategoryName").val();
+        var transGroup = $("#TransactionGroupList option:selected").val();
+
+        var accountId = $("#AccountChartList option:selected").val();
+        var transType = $("#TransactionTypeList option:selected").val();
+        var particulars = $("#Particulars").val();
+
+        var revAccountId = $("#ReverseAccountChartList option:selected").val();
+        var revTransType = $("#ReverseTransactionType").val();
+        var revParticulars = $("#ReverseParticulars").val();
+
+        if (revTransType == 'Credit') {
+            revTransType = 'Cr'
+        }
+        if (revTransType == 'Debit') {
+            revTransType = 'Dr'
+        }
+        if (transCatId == '' || TransCatName == '' || transGroup == '' || accountId == '' || transType == '' || particulars == '' || revAccountId == '' || revTransType == '' || revParticulars == '') {
+            alert('Enter valid data');
+            return;
+        }
+        UpdateTransactionCategory(transCatId, TransCatName, transGroup, accountId, transType, particulars, revAccountId, revTransType, revParticulars);
+    }
+
+    //End Save Work Area
+    $(document).ready(function () {
+
+        
+        var transGroupName =  $('#TransGroupName').val();
+        $('#TransactionGroupList').val(transGroupName);
+
+        var accountId = $('#AccountId').val();
+        $('#AccountChartList').val(accountId);
+
+        var transactionType = $('#TransactionType').val();
+        $('#TransactionTypeList').val(transactionType);
+
+        var reverseAccountId = $('#ReverseAccountId').val();
+        $('#ReverseAccountChartList').val(reverseAccountId);
+
+        $("#btnUpdateTransCategory").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Edit Transaction Category</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+       
+   
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransCategoryId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransCategoryId, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+                @Html.LabelFor(model => model.TransCategoryName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransCategoryName, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+      
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransGroupName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.TransactionGroupList, Model.TransactionGroupList, new { @class = "form-control" })
+                    @Html.HiddenFor(model=>model.TransGroupName)
+                </div>
+                @Html.LabelFor(model => model.AccountId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.AccountChartList, Model.AccountChartList, new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.AccountId)
+                </div>
+            </div>
+        </div>
+       
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.TransactionType, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.TransactionTypeList, Model.TransactionTypeList, new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.TransactionType)
+                </div>
+                @Html.LabelFor(model => model.Particulars, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Particulars, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ReverseAccountId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.ReverseAccountChartList, Model.ReverseAccountChartList, new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.ReverseAccountId)
+                </div>
+                @Html.LabelFor(model => model.ReverseParticulars, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ReverseParticulars, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-5"></div>
+                @Html.LabelFor(model => model.ReverseTransactionType, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ReverseTransactionType, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div class="form-group">
+                <div class="col-md-2"></div>
+                <div class="col-md-6">
+                    <input type="button" value="Update" id="btnUpdateTransCategory" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+       
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

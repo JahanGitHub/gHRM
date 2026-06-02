@@ -1,0 +1,175 @@
+﻿@model gHRM.Web.ViewModels.EmployeeSearchingViewModel
+
+
+
+<style type="text/css">
+    #element_to_pop_up2 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    #element_to_pop_up3 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    .style1 {
+        width: 100%;
+    }
+
+    .dashborad_lbl {
+        font-family: Arial;
+        font-size: 15px; /*font-weight:bold;*/
+        color: #333333;
+    }
+
+    .style2 {
+        background-color: White;
+        width: 100%;
+    }
+
+    .pop_tbl_style {
+        width: 100%;
+    }
+
+    .tbl {
+        border-collapse: collapse;
+        border: 1px solid #CCCCCC;
+        font-family: "Arial";
+        font-size: 12px;
+        background-color: White;
+        width: 100%;
+    }
+
+    .tHead {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .tFoot {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #tableRow {
+        font-family: Arial;
+        color: Black;
+        font-size: 12px;
+    }
+
+        #tableRow:nth-child(odd) {
+            background-color: #E2E4FF;
+        }
+
+        #tableRow:nth-child(even) {
+            background-color: White;
+        }
+
+    .tbl th {
+        text-align: center;
+    }
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<div class="row">
+
+    @*<div class="col-md-2 col-md-offset-4">
+            <div class="form-group text-left">
+
+                <input type="radio" name="empStatus" id="empStatus" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="All"> All
+
+
+            </div>
+        </div>*@
+
+    <div class="col-sm-6">
+        <div class="form-group text-right">
+            <div class="col-md-4 ">
+
+            </div>
+            <div class="col-md-8">
+                <input type="radio" name="empStatus" id="empStatus" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="All"> All
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeStatus, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @id = "typeFilterColumn", @multiple = "multiple", @class = "selectpicker form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4"> Department</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-md-4">Section</label>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.Section, Model.SectionList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4 ">
+                <label class="control-label" style="padding-top:8px;"> Search By(Code/Name):</label>
+            </div>
+            <div class="col-md-8">
+                <select id="filterColumn" class="form-control">
+                    <option value="">Please Select</option>
+                    <option value="EmployeeCode">Employee Code</option>
+                    <option value="EmployeeName">Employee Name</option>
+                    <option value="Joining">Joining Date</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <input type="text" id="filterValue" placeholder="Type Search Text" class="form-control" />
+    </div>
+    <div class="col-md-2 text-center">
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+        @Html.Label("" + ViewData["SecondLevel"], new { @ID = "hfSecondLevel", @Style = "display:none;" })
+        @Html.Label("" + ViewData["ThirdLevel"], new { @ID = "hfThirdLevel", @Style = "display:none;" })
+        @Html.Label("" + ViewData["FourthLevel"], new { @ID = "hfFourthLevel", @Style = "display:none;" })
+
+        @Html.Label("" + ViewData["SecondLevelId"], new { @ID = "hfSecondLevelId", @Style = "display:none;" })
+        @Html.Label("" + ViewData["ThirdLevelId"], new { @ID = "hfThirdLevelId", @Style = "display:none;" })
+        @Html.Label("" + ViewData["FourthLevelId"], new { @ID = "hfFourthLevelId", @Style = "display:none;" })
+    </div>
+</div>

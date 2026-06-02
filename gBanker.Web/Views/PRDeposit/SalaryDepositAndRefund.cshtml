@@ -1,0 +1,113 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRDepositViewModel
+@{
+    ViewBag.Title = "Salary Deposit And Refund";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";   
+}
+
+<style>
+    .k-grid-content-locked {
+        width: 525px !important;
+      
+    }
+</style>
+
+<h2 class="page-title"> Salary Deposit And Refund </h2> <br />
+
+@using (Html.BeginForm("SalaryDepositAndRefund", "PRDepositController", FormMethod.Post, new { @class = "form-horizontal", @id = "salary-depositand-refund-form" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.EmployeeId)
+    @Html.HiddenFor(model => model.EmployeeCode)
+    @Html.HiddenFor(model => model.DepositeAmount)
+    @Html.HiddenFor(model => model.EffectiveStartDate)
+    @Html.HiddenFor(model => model.EffectiveEndDate)
+    @Html.HiddenFor(model => model.IsDepositRequired)
+    @Html.HiddenFor(model => model.IsRefundRequired)
+    @Html.HiddenFor(model => model.TransactionType)
+    @Html.HiddenFor(model => model.ComponentGroup)
+    @Html.HiddenFor(model => model.ComponentName)
+    @Html.HiddenFor(model => model.GrossSalary)
+
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Salary Year </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.SalaryYear, Model.YearList, "Please Select", new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Salary Month </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.SalaryMonth, Model.MonthList, "Please Select", new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Start Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @autocomplete = "off", @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">End Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @autocomplete = "off", @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Deposit & Refund Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.SalaryDepositAndRefundType, Model.SalaryDepositAndRefundTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-2">
+            <div class="form-group">
+                <div class="col-sm-8">
+                    <button type="submit" class="btn btn-success"> Search</button>
+                    <input type="button" value="Reset" id="btnResetDepositApprovalSeach" class="btn btn-primary " style="margin-left:2px" onclick="ResetPRDepositSearh()" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="gridDepositRequired"></div>
+    </div>
+
+    <div class="row">
+        <div id="gridRefundRequired"></div>
+    </div>
+
+    <div class="row">
+        <div id="gridDeposited"></div>
+    </div>
+
+    <div class="row">
+        <div id="gridRefunded"></div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/Assets/js/app/payroll/salaryDepositAndRefundManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

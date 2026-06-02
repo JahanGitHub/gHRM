@@ -1,0 +1,304 @@
+﻿@model gHRM.Web.ViewModels.EmployeeDesignationMappingViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    function ClearForm() {
+        $("#EquivalentDesignationId").val("");
+        $("#OfficeDesignationId").val("");
+        $("#OrnamentalDesginationid").val("");
+    }
+
+    $(document).ready(function() {
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+        GenerateDesignationMappingGrid();
+        $("#btnSave").click(function(e) {
+            e.preventDefault();
+            var equivDesigId = $("#EquivalentDesignationId").val();
+            var offDesigId = $("#OfficeDesignationId").val();
+            var ornmamentDesigId = $("#OrnamentalDesginationid").val();
+
+            var obj = {
+                EquivalentDesignationId: equivDesigId,
+                OfficeDesignationId: offDesigId,
+                OrnamentalDesginationid: ornmamentDesigId
+            };
+            if (equivDesigId != "" && offDesigId != "" && ornmamentDesigId != "") {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("SaveEmployeeDesignationMapping", "EmployeeDesignation", "http")',
+                    data: obj,
+                    dataType: 'json',
+                    async: false,
+                    success: function(data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            GenerateDesignationMappingGrid();
+                            ClearForm();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function(request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please Insert Required Data");
+            }
+
+        });
+
+
+        $("#btnUpdate").click(function (e) {
+            e.preventDefault();
+            var desMapId = $("#DesignationMapId").val();
+            var equivDesigId = $("#EquivalentDesignationId").val();
+            var offDesigId = $("#OfficeDesignationId").val();
+            var ornmamentDesigId = $("#OrnamentalDesginationid").val();
+
+            var obj = {
+                DesignationMapId:desMapId,
+                EquivalentDesignationId: equivDesigId,
+                OfficeDesignationId: offDesigId,
+                OrnamentalDesginationid: ornmamentDesigId
+            };
+            if (equivDesigId != "" && offDesigId != "" && ornmamentDesigId != "") {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("UpdateEmployeeDesignationMapping", "EmployeeDesignation", "http")',
+                    data: obj,
+                    dataType: 'json',
+                    async: false,
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            GenerateDesignationMappingGrid();
+                            ClearForm();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please Insert Required Data");
+            }
+
+        });
+
+
+        $("#btnRestore").click(function() {
+            ClearForm();
+            $("#btnSave").show();
+            $("#btnUpdate").hide();
+            $("#btnRestore").hide();
+        });
+
+
+    });
+
+
+
+    function GenerateDesignationMappingGrid() {
+        
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        
+                        $.ajax({
+                            url: '/EmployeeDesignation/GetDesignationMappingList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+
+                DesignationMapId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EquivalentDesignationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OrnamentalDesginationid: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                OfficeDesignationId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EquivalentDesignationName: {
+                    width: '20%',
+                    title: 'Equivalent Designation'
+                },
+                OfficeDesginationName: {
+                    width: '20%',
+                    title: 'Office Desgination'
+                },
+                EmployeeDesignationName: {
+                    width: '20%',
+                    title: 'Employee Designation'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '10%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditGrid( ' + data.record.DesignationMapId + ',' + data.record.EquivalentDesignationId + ',' + data.record.OrnamentalDesginationid + ',' + data.record.OfficeDesignationId + ' );"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+
+                },
+
+                Delete: {
+                    title: "Delete",
+                    width: '10%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.DesignationMapId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+
+        });
+        $('#grid').jtable('load');
+
+    }
+
+    function EditGrid(designationMapId, equivalentDesignationId, ornamentalDesginationid, officeDesignationId) {
+        $("#DesignationMapId").val(designationMapId);
+        $("#EquivalentDesignationId").val(equivalentDesignationId);
+        $("#OrnamentalDesginationid").val(ornamentalDesginationid);
+        $("#OfficeDesignationId").val(officeDesignationId);
+
+        $("#btnUpdate").show();
+        $("#btnRestore").show();
+        $("#btnSave").hide();
+    }
+
+    function InformationDelete(designationMapId) {
+        debugger;
+        $.alert.open("confirm", "Are you sure you want to delete this record?", function(button) {
+            if (button=='yes') {
+                $.ajax({
+                    type: 'Get',
+                    contentType: "application/json; charset=utf-8",
+                    url:'@Url.Action("DeleteDesignationMapping", "EmployeeDesignation")',
+                    data: { DesignationMapId: designationMapId },
+                    dataType: 'json',
+                    async: true,
+                    success: function(data) {
+                        if (data.result==1) {
+                            $.alert.open("Success", data.message);
+                            GenerateDesignationMappingGrid();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+
+                });
+                return true;
+            }
+        });
+    }
+
+
+</script>
+
+<h2 class="page-title"> Designation Mapping </h2>
+    &nbsp;
+
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.DesignationMapId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Equivalent Designation</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.EquivalentDesignationId, Model.EquivalenDesignationList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Designation</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.OfficeDesignationId, Model.OfficeDesignationList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Office Designation</label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.OrnamentalDesginationid, Model.OrnamentalDesignationList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="button" id="btnSave" value="Save" class="btn btn-default" />
+                <input type="button" id="btnUpdate" value="Update" class="btn btn-default" /> &nbsp;
+                <input type="button" id="btnRestore" value="Restore" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+
+<div id="grid"></div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}
+
+
+
+
+
+

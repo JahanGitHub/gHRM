@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "JobSeparationLetter";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title" style="text-align:center">Employee Report</h2>
+<br />
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<script type="text/javascript">
+    function JobSeparationLetterAsPdf() {
+        var empCode = $("#EmpCode").val();
+        if (!empCode.trim()) {
+            $.alert.open('Employee Code err');
+        }
+        else {
+            var location = "/CommonReportGenerator/JobSeparationLetter?format=pdf&empCode=" + empCode
+            PrintReport(location)
+        }
+    }
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+</script>
+
+@using (Html.BeginForm("EmployeeJobSeparationLetter", "EmployeeReport", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "EmployeeJobSeparationLetter" }))
+
+{
+    @Html.AntiForgeryToken()
+    <form id="InputForm">
+        <div class="container-fluid">
+            @*<button class='togglePersonalInfo btn btn-success col-sm-offset' style="width:340px">Staff Profile At A Glance</button>*@
+            <fieldset>
+                <div class="">
+                    <div class="row">
+                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4" style="text-align:center">
+                            <div class="form-group">
+                                <label for="EmpCode">Job Separation Letter</label>
+                                <input type="text" class="form-control txt" placeholder="Enter Employee Code ..." id="EmpCode" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4" style="text-align:center">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <button type="button" id="btnReport" class="btn btn" onclick="JobSeparationLetterAsPdf()"><i class="fa fa-check-circle-o"></i>Print</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </form>
+
+}
+
+
+
+
+
+
+
+

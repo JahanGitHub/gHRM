@@ -1,0 +1,296 @@
+﻿@using gHRM.Data.DBDetailModels
+@model gHRM.Web.ViewModels.Payroll.FestivalBonusCalendarViewModel
+
+@{
+    ViewBag.Title = "Festival Bonus Calendar";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+    function Clearform() {
+        $("#ComponentId").val('');
+        $("#Year").val('');
+        $("#Month").val('');
+    }
+
+
+    $(document).ready(function () {
+        GenerateFestivalBonusGrid();
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+
+        $("#btnSave").click(function () {
+            var compId = $("#ComponentId").val();
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+            var obj = {
+                ComponentId: compId,
+                Year: year,
+                Month: month
+            }
+            if (compId != "" && year != "" && month != "") {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    async: true,
+                    cache: false,
+                    url: '@Url.Action("SaveFestivalBonusCalendar", "EmployeeSalaryBonus")',
+                    data: JSON.stringify({ obj: obj }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            GenerateFestivalBonusGrid();
+                            Clearform();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+
+                });
+            } else {
+                $.alert.open("Error", "Please fill up required fields");
+            }
+
+
+        });
+
+
+        $("#btnUpdate").click(function () {
+            var id = $("#Id").val();
+            var compId = $("#ComponentId").val();
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+            var obj = {
+                Id:id,
+                ComponentId: compId,
+                Year: year,
+                Month: month
+            }
+            if (compId != "" && year != "" && month != "") {
+                $('#AjaxLoader').show();
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    async: true,
+                    cache: false,
+                    url: '@Url.Action("UpdateFestivalBonusCalendar", "EmployeeSalaryBonus")',
+                    data: JSON.stringify({ obj: obj }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $('#AjaxLoader').hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            GenerateFestivalBonusGrid();
+                            Clearform();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+
+                });
+            } else {
+                $.alert.open("Error", "Please fill up required fields");
+            }
+
+
+        });
+
+
+        $("#btnRestore").click(function() {
+            Clearform();
+            $("#btnUpdate").hide();
+            $("#btnRestore").hide();
+            $("#btnSave").show();
+        });
+
+    });
+
+
+    function GenerateFestivalBonusGrid() {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeSalaryBonus/GetFestivalBonusList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                Id: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                ComponentId: {
+                    width: '30%',
+                    title: "Component Name"
+                },
+                Year: {
+                    width: '15%',
+                    title: 'Year'
+                },
+                MonthNo: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                Month: {
+                    width: '15%',
+                    title: 'Month'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '10%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditGrid( ' + data.record.Id + ',' + "'" + data.record.ComponentId + "'" + ',' + data.record.Year + ',' + data.record.MonthNo + ' );"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+
+                },
+
+                Delete: {
+                    title: "Delete",
+                    width: '10%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.Id + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+
+        });
+        $('#grid').jtable('load');
+
+    }
+
+    function EditGrid(id, componentId, year, month) {
+        $("#Id").val(id);
+        $("#ComponentId").val(componentId);
+        $("#Year").val(year);
+        $("#Month").val(month);
+        
+        $("#btnSave").hide();
+        $("#btnUpdate").show();
+        $("#btnRestore").show();
+    }
+
+    function InformationDelete(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteFestivalBonusCalendar", "EmployeeSalaryBonus", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            GenerateFestivalBonusGrid();
+                            $.alert.open("Success", data.message);
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+</script>
+
+<h2 class="page-title">Festival Bonus Calendar</h2>
+<br />
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.HiddenFor(model=>model.Id)
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Component Name </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.ComponentId, Model.ComponentList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Year </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required"> Month </label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="col-sm-12 col-md-offset-4">
+                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" /> &nbsp;
+                    <input type="button" value="Restore" id="btnRestore" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="grid"></div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+
+
+

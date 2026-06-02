@@ -1,0 +1,790 @@
+﻿@model gHRM.Web.ViewModels.Discipline.CaseEntryViewModel
+
+@{
+    ViewBag.Title = "Edit Discipline Letter ";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+<script type="text/javascript">
+    function delete_Anulipi(NewSl) {
+        $('#'+NewSl).css("background-color", "red");
+        $("#hdn"+NewSl).removeClass("clAnulipiText");
+    }
+
+     
+    function SetData() { // set initial Letter
+        var CaseMasterId =  @Html.Raw(Json.Encode(ViewData["CaseMasterId"]));
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetPunishmentData", "DiscCaseEntry", "http")',
+            data: { CaseMasterId: CaseMasterId },
+            dataType: 'json',
+            async: true,
+            success: function (List) {
+                if (List != "") {
+                    
+                    $.each(List, function (index, emp) {
+
+                       // alert( emp.EmployeeName);
+                        //EmpName
+                        $("#EmpName").val(emp.EmployeeName);
+                     
+                    });
+                }
+                else {
+                    $.alert.open('alert', 'Invalid code');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+      
+
+
+   
+
+    function GetAnulipi() {
+        var ddlZOOffice = $("#ddlAnulipiText");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAnulipiText", "DiscCaseEntry", "http")', //GetZOOfficeList
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+
+    function GetgbDepartmentList() {
+        var ddlDepartmentName = $("#ddlDepartmentName");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetgbDepartmentList", "EmployeePostingOrder", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+                ddlDepartmentName.html('');
+                ddlDepartmentName.append($('<option></option>').val("0").html("Please Select"));
+                $.each(Result, function (id, option) {
+                    ddlDepartmentName.append($('<option></option>').val(option.OfficeId).html(option.OfficeName));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+ 
+    function GetgbZoneList() {
+        var ddlZOOffice = $("#ddlZonalOfficeList");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAllOffice", "DiscCaseEntry", "http")', //GetZOOfficeList
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function GetgbZoneAuditList() {
+        var ddlZonalAuditListList = $("#ddlZonalAuditListList");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetgbZoneAuditOfficeList", "EmployeePostingOrder", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+                ddlZonalAuditListList.html('');
+                ddlZonalAuditListList.append($('<option></option>').val("0").html("Please Select"));
+                $.each(Result, function (id, option) {
+                    ddlZonalAuditListList.append($('<option></option>').val(option.OfficeId).html(option.OfficeName));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function ZoneOfficeBanla() {
+        var ddlZoneNewOfficeBn = $("#ddlZoneNewOfficeBn");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZOOfficeListBn", "EmployeePostingOrder", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (zoOffice_items) {
+                ddlZoneNewOfficeBn.html('');
+                $.each(zoOffice_items, function (id, option) {
+                    ddlZoneNewOfficeBn.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+
+
+
+
+    $(document).ready(function () {
+        $("#offDepartment").hide();
+        $("#offZone").hide();
+        $("#offZoneAudit").hide();
+        $("#officeList").hide();
+
+        SetData();
+
+        GetAnulipi();
+ 
+        $("#ddlAnulipiText").change(function(){
+
+            var dtTable = $("#tblAnulipi");
+            var AnulipiId =$("#ddlAnulipiText option:selected").val();
+            if(AnulipiId == 0)
+            {
+                $("#offDepartment").hide();
+                $("#offZone").hide();
+                $("#offZoneAudit").hide();
+                $("#officeList").hide();
+                return false ;
+            }
+            var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+
+            if(AnulipiId == 1 || AnulipiId == 4 || AnulipiId == 5 || AnulipiId == 10 )
+            {
+                $("#offDepartment").hide();
+                $("#offZone").hide();
+                $("#offZoneAudit").hide();
+                $("#officeList").hide();
+
+                var rowCount = $('#tblAnulipi >tbody >tr').length;
+                var NewSl = 1;
+                var lastSl = 0;
+
+                if (rowCount > 0) {
+                    NewSl = parseInt(rowCount) + 1;
+                }
+
+                var tableBody = dtTable.find('tbody');
+                tableBody.append('<tr id="'+ NewSl +'">'+
+                                     '<td style="text-align:center;">'+ NewSl +'</td>'+
+                                     '<td>&nbsp;&nbsp;'+ddlAnulipiText+'<input type="hidden" value="'+ddlAnulipiText+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                                     '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                                  '</tr>')
+            }
+            else if(AnulipiId == 2 || AnulipiId == 3 )
+            {
+                $("#offDepartment").show();
+                $("#offZone").hide();
+                $("#offZoneAudit").hide();
+                $("#officeList").hide();
+
+                GetgbDepartmentList();
+            }
+            else if(AnulipiId == 6 )
+            {
+                $("#offZone").show();
+                $("#offDepartment").hide();
+                $("#offZoneAudit").hide();
+                $("#officeList").hide();
+
+                GetgbZoneList();
+            }
+            else if(AnulipiId == 7 )
+            {
+                $("#offZone").hide();
+                $("#offDepartment").hide();
+                $("#offZoneAudit").show();
+                $("#officeList").hide();
+                GetgbZoneAuditList();
+            }
+            else if(AnulipiId == 8 ||AnulipiId == 9 )
+            {
+                $("#officeList").show();
+                $("#offZone").hide();
+                $("#offDepartment").hide();
+                $("#offZoneAudit").hide();
+                ZoneOfficeBanla();
+                if(AnulipiId == 8)
+                {
+                    $("#branchOffice").hide();
+                }
+                else
+
+                {
+
+
+
+                    $("#branchOffice").show();
+                    $("#ddlAOOfficeBn").val("0");
+                }
+            }
+            else
+            {
+
+                $("#offDepartment").hide();
+                $("#offZone").hide();
+                $("#offZoneAudit").hide();
+                $("#officeList").hide();
+
+                var rowCount = $('#tblAnulipi >tbody >tr').length;
+                var NewSl = 1;
+                var lastSl = 0;
+
+                if (rowCount > 0) {
+                    NewSl = parseInt(rowCount) + 1;
+                }
+
+                var tableBody = dtTable.find('tbody');
+                tableBody.append('<tr id="'+ NewSl +'">'+
+                                     '<td style="text-align:center;">'+ NewSl +'</td>'+
+                                     '<td>&nbsp;&nbsp;'+ddlAnulipiText+'<input type="hidden" value="'+ddlAnulipiText+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                                     '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                                  '</tr>')
+
+                // $("#officeList").hide();
+                // $("#offZone").hide();
+                // $("#offDepartment").hide();
+                // $("#offZoneAudit").hide();
+            }
+        });
+
+
+
+
+
+
+
+        $("#ddlDepartmentName").change(function(){
+            var dtTable = $("#tblAnulipi");
+            var AnulipiId =$("#ddlAnulipiText option:selected").val();
+            var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+            var DepartmentName = "";
+            if(AnulipiId ==2)
+            {
+                DepartmentName = $("#ddlDepartmentName option:selected").text();
+            }
+            else
+            {
+                DepartmentName = $("#ddlDepartmentName option:selected").text()+', গ্রামীণ ব্যাংক, প্রধান কার্যালয়, ঢাকা';
+            }
+            var tableBody = dtTable.find('tbody');
+
+            var rowCount = $('#tblAnulipi >tbody >tr').length;
+            var NewSl = 1;
+            var lastSl = 0;
+
+            if (rowCount > 0) {
+                NewSl = rowCount + 1;
+            }
+            tableBody.append('<tr id="'+NewSl+'">'+
+                '<td style="text-align:center;">'+NewSl+'</td>'+
+                 '<td>&nbsp;&nbsp;'+ddlAnulipiText+''+DepartmentName+'<input  type="hidden" value="'+ddlAnulipiText+' '+DepartmentName+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                  '<td style="text-align:center;"><a href="#:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+
+                '</tr>')
+        });
+
+
+
+        $("#ddlZonalOfficeList").change(function()
+        {
+            var dtTable = $("#tblAnulipi");
+            var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+            var ZoneName = $("#ddlZonalOfficeList option:selected").text();
+            var tableBody = dtTable.find('tbody');
+
+            var rowCount = $('#tblAnulipi >tbody >tr').length;
+            var NewSl = 1;
+            var lastSl = 0;
+
+            if (rowCount > 0) {
+                NewSl = rowCount + 1;
+            }
+            tableBody.append('<tr id="'+NewSl+'">'+
+               '<td style="text-align:center;">'+NewSl+'</td>'+
+                '<td>&nbsp;&nbsp;'+ddlAnulipiText+''+ZoneName+'<input  type="hidden" value="'+ddlAnulipiText+' '+ZoneName+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                 '<td style="text-align:center;"><a href="#:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+
+               '</tr>')
+
+        });
+
+        $("#ddlZonalAuditListList").change(function(){
+
+            var dtTable = $("#tblAnulipi");
+            var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+            var ZonalAuditListList = $("#ddlZonalAuditListList option:selected").text();
+            var tableBody = dtTable.find('tbody');
+
+            var rowCount = $('#tblAnulipi >tbody >tr').length;
+            var NewSl = 1;
+            var lastSl = 0;
+
+            if (rowCount > 0) {
+                NewSl = rowCount + 1;
+            }
+
+            tableBody.append('<tr id="'+NewSl+'">'+
+                                '<td style="text-align:center;">'+NewSl+'</td>'+
+                                '<td>&nbsp;&nbsp;'+ddlAnulipiText+' '+ZonalAuditListList+'<input type="hidden" value="'+ddlAnulipiText+' '+ZonalAuditListList+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                                 '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                              '</tr>')
+
+        });
+
+
+        $("#ddlZoneNewOfficeBn").change(function () {
+            var zoCode = $("#ddlZoneNewOfficeBn").val();
+            if (zoCode > 0) {
+                var ddlNewAreaOfficeBn = $("#ddlAOOfficeBn");
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetAOOfficeListBn", "EmployeePostingOrder", "http")',
+                    data: { zoCode: zoCode },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        ddlNewAreaOfficeBn.html('');
+                        $.each(data, function (id, option) {
+                            ddlNewAreaOfficeBn.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+            else {
+                $("#ddlZoneNewOfficeBn").empty();
+                $("#ddlAOOfficeBn").empty();
+                $("#ddlBOOfficeBn").empty();
+            }
+        });
+
+
+
+        $("#ddlAOOfficeBn").change(function () {
+            var AnulipiId =$("#ddlAnulipiText option:selected").val();
+
+            if(AnulipiId == 8)
+            {
+                var dtTable = $("#tblAnulipi");
+                var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+                var AreaName = $("#ddlAOOfficeBn option:selected").text();
+                var tableBody = dtTable.find('tbody');
+
+                var rowCount = $('#tblAnulipi >tbody >tr').length;
+                var NewSl = 1;
+                var lastSl = 0;
+
+                if (rowCount > 0) {
+                    NewSl = rowCount + 1;
+                }
+
+                tableBody.append('<tr id="'+NewSl+'">'+
+                                '<td style="text-align:center;">'+NewSl+'</td>'+
+                                 '<td>&nbsp;&nbsp;'+ddlAnulipiText+' '+AreaName+'<input type="hidden" value="'+ddlAnulipiText+''+AreaName+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                                 '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                               '</tr>'
+                       )
+            }
+            else
+            {
+                var aoCode = $("#ddlAOOfficeBn").val();
+                if (aoCode > 0) {
+                    var ddlBranchOffice = $("#ddlBOOfficeBn");
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetBOOfficeListBn", "EmployeePostingOrder", "http")',
+                        data: { aoCode: aoCode },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            ddlBranchOffice.html('');
+                            $.each(data, function (id, option) {
+                                ddlBranchOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+                else {
+                    $("#ddlBOOfficeBn").empty();
+                }
+            }
+
+        });
+
+
+        $("#ddlBOOfficeBn").change(function(){
+
+            var dtTable = $("#tblAnulipi");
+            var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+            var BranchName = $("#ddlBOOfficeBn option:selected").text();
+            var tableBody = dtTable.find('tbody');
+
+            var rowCount = $('#tblAnulipi >tbody >tr').length;
+            var NewSl = 1;
+            var lastSl = 0;
+
+            if (rowCount > 0) {
+                NewSl = rowCount + 1;
+            }
+
+            tableBody.append('<tr id="'+NewSl+'">'+
+                              '<td style="text-align:center;">'+NewSl+'</td>'+
+                               '<td>&nbsp;&nbsp;'+ddlAnulipiText+' '+BranchName+'<input type="hidden" value="'+ddlAnulipiText+''+BranchName+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                               '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                             '</tr>'
+                     )
+
+        });
+
+
+
+        $("#btnAnilipiOfficeAdd").click(function(e){
+            e.preventDefault();
+
+            // var ddlAOOfficeBn = $("#ddlAOOfficeBn").val
+            var ddlBOOfficeBn = $("#ddlBOOfficeBn").val();
+
+            if(ddlBOOfficeBn != "0")
+            {
+                var dtTable = $("#tblAnulipi");
+                var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+                var BranchName = $("#ddlBOOfficeBn option:selected").text();
+                var tableBody = dtTable.find('tbody');
+
+                var rowCount = $('#tblAnulipi >tbody >tr').length;
+                var NewSl = 1;
+                var lastSl = 0;
+
+                if (rowCount > 0) {
+                    NewSl = rowCount + 1;
+                }
+
+                tableBody.append('<tr id="'+NewSl+'">'+
+                                  '<td style="text-align:center;">'+NewSl+'</td>'+
+                                   '<td>&nbsp;&nbsp;'+ddlAnulipiText+' '+BranchName+'<input type="hidden" value="'+ddlAnulipiText+''+BranchName+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                                   '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                                 '</tr>'
+                         )
+
+            }
+            else
+            {
+                var dtTable = $("#tblAnulipi");
+                var ddlAnulipiText = $("#ddlAnulipiText option:selected").text();
+                var AreaName = $("#ddlAOOfficeBn option:selected").text();
+                var tableBody = dtTable.find('tbody');
+
+                var rowCount = $('#tblAnulipi >tbody >tr').length;
+                var NewSl = 1;
+                var lastSl = 0;
+
+                if (rowCount > 0) {
+                    NewSl = rowCount + 1;
+                }
+
+                tableBody.append('<tr id="'+NewSl+'">'+
+                                '<td style="text-align:center;">'+NewSl+'</td>'+
+                                 '<td>&nbsp;&nbsp;'+ddlAnulipiText+' '+AreaName+'<input type="hidden" value="'+ddlAnulipiText+''+AreaName+'" class="clAnulipiText" id="hdn'+NewSl+'"/></td>'+
+                                 '<td style="text-align:center;"><a href="javascript:;" onclick="delete_Anulipi('+NewSl+')"><i class="fa fa-trash-o fa-2x"></i></a></td>'+
+                               '</tr>'
+                       )
+            }
+
+        });
+
+
+
+        $("#btnSave").click(function () {
+
+            var AnulipiText = "";
+            var anuNum = 0;
+            var anuCou = 1;
+            var $allAnulipi = $(".clAnulipiText");
+            $allAnulipi.each(function () {
+                if(anuCou ==1)
+                {
+                    anuNum = anuNum+1;
+                    var value = $(this).val();
+                    AnulipiText = value;
+                    anuCou = anuCou+1;
+                }
+                else
+                {
+                    anuNum = anuNum+1;
+                    var value = $(this).val();
+                    AnulipiText = AnulipiText+'/'+value;
+                }
+
+            });
+
+            ////
+            ///// SAVE Anulipi and Manual Data
+
+            var CaseMasterId =  @Html.Raw(Json.Encode(ViewData["CaseMasterId"]));
+
+            var Manual1 = $("#Manual1").val(); 
+            var Manual2 = $("#Manual2").val(); 
+            var Manual3 = $("#Manual3").val(); 
+            var Manual4 = $("#Manual4").val(); 
+           // var CaseMasterId = $("#CaseMasterId").val();
+
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveManualData", "DiscCaseEntry", "http")',
+                //string CaseMasterId, string Manual1, string Manual12, string Manual13, string Manual14, string AnulipiDetailText
+                data: { CaseMasterId : CaseMasterId, Manual1 : Manual1, Manual2 : Manual2, Manual3 : Manual3, Manual4 : Manual4, AnulipiDetailText : AnulipiText },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if(data == "OK")
+                    {
+                        $('#AjaxLoader').hide();
+                        $.alert.open("Message", "Data Saved Successfully.");
+                    }
+                    else
+                    {
+                        $.alert.open("Message", "Data Not Saved.");
+                    }
+                
+                },
+                error: function (request, status, error) {
+ 
+                    $.alert.open("Message", "Err Exist.");
+                }
+            });
+
+
+
+
+
+          
+        }); // END Of Save Button.
+
+
+        //Manual4
+
+        $("#Manual4").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+        $("#Manual4").datepicker(
+     'setDate', new Date());
+
+    }); // END of Document Ready
+
+    
+</script>
+
+<h2 class="page-title">Edit Discipline Letter</h2>
+<br />
+<div class="row">
+    @*<div class="col-sm-12">
+        <div class="form-group">
+            <label class="control-label col-sm-1">Filter Type</label>
+            <div class="col-sm-4">
+                <select id="filterType" class="form-control">
+                    <option value="ViewAll" selected="selected">View All</option>
+                    <option value="CaseNo">Case No</option>
+                    <option value="C">Case Despatch</option>
+                    <option value="P">Punishment Despatch</option>
+                    <option value="E">Employee ID</option>
+                </select>
+            </div>
+            <div class="col-md-6" id="filterValue">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" id="filterLebel"></label>
+                    <div class="col-sm-6">
+                        <input type="text" id="txtCaseNo" class="form-control" />
+                    </div>
+                    <div class="col-md-1">
+                        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+    <p style="font-size:large; font-family:SolaimanLipi">
+        আপনি জনাব <input type="text" readonly="readonly" id="EmpName" /> , পরিচিতি নং-.................. পদবি ..........................., বর্তমান গ্রামীণ ব্যাংক ..............................................................  এ
+        .....................হিসেবে কর্মরত আছেন ।  আপনার বিরুদ্ধে ........................হতে ...........................সংক্রান্ত অভিযোগ উত্তাপিত হওয়ায় এ কার্যালয়ের সুত্রঃ গব/পক/সং/ডিসি-<input type="text" id="Manual1" />/১৪৫/২০<input type="text" id="Manual2" /> - <input type="text" id="Manual3" />,  তারিখঃ<input type="text" id="Manual4" /> মোতাবেক ব্যাখ্যা প্রদানের নোটিশ ইস্যু করা হয় ।  আপনি উক্ত নোটিশের জবাব দিয়েছেন ।  আপনার জবাব কর্তৃপক্ষের নিকট সন্তোষজনক বলে বিবেচিত হয় নি ।
+        আপনার বিরুদ্ধে ইস্যুকৃত ব্যাখ্যা প্রদানের নোটিশ, নোটিশের জবাব, যাচাই রিপোর্ট সংশ্লিষ্ট কর্তৃপক্ষের মতামত এবং চাকরির রেকর্ড পর্যালোচনা করে এ ব্যাপারে নিন্মউক্ত সিদ্ধান্ত গ্রহণ করা হলঃ
+        ০১ ।  আপনাকে তিরস্কার করা হল ।
+        ০২ ।  আপনার বিরুদ্ধে ভবিষ্যতে এ ধরনের কিংবা অন্য কোনো প্রকার অভিযোগ উত্তাপিত হয়ে তা প্রমাণিত হলে আরও কঠোর শাস্তিমূলক ব্যবস্থা গ্রহণ করা হবে ।
+    </p>
+    <p style="font-size:large; font-family:SolaimanLipi">
+        ০১ ।  আপনাকে তিরস্কার করা হল ।
+        ০২ ।  আপনার বিরুদ্ধে ভবিষ্যতে এ ধরনের কিংবা অন্য কোনো প্রকার অভিযোগ উত্তাপিত হয়ে তা প্রমাণিত হলে আরও কঠোর শাস্তিমূলক ব্যবস্থা গ্রহণ করা হবে ।
+    </p>
+    <p style="font-size:large; font-family:SolaimanLipi">
+        প্রতি,
+        জনাব........................
+        পরিচিতি নং..................
+        পদবি .........................
+        (..............................)
+        গ্রামীণ ব্যাংক
+        ........................
+
+    </p>
+
+
+
+
+</div>
+<br />
+
+<br />
+<fieldset>
+    <legend>অনুলিপি</legend>
+    <div class="row" >
+
+        <div class="col-sm-8">
+            <div class="form-group">
+                @Html.Label("অনুলিপি", new { @class = "control-label col-md-4 hidden" })
+                <div class="col-md-8">
+                    @Html.DropDownList("AnulipiText", null, new { @ID = "ddlAnulipiText", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+       
+        <div class="col-sm-4" id="offDepartment">
+            <div class="form-group">
+                @Html.Label("Department", new { @class = "control-label col-md-4 hidden" })
+                <div class="col-md-8">
+                    @Html.DropDownList("DepartmentNameList", null, new { @ID = "ddlDepartmentName", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4" id="offZone">
+            <div class="form-group">
+                @Html.Label("Zonal Office", new { @class = "control-label col-md-4 hidden" }) 
+                <div class="col-md-8">
+                    @Html.DropDownList("ZonalOfficeList", null, new { @ID = "ddlZonalOfficeList", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4" id="offZoneAudit">
+            <div class="form-group">
+                @Html.Label("Zonal Audit Office", new { @class = "control-label col-md-4 hidden" }) 
+                <div class="col-md-8">
+                    @Html.DropDownList("ZonalAuditList", null, new { @ID = "ddlZonalAuditListList", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    @* <div class="row" id="flsOfice" style="background-color:red">*@
+
+
+
+    <div class="row" id="officeList">
+        <div class="col-sm-3">
+            <div class="form-group">
+                @Html.Label("Zonal Office", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("ZOOfficeListBn", null, new { @ID = "ddlZoneNewOfficeBn", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="form-group">
+                @Html.Label("Area Office", new { @class = "control-label col-md-4" })   
+                <div class="col-md-8">
+                    @Html.DropDownList("AOOfficeListBn", null, new { @ID = "ddlAOOfficeBn", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3" id="branchOffice">
+            <div class="form-group">
+                @Html.Label("Branch Office", new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("BOOfficeListBn", null, new { @ID = "ddlBOOfficeBn", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+   <hr />
+     <div class="row">
+        <div class="col-sm-2">
+        </div>
+        <table id="tblAnulipi" border="1" style="width:50%">
+            <thead style="background-color: #387FB8; color: white;">
+                <tr><th style="width:10%;text-align:center">SL</th><th>অনুলিপি</th><th style="width:10%">Delete</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</fieldset>
+<br />
+<div class="row">
+    <div class="col-sm-2">
+        <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+    </div>
+    
+</div> 
+
+
+
+<!-- End Of Program Entry Div -->
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

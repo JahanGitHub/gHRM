@@ -1,0 +1,98 @@
+﻿@model gHRM.Web.ViewModels.FixedAssetViewModel
+
+@{
+    ViewBag.Title = "Location Wise Asset List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript">
+
+    function GetWorkingOffice() {
+        if ($("#ddlHO").val() > 0) {
+            var office_id;
+            if ($("#ddlZone").val() > 0) {
+                if ($("#ddlArea").val() > 0) {
+                    if ($("#ddlOffice").val() > 0) {
+                        office_id = $("#ddlOffice").val();
+                    }
+                    else {
+                        office_id = $("#ddlArea").val();
+                    }
+                }
+                else {
+                    office_id = $("#ddlZone").val();
+                }
+            }
+            else {
+                office_id = $("#ddlHO").val();
+            }
+        }
+        return office_id;
+    }
+
+    $(document).ready(function () {
+        $("#txtToDt").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1920:2100"
+
+            });
+        $("#txtToDt").datepicker(
+            'setDate', new Date());
+
+
+        $("#btnView").click(function (e) {
+            var office_id = GetWorkingOffice();
+            var to_date = $("#txtToDt").val();
+            var groupFrom = $("#ddlAssetGroupFrom").val();
+
+            var url = '/FixedAsset/GenerateLocationWiseAssetListReport?office_id=' + office_id + '&to_date=' + to_date + '&qType=' + 1 + '&AllOffice=' + 1 + '&groupFrom=' + groupFrom;
+
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        });
+    });
+
+</script>
+<h2 class="page-title"> Location Wise Asset List</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.Partial("~/Views/FixedAsset/_OfficeNavigationPane_FixedAsset_Generic.cshtml")
+
+    <div class="row frmRow">
+        <div class="col-md-6 col-sm-6">
+            <div class=" item form-group">
+                @Html.Label("Date To", new { @class = "control-label col-md-3 input-sm" })
+                <div class="col-md-7">
+                    @Html.TextBox(" ", ViewData["TrxDate"].ToString(), new { @ID = "txtToDt", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row frmRow">
+        <div class="col-md-6 col-sm-6">
+            <div class=" item form-group">
+                @Html.Label("Asset Group", new { @class = "control-label col-md-3 input-sm" })
+                <div class="col-md-7">
+                    @Html.DropDownList("AssetGroupFrom", null, new { @ID = "ddlAssetGroupFrom", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row frmRow">
+        <div class="col-sm-6">
+            <div class="form-group form-action">
+                <input type="button" value="View" class="btn btn-primary" id="btnView" />
+            </div>
+        </div>
+    </div> 
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}

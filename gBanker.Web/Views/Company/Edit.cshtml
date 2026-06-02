@@ -1,0 +1,330 @@
+﻿@*@model gHRM.Web.ViewModels.CompanyViewModel
+
+    @{
+        ViewBag.Title = "Edit";
+        Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+        var companyList = Model == null ? null : Model.CompanyList;
+    }
+
+    <script type="text/javascript">
+
+        function showMyImage(fileInput) {
+            var files = fileInput.files;
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var imageType = /image.*/;
+
+                if (file.type.match(imageType)) {
+
+                    var size = Math.round(file.size / 1024);
+                    if (size <= 100) {
+                        var img = document.getElementById("thumbnil");
+                        img.file = file;
+                        var reader = new FileReader();
+                        reader.onload = (function (aImg) {
+                            return function (e) {
+                                aImg.src = e.target.result;
+                            };
+                        })(img);
+                        reader.readAsDataURL(file);
+                    }
+                    else
+                        alert('Image file cannot be greater than 100 KB.');
+                }
+                else {
+                    $("#ImgFile").replaceWith($("#ImgFile").clone(true));
+                    alert('Please select a valid image file');
+                }
+
+            }
+        }
+
+        $(document).ready(function () {
+            $("#btnCompanySave").click(function (e) {
+                if ($("#CompanyName").val() == '' && $("#CompanyAddress").val() == '') {
+                    $("#CompanyName").addClass("errorClass");
+                    $("#CompanyAddress").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CompanyName").val() == '' && $("#CompanyAddress").val() != '') {
+                    $("#CompanyName").addClass("errorClass");
+                    return false;
+                }
+                else if ($("#CompanyName").val() != '' && $("#CompanyAddress").val() == '') {
+                    $("#CompanyAddress").addClass("errorClass");
+                    return false;
+                }
+                else
+                    return true;
+            });
+        });
+
+    </script>
+    @Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+    <h2 class="page-title">Edit Company</h2>
+    <br />
+    @using (Html.BeginForm("Edit", "Company", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "CompanyProfile" }))
+    {
+
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="container-fluid">
+            <div class="form-group">
+                @Html.HiddenFor(model => model.CompanyId, new { @class = "control-label col-md-4 required" })
+                <div class="col-sm-8">
+                    @Html.HiddenFor(model => model.CompanyId, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Id" } })
+
+                </div>
+            </div>
+             <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CompanyType, htmlAttributes: new { @class = "control-label col-sm-4" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.CompanyType, companyList, new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CompanyName, new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CompanyName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Name" } })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CompanyAddress, new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CompanyAddress, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Address" } })
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CompanyMobile, new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CompanyMobile, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Mobile" } })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CompanyEmail, new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.CompanyEmail, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Email" } })
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.CompanyPhone, new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.CompanyPhone, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Phone" } })
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+               <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.CompanyImage, htmlAttributes: new { @class = "control-label col-sm-4" })
+                        <div class="col-sm-8">
+                            <img id="thumbnil" style="width:100px; height:100px;" src="~/Images/blank-headshot.jpg" alt="Company Image" class="img-responsive" />
+                            @Html.TextBoxFor(model => model.ImgFile, new { type = "file", @onchange = "showMyImage(this);", @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <input type="submit" value="Save" id="btnCompanySave" class="btn btn-primary" />
+                    <input type="hidden" value="" id="hdnCompanySave" />
+                    <input type="hidden" value="" id="hdnCompanyId" />
+                </div>
+            </div>
+        </div>
+
+    }
+
+
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }*@
+
+@model gHRM.Web.ViewModels.CompanyViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var companyList = Model == null ? null : Model.CompanyList;
+    var countryList = Model == null ? null : Model.CountryList;
+}
+
+<script type="text/javascript">
+    function showMyImage(fileInput) {
+        var files = fileInput.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var imageType = /image.*/;
+
+            if (file.type.match(imageType)) {
+                //continue;
+                var size = Math.round(file.size / 1024);
+                if (size <= 100) {
+                    var img = document.getElementById("thumbnil");
+                    img.file = file;
+                    var reader = new FileReader();
+                    reader.onload = (function (aImg) {
+                        return function (e) {
+                            aImg.src = e.target.result;
+                        };
+                    })(img);
+                    reader.readAsDataURL(file);
+                }
+                else
+                    alert('Image file cannot be greater than 100 KB.');
+            }
+            else {
+                $("#ImgFile").replaceWith($("#ImgFile").clone(true));
+                alert('Please select a valid image file');
+            }
+
+        }
+    }
+    $(document).ready(function () {
+        debugger;
+        @*if ('@Model.ImagePath' != "") {
+            //$("#thumbnil").src('@Model.ImagePath');
+            console.log('@Model.ImagePath');
+            document.getElementById("thumbnil").src = '@Model.ImagePath';
+        }*@
+    });
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+<h2 class="page-title">Add Company</h2>
+<br />
+
+@*<form action="Edit" method="post" enctype="multipart/form-data">*@
+@using (Html.BeginForm("Edit", "Company", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "Edit" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        @Html.HiddenFor(model => model.CompanyId)
+  
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CountryId, htmlAttributes: new { @class = "control-label col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CountryId, countryList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyType, htmlAttributes: new { @class = "control-label col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CompanyType, companyList, new { @class = "form-control" })
+
+                    </div>
+                </div>
+            </div>        
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyName, new { @class = "control-label  col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CompanyName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Name" } })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyAddress, new { @class = "control-label  col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CompanyAddress, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Address" } })
+
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyMobile, new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CompanyMobile, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Mobile" } })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyEmail, new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CompanyEmail, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Email" } })
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyPhone, new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.CompanyPhone, new { htmlAttributes = new { @class = "form-control", @placeholder = "Company Phone" } })
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CompanyImage, htmlAttributes: new { @class = "control-label col-sm-4" })
+                    <div class="col-sm-8">
+                        <img id="thumbnil" style="width:100px; height:100px;" src='@Model.ImagePath' alt="Company Image" class="img-responsive" />
+
+                        <input type="file" id="ImgFile" class="file" name="ImgFile" onchange="showMyImage(this);" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+
+                    <input type="submit" value="Save" id="btnCompanyEdit" class="btn btn-primary" />
+                    <input type="hidden" value="" id="hdnCompanySave" />
+                    <input type="hidden" value="" id="hdnCompanyId" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@*</form>*@
+@*@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}*@

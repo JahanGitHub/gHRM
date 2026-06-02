@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "Zonal Office for Region: " + ViewData["Name"].ToString();
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    List<Dictionary<string, object>> ZonalOfficeList = ViewBag.ZonalOfficeList;
+}
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Zonal Office for Region: @ViewData["Name"].ToString()</h2>
+&nbsp;
+@Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4">Office Name</label>
+            <div class="col-sm-7">
+                <select id="Office" class="form-control">
+                    <option value="">Please Select</option>
+                    @foreach (var ZonalOffice in ZonalOfficeList)
+                    {
+                        <option value="@ZonalOffice["Id"]">@ZonalOffice["Name"]</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <input type="button" value="Map to Region" id="btnSave" class="btn btn-success" onclick="RegionForm.Save()" />
+    </div>
+</div>
+&nbsp;
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var RegionId = @ViewBag.Id;
+    </script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/basic/region-map-office.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

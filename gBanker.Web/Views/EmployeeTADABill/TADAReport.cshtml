@@ -1,0 +1,220 @@
+﻿@model gHRM.Web.ViewModels.TaDa.EmployeeTADABillViewModel
+
+@{
+    ViewBag.Title = "TADA Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+}
+
+<script>
+    $(document).ready(function () {
+        $("#DepartmentId").change(function () {
+            var DesignationId = $("#DesignationId").val();
+            if (DesignationId != "" || DesignationId != null) {
+                LoadInfo();
+            }
+        });
+
+        $("#DesignationId").change(function () {
+            LoadInfo();
+        });
+
+
+        $("#btnReportPrint").click(function () {
+            debugger;
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            var employeeRank = $("#EmployeeRank").val();
+
+            var EmployeeNameSig = $("#EmployeeId option:selected").text();
+            var DepartmentNameSig = $("#DepartmentId option:selected").text();
+            var DesignationNameSig = $("#DesignationId option:selected").text();
+
+            if (year == "" || month == "") {
+                $.alert.open("Message", "Please select Year and Month");
+                return true;
+            }
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            if (employeeRank == "") {
+                $.alert.open("Message", "Please select employee rank");
+                return true;
+            }
+            url = '/EmployeeTADABill/TADAReportPrintNew?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&EmployeeRank=' + employeeRank + '&EmployeeNameSig=' + EmployeeNameSig + '&DepartmentNameSig=' + DepartmentNameSig + '&DesignationNameSig=' + DesignationNameSig;
+            PrintReport(url);
+        });
+
+
+        $("#btnExcel").click(function () {
+            debugger;
+            var year = $("#Year").val();
+            var month = $("#Month").val();
+
+            var EmployeeNameSig = $("#EmployeeId option:selected").text();
+            var DepartmentNameSig = $("#DepartmentId option:selected").text();
+            var DesignationNameSig = $("#DesignationId option:selected").text();
+
+            var officeTypeId = $("#OfficeTypeId").val();
+            var employeeRank = $("#EmployeeRank").val();
+            if (year == "" || month == "") {
+                $.alert.open("Message", "Please select Year and Month");
+                return true;
+            }
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            if (employeeRank == "") {
+                $.alert.open("Message", "Please select employee rank");
+                return true;
+            }
+
+            PrintTADABillReportExcelNew(year, month, officeTypeId, employeeRank, EmployeeNameSig ,DepartmentNameSig, DesignationNameSig);
+
+            //if (year != "" && month != "" && officeTypeId == 0 && employeeRank!="") {
+            //    PrintTADABillReportExcel(year, month, officeTypeId, employeeRank);
+            //} else {
+            //    $.alert.open("Message", "Please insert required fields");
+            //}
+
+        });
+
+    });
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function PrintTADABillReportExcelNew(year, month, officeTypeId, employeeRank, EmployeeNameSig, DepartmentNameSig, DesignationNameSig) {
+        url = '/EmployeeTADABill/PrintTADABillReportExcelNew?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&EmployeeRank=' + employeeRank + '&EmployeeNameSig=' + EmployeeNameSig + '&DepartmentNameSig=' + DepartmentNameSig + '&DesignationNameSig=' + DesignationNameSig;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+    function LoadInfo() {
+        var DepartmentId = $("#DepartmentId").val();
+        var DesignationId = $("#DesignationId").val();
+        var EmployeeId = $("#EmployeeId");
+        if (DepartmentId != "" || DepartmentId != null || DesignationId != "" || DesignationId != null) {
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetDepartmentAndDesignationByEmployee", "PRSalaryStatement", "http")',
+                data: { DepartmentId: DepartmentId, DesignationId: DesignationId },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.length > 0) {
+                        EmployeeId.html("");
+                        EmployeeId.html('<option value="">Please Select</option>');
+                        $.each(data, function (id, option) {
+                            EmployeeId.append($('<option></option>').val(option.Value).html(option.Text));
+                        });
+                    } else {
+                        EmployeeId.html('<option value="">Please Select</option>');
+                    }
+                },
+            });
+        } else {
+            EmployeeId.html('<option value="">Please Select</option>');
+        }
+    }
+
+</script>
+
+<h2 class="page-title">TADA Report</h2>
+@using (Html.BeginForm("TADAReport", "EmployeeTADABill", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+
+    <br /><br />
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Year</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Month</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Office Type</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Employee Rank</label>
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.EmployeeRank, Model.EmployeeRankList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Department Name</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Designation Name</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.DesignationId, Model.DesignationNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Employee Name For Singature</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.EmployeeId, Model.EmployeeNameList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-6 col-md-offset-2">
+            <div class="form-group">
+                <div class="col-sm-8 ">
+                    <input type="button" value="Print" id="btnReportPrint" class="btn btn-success" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="button" value="Download Excel" id="btnExcel" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="grid"></div>
+
+}
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

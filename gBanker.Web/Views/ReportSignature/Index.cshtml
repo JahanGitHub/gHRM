@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Report Signature List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Report Signature List</h2>
+&nbsp;
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/basic/report-signature.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

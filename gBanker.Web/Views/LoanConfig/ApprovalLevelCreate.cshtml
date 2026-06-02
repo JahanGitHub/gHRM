@@ -1,0 +1,247 @@
+﻿@model gHRM.Web.ViewModels.Loan.LoanApprovalViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Approval Level";
+}
+<style type="text/css">
+    #tblGrid {
+        width: 100%;
+        margin-bottom: 20px;
+        border-collapse: collapse;
+    }
+
+        #tblGrid td, #tblGrid th {
+            padding: 2px 2px;
+        }
+
+        #tblGrid th {
+            text-align: center;
+        }
+
+        #tblGrid tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+    #tblGrid {
+        table-layout: fixed;
+        /*width:100px;*/
+    }
+
+        #tblGrid td:not(:first-child) {
+            overflow-x: auto;
+            overflow-y: auto;
+            white-space: nowrap;
+            max-width: 40px;
+        }
+
+        #tblGrid thead tr th:last-child,
+        #tblGrid tbody tr td:last-child {
+            width: 50px;
+        }
+
+    span.k-widget.k-autocomplete.k-header.form-control.input-sm.k-state-default {
+        width: 241px !important;
+    }
+</style>
+<script type="text/javascript">
+    var sl = 0;
+    function DeleteRow(t, e) {
+        e.preventDefault();
+        t.parentElement.parentElement.remove()
+        sl = 0;
+        $("#tblGrid tbody tr").each(function () {
+            sl += 1;
+            $(this).closest('tr').find('td').eq(3).find("input[name='PriorityLevel']").val(sl)
+        });
+        $("#TotalLevel").val(sl);
+    }
+
+    function AutoComplete(TempId) {
+        $("[name='Employee'][data-id='" + TempId + "']").kendoAutoComplete({
+            dataTextField: "EmployeeName",
+            filter: "contains",
+            minLength: 3,
+            dataSource: new kendo.data.DataSource({
+                type: "aspnetmvc-ajax",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "/EmployeeCommonInformation/AutoCompleteEmployee",
+                        dataType: 'json',
+                        data: function (options) {
+                            return { Term: options.filter.filters[0].value };
+                        }
+                    },
+                },
+                schema: { data: "data" }
+            }),
+            select: function (e) {
+                var Item = this.dataItem(e.item.index());
+                var TempId = this.element.attr("data-id");
+                var Row = $("#tbody tr[data-id='" + TempId + "']");
+                Row.find("[name='EmployeeId']").val(Item.EmployeeId);
+            },
+            change: function (e) {
+                if (e.sender._oldText == "") {
+                    var TempId = this.element.attr("data-id");
+                    var Row = $("#tbody tr[data-id='" + TempId + "']");
+                    Row.find("[name='EmployeeId']").val('');
+                }
+            }
+        });
+    }
+    $(document).ready(function () {
+        var Page = {
+            TempId: 0,
+            GetNextTempId: function () {
+                Page.TempId++;
+                return Page.TempId;
+            },
+            Clear: function () {
+                sl = 0;
+                $("#tblGrid tbody,#tbody").html('');
+                $("#TotalLevel").val('');
+                $("#ApprovalMasterId").val(0);
+            },
+            AddRow: function () {
+                var TempId = Page.GetNextTempId();
+                sl += 1;
+                $("#tbody").append("<tr data-id='" + TempId + "'>" +
+                    "<td><input type='hidden' name='ApprovalDetailId' value='0'><input type='hidden' name='EmployeeId' value='0'><input data-id='" + TempId + "' type='text' class='form-control input-sm' autocomplete='off' name='Employee' value='' /></td > " +
+                    "<td><input type='number' name='ConditionalAmount' class='form-control input-sm' value='0'/></td>" +
+                    "<td><select name='ConditionType' class='form-control input-sm'><option value>Please Select</option><option value='G'>Greater Than</option><option value='GE'>Greater Than Or Equal</option></select></td>" +
+                    "<td><input type='number' name='PriorityLevel' class='form-control input-sm'   value=" + (sl) + " readonly='readonly'/></td>" +
+                    "<td><a href='javascript:;' id='btnDelete' onclick='DeleteRow(this,event)'><i class='fa fa-trash-o fa-2x'></i></a></td></tr>");
+                $("#TotalLevel").val(sl);
+                AutoComplete(TempId);
+            },
+            EditRow: function () {
+                var data = GenerateAjaxRequist('/LoanConfig/GetApprovalDetail', { masterid: $("#ApprovalMasterId").val() }, "GET");
+                data.forEach((element) => {
+                    var TempId = Page.GetNextTempId();
+                    sl += 1;
+                    $("#tbody").append("<tr data-id='" + TempId + "'>" +
+                    "<td><input type='hidden' name='ApprovalDetailId' value='" + element.ApprovalDetailId + "'><input type='hidden' name='EmployeeId' value='" + element.EmployeeId + "'><input data-id='" + TempId + "' type='text' class='form-control input-sm' autocomplete='off' name='Employee' value='" + element.EmployeeName + "' /></td > " +
+                    "<td><input type='number' name='ConditionalAmount' class='form-control input-sm' value='" + element.ConditionalAmount + "'/></td>" +
+                    "<td><select name='ConditionType' class='form-control input-sm'><option value>Please Select</option><option value='G'>Greater Than</option><option value='GE'>Greater Than Or Equal</option></select></td>" +
+                    "<td><input type='number' name='PriorityLevel' class='form-control input-sm'   value=" + element.PriorityLevel + " readonly='readonly'/></td>" +
+                    "<td><a href='javascript:;' id='btnDelete' onclick='DeleteRow(this,event)'><i class='fa fa-trash-o fa-2x'></i></a></td></tr>");
+                    AutoComplete(TempId);
+                    $("#LoanType,#FormName").prop('disabled', true);
+                });
+            }
+        };
+
+        if ($("#ApprovalMasterId").val() > 0)
+            Page.EditRow();
+
+        $("#btnAddRow").click(function (e) {
+            e.preventDefault();
+            Page.AddRow();
+        });
+        $("#btnClear").click(function (e) {
+            e.preventDefault();
+            Page.Clear();
+            sl = 0;
+        });
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+            var master = {
+                ApprovalMasterId: $("#ApprovalMasterId").val(),
+                LoanType: $("#LoanType").val(),
+                FormName: $("#FormName").val(),
+                TotalLevel: $("#TotalLevel").val(),
+                IsActive: true
+            };
+            var details = new Array();
+            $("#tblGrid tbody tr").each(function () {
+                var detail_row = {
+                    ApprovalDetailId: $(this).closest('tr').find('td').eq(0).find("input[name='ApprovalDetailId']").val(),
+                    EmployeeId: $(this).closest('tr').find('td').eq(0).find("input[name='EmployeeId']").val(),
+                    ConditionalAmount: $(this).closest('tr').find('td').eq(1).find("input[name='ConditionalAmount']").val(),
+                    ConditionType: $(this).closest('tr').find('td').eq(2).find("select[name='ConditionType']").find(":selected").val(),
+                    PriorityLevel: $(this).closest('tr').find('td').eq(3).find("input[name='PriorityLevel']").val(),
+                    IsActive: true
+                };
+                details.push(detail_row);
+            });
+            var data = GenerateAjaxRequist('/LoanConfig/PostApprovalLevelCreate', JSON.stringify({ master: master, details: details }), "POST");
+            if (data.Result == 1) {
+                $("#ApprovalMasterId").val(0);
+                Page.Clear();
+            }
+            $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+
+        });
+    });
+</script>
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="ApprovalLevel">Approval</a></li>
+    </ol>
+</div>
+<div class="row">
+    @Html.ActionLink("Back to List", "ApprovalLevel", null, new { @class = "btn btn-success btn-sm pull-right", @id = "btnAddNew" })
+    <h2 class="page-title">Loan type wise approval</h2>
+</div>
+<br />
+@using (Html.BeginForm("PostApprovalLevelCreate", "LoanConfig", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "CollectionMethod" }))
+{
+    <div class="container-fluid">
+        @Html.HiddenFor(model => model.ApprovalMasterId)
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LoanType, htmlAttributes: new { @class = "control-label col-sm-3 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.LoanType, Model.LoanTypeLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FormName, htmlAttributes: new { @class = "control-label col-sm-3 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.FormName, Model.FormNameLst, new { @class = "form-control", @required = "true" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TotalLevel, htmlAttributes: new { @class = "control-label col-sm-3 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.TotalLevel, new { @class = "form-control", @required = "true", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <table id="tblGrid" class="table table-striped responsive-utilities jambo_table bulk_action">
+                    <thead>
+                        <tr>
+                            <th class="column-title">@Html.LabelFor(model => model.EmployeeId)</th>
+                            <th class="column-title">@Html.LabelFor(model => model.ConditionalAmount)</th>
+                            <th class="column-title">@Html.LabelFor(model => model.ConditionType)</th>
+                            <th class="column-title">@Html.LabelFor(model => model.PriorityLevel)</th>
+                            <th class="column-title"><a href='javascript:;' id='btnAddRow'><i class='fa fa-plus fa-2x'></i></a></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+        <div class="col-md-8"></div>
+        <div class="col-md-4 text-right">
+            <button type="button" id="btnClear" class="btn btn-warning">Clear</button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" id="btnSave" class="btn btn-success">Save</button>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+    @*@Scripts.Render("~/bundles/jqueryui")*@
+}

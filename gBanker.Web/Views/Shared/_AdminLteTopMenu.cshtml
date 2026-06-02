@@ -1,0 +1,182 @@
+﻿@*
+    This partial controls the top menu of the AdminLTE Template, being called automatically by _AdminLteLayout
+       TODO: All of the content in here is stand-in that must be replaced by the real behavior of your app
+*@
+
+@{
+    ViewBag.Layout = null;
+}
+<style type="text/css">
+    .navbar-nav > .user-menu > .dropdown-menu > .user-footer {
+        background-color: #607D8B;
+        padding: 10px;
+    }
+</style>
+<header class="main-header">
+
+    <a href="/home/index" class="logo"><img style="top:-10px;margin:0px;padding:0px;width:220px;height:50px;" src="~/Images/Icon.png" /></a>
+
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top" role="navigation" style="top:0;">
+        <!-- Sidebar toggle button-->
+        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <span class="sr-only">Toggle navigation</span>
+        </a>
+
+        <ul class="collapse navbar-collapse nav navbar-nav
+            top-menu">
+            <li class="dropdown">
+                <a href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-download-alt"></i> <b>Build Capacity</b></a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a target="_blank" href="/Home/Demovideo?filename=ghrmplus_employee_Profile"><i class="glyphicon glyphicon-facetime-video"></i>Employee Profile</a></li>
+                    <li><a target="_blank" href="/Home/Demovideo?filename=ghrmplus_leave_module"><i class="glyphicon glyphicon-facetime-video"></i>Leave Module</a></li>
+                    <li><a target="_blank" href="/Home/Demovideo?filename=ghrmplus_Basic_payroll"><i class="glyphicon glyphicon-facetime-video"></i>Basic Payroll</a></li>
+                    <li><a target="_blank" href="/Home/Demovideo?filename=ghrmplus_ deduct_salary_for_joining_month"><i class="glyphicon glyphicon-facetime-video"></i>How to deduct salary for joining month</a></li>
+                    <li><a target="_blank" href="/Home/Demovideo?filename=ghrmplus_componant_and_salary"><i class="glyphicon glyphicon-facetime-video"></i>How to generate componant and salary</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- Navbar Right Menu -->
+        <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+
+                <!-- User Account: style can be found in dropdown.less -->
+                <li class="dropdown user user-menu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-bell">  <label id="notificatinCount"></label></i>
+                    </a>
+                    <ul class="dropdown-menu" id="notificationTypeddl"></ul>
+                </li>               
+                <li class="dropdown user user-menu">
+                    <a href="@Url.Action("Index","Notice")">
+                        <i class="fa fa-bullhorn"></i>
+                    </a>
+                </li>
+
+                @if (SessionHelper.EnabledSSOLogin)
+                {
+                    var heathCenterBaseUrl = System.Configuration.ConfigurationManager.AppSettings["SSOCLIENT.HEALTHCENTER"].ToString();
+                    <li class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-th"></i> <span class="hidden-xs">Switch App</span>
+                        </a>
+                        <ul class="dropdown-menu">
+
+                            <li class="user-header switch-app">
+                                <div class="color-swatches">
+                                    <div class="switchable-app app-info pull-left">
+                                        <a target="_blank" href="@heathCenterBaseUrl">Heath Center Manager</a>
+                                    </div>
+                                    <div class="switchable-app app-primary pull-right">
+                                        <a target="_blank" href="javascript:void(0);">Fixed Asset Manager</a>
+                                    </div>
+
+                                </div>
+                            </li>
+
+                        </ul>
+                    </li>
+                }
+                <li class="dropdown user user-menu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="/Content/AdminLTE/img/man-dummy.png" class="user-image" alt="User Image" />
+                        <span class="hidden-xs">Welcome @gHRM.Web.Helpers.SessionHelper.UserFullName</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <!-- User image -->
+                        <li class="user-header">
+                            <img src="/Content/AdminLTE/img/man-dummy.png" class="img-circle" alt="User Image" />
+                            <p>
+                                <h6>WELCOME</h6>
+                                @gHRM.Web.Helpers.SessionHelper.EmployeeFullName
+                            </p>
+                        </li>
+
+                        <!-- Menu Footer-->
+                        <li class="user-footer">
+                            <div class="pull-left">
+                                <a href="/Account/Manage" class="btn btn-default btn-flat">Change Password</a>
+                            </div>
+                            <div class="pull-right">
+                                <a href="javascript:void(0);" onclick="app.logoutForSSOLogin()" class="btn btn-default btn-flat">Log out</a>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJ3F989PEF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SJ3F989PEF');
+    </script>
+
+</header>
+
+<script>
+    $("[data-toggle='tooltip']").tooltip();
+
+    function GetNotifications() {
+        var item = '';
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetNotifications", "Home")',
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+                $("#notificatinCount").html(Result.result);
+                //alert(Result.result);
+                $.each(Result.data, function (i, v) {
+
+                    var url = v.ControllerName + '/' + v.ActionName;
+                    item = item + '<li><a href="/'+url+'">' + v.LinkText + '</a></li>';
+                });
+                $("#notificationTypeddl").html(item);
+            },
+            error: function (request, status, error) {
+                alert("Error occured.");
+            }
+        });
+    }
+    function GetNotificationsCar() {
+        var item = '';
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetNotificationsCar", "Home")',
+            dataType: 'json',
+            async: true,
+            success: function (Result) {
+                $("#notificatinCountCar").html(Result.result);
+                //alert(Result.result);
+                $.each(Result.data, function (i, v) {
+
+                    var url = v.ControllerName + '/' + v.ActionName;
+                    item = item + '<li><a href="/' + url + '">' + v.LinkText + '</a></li>';
+                });
+                $("#notificationTypeCarddl").html(item);
+            },
+            error: function (request, status, error) {
+                alert("Error occured.");
+            }
+        });
+    }
+    $(document).ready(function () {
+        GetNotifications();
+        //GetNotificationsCar();
+        window.setInterval(GetNotifications, 300000);
+        //window.setInterval(GetNotificationsCar, 300000);
+
+        $("#leave_module").click(function () {
+            alert("The paragraph was clicked.");
+        });
+    });
+</script>

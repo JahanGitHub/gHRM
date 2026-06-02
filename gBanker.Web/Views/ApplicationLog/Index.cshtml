@@ -1,0 +1,158 @@
+﻿@model IEnumerable<gHRM.Data.CodeFirstMigration.ApplicationLog>
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/ApplicationLog">ApplicationLog</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<style type="text/css">
+    th {
+        height: 40px;
+        vertical-align: top;
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+    }
+
+    span.jtable-column-header-text {
+        margin-top: 0px !important;
+    }
+</style>
+<script type="text/javascript">
+    
+    function filterChanged()
+    {
+        var filterColumn = $("#filterColumn").val();
+        if (filterColumn == "CreateDate") {
+            $("#filterValue").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                buttonImage: '/images/calendar_icon.png'
+            });
+        }
+        else {           
+            $("#filterValue").datepicker("destroy");
+        }
+        $("#filterValue").val('');
+    }
+    $(document).ready(function () {
+
+        
+     
+        //////////////////////////
+        $('#grid').jtable({
+           // title: 'LoanSummary List',
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/ApplicationLog/GetLogRecords?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+               // listAction: '/LoanSummary/GetLoanSummary'
+
+            },
+            fields: {
+                ApplicationLogId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                LogDate: {
+                    title: 'Date(তারিখ)',
+                    width: '10%',
+                    type: 'date',
+                },
+                ClientIP: {
+                    title: 'IP(আই পি)',
+                    width: '10%'
+                },
+                RequestUser: {
+                    title: 'User(ব্যবহারকারী)',
+                    width: '10%'
+                },
+                ControllerName:{
+                    title: 'Page(পৃষ্ঠা)',
+                    width: '10%'
+                },
+                ActionName: {
+                    title: 'Action(কর্ম)',
+                    width: '10%'
+                },
+                HttpMethod: {
+                    title: 'Request Type(অনুরোধ টাইপ)',
+                    width: '10%'
+                },
+
+                ActionURL: {
+                    title: 'URL(ইউ আর এল)',
+                    width: '18%'
+                },                
+                EditLink: {
+                    title: "Detail(বিস্তারিত)",
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/ApplicationLog/Detail/" + data.record.ApplicationLogId + "'><i class='fa fa-pencil-square-o'></i></a></div>";
+
+                     }
+                }
+            }
+        });
+        reloadGrid();
+        //////////////////////////
+
+    });
+
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+</script>
+
+
+<h2 class="page-title">Application Log(অ্যাপ্লিকেশন পাসওয়ার্ড ভুলে গেছেন?)</h2>
+
+<div>
+    Filter By:&nbsp; <select id="filterColumn" onchange="filterChanged();">
+        <option value="">View All(সকল)</option>
+        <option value="RequestUser">User(ব্যবহারকারী)</option>
+        <option value="CreateDate">Date(তারিখ)</option>
+        <option value="ControllerName">Page(পৃষ্ঠা)</option>
+      <option value="IP">IP(আই পি)</option>
+    </select>
+    <input type="text" class="search" id="filterValue" placeholder="Type Search Text(খুজুন)" />
+    <input type="button" id="btnSearch" value="Search" onclick="reloadGrid();" />
+</div>
+
+<div id="confirmDlg" style="display:none">
+    <div class="form-group">
+        Do you want Ledgerpost?
+    </div>
+
+</div>
+
+<div id="grid"></div>
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

@@ -1,0 +1,99 @@
+﻿@model gHRM.Web.ViewModels.Payroll.EmployeeAllowanceViewModel
+
+@{
+    ViewBag.Title = "Employee Allowance List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<h2 class="page-title">Employee Allowance</h2>
+    &nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+
+
+    <div class="container-fluid">
+
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmpGradeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.EmpGradeId, Model.GradeList, new { @class = "form-control chosen-select", @required = "required" })
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmpStatusId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.EmpStatusId, Model.EmployeeStatusList, new { @class = "form-control chosen-select", @required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ComponentId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ComponentId, Model.ComponentList, new { @class = "form-control chosen-select", @required = "required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Ratio On </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.RatioOn, DropdownListHelper.GetDropdownList(DropdownListTypes.GradeRatioOn, Model.RatioOn), new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Allowance, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.Allowance, new { @type = "number", @min = "0", @class = "form-control col-md-4 ", @required = "required" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-md-offset-2 col-md-10">
+        <input type="button" id="btnSave" value="Save" class="btn btn-default" />
+        <input type="button" id="btnUpdate" value="Update" class="btn btn-default" />&nbsp;
+        <input type="button" id="btnRestore" value="Restore" class="btn btn-default" />
+    </div>
+</div>
+
+
+<br />
+<br />
+<h2 class="page-title">Allowance List</h2>
+    &nbsp;
+
+<div id="grid"></div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/payroll/employeeAllowanceListManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

@@ -1,0 +1,316 @@
+﻿@model gHRM.Web.ViewModels.Apply.CompleteProfileViewModel
+
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Apply/Step_01">Apply</a></li>
+        <li><a href="/Apply/ViewProfile">FullProfile</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Personal Information";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<style>
+    @@import url('//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+    .frmRow {
+        margin-bottom: 10px;
+    }
+
+    .accordion-toggle:after {
+        font-family: 'FontAwesome';
+        content: "\f078";
+        float: right;
+    }
+
+    .accordion-opened .accordion-toggle:after {
+        content: "\f054";
+    }
+</style>
+
+<style type="text/css" media="print">
+    .nonPrintable {
+        display: none;
+    }
+    /*class for the element we don’t want to print*/
+</style>
+<script type="text/javascript">
+    function ViewResumeAsPDF() {
+        var ID = $("#ID").val();
+        if (ID > 0) {
+            var location = "/CommonReportGenerator/ApplicantCVReport?format=pdf&Id=" + ID
+            PrintReport(location)
+        }
+
+        else {
+           
+            $.alert.open('Please save your Information first');
+        }
+    }
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+</script>
+<div class="row">
+    <div class="col-md-7">
+    </div>
+    <div class="col-md-5">
+        <div class="form-group">
+            @*<button type="button" class="btn btn-success col-sm-offset-5" onclick="ViewResumeAsPDF()" style="float: right;">View Your Resume as PDF</button>*@
+            <i class="fa fa-file-pdf-o" style="font-size: 20px; color: red; float: right;" onclick="ViewResumeAsPDF()">Resume as PDF </i>
+        </div>
+    </div>
+</div>
+&nbsp;
+<div id="divToPrint">
+    <fieldset>
+        <div class="row">
+            <input type="hidden" id="ID" value="@ViewBag.ID" />
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-5">
+                <table class="col-md-12">
+                    <tr>
+                        <td style="font:400; color:blue; font-size:large; padding:60px 0px 5px 0px">@ViewBag.FullName</td>
+                    </tr>
+                    <tr>
+                        <td style="font:200; color:black; font-size:medium;">@ViewBag.Presentaddress</td>
+                    </tr>
+                    <tr>
+                        <td style="font:200; color:black; font-size:medium;">@ViewBag.PrimaryMobile</td>
+                    </tr>
+                    <tr>
+                        <td style="font:200; color:black; font-size:medium;">@ViewBag.PrimaryEmail</td>
+                    </tr>
+                </table>
+
+            </div>
+            
+            <div class="col-md-6">
+                <img style="width: 200px; height: 200px; float: right; margin-right: 100px;" src="@ViewBag.Image" alt="Applicant Image" />
+            </div>
+        </div>
+
+
+        <div class="row" style=" padding:5px 0px 0px 0px">
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width:96%">
+
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Career Objective</th>
+                    </thead>
+                    <tr>
+                        <td style="font: 200; font-size: medium; padding: 15px 0px 5px 0px">@ViewBag.CareerObjective</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+        <div class="row">
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width: 96%">
+
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Career Summery</th>
+                    </thead>
+                    <tr>
+                        <td style="font: 200; font-size: medium; padding: 15px 0px 5px 0px">@ViewBag.CareerSummary</td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </div>
+
+        <div class="row">
+
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width: 96%">
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Special Qualification</th>
+                    </thead>
+                    <tr>
+                        <td style="font: 100;font-size: medium; padding: 15px 0px 5px 0px">@ViewBag.SpecialQualification</td>
+                    </tr>
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width: 96%">
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Working Experience</th>
+                    </thead>
+                    @foreach (var item in Model.ApplicantJobExperienceViewModel)
+                    {
+                        if (item.Designation != null)
+                        {
+                        <tr>
+                            <td style="font: 70; font-size: medium; font-weight: bold; padding: 15px 0px 5px 0px ">@item.Designation</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px">@item.WorkingPeriod</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; font-weight: bold; padding: 15px 0px 5px 0px ">@item.CompanyName</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px">@item.CompanyLocation</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px">@item.Responsibilities</td>
+                        </tr>
+                        }
+                    }
+                </table>
+
+            </div>
+
+        </div>
+        &nbsp;
+        <div class="row">
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width: 96%">
+
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Accademic Information</th>
+                    </thead>
+
+                </table>
+                <table class="col-md-12" style="width: 96%" border="1">
+                    <tr style="text-align:center">
+                        <td>Exam</td>
+                        <td>InstituteName</td>
+                        <td>CGPA</td>
+                        <td>Scale</td>
+                        <td> Passing Year</td>
+                    </tr>
+                    @foreach (var item in Model.ApplicantAccademicViewModel)
+                    {
+                        if (item.ExamTitle != null)
+                        {
+                        <tr>
+                            <td style="font: 70; font-size: medium; width:25%; padding: 15px 0px 5px 0px ">@item.ExamTitle</td>
+
+
+                            <td style="font: 70; font-size: medium; width:35%; padding: 15px 0px 5px 0px">@item.InstituteName</td>
+
+
+                            <td style="font: 70; font-size: medium; font-weight: bold; padding: 15px 0px 5px 0px; text-align:center">@item.CGPA</td>
+
+
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px; text-align: center">@item.Scale</td>
+
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px; text-align: center">@item.YearsofPassingMsg</td>
+                        </tr>
+                        }
+                    }
+                </table>
+
+            </div>
+
+        </div>
+        &nbsp;
+        <div class="row">
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width: 96%">
+
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Training Information</th>
+                    </thead>
+
+                </table>
+                <table class="col-md-12" style="width: 96%" border="1">
+                    <tr style="text-align:center">
+                        <td>Training Title</td>
+                        <td>TopicsCovered</td>
+                        <td>Institute</td>
+                        <td>Training Year</td>
+
+                    </tr>
+                    @foreach (var item in Model.ApplicantTrainingInfoViewModel)
+                    {
+                        if (item.TrainingTitle != null)
+                        {
+                        <tr>
+                            <td style="font: 70; font-size: medium; width:25%; padding: 15px 0px 5px 0px ">@item.TrainingTitle</td>
+
+
+                            <td style="font: 70; font-size: medium; width:35%; padding: 15px 0px 5px 0px">@item.TopicsCovered</td>
+
+
+                            <td style="font: 70; font-size: medium; font-weight: bold; padding: 15px 0px 5px 0px; text-align:center">@item.Institute</td>
+
+
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px; text-align: center">@item.TrainingYearMsg</td>
+
+
+                        </tr>
+                        }
+                    }
+                </table>
+
+            </div>
+
+        </div>
+        &nbsp;
+        <div class="row">
+
+            <div class="col-md-12">
+                <table class="col-md-12" style="width: 96%">
+                    <thead style="background-color:gainsboro">
+                    <th style="font:300;font-size:medium">Reference Information</th>
+                    </thead>
+                    @foreach (var item in Model.ApplicantReferenceInfoViewModel)
+                    {
+                        if (item.Name != null)
+                        {
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px ">@item.Name</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px">@item.Designation</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium;  padding: 15px 0px 5px 0px ">@item.Organization</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px">@item.Email</td>
+                        </tr>
+                        <tr>
+                            <td style="font: 70; font-size: medium; padding: 15px 0px 5px 0px">@item.Relation</td>
+                        </tr>
+                        }
+                    }
+                </table>
+
+            </div>
+
+        </div>
+    </fieldset>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}
+
+

@@ -1,0 +1,143 @@
+﻿@model gHRM.Web.ViewModels.PF.OrganizationSetupViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+
+<script type="text/javascript">
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+
+    function SaveOrganizationSetup(pfTypeId, yearStartDate, yearEndDate, isActive) {      
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveOrganizationSetup", "PFOrganizationSetup", "http")',
+            data: { pfTypeId: pfTypeId, yearStartDate: yearStartDate, yearEndDate: yearEndDate, isActive: isActive },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                clear();
+                $.alert.open("Message", data.message);
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+    }
+
+    function clear() {
+        $("input[type=text]:visible:enabled").first().focus();
+        $("#OrgId").val('');
+        $("#PFTypeList").val('');
+        $("#OrgName").val('');
+        $("#YearStartDate").val('');
+        $("#YearEndDate").val('');
+        $("#IsActive").prop("checked", false);
+    }
+
+    function Add() {       
+        var pfTypeId = $("#PFTypeList option:selected").val();        
+        var yearStartDate = $("#YearStartDate").val();
+        var yearEndDate = $("#YearEndDate").val();
+        var isActive = $('#IsActive').is(':checked');
+
+        if (pfTypeId == '' || yearStartDate == '' || yearEndDate == '') {
+            alert("Enter valid input");
+            return;
+        }
+
+        SaveOrganizationSetup(pfTypeId, yearStartDate, yearEndDate, isActive);        
+    }
+
+    //End Save Work Area
+    $(document).ready(function () {
+
+        $("input[type=text]:visible:enabled").first().focus();
+        $('#OrgId').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+        
+
+        $("#btnReset").click(function () {
+            clear();
+        });
+
+        $("#btnSaveOrgSetup").click(function () {
+            
+            $.alert.open('confirm', 'Are you sure you want to add?', function (button) {
+                if (button == 'yes') {
+                    Add();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+        
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Add Organization PF Setup</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+       
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OfficeContribution_ComponentPayrollId, new { @class = "control-label col-md-2 required" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(model => model.OfficeContribution_ComponentPayrollId, Model.ComponentLst, new { @class = "form-control", @tabindex = 3 })
+                </div>
+               
+                @Html.LabelFor(model => model.SelfContribution_ComponentPayrollId, new { @class = "control-label col-md-2 required" })
+            <div class="col-md-4">
+                @Html.DropDownListFor(model => model.SelfContribution_ComponentPayrollId, Model.ComponentLst, new { @class = "form-control", @tabindex = 3 })
+            </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnSaveOrgSetup" class="btn btn-success" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+       
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

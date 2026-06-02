@@ -1,0 +1,49 @@
+﻿@model gHRM.Web.ViewModels.LeaveReportViewModel
+@{
+    ViewBag.Title = "EmployeeWiseLeave";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2>Employee Wise Leave</h2>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.DateFrom, htmlAttributes: new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.TextBoxFor(model => model.DateFrom, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.DateTo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+            <div class="col-md-8">
+                @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <input type="button" id="btnPrint" value="View" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/Assets/js/app/leave/EmployeeWiseLeaveReportManager2.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

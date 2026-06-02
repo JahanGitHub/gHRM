@@ -1,0 +1,750 @@
+﻿@model gHRM.Web.ViewModels.TaDa.EmployeeTADABillViewModel
+<div class="row">
+
+</div>
+@{
+    ViewBag.Title = "TADA Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    <link href="~/Content/jtable-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialForTADAViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var TravelPurposeNameList = Model == null ? null : Model.TravelPurposeNameList;
+}
+
+
+<script type="text/javascript">
+    var tabillId = 0;
+
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeTADABill", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.resultObj != '') {
+                    $("#EmployeeId").val(data.EmployeeId);
+                    $("#EmployeeName").val(data.EmployeeName);
+                    $("#DepartmentName").val(data.DepartmentName);
+                    $("#DesignationName").val(data.DesignationName);
+                    $("#txtOfficeName").val(data.OfficeName);
+                }
+                else {
+                    $("#txtOfficeName").val('');
+                    $("#DepartmentName").val('');
+                    $("#DesignationName").val('');
+                    $("#EmployeeName").val('');
+                    //$("#txtEmpName").focus();
+
+                    alert("Wrong Employe Code");
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function LoadMaxBillNo() {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetLastTADAMemoNo", "EmployeeTADABill", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data) {
+                    $("#MemoNo").val(data);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function LoadTravelPlace(text) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("LoadTravelPlace", "EmployeeTADABill", "http")',
+            data: { searchedText: text },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data) {
+
+                    //ddlHOOffice.html('');
+                    //$.each(data, function (id, option) {
+                    //    ddlHOOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                    //});
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+
+
+        $("#OfficeTypeId").change(function () {
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "Multiple Locations" || officeTypeId == "Courier" || officeTypeId == "Others") {
+                $("#HeadOfficeDiv").hide();
+                $("#ProjectDiv").hide();
+                $("#ZoneDiv").hide();
+                $("#AreaDiv").hide();
+                $("#UnitDiv").hide();
+            }
+        });
+
+
+
+
+        $("#ClaimAmount").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl/cmd+A
+                (e.keyCode == 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: Ctrl/cmd+C
+                (e.keyCode == 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: Ctrl/cmd+X
+                (e.keyCode == 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+
+        $("#ApproveAmount").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl/cmd+A
+                (e.keyCode == 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: Ctrl/cmd+C
+                (e.keyCode == 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: Ctrl/cmd+X
+                (e.keyCode == 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+
+        $("#TravelDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            maxDate: new Date()
+        });
+
+        $("#TravelDate").datepicker('setDate', new Date());
+
+        $("#ApproveDate").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            maxDate: new Date()
+        });
+
+        $("#ApproveDate").datepicker('setDate', new Date());
+
+        $("#EmployeeCode").blur(function (e) {
+            $("#btnUpdate").hide();
+            var employee_code = $("#EmployeeCode").val();
+            if (employee_code != '') {
+                LoadEmpInfoByCode(employee_code);
+                debugger;
+                LoadTADABILLInfo();
+                if (tabillId == 0) {
+                    LoadMaxBillNo();
+                }
+            }
+        });
+
+        $("#ClaimAmount").keyup(function (e) {
+            var claimAmount = $("#ClaimAmount").val();
+            if (claimAmount) {
+                $("#ApproveAmount").val(claimAmount);
+            }
+        });
+         
+        $("#btnSave").click(function () {
+
+            var officeId = 0;
+            var officeTypeId = $("#OfficeTypeId option:selected").val();
+
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    officeId = $("#PVHeadOfficeId option:selected").text();
+                }
+                else if (officeTypeId == 3) {
+                    officeId = $("#PVProjectId option:selected").text();
+                }
+                else if (officeTypeId == 4) {
+                    officeId = $("#ZoneId option:selected").text();
+                }
+                else if (officeTypeId == 5) {
+                    officeId = $("#AreaId option:selected").text();
+                }
+                else if (officeTypeId == 6) {
+                    officeId = $("#UnitId option:selected").text();
+                }
+                else if (officeTypeId == 'Multiple Locations') {
+                    officeId = $("#OfficeTypeId option:selected").text();
+                }
+                else if (officeTypeId == 'Courier') {
+                    officeId = $("#OfficeTypeId option:selected").text();
+                }
+                else if (officeTypeId == 'Others') {
+                    officeId = $("#OfficeTypeId option:selected").text();
+                }
+            }
+
+            var employeeId = $("#EmployeeId").val();
+            var employeeCode = $("#EmployeeCode").val();
+            var memoNo = $("#MemoNo").val();
+            var travelDate = $("#TravelDate").val();
+            var travelPlace = officeId;
+            var travelPurpose = $("#TravelPurposeId option:selected").val();
+            var approveDate = $("#ApproveDate").val();
+            var claimAmount = $("#ClaimAmount").val();
+            var approveAmount = $("#ApproveAmount").val();
+
+            if (employeeId == "" || employeeCode == "" || employeeId == "0") {
+                $.alert.open("Error", "Please choose an employee");
+                return false;
+            }
+
+            if (memoNo > 0 && employeeId > 0 && travelDate != "" && travelPlace != "" && travelPlace != "Please Select" && approveDate != "" && claimAmount > 0 && approveAmount > 0) {
+
+                var createObject = {
+                    EmployeeId: parseInt(employeeId),
+                    EmployeeCode: employeeCode,
+                    MemoNo: memoNo,
+                    TravelDate: travelDate,
+                    TravelPlace: travelPlace,
+                    TravelPurpose: travelPurpose,
+                    ApproveDate: approveDate,
+                    ClaimAmount: claimAmount,
+                    ApproveAmount: approveAmount
+                };
+
+                $("#AjaxLoader").show();
+                $.ajax({
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("SaveEmployeeTADAData", "EmployeeTADABill", "http")',
+                    type: "POST",
+                    dataType: 'json',
+                    async: false,
+                    data: JSON.stringify({ CreateObject: createObject }),
+                    success: function (data) {
+                        $("#AjaxLoader").hide();
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            LoadTADABILLInfo();
+                            clearForm();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please provide all required fields");
+                return false;
+            }
+        });
+
+
+        $("#btnUpdate").click(function () {
+
+            var officeId = 0;
+            var officeTypeId = $("#OfficeTypeId option:selected").val();
+
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    officeId = $("#PVHeadOfficeId option:selected").text();
+                }
+                else if (officeTypeId == 3) {
+                    officeId = $("#PVProjectId option:selected").text();
+                }
+                else if (officeTypeId == 4) {
+                    officeId = $("#ZoneId option:selected").text();
+                }
+                else if (officeTypeId == 5) {
+                    officeId = $("#AreaId option:selected").text();
+                }
+                else if (officeTypeId == 6) {
+                    officeId = $("#UnitId option:selected").text();
+                }
+                else if (officeTypeId == 'Multiple Locations') {
+                    officeId = $("#OfficeTypeId option:selected").text();
+                }
+                else if (officeTypeId == 'Courier') {
+                    officeId = $("#OfficeTypeId option:selected").text();
+                }
+                else if (officeTypeId == 'Others') {
+                    officeId = $("#OfficeTypeId option:selected").text();
+                }
+            }
+
+            var tADABillId = tabillId; 
+            var employeeId = $("#EmployeeId").val();
+            var employeeCode = $("#EmployeeCode").val();
+            var memoNo = $("#MemoNo").val();
+            var travelDate = $("#TravelDate").val();
+            var travelPlace = officeId;
+            var travelPurpose = $("#TravelPurposeId option:selected").val();
+            var approveDate = $("#ApproveDate").val();
+            var claimAmount = $("#ClaimAmount").val();
+            var approveAmount = $("#ApproveAmount").val();
+
+            if (employeeId == "" || employeeCode == "" || employeeId == "0") {
+                $.alert.open("Error", "Please choose an employee");
+                return false;
+            }
+
+            if (tADABillId > 0 && memoNo > 0 && employeeId > 0 && travelDate != "" && travelPlace != "" && approveDate != "" && claimAmount > 0 && approveAmount > 0) {
+                var createObject = {
+                    TADABillId: tADABillId,
+                    EmployeeId: parseInt(employeeId),
+                    EmployeeCode: employeeCode,
+                    MemoNo: memoNo,
+                    TravelDate: travelDate,
+                    TravelPlace: travelPlace,
+                    TravelPurpose: travelPurpose,
+                    ApproveDate: approveDate,
+                    ClaimAmount: claimAmount,
+                    ApproveAmount: approveAmount
+                };
+
+                $("#AjaxLoader").show();
+                $.ajax({
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("UpdateEmployeeTADAData", "EmployeeTADABill", "http")',
+                    type: "POST",
+                    dataType: 'json',
+                    async: false,
+                    data: JSON.stringify({ CreateObject: createObject }),
+                    success: function (data) {
+                        $("#AjaxLoader").hide();
+
+                        if (data.result == 1) {
+                            $.alert.open("Success", data.message);
+                            tabillId = 0;
+                            LoadTADABILLInfo();
+                            clearForm();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please provide all required fields");
+                return false;
+            }
+        });
+
+        $("#btnRestore").click(function () {
+            clearForm();
+            tabillId = 0;
+        });
+    });
+
+    function clearForm() {
+        $("#MemoNo").val('');
+        $("#TravelPlace").val('');
+        $("#TravelPurpose").val('');
+        $("#TravelDate").datepicker('setDate', new Date());
+        $("#ApproveDate").datepicker('setDate', new Date());
+        $("#ClaimAmount").val('');
+        $("#ApproveAmount").val('');
+
+        $("#btnUpdate").hide();
+        $("#btnRestore").hide();
+        $("#btnSave").show();
+    }
+
+    function LoadTADABILLInfo() {
+
+        var employeecode = $("#EmployeeCode").val();
+        debugger;
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        var employeecode = $("#EmployeeCode").val();
+                        //   jtParams.jtSorting = "";
+                        $.ajax({
+                            url: '/EmployeeTADABill/LoadTADABILLInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&employee_code=' + employeecode,
+                            // url: '/EmployeeTADABill/LoadTADABILLInfo?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&employee_code=' + employeecode,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {},//postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                TADABillId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                rowSl: {
+                    width: '5%',
+                    title: "Sl."
+                },
+                EmployeeCode: {
+                    width: '10%',
+                    title: "Employee Code"
+                },
+                EmployeeName: {
+                    width: '10%',
+                    title: "Name"
+                },
+                MemoNo: {
+                    width: '5%',
+                    title: "Memo No"
+                },
+                TravelDateMsg: {
+                    width: '5%',
+                    title: "Travel Date"
+                },
+                TravelPlace: {
+                    width: '5%',
+                    title: "Place"
+                },
+                TravelPurpose: {
+                    width: '5%',
+                    title: 'Purpose'
+                },
+                ApproveDateMsg: {
+                    width: '5%',
+                    title: 'Approve Date'
+                },
+                ClaimAmount: {
+                    width: '5%',
+                    title: 'Claim Amount'
+                },
+                ApproveAmount: {
+                    width: '5%',
+                    title: 'Approve Amount'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditGrid( ' + data.record.TADABillId + ',' + "'" + data.record.EmployeeCode + "'" + ',' + data.record.MemoNo + ',' + "'" + data.record.TravelDateMsg + "'" + ',' + "'" + data.record.OfficeTypeId + "'" + ',' + "'" + data.record.HeadOfficeId + "'" + ',' + "'" + data.record.ZoneOfficeId + "'" + ',' + "'" + data.record.AreaOfficeId + "'" + ',' + "'" + data.record.UnitOfficeId + "'" + ',' + "'" + data.record.TravelPlaceId + "'" + ',' + "'" + data.record.TravelPlace + "'" + ',' + "'" + data.record.TravelPurpose + "'" + ',' + "'" + data.record.ApproveDateMsg + "'" + ',' + data.record.ClaimAmount + ',' + data.record.ApproveAmount + ' )"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+
+                Delete: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.TADABillId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+            }
+        });
+        $('#grid').jtable('load', employee_code = $("#EmployeeCode").val());
+    }
+
+    function EditGrid(TADABillId, EmployeeCode, MemoNo, TravelDateMsg, OfficeTypeId, HeadOfficeId, ZoneOfficeId, AreaOfficeId, UnitOfficeId, TravelPlaceId, TravelPlace, TravelPurpose, ApproveDateMsg, ClaimAmount, ApproveAmount) {
+        debugger;
+        $("#HeadOfficeDiv").show();
+        $("#ProjectDiv").show();
+        $("#ZoneDiv").show();
+        $("#AreaDiv").show();
+        $("#UnitDiv").show();
+
+
+        tabillId = TADABillId;
+        $("#TADABillId").val(TADABillId);
+        $("#EmployeeCode").val(EmployeeCode).trigger('blur');
+        $("#MemoNo").val(MemoNo);
+        $("#TravelDate").val(TravelDateMsg);
+
+        $("#OfficeTypeId").val(OfficeTypeId);
+        $('#OfficeTypeId').val(OfficeTypeId).trigger('change');
+
+        if (OfficeTypeId == "1") {
+            $("#PVHeadOfficeId").val(HeadOfficeId).trigger('change');
+            $("#PVHeadOfficeId").val(HeadOfficeId);
+        }
+        else if (OfficeTypeId == "3") {
+            $("#PVProjectId").val(TravelPlace).trigger('change');
+            $("#PVProjectId").val(AreaOfficeId);
+        }
+        else if (OfficeTypeId == "4") {
+            $("#ZoneId").val(ZoneOfficeId).trigger('change');
+            $("#ZoneId").val(AreaOfficeId);
+        }
+        else if (OfficeTypeId == "5") {
+            $("#ZoneId").val(ZoneOfficeId).trigger('change');
+            $("#AreaId").val(UnitOfficeId);
+        }
+        else if (OfficeTypeId == "6") {
+            $("#ZoneId").val(ZoneOfficeId).trigger('change');;
+            $("#AreaId").val(AreaOfficeId).trigger('change');;
+            $("#UnitId").val(UnitOfficeId);
+        }
+        else if (TravelPlace == 'Multiple Locations') {
+            $("#OfficeTypeId").val(TravelPlace);
+            $("#HeadOfficeDiv").hide();
+            $("#ProjectDiv").hide();
+            $("#ZoneDiv").hide();
+            $("#AreaDiv").hide();
+            $("#UnitDiv").hide();
+        }
+        else if (TravelPlace == 'Courier') {
+            $("#OfficeTypeId").val(TravelPlace);
+            $("#HeadOfficeDiv").hide();
+            $("#ProjectDiv").hide();
+            $("#ZoneDiv").hide();
+            $("#AreaDiv").hide();
+            $("#UnitDiv").hide();
+        }
+        else if (TravelPlace == 'Others') {
+            $("#OfficeTypeId").val(TravelPlace);
+            $("#HeadOfficeDiv").hide();
+            $("#ProjectDiv").hide();
+            $("#ZoneDiv").hide();
+            $("#AreaDiv").hide();
+            $("#UnitDiv").hide();
+        }
+
+        $("#TravelPurposeId").val(TravelPurpose);       
+        $("#ApproveDate").val(ApproveDateMsg);
+        $("#ClaimAmount").val(ClaimAmount);
+        $("#ApproveAmount").val(ApproveAmount);
+
+        $("#btnUpdate").show();
+        $("#btnRestore").show();
+        $("#btnSave").hide();
+    }
+
+    function InformationDelete(TADABillId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteTADABill", "EmployeeTADABill", "http")',
+                    data: { TADABillId: TADABillId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            tabillId = 0;
+                            $.alert.open("Success", data.message);
+                            LoadTADABILLInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+</script>
+
+@Html.ActionLink("Back to List", "BillSearch", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">TADA Entry</h2>
+
+@using (Html.BeginForm("DisciplinaryShortForm", "DisciplinaryBackDateEntry", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+
+    <br /><br />
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Employee Code</label>
+                <div class="col-sm-8">
+
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.HiddenFor(model => model.EmployeeId)
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Employee Name</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Office Name</label>
+                <div class="col-sm-8">
+                    <input type="text" id="txtOfficeName" class="form-control" readonly="readonly" />                  
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Designation Name</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4">Department Name</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Memo No</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.MemoNo, new { htmlAttributes = new { @class = "form-control", @readonly = "true", @onkeypress = "return checkNumeric(event);" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Travel Date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.TravelDate, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="officenav">
+        <hr />
+        @Html.Partial("~/Views/Shared/_OfficeNevigationPaneForTADA.cshtml", pvOfficeNevigation)
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group">
+                <label class="control-label col-sm-2">Travel Purpose</label>
+                <div class="col-sm-4">
+                    @Html.DropDownListFor(model => model.TravelPurposeId, Model.TravelPurposeNameList,"Please Select", new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Approve date</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.ApproveDate, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Claim Amount</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.ClaimAmount, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4 required">Approved Amount</label>
+                <div class="col-sm-8">
+                    @Html.EditorFor(model => model.ApproveAmount, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-md-offset-2">
+            <div class="form-group">
+                <div class="col-sm-8 ">
+                    <input type="button" value="Save" id="btnSave" class="btn btn-primary" />
+                    <input type="button" value="Update" id="btnUpdate" class="btn btn-primary" /> &nbsp;
+                    <input type="button" value="Restore" id="btnRestore" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="grid"></div>
+}
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

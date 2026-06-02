@@ -1,0 +1,118 @@
+﻿@model gHRM.Web.ViewModels.PF.ProcessLogViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script type="text/javascript">
+
+    function UpdateProcessLog(processLogId, startDate, isOpen) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateProcessLog", "PFProcessLog", "http")',
+            data: { processLogId: processLogId, startDate: startDate, isOpen: isOpen },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+                //$.alert.open("Error", request.statusText);
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $("#StartDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+         });
+
+        $("#btnUpdateProcessLog").click(function () {
+           
+            var processLogId = $('#ProcessLogId').val();
+            var startDate = $("#StartDate").val();
+            var isOpen = $("#IsOpen").is(":checked");
+
+            if (processLogId == '') {
+              
+                return;
+            }
+            if (startDate == '') {
+                $.alert.open("Please enter Start Date");
+                return;
+            }
+            
+            UpdateProcessLog(processLogId, startDate, isOpen);
+        });
+
+        });
+   // });
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit Loan Type</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.StartDate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @class = "form-control", @tabindex = 1 } })
+                    @Html.HiddenFor(model => model.ProcessLogId)
+                </div>
+                @Html.LabelFor(model => model.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.IsOpen, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.CheckBoxFor(model => model.IsOpen, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                @Html.LabelFor(model => model.SystemDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.SystemDate, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="padding:10px;margin:0px;"></div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnUpdateProcessLog" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,185 @@
+﻿@model gHRM.Web.ViewModels.TransferReportViewModel
+
+@{
+    ViewBag.Title = "Employee Transfer History JCF";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var deptList = Model == null ? null : Model.DepartmentList;
+    var desgList = Model == null ? null : Model.DesignationList;
+    var empStatus = Model == null ? null : Model.EmployeeStatusList;
+
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#EmployeeCode").blur(function (e) {
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+
+        function LoadEmpInfoByCode(employee_code) {
+            $("#EmployeeId").val(0);
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetEmpInfoByCode", "EmployeeTransferNew", "http")',
+                data: { employee_code: employee_code },
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    debugger;
+                    if (data.result == 1 && data.data.length>0) {
+                        $.each(data.data, function (index, data) {
+                            $("#EmployeeId").val(data.EmployeeId);
+                            $("#EmployeeName").val(data.EmployeeName);
+                            $("#CurrentOfficeType").val(data.CurrentOfficeType);
+                            $("#EmployeeCurrentOfficeName").val(data.EmployeeCurrentOfficeName);
+                            // $("#EmployeeCurrenOfficeId").val(data.OfficeId);
+                            $("#EmployeeCurrentDepartmentName").val(data.EmployeeCurrentDepartmentName);
+                            $("#EmployeeCurrentDesignation").val(data.EmployeeCurrentDesignation);
+                        });
+                    }
+                    else {
+                        ClearControl();
+                        $.alert.open("Error", "Invalid code");
+                    }
+                },
+            });
+        }
+
+        function ClearControl() {
+            $("#EmployeeId").val('');
+            $("#EmployeeName").val('');
+            $("#CurrentOfficeType").val('');
+            $("#EmployeeCurrentOfficeName").val('');
+            //$("#EmployeeCurrenOfficeId").val('');
+            $("#EmployeeCurrentDepartmentName").val('');
+            $("#EmployeeCurrentDesignation").val('');
+        }
+
+
+        $("#btnPrint").click(function () {
+            var EmployeeCode = $("#EmployeeCode").val();
+            var EmployeeCurrentOfficeName = $("#EmployeeCurrentOfficeName").val();
+            
+            if (EmployeeCode != "" && EmployeeCurrentOfficeName !="") {
+                url = '/TransferReport/EmployeeHistory?EmployeeCode=' + EmployeeCode;
+                PrintReport(url);
+            } else {
+                $.alert.open("Alert", "Please Input Valid Employee Code");
+                return false;
+            }
+        });
+
+        $("#btnPrintNew").click(function () {
+            var EmployeeCode = $("#EmployeeCode").val();
+            var EmployeeCurrentOfficeName = $("#EmployeeCurrentOfficeName").val();
+
+            if (EmployeeCode != "" && EmployeeCurrentOfficeName != "") {
+                url = '/TransferReport/EmployeeHistoryJCF?EmployeeCode=' + EmployeeCode;
+                PrintReport(url);
+            } else {
+                $.alert.open("Alert", "Please Input Valid Employee Code");
+                return false;
+            }
+        });
+    });
+
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+<h2 class="page-title">Employee Transfer History</h2>
+<br />
+
+<div class="container-fluid">
+
+    <fieldset>
+        <legend class="text-info" id="rpt_name"></legend>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CurrentOfficeType, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.CurrentOfficeType, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentOfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentOfficeName, new { @class = "form-control required", @readonly = "readonly" })
+
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDepartmentName, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeCurrentDesignation, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCurrentDesignation, new { @class = "form-control required", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div><br>
+
+              <div class="row">
+                  <div class="col-sm-6 ">
+                      <div class="form-group col-sm-offset-4">
+                          <div class="col-md-8">
+                              <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                              &nbsp;
+                              <input type="button" id="btnPrintNew" value="New Report" class="btn btn-primary" />
+                          </div>
+                      </div>
+                  </div>
+              </div>
+    </fieldset>
+
+</div>
+
+
+

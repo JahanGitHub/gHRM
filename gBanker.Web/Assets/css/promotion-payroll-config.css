@@ -1,0 +1,48 @@
+﻿.jtable > thead > tr {
+    height: 50px;
+}
+
+#multiSection {
+    width: 40px;
+}
+
+table.jambo_table thead {
+    background: rgba(52, 73, 94, 0.94);
+    color: #ECF0F1;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    padding: 11px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #eee;
+}
+
+.table > tbody > tr:hover {
+    background-color: #9E9E9E;
+}
+
+.table {
+    width: 100%;
+    counter-reset: rowNumber;
+}
+
+    .table > tbody > tr {
+        counter-increment: rowNumber;
+    }
+
+        .table > tbody > tr > td:first-child::before {
+            content: counter(rowNumber);
+        }
+
+.txtcapitalize {
+    text-transform: capitalize;
+}
+
+.pt-15px {
+    padding-top: 15px !important;
+}

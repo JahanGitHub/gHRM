@@ -1,0 +1,252 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PromotionViewModel
+
+@{
+    ViewBag.Title = "Promotion";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Promotion Entry</h2>
+
+@{
+    var successMessage = TempData["SuccessMessage"] as string;
+}
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert"
+         style="position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:2000; width:50%; text-align:center;">
+        @successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Home">Home</a></li>
+        <li class="active"><span>Promotion</span></li>
+    </ol>
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+
+        <!-- Employee Info -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.EmplD, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.EmplD, new { htmlAttributes = new { @class = "form-control", @onblur = "loadEmployeeInfo(this.value)", required = "required" } })
+                        @Html.ValidationMessageFor(m => m.EmplD, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.EmpName, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.EmpName, new { htmlAttributes = new { @class = "form-control", required = "required" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Designation -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.CurrentDesignation, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.CurrentDesignation, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Previous Salary + Increment -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.PreSalary, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.PreSalary, new { htmlAttributes = new { @class = "form-control salary-calc", type = "number", step = "0.01", required = "required" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.Increment, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.Increment, new { htmlAttributes = new { @class = "form-control salary-calc", type = "number", step = "0.01", required = "required" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Salary -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.NewSalary, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.NewSalary, new { htmlAttributes = new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Last Dear -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.LastDear, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.LastDear, new { htmlAttributes = new { @class = "form-control", type = "number", step = "0.01", required = "required" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Designation + Next Increment -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    <label class="col-md-4 col-form-label">New Designation</label>
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(m => m.Designation,
+                            (IEnumerable<SelectListItem>)ViewData["DesignationList"],
+                            "-- Select Designation --",
+                            new { @class = "form-control", required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.NextIncrement, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.NextIncrement, new { htmlAttributes = new { @class = "form-control", type = "date", required = "required" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Effect Date & Order Date -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.EffectDate, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.EffectDate, new { htmlAttributes = new { @class = "form-control", type = "date", required = "required" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.OrderDate, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.OrderDate, new { htmlAttributes = new { @class = "form-control", type = "date", required = "required" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arear Salary + Dear + Bonus -->
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.ArearSalary, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.ArearSalary, new { htmlAttributes = new { @class = "form-control", type = "number", step = "0.01", required = "required" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.ArearDear, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.ArearDear, new { htmlAttributes = new { @class = "form-control", type = "number", step = "0.01", required = "required" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group row">
+                    @Html.LabelFor(m => m.ArearBonus, new { @class = "col-md-4 col-form-label" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(m => m.ArearBonus, new { htmlAttributes = new { @class = "form-control", type = "number", step = "0.01", required = "required" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group form-action" style="margin-top:20px;">
+            <input type="submit" value="Save Promotion" class="btn btn-primary" />
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        function loadEmployeeInfo(employeeCode) {
+            if (!employeeCode) {
+                clearEmployeeFields();
+                return;
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetEmployeeInfoByCode", "PRProcess")',
+                data: { employeeCode: employeeCode },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.Success) {
+                        $('#EmpName').val(data.EmployeeName);
+                        $('#EmpCode').val(data.EmployeeCode);
+                        $('#CurrentDesignation').val(data.CurrentDesignation);
+                        $('#Grade').val(data.Grade);
+                        $('#PreSalary').val(data.PresentSalary);
+                        $('#LastDear').val(data.LastDear);
+
+                        var today = new Date().toISOString().split('T')[0];
+                        $('#EffectDate').val(today);
+                        $('#OrderDate').val(today);
+                    } else {
+                        alert(data.Message);
+                        clearEmployeeFields();
+                    }
+                },
+                error: function () {
+                    alert('Error retrieving employee information.');
+                    clearEmployeeFields();
+                }
+            });
+        }
+
+        function clearEmployeeFields() {
+            $('#EmpName').val('');
+            $('#EmpCode').val('');
+            $('#CurrentDesignation').val('');
+            $('#Grade').val('');
+            $('#PreSalary').val('');
+            $('#LastDear').val('');
+        }
+
+        // Auto-hide success message
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('.alert-success').fadeOut('slow');
+            }, 20000);
+
+            // Auto calculate new salary
+            $('.salary-calc').on('input', function () {
+                var preSalary = parseFloat($('#PreSalary').val()) || 0;
+                var increment = parseFloat($('#Increment').val()) || 0;
+                $('#NewSalary').val(preSalary + increment);
+            });
+        });
+    </script>
+}

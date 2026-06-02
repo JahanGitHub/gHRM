@@ -1,0 +1,520 @@
+﻿@model gHRM.Web.ViewModels.EmployeeViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeePromotionConfiguration/PromotionBacklogIndex">Promotion</a></li>
+    </ol>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+@{
+    ViewBag.Title = "Promotion List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    //var ofTypeList = Model == null ? null : Model.OfficeTypeList;
+    var desigList = Model == null ? null : Model.DesignationList;
+    var offcDesigList = Model == null ? null : Model.OfficeDesignationList;
+    var employeeStatusList = Model == null ? null : Model.EmployeeStatusList;
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+
+<link href="~/Content/bpopup/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+<script src="~/Content/bpopup/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+<style type="text/css">
+    #element_to_pop_up2 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    #element_to_pop_up3 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    .style1 {
+        width: 100%;
+    }
+
+    .dashborad_lbl {
+        font-family: Arial;
+        font-size: 15px; /*font-weight:bold;*/
+        color: #333333;
+    }
+
+    .style2 {
+        background-color: White;
+        width: 100%;
+    }
+
+    .pop_tbl_style {
+        width: 100%;
+    }
+
+    .tbl {
+        border-collapse: collapse;
+        border: 1px solid #CCCCCC;
+        font-family: "Arial";
+        font-size: 12px;
+        background-color: White;
+        width: 100%;
+    }
+
+    .tHead {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .tFoot {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #tableRow {
+        font-family: Arial;
+        color: Black;
+        font-size: 12px;
+    }
+
+        #tableRow:nth-child(odd) {
+            background-color: #E2E4FF;
+        }
+
+        #tableRow:nth-child(even) {
+            background-color: White;
+        }
+
+    .tbl th {
+        text-align: center;
+    }
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    function SetSearchParameters() {
+
+        var OfficeId = "";
+        var DeptId = "";
+
+        var officeTypeId = $("#OfficeTypeId").val();
+        if (officeTypeId != "") {
+            if (officeTypeId == 1) {
+                OfficeId = $("#PVHeadOfficeId").val();
+            } else if (officeTypeId == 3) {
+                OfficeId = $("#PVProjectId").val();
+            }
+            else if (officeTypeId == 4) {
+                OfficeId = $("#ZoneId").val();
+            }
+            else if (officeTypeId == 5) {
+                OfficeId = $("#AreaId").val();
+            }
+            else if (officeTypeId == 6) {
+                OfficeId = $("#UnitId").val();
+            }
+        }
+        var deptId = $("#DepartmentId").val();
+        if (deptId != "") {
+            DeptId = deptId;
+        } else {
+            DeptId = "";
+        }
+        var payRollDesignation = $("#DesignationId").val();
+        var responsibility = $("#OfficeDesignationId").val();
+        var status = $('#typeFilterColumn').val();
+        var filterColumn = $("#filterColumn").val();
+        var filterValue = $("#filterValue").val();
+        if (filterColumn != "" && filterValue == "") {
+            $.alert.open("Error", "Please Provide Filter Value");
+            return false;
+        }
+
+        var Section = $("#Section").val();
+        if (Section == "0") {
+            Section = "";
+        }
+
+        let status_Promotion = $('input[name=empPromotion]:checked').val();
+        //if (status_Promotion == "AllPromotion") {
+        //    status_Promotion = "AllPromotion";
+        //}
+        if (status_Promotion == "ActivePromotion") {
+            status_Promotion = "ActivePromotion";
+        }
+        else if (status_Promotion == "InActivePromotion") {
+            status_Promotion = "InActivePromotion";
+        }
+
+        LoadEmployeeListForPromotion(officeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue, status_Promotion);
+    }
+
+    function LoadEmployeeListForPromotion(OfficeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue, status_Promotion) {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetEmployeeListForPromotion", "EmployeePromotionConfiguration", "http")',
+                    dataType: 'json',
+                    data: { OfficeTypeId: OfficeTypeId, OfficeId: OfficeId, DepartmentId: DeptId, PayrollDesignation: payRollDesignation, Responsibility: responsibility, Section: Section, Status: status, FilterColumn: filterColumn, FilterValue: filterValue, status_Promotion: status_Promotion }
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "25px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "DesignationName",
+                    title: "Designation",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "OrnamentalDesignationName",
+                    title: "Ornamental Designation",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeTypeName",
+                    title: "Office Type",
+                    width: "35px",
+                    filterable: true,
+                },
+                //{
+                //    field: "OfficeName",
+                //    title: "Office",
+                //    width: "40px",
+                //    filterable: true,
+                //},
+                {
+                    field: "EmployementTypeName",
+                    title: "Type",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployeeStatus",
+                    title: "Status",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "NextReviewDate",
+                    title: "Next Review Date",
+                    width: "25px",
+                    filterable: false,
+                    template: "#= NextReviewDate==null?'':kendo.toString(kendo.parseDate(NextReviewDate, 'yyyy-MM-dd'), 'dd-MMM-yyyy') #"
+                },
+                {
+                    title: "Details",
+                    width: "20px",
+                    template: function (dataItem) {
+                        return "<a href='/EmployeePromotionConfiguration/PromotionBacklogEntry/?EmployeeCode=" + dataItem.EmployeeCode + "'><i class='fa fa-pencil-square-o'></i></a>";
+                    }
+                },
+            ]
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        InformationStatus(true);
+
+        $('input[name=empStatus]').click(function () {
+            $('.selectpicker').selectpicker('deselectAll');
+            let status_text = $('input[name=empStatus]:checked').val();
+
+            if (status_text == "Active") {
+                InformationStatus(true);
+            }
+            else if (status_text == "InActive") {
+                InformationStatus(false);
+            }
+            else {
+                $('.selectpicker').selectpicker('selectAll');
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#Section");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value=''>Please Select</option>");
+                        }
+                    },
+                });
+            } else {
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+        $("#btnSearch").click(function () {
+            SetSearchParameters();
+        });
+
+        $("#filterColumn").change(function () {
+            $("#filterValue").val('');
+            if ($(this).val() != "ViewAll") {
+                if ($(this).val() == "Joining") {
+                    $("#filterValue").datepicker(
+                     {
+                         dateFormat: "dd-M-yy",
+                         showAnim: "scale",
+                     });
+                }
+                else if ($(this).val() == "Posting") {
+                    $("#filterValue").datepicker(
+                    {
+                        dateFormat: "dd-M-yy",
+                        showAnim: "scale",
+                    });
+                }
+                else if ($(this).val() == "Promotion") {
+                    $("#filterValue").datepicker(
+                     {
+                         dateFormat: "dd-M-yy",
+                         showAnim: "scale",
+                     });
+                }
+                else {
+                    $("#filterValue").datepicker("destroy");
+                }
+            }
+        });
+    });
+
+    function InformationStatus(stsvalue) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("InformationStatus", "Employee", "http")',
+            data: { stsvalue: stsvalue },
+            dataType: 'json',
+            async: true,
+            success: function (response) {
+                $.each(response.Data, function (index, status) {
+                    if (status.Value) {
+                        $("#typeFilterColumn option").filter(function () {
+                            return $(this).text() == status.Text;
+                        }).prop("selected", true);
+                    }
+                });
+
+                $('.selectpicker').selectpicker('refresh');
+            },
+        });
+    }
+
+</script>
+
+<div class="row">
+    <h2 class="page-title">Promotion History</h2>
+</div>
+
+<!-- OFFICE TYPE  OFFICE  Department-->
+<br />
+
+@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4 ">
+                @*text-right*@
+                <label class="control-label" style="padding-top:8px;">Payroll Designation (পদবী)</label>
+            </div>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.DesignationId, desigList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4">
+                <label class="control-label" style="padding-top:8px;">Responsibility:</label>
+            </div>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.OfficeDesignationId, offcDesigList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-sm-6">
+        <div class="form-group text-right">
+            <div class="col-md-4 ">
+
+            </div>
+            <div class="col-md-8">
+                <input type="radio" name="empStatus" id="empStatus" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empStatus" id="empStatus" value="All"> All
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeStatus, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.EmployeeStatusId, Model.EmployeeStatusList, new { @id = "typeFilterColumn", @multiple = "multiple", @class = "selectpicker form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4"> Department</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-md-4">Section</label>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.Section, Model.SectionList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-sm-6">
+        <div class="form-group text-right">
+            <div class="col-md-4 ">
+            </div>
+            <div class="col-md-8">
+                @*<input type="radio" name="empPromotion" id="empPromotion" value="AllPromotion"> All &nbsp;&nbsp;&nbsp;*@
+                <input type="radio" name="empPromotion" id="empPromotion" value="ActivePromotion" checked> Promotion Configured &nbsp;&nbsp;&nbsp;
+                <input type="radio" name="empPromotion" id="empPromotion" value="InActivePromotion"> Promotion Not Configured &nbsp;&nbsp;&nbsp;
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4 ">
+                <label class="control-label" style="padding-top:8px;"> Search By(Code/Name):</label>
+            </div>
+            <div class="col-md-8">
+                <select id="filterColumn" class="form-control">
+                    <option value="">Please Select</option>
+                    <option value="EmployeeCode">Employee Code</option>
+                    <option value="EmployeeName">Employee Name</option>
+                    <option value="Joining">Joining Date</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <input type="text" id="filterValue" placeholder="Type Search Text" class="form-control" />
+    </div>
+    <div class="col-md-2 text-center">
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+    </div>
+</div>
+
+<br />
+<div class="row" style="margin-top:10px;">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="gridKendo"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

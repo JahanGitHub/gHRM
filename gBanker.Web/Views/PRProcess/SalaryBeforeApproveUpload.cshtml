@@ -1,0 +1,159 @@
+﻿@model List<gHRM.Web.ViewModels.Payroll.SalaryBeforeApproveUploadModel>
+
+@{
+    ViewBag.Title = "Payroll Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRProcess">PRProcess</a></li>
+        <li><a href="/PRProcess/SalaryBeforeApproveUpload">SalaryBeforeApproveUpload</a></li>
+    </ol>
+</div>
+
+
+
+<h2 class="page-title">@ViewBag.Title</h2>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "uploadForm" }))
+{
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<div class="container-fluid">
+    <div id="AjaxLoader" class="ajaxLoader" style="display: none;"></div>
+
+
+    @* File Upload Section *@
+    <div class="box-content mb-4" style="padding:15px;">
+        <h4>Upload Salary File</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <input type="file" id="salaryFile" name="salaryFile" class="form-control" accept=".csv,.xlsx,.xls" />
+            </div>
+            <div class="col-md-2">
+                <button type="button" id="uploadBtn" class="btn btn-primary">Upload & Parse</button>
+            </div>
+        </div>
+        <small class="text-muted">Supported: Excel, CSV</small>
+    </div>
+
+    @* Save Button *@
+    <div class="row" style="margin-top:10px;">
+        <div class="col-sm-12">
+            <button id="saveBtn" class="btn btn-success">Save All</button>
+        </div>
+    </div>
+
+    @* Data Table *@
+    <div class="box-content mb-4" style="padding:15px;">
+        <h4>Extracted Data</h4>
+        <table id="salaryTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>SL</th>
+                    <th>Employee Code</th>
+                    @*<th>Action</th>*@
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+}
+
+@section Scripts {
+
+        @Scripts.Render("~/bundles/jqueryval")
+    
+
+
+    <script>
+        var extractedData = [];
+
+        // Handle file upload and parsing
+        $('#uploadBtn').click(function () {
+            var fileInput = $('#salaryFile')[0];
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            $('#AjaxLoader').show();
+            var formData = new FormData();
+            formData.append('salaryFile', fileInput.files[0]); // Match the parameter name in controller
+
+            $.ajax({
+                url: '@Url.Action("UploadAndParseSalaryFile", "PRProcess")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#AjaxLoader').hide();
+                    if (response.success) {
+                        // Clear existing data
+                        extractedData = [];
+                        $('#salaryTable tbody').empty();
+
+                        // Add parsed data
+                        response.data.forEach(function (item) {
+                            extractedData.push({ Sl: item.Sl, EmployeeCode: item.EmployeeCode });
+                            var row = `<tr>
+                                <td>${item.Sl}</td>
+                                <td>${item.EmployeeCode}</td>
+                                
+                            </tr>`;
+                            $('#salaryTable tbody').append(row);
+                        });
+
+                        alert('File parsed successfully. Found ' + response.data.length + ' records.');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function (err) {
+                    $('#AjaxLoader').hide();
+                    console.error('Full error response:', err);
+                    alert('Error uploading file. Please check console for details.');
+                }
+            });
+        });
+
+        
+
+        // Save all rows
+        $('#saveBtn').click(function () {
+            if (extractedData.length === 0) {
+                alert('No records to save.');
+                return;
+            }
+
+            $(this).prop('disabled', true).text('Saving...');
+            $('#AjaxLoader').show();
+
+            $.ajax({
+                url: '@Url.Action("SalaryBeforeApproveUpload", "PRProcess")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(extractedData),
+                success: function (response) {
+                    $('#AjaxLoader').hide();
+                    alert(response);
+                    extractedData = [];
+                    $('#salaryTable tbody').empty();
+                    $('#saveBtn').prop('disabled', false).text('Save All');
+                },
+                error: function (err) {
+                    $('#AjaxLoader').hide();
+                    alert('Error saving data: ' + err.responseText);
+                    $('#saveBtn').prop('disabled', false).text('Save All');
+                }
+            });
+        });
+    </script>
+}

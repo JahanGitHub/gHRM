@@ -1,0 +1,86 @@
+﻿@model gHRM.Web.ViewModels.EmployeePromotionViewModel
+
+@{
+    ViewBag.Title = "Employee Assessment Score";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">Assessment Score Entry</h2>
+ &nbsp;
+
+<div class="form-horizontal">
+
+    @Html.HiddenFor(model => model.PromotionId)
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Year</label>
+                <div class="col-md-8">
+                    @Html.DropDownList("Years", null, new { @ID = "Year", @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Emp. Code</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" autocomplete="off" id="employeecode" />
+                    <input type="hidden" id="employeeid" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Name</label>
+                <div class="col-md-8">
+                    <input type="text" class="form-control" autocomplete="off" id="employeename" readonly="readonly" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 required"> Score</label>
+                <div class="col-md-8">
+                    <input type="number" class="form-control" autocomplete="off" id="Score" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="button" id="btnSave" value="Save" class="btn btn-success" />&nbsp;
+            <input type="button" id="btnUpdate" value="Save" class="btn btn-primary btn-sm active" />
+            <input type="button" id="btnRestore" value="Cancel" class="btn btn-danger btn-sm active" />
+            <input type="button" id="btnNotFound" value="Not Found" class="btn btn-primary" />&nbsp;
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <h2 class="page-title">Assessment Score List</h2>
+        &nbsp;
+        <div class="col-md-12">
+            <div id="grid"></div>
+        </div>
+        <div class="col-md-12">
+            <div id="grid2"></div>
+        </div>
+    </div>
+    <br />
+</div>
+
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+    <script src="~/Assets/js/app/employeeAssessment/employeeAssessmentScore.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()@System.DateTime.Now"></script>
+}

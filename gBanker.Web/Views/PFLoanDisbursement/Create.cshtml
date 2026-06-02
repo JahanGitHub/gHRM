@@ -1,0 +1,419 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanDisbursementViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function isPositiveNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode < 48 || charCode > 57)
+            return false;
+        return true;
+    }
+    
+    function GetEmployeeByEmployeeCode(employeeCode) {
+        var employeeId = '';
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeByEmployeeCode", "Employee", "http")',
+            data: { employeeCode: employeeCode },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+
+                $('#EmployeeId').val(data.EmployeeId);
+                $('#EmployeeName').val(data.EmployeeName);
+                employeeId = data.EmployeeId;
+            },
+            error: function (request, status, error) {
+            }
+        });
+        return employeeId;
+    }
+
+    function GetLoanInfoByEmpId(employeeId, loanTypeId) {
+        var finishedLoan = 0;
+        var runningLoan = 0;
+        var maxLoanLimit = 0;
+        var message = '';
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '/PFLoanDisbursement/GetLoanInfoByEmpId',
+            data: { employeeId: employeeId, loanTypeId: loanTypeId },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.EmployeeExit == 'Yes') {
+
+                    if (data.InterestTypeId == 1) {//Fixed
+                        $('#IntersetRate').val(data.InterestRate);
+                        $('#IntersetRate').prop('disabled', true);
+                    }
+                    if (data.InterestTypeId == 2) {//Variable Rate
+                        $('#IntersetRate').prop('disabled', false);
+                    }
+
+                    runningLoan = data.RunningLoan;
+                    $('#MaxLoanLimit').val(data.MaxLoanLimit);
+                    $('#FinishedLoan').val(data.FinishedLoan);
+
+                    if (runningLoan != 0) {
+                        $.alert.open("Warning", "Unpaid Loan Exist, Please paid first.");
+                        disableDisbursement(true);
+                    }
+                    else {
+                        if (data.MaxLoanLimit == 0)
+                            disableDisbursement(true);
+                        else {
+                            disableDisbursement(false);
+                            $('#DisburseAmount').focus();
+                        }
+                    }
+                }
+                else {
+                    $.alert.open("Error", "Employee does not exist.");
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+        return runningLoan;
+    }
+
+    function SaveLoanDisbursement(employeeId, loanTypeId, disburseAmount, intersetRate, noOfInstallment, monthlyInstallment) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("SaveLoanDisbursement", "PFLoanDisbursement", "http")',
+            data: { employeeId: employeeId, loanTypeId: loanTypeId, disburseAmount: disburseAmount, intersetRate: intersetRate, noOfInstallment: noOfInstallment, monthlyInstallment: monthlyInstallment },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                clear();
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+                $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+            }
+        });
+    }
+
+    function GetInstallmentInfo(disburseAmount, intersetRate, noOfInstallment) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetInstallmentInfo", "PFLoanDisbursement", "http")',
+            data: { disburseAmount: disburseAmount, intersetRate: intersetRate, noOfInstallment: noOfInstallment },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.Success) {
+                    $('#MonthlyInstallment').val(data.MonthlyInstallment);
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+            }
+        });
+    }
+
+
+    function clear() {
+        $("input[type=text]:visible:enabled").first().focus();
+        $("#EmployeeId").val('');
+        $("#EmployeeCode").val('');
+        $('#EmployeeName').val('');
+
+        $('#LoanTypeList').val('');
+        $('#DisburseAmount').val('');
+        $('#IntersetRate').val('');
+
+        $('#DisburseAmount').prop('disabled', false);
+        $('#IntersetRate').prop('disabled', false);
+        $('#NoOfInstallment').prop('disabled', false);
+
+        $('#NoOfInstallment').val('');
+        $('#MaxLoanLimit').val('');
+        $('#FinishedLoan').val('');
+        $('#MonthlyInstallment').val('');
+    }
+
+    function CrearOnLoanTypeChange() {
+        $('#DisburseAmount').val('');
+        $('#IntersetRate').val('');
+        $('#NoOfInstallment').val('');
+        $('#MaxLoanLimit').val('');
+        $('#FinishedLoan').val('');
+        $('#MonthlyInstallment').val('');
+    }
+
+    function ClearOnEmployeeChange() {
+        $('#EmployeeId').val('');
+        $('#EmployeeName').val('');
+        $('#LoanTypeList').val('');
+        $('#DisburseAmount').val('');
+        $('#IntersetRate').val('');
+        $('#NoOfInstallment').val('');
+        $('#MaxLoanLimit').val('');
+        $('#FinishedLoan').val('');
+        $('#MonthlyInstallment').val('');
+    }
+
+    function DisableAll(flag) {
+        $('#EmployeeId').prop('disabled', flag);
+        $('#LoanTypeList').prop('disabled', flag);
+
+        $('#DisburseAmount').prop('disabled', flag);
+        $('#IntersetRate').prop('disabled', flag);
+        $('#NoOfInstallment').prop('disabled', flag);
+
+        $('#btnSaveDisbursement').prop('disabled', flag);
+        $('#btnReset').prop('disabled', flag);
+    }
+
+    function Add() {
+        var employeeId = $("#EmployeeId").val();
+        var employeeName = $("#EmployeeName").val();
+        var loanTypeId = $("#LoanTypeList option:selected").val();
+
+        var disburseAmount = $("#DisburseAmount").val();
+        var intersetRate = $("#IntersetRate").val();
+        var noOfInstallment = $("#NoOfInstallment").val();
+        var monthlyInstallment = $("#MonthlyInstallment").val();
+
+        var maxLoanLimit = $('#MaxLoanLimit').val();
+
+        if (employeeId == '' || loanTypeId == '' || employeeName == '' || disburseAmount == '' || noOfInstallment == '' || intersetRate == '' || monthlyInstallment == '') {
+            alert('Enter valid input');
+            return;
+        }
+
+        //use isNaN(123)
+        if (parseInt(disburseAmount) > parseInt(maxLoanLimit)) {
+            alert('Disburse Amount exceeded maximum limit');
+            return;
+        }
+
+        SaveLoanDisbursement(employeeId, loanTypeId, disburseAmount, intersetRate, noOfInstallment, monthlyInstallment);
+
+    }
+
+    function disableDisbursement(flag) {
+        $('#DisburseAmount').prop('disabled', flag);
+        $('#NoOfInstallment').prop('disabled', flag);
+    }
+
+    $(document).ready(function () {
+        $("input[type=text]:visible:enabled").first().focus();
+
+        @if (Model.IsOpen == true){
+            <text>
+        DisableAll(false);
+        </text>
+        }
+
+        @if(Model.IsOpen == false){
+            <text>
+        DisableAll(true);
+        </text>
+        }
+
+        $('#EmployeeCode').change(function () {
+            ClearOnEmployeeChange();
+
+            var employeeCode = $('#EmployeeCode').val();
+
+            if (employeeCode == '') {
+                return;
+            }
+
+            var employeeId = GetEmployeeByEmployeeCode(employeeCode);
+
+            if (employeeId == '' || employeeId == undefined) {
+                alert('Does not exist');
+                $('#EmployeeCode').focus();
+                return;
+            }
+        });
+
+
+        $('#LoanTypeList').change(function () {
+            CrearOnLoanTypeChange();
+            var runningLoan = 0;
+            var employeeId = $('#EmployeeId').val();
+            var employeeName = $('#EmployeeName').val();
+            var loanTypeId = $('#LoanTypeList option:selected').val();
+
+            //IntersetRate
+            if (employeeId == '') {
+                $.alert.open("Warning", "Enter Employee Code.");
+                return;
+            }
+            if (employeeName == '') {
+                $.alert.open("Warning", 'Employee does not exist.');
+                return;
+            }
+            if (loanTypeId != '') {
+                runningLoan = GetLoanInfoByEmpId(employeeId, loanTypeId);
+            }
+        });
+
+        $('#DisburseAmount').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+        $('#IntersetRate').keypress(function (event) {
+            return isNumber(event, this)
+        });
+        $('#NoOfInstallment').keypress(function (event) {
+            return isPositiveNumber(event, this)
+        });
+
+
+        $('#NoOfInstallment').change(function () {
+            $('#MonthlyInstallment').val('');
+            var disburseAmount = $("#DisburseAmount").val();
+            var intersetRate = $("#IntersetRate").val();
+            var noOfInstallment = $("#NoOfInstallment").val();
+            GetInstallmentInfo(disburseAmount, intersetRate, noOfInstallment);
+        });
+
+        $("#btnReset").click(function () {
+            clear();
+        });
+
+        $("#btnSaveDisbursement").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to add?', function (button) {
+                if (button == 'yes') {
+                    Add();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right btn btn-success" })
+&nbsp;
+<h2 class="page-title">
+    Create Disbursement
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: #00a65a; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: #00a65a; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, @Placeholder = "Employee Code" } })
+                    @Html.HiddenFor(model => model.EmployeeId)
+                </div>
+
+
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                <label class="control-label col-md-2 required">Loan Type</label>
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.LoanTypeList, Model.LoanTypeList, new { @class = "form-control", @tabindex = 2 })
+                </div>
+                @Html.LabelFor(model => model.FinishedLoan, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.FinishedLoan, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.DisburseAmount, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.DisburseAmount, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Disburse Amount", @tabindex = 3 } })
+                </div>
+                @Html.LabelFor(model => model.MaxLoanLimit, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.MaxLoanLimit, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.IntersetRate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.IntersetRate, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Interset Rate", @tabindex = 4 } })
+                </div>
+                @Html.LabelFor(model => model.MonthlyInstallment, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.MonthlyInstallment, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.NoOfInstallment, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.NoOfInstallment, new { htmlAttributes = new { @class = "form-control", @Placeholder = "No Of Installment", @tabindex = 5 } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Save" id="btnSaveDisbursement" class="btn btn-success" tabindex="6" />
+                    &nbsp;
+                    <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" tabindex="7" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

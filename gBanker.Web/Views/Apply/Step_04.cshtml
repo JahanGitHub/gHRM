@@ -1,0 +1,392 @@
+﻿@model gHRM.Web.ViewModels.Apply.ApplicantTrainingInfoViewModel
+@*  *@
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Apply/Step_01">Apply</a></li>
+        <li><a href="/Apply/Step_01">PersonalInformation</a></li>
+        <li><a href="/Apply/Step_02">AccademicInformation</a></li>
+        <li><a href="/Apply/Step_03">JobExperience</a></li>
+        <li><a href="/Apply/Step_04">Training Info</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Training Info";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+
+<script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<style>
+    @@import url('//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
+
+    .frmRow {
+        margin-bottom: 10px;
+    }
+
+    .accordion-toggle:after {
+        font-family: 'FontAwesome';
+        content: "\f078";
+        float: right;
+    }
+
+    .accordion-opened .accordion-toggle:after {
+        content: "\f054";
+    }
+
+
+    .k-grid-header, .k-grid-header .k-header {
+        /*      background-color: #00a65a;*/
+        color: red;
+        font-size: 13px;
+        font-weight: 600
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    function clearData() {
+        //$("#OfficeTypeId").val("").trigger('change');
+        $("#Id").val("");
+        $("#TrainingTitle").val("");
+        $("#TopicsCovered").val("");
+        $("#TrainingYearMsg").val("");
+        $("#Institute").val("");
+        $("#Duration").val("");
+
+
+    }
+
+    function Step_05() {
+        location.href = "/Apply/Step_05"
+    }
+    function Step_03() {
+        location.href = "/Apply/Step_03"
+    }
+    $(document).ready(function () {
+        //CheckInputLengthLessOrEqual("#Phone", "11");
+
+        GetTrainingInfoDashBoard();
+
+        $(function () { // will trigger when the document is ready
+            $('.datepicker').datepicker(); //Initialise any date pickers
+        });
+
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+
+            debugger;
+
+            var Id = $("#Id").val();
+            var TrainingTitle = $("#TrainingTitle").val();
+            var TopicsCovered = $("#TopicsCovered").val();
+            var TrainingYearMsg = $("#TrainingYearMsg").val();
+            var Institute = $("#Institute").val();
+            var Duration = $("#Duration").val();
+
+            if ($("#TrainingTitle").val() == "") {
+                $.alert.open("Error", "Please Insert Training Title");
+                return false;
+            }
+            if ($("#TopicsCovered").val() == "") {
+                $.alert.open("Error", "Please Insert Topics Covered");
+                return false;
+            }
+            if ($("#TrainingYearMsg").val() == "") {
+                $.alert.open("Error", "Please Insert Training Year");
+                return false;
+            }
+            if ($("#Institute").val() == "") {
+                $.alert.open("Error", "Please Insert Institute");
+                return false;
+            }
+
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "GET", //GET or POST or PUT or DELETE verb
+                 url: '/Apply/SaveTrainingInfo',
+                data: {
+                    Id: Id, TrainingTitle: TrainingTitle, TopicsCovered: TopicsCovered,
+                    TrainingYearMsg: TrainingYearMsg, Institute: Institute, Duration: Duration
+                },
+                dataType: "json", //Expected data format from server
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $('#AjaxLoader').hide();
+                    $.alert.open("Alert", data.message);
+                    clearData();
+                    GetTrainingInfoDashBoard();
+                },
+                error: function (data) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open('error', 'Error');
+                }
+            });
+            //} else {
+            //    $.alert.open("Error", "Please Insert required fields");
+            //}
+
+        });
+
+    });
+
+    function GetTrainingInfoDashBoard() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetTrainingInfo", "Apply", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "Id",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "TrainingTitle",
+                    title: "Training Title",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "TopicsCovered",
+                    title: "Topics Covered",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "TrainingYearMsg",
+                    title: "Training Year",
+                    width: "60px",
+                    filterable: true,
+                },
+                {
+                    field: "Institute",
+                    title: "Institute",
+                    width: "60px",
+                    filterable: false,
+                },
+
+                {
+                    field: "Duration",
+                    title: "Duration",
+                    width: "60px",
+                    filterable: false,
+                },
+
+                 {
+                     title: "Edit",
+                     width: "20px",
+                     template: function (dataItem) {
+                         if (dataItem.Id > 0) {
+                             return "<a href='/Apply/Step_04/?Id=" + dataItem.Id + "'><i class='fa fa-pencil-square-o'></i></a>";
+                         } else {
+                             return "";
+                         }
+                     }
+                 },
+            {
+                title: "Delete",
+                width: "25px",
+                template: function (dataItem) {
+                    if (dataItem.Id > 0) {
+                        return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + dataItem.Id + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    } else {
+                        return "";
+                    }
+                }
+            }
+            ]
+        });
+    }
+
+     function InformationDelete(Id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("InformationDeleteTrainingInfo", "Apply", "http")',
+                    data: { Id: Id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $.alert.open(data.message);
+                            GetTrainingInfoDashBoard();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+</script>
+
+
+&nbsp;
+<h2 class="page-title">Add Personal Information</h2>
+&nbsp;
+@using (Html.BeginForm("Step_04", "Apply", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "TrainingHistory" }))
+
+{
+    @Html.AntiForgeryToken()
+    <form id="InputForm">
+        <div class="container-fluid">
+            <button class='togglePersonalInfo btn btn-success col-sm-offset' style="width:340px">Training History</button>
+            <fieldset>
+                <legend>Training History</legend>
+                <div class="">
+                    @*@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)*@
+
+                    @*<hr/>*@
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(m => m.Id)
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TrainingTitle, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.TrainingTitle, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.TrainingTitle, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TopicsCovered, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.TopicsCovered, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.TopicsCovered, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.TrainingYear, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.TrainingYearMsg, new { @class = "form-control datepicker" })
+                                    @Html.ValidationMessageFor(model => model.TrainingYear, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Institute, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.Institute, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Institute, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Duration, htmlAttributes: new { @class = "control-label col-sm-4 " })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.Duration, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.Duration, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </fieldset>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                &nbsp;
+                <button type="button" id="btnSave" class="btn btn-success btn-sm" style="float:right;"><i class="fa fa-check-circle-o"></i> Save</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-horizontal">
+            <hr />
+            <div class="box-content">
+                <div class="table-responsive">
+                    <div id="gridKendo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                &nbsp;
+                <button type="button" class="btn btn-success col-sm-offset-5" onclick="Step_05()" style="float: right;">Next Page</button>
+            </div>
+        </div>
+
+    </div>
+
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}
+
+
+
+
+
+

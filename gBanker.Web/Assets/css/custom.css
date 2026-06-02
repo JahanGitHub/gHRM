@@ -1,0 +1,152 @@
+﻿.required:after {
+    content: "*";
+    font-weight: bold;
+    color: red;
+}
+
+.errorClass {
+    border: 1px solid #ff0000;
+}
+
+.valid {
+    border: 1px solid #d2d6de;
+}
+
+.content-wrapper, .right-side {
+    min-height: 100%;
+    background-color: #F9F9F9;
+    z-index: 800;
+}
+
+.skin-green .wrapper, .skin-green .main-sidebar, .skin-green .left-side {
+    background: #F4F4F4;
+}
+
+.skin-green .main-sidebar, .skin-green .left-side {
+    background: #F4F4F4;
+}
+
+.skin-green .sidebar-menu > li > .treeview-menu {
+    margin: 0 1px;
+    background: #F9F9F9;
+}
+
+.skin-green .sidebar-menu > li > a:hover, .skin-green .sidebar-menu > li.active > a {
+    color: #00A65A;
+    background: #F4F4F4;
+    border-left-color: #00a65a;
+    font-family: font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+
+.skin-green .sidebar a {
+    color: #000;
+}
+
+.skin-green .treeview-menu > li > a {
+    color: #000;
+    font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-size: 12px;
+}
+
+    .skin-green .treeview-menu > li.active > a, .skin-green .treeview-menu > li > a:hover {
+        color: #00A65A;
+        font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+    }
+
+
+/*styles for validation helpers*/
+
+.field-validation-error {
+    color: #D62020;
+    display: inline-block;
+    width: 100%;
+    /*background: #f2dede;*/
+    padding: 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+
+input.input-validation-error, textarea.input-validation-error, select.input-validation-error {
+    border: 1px solid #b94a48;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #b94a48;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/*Start jtable*/
+
+.grid-listing .jtable > thead > tr {
+    height: 50px !important;
+}
+
+/*End jtable*/
+
+/*Start Imployee Import*/
+
+.panel.panel-padding-import-imployee {
+    padding: 0px 10px 10px 36px !important;
+}
+
+.panel-body.panel-body-import-imployee {
+    padding: 0px !important;
+}
+
+/*End Imployee Import*/
+
+/*
+    
+*/
+.col-sm-2.col-sm-2p5 {
+    width: 20.666667%  !important;
+}
+
+
+.switchable-app {
+    background-color: #5bc0de;
+    width: 128px;
+    height: 62px;
+}
+
+.switch-app {
+    height: 81px !important;
+}
+
+.switchable-app .app-info {
+    background-color: #5bc0de !important;
+}
+
+.switchable-app .app-primary {
+    background-color: #337ab7 !important;
+}
+.switchable-app a {
+    font-size: 20px !important;
+    color: white !important;
+}
+
+
+.fixed-items .panel-heading {
+    background-color: #00a65a !important;
+}
+
+    .fixed-items .panel-heading a {
+        color: #fff !important;
+    }
+
+.fixed-items .panel-body {
+    font-weight: bolder !important;
+}

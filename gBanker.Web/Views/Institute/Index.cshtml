@@ -1,0 +1,91 @@
+@{
+    ViewBag.Title = "Institute Setup";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .modal-backdrop {
+        z-index: 900;
+    }
+
+    .vertical-alignment-helper {
+        display: table;
+        height: 100%;
+        width: 100%;
+        pointer-events: none; /* This makes sure that we can still click outside of the modal to close it */
+    }
+
+    .vertical-align-center {
+        /* To center vertically */
+        display: table-cell;
+        vertical-align: middle;
+        pointer-events: none;
+    }
+
+    .modal-content {
+        /* Bootstrap sets the size of the modal in the modal-dialog class, we need to inherit it */
+        width: inherit;
+        max-width: inherit; /* For Bootstrap 4 - to avoid the modal window stretching full width */
+        height: inherit;
+        /* To center horizontally */
+        margin: 0 auto;
+        pointer-events: all;
+    }
+
+    .modal-header {
+        background: #008d4c;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .modal-header {
+        color: #fff;
+    }
+</style>
+
+@Html.ActionLink("Add New", null, null, new { @class = "btn btn-success btn-sm pull-right", onclick = "RegionForm.Create(event)" })
+<h2 class="page-title">Institute Setup</h2>
+&nbsp;
+@Html.AntiForgeryToken()
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>
+
+<div class="modal" id="RegionEntryModal" role="dialog" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Institute Setup
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 required">Name</label>
+                            <div class="col-sm-8">
+                                <input id="Name" name="Name" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; text-align: right;">
+                        <input type="button" value="Save" id="btnSave" class="btn btn-success" onclick="RegionForm.Save()" />
+                    </div>
+                </div>
+                <div class="modal-footer" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("/Assets/js/app/training/institute.js?v=" + @gHRM.Core.Utilities.CommonHelper.DEV_VERSION())
+}

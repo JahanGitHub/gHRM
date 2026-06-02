@@ -1,0 +1,410 @@
+﻿@*
+    This is the main dashboard layout that creates the AdminLTE look and feel
+       It includes all of the relevant CSS and Js in this project and across CDNs around the web for optimal load times
+       TODO: Use this layout in your views by either setting the "Layout" property
+       or changing your  _ViewStart.cshtml to use this layout
+*@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>@SessionHelper.CompanyInfo.CompanyShortName - @ViewBag.Title - Grameen Human Resource Management System</title>
+    <link rel="shortcut icon" href="~/Images/Icon%20_g.png">
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/Script-calendar")
+
+    <script src="~/Content/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Scripts/AdminLTE/app.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic" rel="stylesheet" />
+    <link href="~/Content/css/css.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    @Styles.Render("~/Bootstrap/css")
+
+    <link href="~/Content/font-awesome/css/font-awesome.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+    <link href="~/Content/css/ionicons.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <link href="~/Content/AdminLTE/AdminLTE.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+    <link href="~/Content/AdminLTE/skins/_all-skins.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+    <link href="~/Assets/css/custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+
+    <link rel="stylesheet" href="~/Content/alert/themes/default/theme.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" />
+    <link rel="stylesheet" href="~/Content/alert/css/alert.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" />
+    <!-- kendo csss -->
+
+    <link href="~/Scripts/kendoGridCssScript/kendoCSS/kendo.common.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <link href="~/Scripts/kendoGridCssScript/kendoCSS/kendo.bootstrap.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <!-- end kendo csss -->
+
+    <script src="~/Scripts/siteJs.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Content/alert/js/alert.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <!-- kendo JS -->
+    <script src="~/Scripts/kendoGridCssScript/KendoJs/kendo.all.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Scripts/kendoGridCssScript/KendoJs/kendo.aspnetmvc.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <!-- kendo Js -->
+    @*Added By Asad*@
+    <script src="~/Scripts/validator/DateValidation.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Scripts/validator/jquery.ui.datepicker.validation.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Scripts/validator/validator.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+    <!-- qTip -->
+    <link href="~/Content/ScheduleManager/qtip.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+
+    <!-- Full Calendar -->
+    <link href="~/Content/ScheduleManager/fullcalendar.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.9.1/fullcalendar.print.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" media="print" />
+    <!-- Include moment-->
+    <script src="~/Scripts/ScheduleManager/moment.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+    <!-- qTip -->
+    <script src="~/Scripts/ScheduleManager/Qtip.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+    <!-- Full Calendar -->
+    <script src="~/Scripts/ScheduleManager/fullcalendar.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <link href="~/Scripts/jtable/themes/lightcolor/blue/jtable.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <link href="~/Content/gHRM-custom.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+
+    @Styles.Render("~/Content/themes/base/css")
+
+    @RenderSection("styles", required: false)
+
+    <style type="text/css">
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba( 255, 255, 255, .8 ) url(../images/ajax-loading.gif) 50% 50% no-repeat;
+        }
+
+        .success {
+            display: block;
+            background-color: #0AEA85;
+            color: rgb(21, 21, 21);
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .failed {
+            display: block;
+            background-color: red;
+            color: white;
+            text-decoration: initial;
+            padding: 10px;
+        }
+        /*.ui-datepicker {
+            position: absolute;
+            top: 375px;
+            left: 452.15625px;
+            z-index: 1;
+            display: block;
+            background-color: wheat;
+            border: 2px solid grey;
+
+            width: 17em;
+            padding: .4em .6em .2em;
+        }*/
+        fieldset {
+            display: block;
+            -webkit-margin-start: 2px;
+            -webkit-margin-end: 2px;
+            -webkit-padding-before: 0.35em;
+            -webkit-padding-start: 0.75em;
+            -webkit-padding-end: 0.75em;
+            -webkit-padding-after: 0.625em;
+            border: 2px groove threedface;
+            border-image-source: initial;
+            border-image-slice: initial;
+            border-image-width: initial;
+            border-image-outset: initial;
+            border-image-repeat: initial;
+            min-width: -webkit-min-content;
+        }
+
+        legend {
+            display: block;
+            -webkit-padding-start: 2px;
+            -webkit-padding-end: 2px;
+            border: none;
+            border-image-source: initial;
+            border-image-slice: initial;
+            border-image-width: initial;
+            border-image-outset: initial;
+            border-image-repeat: initial;
+            font-size: 16px;
+            width: auto;
+        }
+
+        k-grid-Edit-Small {
+            min-width: 30px !important;
+            padding: 3px !important;
+        }
+        /*.ajaxLoader {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba( 255, 255, 255, .8 ) url(../../images/ajax-loader2.gif) 50% 50% no-repeat;
+        }*/
+
+        /*jobayer*/
+        /*<img src="~/Images/loader.gif" id="loader" style="display:none"/>*/
+        .ajaxLoader {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: rgba( 255, 255, 255, .8 ) url(../../Images/loader.gif) 50% 50% no-repeat;
+            background-size: 300px 200px;
+        }
+        /*css for breadgum*/
+        .breadcrumb-arrow {
+            height: 30px;
+            padding: 0;
+            line-height: 36px;
+            list-style: none;
+            background-color: #e6e9ed;
+        }
+
+            .breadcrumb-arrow li:first-child a {
+                border-radius: 4px 0 0 4px;
+                -webkit-border-radius: 4px 0 0 4px;
+                -moz-border-radius: 4px 0 0 4px;
+            }
+
+            .breadcrumb-arrow li, .breadcrumb-arrow li a, .breadcrumb-arrow li span {
+                display: inline-block;
+                vertical-align: top;
+            }
+
+                .breadcrumb-arrow li:not(:first-child) {
+                    margin-left: -5px;
+                }
+
+                .breadcrumb-arrow li + li:before {
+                    padding: 0;
+                    content: "";
+                }
+
+                .breadcrumb-arrow li span {
+                    padding: 0 10px;
+                }
+
+                .breadcrumb-arrow li a, .breadcrumb-arrow li:not(:first-child) span {
+                    height: 30px;
+                    padding: 0 10px 0 25px;
+                    line-height: 30px;
+                }
+
+                .breadcrumb-arrow li:first-child a {
+                    padding: 0 10px;
+                }
+
+                .breadcrumb-arrow li a {
+                    position: relative;
+                    color: #fff;
+                    text-decoration: none;
+                    background-color: #3E7FB8;
+                    border: 1px solid #3E7FB8;
+                }
+
+                .breadcrumb-arrow li:first-child a {
+                    padding-left: 10px;
+                }
+
+                .breadcrumb-arrow li a:after, .breadcrumb-arrow li a:before {
+                    position: absolute;
+                    top: -1px;
+                    width: 0;
+                    height: 0;
+                    content: '';
+                    //border-top: 18px solid transparent;
+                    border-top: 12px solid transparent;
+                    border-bottom: 18px solid transparent;
+                }
+
+                .breadcrumb-arrow li a:before {
+                    right: -10px;
+                    z-index: 3;
+                    border-left-color: #3E7FB8;
+                    border-left-style: solid;
+                    border-left-width: 11px;
+                }
+
+                .breadcrumb-arrow li a:after {
+                    right: -11px;
+                    z-index: 2;
+                    border-left: 11px solid #2494be;
+                }
+
+                .breadcrumb-arrow li a:focus, .breadcrumb-arrow li a:hover {
+                    background-color: #3E7FB8;
+                    border: 1px solid #3E7FB8;
+                }
+
+                    .breadcrumb-arrow li a:focus:before, .breadcrumb-arrow li a:hover:before {
+                        border-left-color: #4fc1e9;
+                    }
+
+                .breadcrumb-arrow li a:active {
+                    background-color: #2494be;
+                    border: 1px solid #2494be;
+                }
+
+                    .breadcrumb-arrow li a:active:after, .breadcrumb-arrow li a:active:before {
+                        border-left-color: #2494be;
+                    }
+
+                .breadcrumb-arrow li span {
+                    color: #434a54;
+                }
+        /*css for add button*/
+        .breadcrumb-area {
+            margin-bottom: 10px;
+        }
+    </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJ3F989PEF"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-SJ3F989PEF');
+    </script>
+
+</head>
+<body class="skin-green">
+    <div class="wrapper">
+        @Html.Partial("_AdminLteTopMenu")
+        <!-- Left side column. contains the logo and sidebar -->
+        @Html.Partial("_AdminLteLeftMenu")
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                @Html.Partial("_AdminLteBreadcrumb")
+            </section>
+            <!-- Main content -->
+            <section id="dvMessage"></section>
+            <section class="content">
+                @RenderSection("AdminPageBreadCrumb", required: false)
+                @RenderBody()
+            </section><!-- /.content -->
+        </div><!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> 1.0.0
+            </div>
+            <strong>Copyright &copy; @DateTime.Now.Year <a href="http://www.grameen.technology">Grameen Communications</a>.</strong> All rights reserved.
+        </footer>
+    </div><!-- ./wrapper -->
+
+    @Scripts.Render("~/bundles/validateunobtrusive")
+
+    <script type="text/javascript">
+
+        function clearAllControls(url) {
+            var splits = url.split("/");
+            var edit = false;
+            for (var i = 0; i < splits.length; i++) {
+                if (splits[i] == "Edit") {
+                    edit = true;
+                    break;
+                }
+            }
+            if (!edit) {
+                $('input[type="text"]').each(function (index) {
+                    var defaultValue = $(this).attr('defaultValue');
+                    if (defaultValue != null && defaultValue.length > 0)
+                        $(this).val(defaultValue);
+                    else
+                        $(this).val('');
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            GetNotifications();
+            $('input').bind('focus', function (e) {
+                $("#dvMessage").hide();
+            });
+            // Handle the form submit event, and make the Ajax request:
+            $(".global-submit-form").on("submit", function (event) {
+                var _currentForm = $(this).closest('form');
+                if (_currentForm.valid()) {
+
+                    event.preventDefault();
+                    $("#loading").show();
+                    var url = $(this).attr("action");
+                    var formData = $(this).serialize();
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: formData,
+                        dataType: "json",
+                        success: function (resp) {
+                            $("#loading").hide();
+                            var result = resp.Result;
+                            var msg = resp.Message;
+                            var css = "failed";
+                            if (result == "OK")
+                                css = "success";
+                            $("#dvMessage").attr('class', css);
+                            $("#dvMessage").html(msg);
+                            $("#dvMessage").show();
+                            if (result == "OK") {
+                                $("#dvMessage").toggle('fade', 10000);
+                                clearAllControls(url);
+                            }
+
+                            $(window).scrollTop(0);
+                        },
+                        error: function (err) {
+                            $("#loading").hide();
+                            var msg = err.responseText;
+                            var css = "failed";
+                            $("#dvMessage").attr('class', css);
+                            $("#dvMessage").html(msg);
+                            $("#dvMessage").show();
+
+                            $(window).scrollTop(0);
+
+                        }
+
+                    })
+                }
+            });
+
+        });
+    </script>
+
+    <script src="~/Assets/plugins/cookies/cookie.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/js/app.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script type="text/javascript">
+        var enabledSSOLogin = '@gHRM.Web.Helpers.SessionHelper.EnabledSSOLogin';
+
+    </script>
+
+    @if (gHRM.Web.Helpers.SessionHelper.EnabledSSOLogin)
+    {
+        <!--SSO-Login-->
+        <script src="~/Assets/plugins/keycloak/keycloak-js/dist/keycloak.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+        <script src="~/Assets/js/app/account/ssoLoginManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    }
+    @RenderSection("scripts", required: false)
+</body>
+</html>

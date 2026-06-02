@@ -1,0 +1,92 @@
+﻿@model gHRM.Web.ViewModels.Payroll.ComponentPayrollViewModel
+@{
+    ViewBag.Title = "Group By Salary Statement";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $("#DateFrom").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:2050"
+            });
+            $("#DateFrom").datepicker('setDate', new Date());
+            
+
+            $("#btnPrint").click(function () {
+
+                
+                var dateFrom = $("#DateFrom").val();
+                var OfficeType = $("#OfficeTypeId option:selected").val();
+                if (dateFrom != "") {
+                    url = '/PRSalaryStatement/GroupBySalaryStatementReport?DateFrom=' + dateFrom + '&OfficeType=' + OfficeType;
+                    PrintReport(url);
+                }
+                else {
+                    $.alert.open("Error", "Please Select Date");
+                    return false;
+                }
+
+            });
+
+        });
+
+        function PrintReport(PrintUrl) {
+            var url;
+            url = PrintUrl;
+            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+        }
+
+</script>
+
+
+<h2 class="page-title">Group By Salary Statement Report</h2>
+<div class="container-fluid">
+
+    <div class="row" id="DateDuration">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4">Office Type</label>
+                <div class="col-md-8">
+                    @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date From </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <br>
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

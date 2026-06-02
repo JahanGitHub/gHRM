@@ -1,0 +1,122 @@
+﻿@model gHRM.Web.ViewModels.Payroll.ComponentPayrollViewModel
+@{
+    ViewBag.Title = "Office Wise Salary Statement Report";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#DateFrom").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+        });
+        $("#DateFrom").datepicker('setDate', new Date());
+        $("#DateTo").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:2050"
+
+        });
+        $("#DateTo").datepicker('setDate', new Date());
+
+        $("#btnPrint").click(function () {
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var Print = $("#btnPrint").val();
+            if (dateFrom != "" && dateTo != "") {
+                url = '/PRSalaryStatement/OfficeWiseSalaryStatementReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&Print=' + Print;
+                PrintReport(url);
+            }
+            else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+        });
+
+        $("#btnExcelPrint").click(function () {
+            var dateFrom = $("#DateFrom").val();
+            var dateTo = $("#DateTo").val();
+            var Print = $("#btnExcelPrint").val();
+            if (dateFrom != "" && dateTo != "") {
+                url = '/PRSalaryStatement/OfficeWiseSalaryStatementReport?DateFrom=' + dateFrom + '&DateTo=' + dateTo + '&Print=' + Print;
+                ExcelReport(url);
+            }
+            else {
+                $.alert.open("Error", "Please Select Date");
+                return false;
+            }
+        });
+
+
+    });
+
+    function PrintReport(PrintUrl) {
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function ExcelReport(PrintUrl) {
+        debugger;
+        var url;
+        url = PrintUrl;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+<h2 class="page-title">Office Wise Salary Statement Report</h2>
+<div class="container-fluid">
+
+    <div class="row" id="DateDuration">
+        <hr />
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date From </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label class="control-label col-md-4"> Date To </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.DateTo, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <br>
+        <div class="col-sm-6 ">
+            <div class="form-group col-sm-offset-4">
+                <div class="col-md-6">
+                    <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <input type="button" id="btnExcelPrint" value="Excel Download" class="btn btn-primary" />
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

@@ -1,0 +1,943 @@
+﻿@model gHRM.Web.ViewModels.EmployeeViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Employee">Employee Job Confirmation</a></li>
+    </ol>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+@{
+    ViewBag.Title = "Employee probationary or extended probationary  List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var ofTypeList = Model == null ? null : Model.OfficeTypeList;
+    var desigList = Model == null ? null : Model.DesignationList;
+    var offcDesigList = Model == null ? null : Model.OfficeDesignationList;
+    var employeeStatusList = Model == null ? null : Model.EmployeeStatusList;
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+<link href="~/Content/bpopup/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+<script src="~/Content/bpopup/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script src="https://kendo.cdn.telerik.com/2021.2.616/js/kendo.all.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+
+<style type="text/css">
+
+    #element_to_pop_up2 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    #element_to_pop_up3 {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+
+    .style1 {
+        width: 100%;
+    }
+
+    .dashborad_lbl {
+        font-family: Arial;
+        font-size: 15px; /*font-weight:bold;*/
+        color: #333333;
+    }
+
+    .style2 {
+        background-color: White;
+        width: 100%;
+    }
+
+    .pop_tbl_style {
+        width: 100%;
+    }
+
+    .tbl {
+        border-collapse: collapse;
+        border: 1px solid #CCCCCC;
+        font-family: "Arial";
+        font-size: 12px;
+        background-color: White;
+        width: 100%;
+    }
+
+    .tHead {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .tFoot {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #tableRow {
+        font-family: Arial;
+        color: Black;
+        font-size: 12px;
+    }
+
+        #tableRow:nth-child(odd) {
+            background-color: #E2E4FF;
+        }
+
+        #tableRow:nth-child(even) {
+            background-color: White;
+        }
+
+    .tbl th {
+        text-align: center;
+    }
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    var Page = {
+        ControlList: ["DateContainer", "BasicOfficeTypeContainer", "DesignationContainer", "TotalServiceYearContainer", "ServiceYearFromLastPromotionContainer"],
+        ReportControlConfig: {
+            EFPOD: ["DateContainer", "BasicOfficeTypeContainer", "DesignationContainer", "TotalServiceYearContainer", "ServiceYearFromLastPromotionContainer"]
+        },
+        ReportControlConfigMousumiCode: {
+            EPRCode: ["EmployeeCodeContainer"]
+        },
+
+        ReportControlConfigMousumiDate: {
+            EPRDate: ["DateContainer", "DateToContainer"]
+        },
+
+        IsNumber: function (Value) {
+            return ![null, ""].includes(Value) && !isNaN(Value);
+        },
+        Load: function () {
+            this.BindEvents();
+        },
+        BindEvents: function () {
+            $("#Date").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true
+                });
+            //  $("#DateFrom").datepicker('setDate', new Date());
+
+
+            $("#DateTo").datepicker(
+                {
+                    dateFormat: "dd-M-yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true
+                });
+            //    $("#DateTo").datepicker('setDate', new Date());
+
+
+
+            $("#ReportType").change(function () {
+                var ReportType = $(this).val();
+                //  alert(ReportType);
+
+                if (Page.ReportControlConfig.hasOwnProperty(ReportType)) {
+                    Page.ControlList.forEach(function (x) { $("." + x).hide(); });
+                    Page.ReportControlConfig[ReportType].forEach(function (x) {
+                        $("." + x).show();
+                    });
+                }
+
+                if (Page.ReportControlConfigMousumiCode.hasOwnProperty(ReportType)) {
+                    Page.ControlList.forEach(function (x) { $("." + x).hide(); });
+                    Page.ReportControlConfigMousumiCode[ReportType].forEach(function (x) {
+                        $("." + x).show();
+                    });
+                }
+
+                if (Page.ReportControlConfigMousumiDate.hasOwnProperty(ReportType)) {
+                    Page.ControlList.forEach(function (x) { $("." + x).hide(); });
+                    Page.ReportControlConfigMousumiDate[ReportType].forEach(function (x) {
+                        $("." + x).show();
+                    });
+                }
+
+            });
+        },
+        PrintReport: function (DownloadExcel) {
+
+
+            var DateFrom = $("#DateFrom").val();
+            var DateTo = $("#DateTo").val();
+
+
+            if (DateFrom != "") {
+                $("#OrderNo").val('');
+
+                try {
+                    var dd = dateConvert(DateFrom);
+                    // alert(dd);
+                }
+                catch (ex) {
+                    alert('From Date is invalid');
+                    $('#DateFrom').val('');
+                }
+
+                if (dateIsValid(dd) == false) {
+                    alert('From Date is invalid');
+                    $('#DateFrom').val('');
+                    return false;
+
+                }
+
+            }
+
+            if (DateTo != "") {
+                try {
+                    var tt = dateConvert(DateTo);
+                }
+                catch (ex) {
+                    alert('To date is invalid');
+                    $('#DateTo').val('');
+                }
+
+                if (dateIsValid(tt) == false) {
+                    alert('To Date is invalid');
+                    $('#DateTo').val('');
+                    return false;
+
+                }
+
+            }
+            var EmployeeCode = $("#OrderNo").val();
+
+
+            if (EmployeeCode == '' && DateFrom == '' && DateTo == '') {
+                alert('please fill up employee code or date from and date to');
+                return false;
+            }
+
+            //  alert(ReportType);
+
+            // alert(EmployeeCode);
+            //   alert(DateFrom);
+            //  alert(DateTo);
+
+            if (EmployeeCode == "") {
+                var url = '/TransferReport/TransferReportDateWiseForStaf?' +
+                    '&Date=' + $("#DateFrom").val() +
+                    '&DateTo=' + $("#DateTo").val() +
+                    '&EmployeeCode=' + $("#OrderNo").val() +
+                    '&DownloadExcel=' + (DownloadExcel ? "true" : "false");
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+            else {
+                var url = '/TransferReport/TransferReportEmpCodeForStaf?' +
+                    '&EmployeeCode=' + $("#OrderNo").val() +
+                    '&DownloadExcel=' + (DownloadExcel ? "true" : "false");
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+        }
+    };
+
+    $(function () {
+        Page.Load();
+    });
+
+
+
+
+        function SetSearchParameters2() {
+        var OfficeId = "";
+        var DeptId = "";
+
+        var officeTypeId = $("#OfficeTypeId").val();
+        if (officeTypeId != "") {
+            if (officeTypeId == 1) {
+                OfficeId = $("#PVHeadOfficeId").val();
+            } else if (officeTypeId == 3) {
+                OfficeId = $("#PVProjectId").val();
+            }
+            else if (officeTypeId == 4) {
+                OfficeId = $("#ZoneId").val();
+            }
+            else if (officeTypeId == 5) {
+                OfficeId = $("#AreaId").val();
+            }
+            else if (officeTypeId == 6) {
+                OfficeId = $("#UnitId").val();
+            }
+        }
+        var deptId = $("#DepartmentId").val();
+        if (deptId != "") {
+            DeptId = deptId;
+        } else {
+            DeptId = "";
+        }
+        var payRollDesignation = $("#DesignationId").val();
+        var responsibility = $("#OfficeDesignationId").val();
+        var status = $('#typeFilterColumn').val();
+        alert(status);
+        var filterColumn = $("#filterColumn").val();
+        var filterValue = $("#filterValue").val();
+        if (filterColumn != "" && filterValue == "") {
+            $.alert.open("Error", "Please Provide Filter Value");
+            return false;
+        }
+
+        var Section = $("#Section").val();
+        if (Section == "0") {
+            Section = "";
+        }
+
+        LoadEmployeeList2(officeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue);
+    }
+
+    function LoadEmployeeList2(OfficeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue) {
+
+        var url;
+
+        url = '/EmployeeProfileReport/GenerateReportEmployee2?OfficeTypeId=' + OfficeTypeId + ',' + '&OfficeId =' + OfficeId + ',' + '&DepartmentId =' + DeptId + ',' + '&PayrollDesignation= ' + payRollDesignation + ',' + '&Responsibility = ' + responsibility + '&Section=' + Section + ',' + '&Status=' + status + '&FilterColumn= ' + filterColumn + ',' + '&FilterValue = ' + filterValue + '&DownloadExcel=' + 1;
+
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+
+
+    }
+
+
+
+    function SetSearchParameters() {
+        var OfficeId = "";
+        var DeptId = "";
+
+        var officeTypeId = $("#OfficeTypeId").val();
+        if (officeTypeId != "") {
+            if (officeTypeId == 1) {
+                OfficeId = $("#PVHeadOfficeId").val();
+            } else if (officeTypeId == 3) {
+                OfficeId = $("#PVProjectId").val();
+            }
+            else if (officeTypeId == 4) {
+                OfficeId = $("#ZoneId").val();
+            }
+            else if (officeTypeId == 5) {
+                OfficeId = $("#AreaId").val();
+            }
+            else if (officeTypeId == 6) {
+                OfficeId = $("#UnitId").val();
+            }
+        }
+        var deptId = $("#DepartmentId").val();
+        if (deptId != "") {
+            DeptId = deptId;
+        } else {
+            DeptId = "";
+        }
+        var payRollDesignation = $("#DesignationId").val();
+        var responsibility = $("#OfficeDesignationId").val();
+        var status = $('#typeFilterColumn').val();
+       // alert(status);
+        var filterColumn = $("#filterColumn").val();
+        var filterValue = $("#filterValue").val();
+        if (filterColumn != "" && filterValue == "") {
+            $.alert.open("Error", "Please Provide Filter Value");
+            return false;
+        }
+
+        var Section = $("#Section").val();
+        if (Section == "0") {
+            Section = "";
+        }
+
+        var Date = $("#Date").val();
+        var DateTo = $("#DateTo").val();
+
+        LoadEmployeeList(officeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue, Date, DateTo );
+    }
+
+    function LoadEmployeeList(OfficeTypeId, OfficeId, DeptId, payRollDesignation, responsibility, Section, status, filterColumn, filterValue, Date, DateTo) {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("LoadEmployeeListForJobConfirmation", "Employee", "http")',
+                    dataType: 'json',
+                    data: { OfficeTypeId: OfficeTypeId, OfficeId: OfficeId, DepartmentId: DeptId, PayrollDesignation: payRollDesignation, Responsibility: responsibility, Section: Section, Status: status, FilterColumn: filterColumn, FilterValue: filterValue, Date: Date, DateTo: DateTo }
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+        /* toolbar: ["excel"],*/
+        //columns: [
+        //    { field: "EmployeeId" },
+        //    { field: "EmployeeCode" }
+        //  ],
+          //excel: {
+          //      allPages: true,
+          //      fileName: "Employee_Export.xlsx"
+          //  },
+            //excelExport: function(e) {
+            //      var workbook = e.workbook;
+            //      var sheet = workbook.sheets[0];
+
+            //      workbook.rtl = true;
+            //      for (var i = 0; i < sheet.rows.length; i++) {
+            //        for (var ci = 0; ci < sheet.rows[i].cells.length; ci++) {
+            //          sheet.rows[i].cells[ci].hAlign = "right";
+            //        }
+            //      }
+            //    },
+
+            dataSource: dataSource,
+
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                 {
+                     field: "ImageFilePath",
+                     title: "Image",
+                     width: "30px",
+                     filterable: false,
+                     template: function (dataItem) {
+                         if (dataItem.ImageFilePath != null) {
+                             return '<img src="' + dataItem.ImageFilePath + '" height="50" width="50" alt="No Image" class="img-circle"/>'
+                         } else {
+                             return '<img src="../../Images/blank-headshot.jpg" height="50" width="50" alt="No Image" class="img-circle"/>'
+                         }
+                     }
+                 },
+                {
+                    field: "EmployeeCode",
+                    title: "Emp ID",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Emp Name",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "DesignationName",
+                    title: "Designation",
+                    width: "30px",
+                    filterable: true,
+                },
+                {
+                    field: "OrnamentalDesignationName",
+                    title: "Ornamental Designation",
+                    width: "50px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeTypeName",
+                    title: "Office Type",
+                    width: "35px",
+                    filterable: true,
+                },
+                {
+                    field: "OfficeName",
+                    title: "Office",
+                    width: "40px",
+                    filterable: true,
+                },
+
+
+                //{
+                //    title: "Posting",
+                //    width: "20px",
+                //    template: function (dataItem) {
+                //        return "<a href='#' onclick = 'GetPostingDetails(" + dataItem.EmployeeId + ");'><i class='fa fa-bars'></i></a>";
+                //    }
+                //},
+                //{
+                //    title: "Promotion",
+                //    width: "20px",
+                //    template: function (dataItem) {
+                //        return "<a href='#' onclick = 'GetPromotionDetails(" + dataItem.EmployeeId + ");'><i class='fa fa-bars'></i></a>";
+                //    }
+                //},
+                //{
+                //    title: "Disciplinary",
+                //    width: "20px",
+                //    template: function (dataItem) {
+                //        return "<a href='#' onclick = 'GetDisciplinaryDetails(" + dataItem.EmployeeId + ");'><i class='fa fa-bars'></i></a>";
+                //    }
+                //},
+
+
+                {
+                    field: "Phone",
+                    title: "Phone",
+                    width: "35px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployementTypeName",
+                    title: "Type",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "EmployeeStatus",
+                    title: "Status",
+                    width: "25px",
+                    filterable: false,
+                },
+                {
+                    field: "StatusDateMsg",
+                    title: "Status Date",
+                    width: "40px",
+                    filterable: false,
+                },
+                {
+                    field: "PermanentDate",
+                    hidden: true,
+                    filterable: false
+                },
+
+
+                //{
+                //    title: "Edit",
+                //    width: "20px",
+                //    template: function (dataItem) {
+                //        return "<a href='/Employee/EmployeeCreate/?EmployeeId=" + dataItem.EmployeeId + "'><i class='fa fa-pencil-square-o'></i></a>";
+                //    }
+                //},
+
+
+
+                 //{
+                 //    title: "Delete",
+                 //    width: "20px",
+                 //    template: function (dataItem) {
+                 //        return "<a href='#' OnClick='EmployeeDelete(" + dataItem.EmployeeId + ");'><i class='fa fa-trash-o'></i></a>";
+                 //    }
+                 //},
+
+
+                {
+                    title: "Report",
+                    width: "20px",
+                    template: function (dataItem) {
+                        return "<a href='#' OnClick='GetPrintEmployeeProfile(" + '"' + dataItem.EmployeeCode + '"' + ");'><i class='fa fa-print'></i></a>";
+                        //return "<a href='#' OnClick='RegisterResetPassword(" + '"' + dataItem.Id + '"' + ");'><i class='fa fa-pencil-square-o'></i></a>";
+                    }
+                }
+
+
+            ]
+        });
+
+    }
+
+
+    function GetPrintEmployeeProfile(EmpCode) {
+
+        url = '/Employee/JobConfirmationReport?EmpCode=' + EmpCode  ;
+
+
+        window.open(url, 'mywindow', 'fillscreen=yes, scrollbars = auto');
+    }
+
+    function ExportOfficeTypeEmployee() {
+
+
+        var OfficeId = "";
+        var DeptId = "";
+
+        var officeTypeId = $("#OfficeTypeId").val();
+        alert(officeTypeId);
+        if (officeTypeId != "") {
+            if (officeTypeId == 1) {
+                OfficeId = $("#PVHeadOfficeId").val();
+            } else if (officeTypeId == 3) {
+                OfficeId = $("#PVProjectId").val();
+            }
+            else if (officeTypeId == 4) {
+                OfficeId = $("#ZoneId").val();
+            }
+            else if (officeTypeId == 5) {
+                OfficeId = $("#AreaId").val();
+            }
+            else if (officeTypeId == 6) {
+                OfficeId = $("#UnitId").val();
+            }
+        }
+        var deptId = $("#DepartmentId").val();
+        if (deptId != "") {
+            DeptId = deptId;
+        } else {
+            DeptId = "";
+        }
+        var payRollDesignation = $("#DesignationId").val();
+        var responsibility = $("#OfficeDesignationId").val();
+        var status = $('#typeFilterColumn').val();
+       // alert(status);
+        var filterColumn = $("#filterColumn").val();
+        var filterValue = $("#filterValue").val();
+        if (filterColumn != "" && filterValue == "") {
+            $.alert.open("Error", "Please Provide Filter Value");
+            return false;
+        }
+
+        var Section = $("#Section").val();
+        if (Section == "0") {
+            Section = "";
+        }
+
+
+
+
+        url = '/Employee/JobConfirmationReport?OfficeTypeId=' + officeTypeId + '&OfficeId=' + +OfficeId + '&DepartmentId=' + DeptId + '&PayrollDesignation=' + payRollDesignation + '&Responsibility=' + responsibility + '&Section=' + Section + '&Status=' + status + '&FilterColumn=' + filterColumn + '&FilterValue=' + filterValue;
+
+
+        window.open(url, 'mywindow', 'fillscreen=yes, scrollbars = auto');
+
+
+
+    }
+
+
+    $(document).ready(function () {
+
+        var officeTypeIddv = $("#OfficeTypeId").val();
+        if (officeTypeIddv != "") {
+            if (officeTypeIddv == 1) {
+                alert(officeTypeIddv);
+                $("#dvExcelDownload").show();
+            }
+        }
+
+
+
+
+        InformationStatus(true);
+
+        $('input[name=empStatus]').click(function () {
+            $('.selectpicker').selectpicker('deselectAll');
+            let status_text = $('input[name=empStatus]:checked').val();
+
+            if (status_text == "Active") {
+                InformationStatus(true);
+            }
+            else if (status_text == "InActive") {
+                InformationStatus(false);
+            }
+            else {
+                $('.selectpicker').selectpicker('selectAll');
+                //$('.selectpicker').selectpicker('val', statusArray);
+                //$('.selectpicker').selectpicker('val', 'Probationary');
+                //$('#typeFilterColumn').val(['1', '2', '3', '4', '9']);
+                //$("#typeFilterColumn option:contains('Probationary')").val();
+                //$("#typeFilterColumn option:contains('Probationary')").attr('selected', true);
+                $('.selectpicker').selectpicker('refresh');
+            }
+        });
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#Section");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value=''>Please Select</option>");
+                        }
+                    },
+                });
+            } else {
+
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+        $("#btnSearch").click(function () {
+            SetSearchParameters();
+        });
+
+        $("#filterColumn").change(function () {
+            $("#filterValue").val('');
+            if ($(this).val() != "ViewAll") {
+                if ($(this).val() == "Joining") {
+                    $("#filterValue").datepicker(
+                     {
+                         dateFormat: "dd-M-yy",
+                         showAnim: "scale",
+                     });
+                }
+                else if ($(this).val() == "Posting") {
+                    $("#filterValue").datepicker(
+                    {
+                        dateFormat: "dd-M-yy",
+                        showAnim: "scale",
+                    });
+                }
+                else if ($(this).val() == "Promotion") {
+                    $("#filterValue").datepicker(
+                     {
+                         dateFormat: "dd-M-yy",
+                         showAnim: "scale",
+                     });
+                }
+                else {
+                    $("#filterValue").datepicker("destroy");
+
+                }
+            }
+        });
+    });
+
+    function InformationStatus(stsvalue) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("InformationStatus", "Employee", "http")',
+            data: { stsvalue: stsvalue } ,
+            dataType: 'json',
+            async: true,
+            success: function (response) {
+                $.each(response.Data, function (index, status) {
+                    if (status.Value) {
+                        $("#typeFilterColumn option").filter(function () {
+                            return $(this).text() == status.Text;
+                        }).prop("selected", true);
+                    }
+                });
+
+                $('.selectpicker').selectpicker('refresh');
+
+            },
+        });
+
+    }
+
+</script>
+
+<div class="row">
+    <h2 class="page-title">Probationry Employee List(কর্মকর্তা/কর্মচারীদের তালিকা)</h2>
+    <input type="hidden" id="hfZoCode" />
+</div>
+
+<!-- OFFICE TYPE  OFFICE  Department-->
+<br />
+
+
+@Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+
+<div class="row">
+
+</div>
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4 ">
+                @*text-right*@
+                <label class="control-label" style="padding-top:8px;">Payroll Designation (পদবী)</label>
+            </div>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.DesignationId, desigList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4">
+                <label class="control-label" style="padding-top:8px;">Responsibility:</label>
+            </div>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.OfficeDesignationId, offcDesigList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-sm-6">
+        <div class="form-group text-right">
+            <div class="col-md-4 ">
+
+            </div>
+            <div class="col-md-8">
+                @*<input type="radio" name="empStatus" id="empStatus1" value="Active" checked> Active &nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="empStatus" id="empStatus2" value="InActive"> InActive &nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="empStatus" id="empStatus3" value="All"> All*@
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmployeeStatus, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.EmployeeStatusId, Model.BloodPressureTypeList, new { @id = "typeFilterColumn", @multiple = "multiple", @class = "selectpicker form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-sm-4"> Department</label>
+            <div class="col-sm-8">
+                @Html.DropDownListFor(model => model.DepartmentId, Model.DepartmentList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-md-4">Section</label>
+            <div class="col-md-8">
+                @Html.DropDownListFor(model => model.Section, Model.SectionList, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <label class="control-label col-md-4">From Date</label>
+            <div class="col-sm-8">
+                @Html.TextBoxFor(model => model.Date, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="control-label col-md-4">To Date</label>
+            <div class="col-sm-8">
+                @Html.TextBoxFor(model => model.DateTo, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<div class="row" style="margin-top:15px;">
+    <div class="col-sm-6">
+        <div class="form-group">
+            <div class="col-md-4 ">
+                <label class="control-label" style="padding-top:8px;"> Search By(Code/Name):</label>
+            </div>
+            <div class="col-md-8">
+                <select id="filterColumn" class="form-control">
+                    <option value="">Please Select</option>
+                    <option value="EmployeeCode">Employee Code</option>
+                    <option value="EmployeeName">Employee Name</option>
+                    <option value="Joining">Joining Date</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <input type="text" id="filterValue" placeholder="Type Search Text" class="form-control" />
+    </div>
+    <div class="col-md-2 text-center">
+        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+        @Html.Label("" + ViewData["SecondLevel"], new { @ID = "hfSecondLevel", @Style = "display:none;" })
+        @Html.Label("" + ViewData["ThirdLevel"], new { @ID = "hfThirdLevel", @Style = "display:none;" })
+        @Html.Label("" + ViewData["FourthLevel"], new { @ID = "hfFourthLevel", @Style = "display:none;" })
+
+        @Html.Label("" + ViewData["SecondLevelId"], new { @ID = "hfSecondLevelId", @Style = "display:none;" })
+        @Html.Label("" + ViewData["ThirdLevelId"], new { @ID = "hfThirdLevelId", @Style = "display:none;" })
+        @Html.Label("" + ViewData["FourthLevelId"], new { @ID = "hfFourthLevelId", @Style = "display:none;" })
+    </div>
+</div>
+
+
+<br />
+
+
+
+@*<div class="col-sm-2" id="dvExcelDownload">
+        <input type="button" class="btn btn-success" id="btnViewReport" value=" &nbsp; &nbsp; View Report &nbsp; &nbsp;" onclick="ExportOfficeTypeEmployee();" style="margin-left: 2px;" />
+    </div>*@
+
+<br />
+<br />
+<div class="row" style="margin-top:15px;">
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <div id="gridKendo"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}
+
+

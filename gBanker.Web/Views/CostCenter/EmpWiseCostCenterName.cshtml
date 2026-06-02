@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "Employee Cost Center Mapping";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2>Employee Cost Center Mapping</h2>
+<br />
+
+<div class="form-horizontal">
+    <div class="container-fluid">
+
+        <!-- Employee Information -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee ID", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.TextBox("EmployeeCode", "", new { @class = "form-control", autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Employee Name", htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        
+                        @Html.TextBox("EmployeeName", "", new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Center -->
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.Label("Cost Center", htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        <input type="hidden" id="CostCenterId" />
+                        @Html.TextBox("CostCenterName", "", new { @class = "form-control", autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    <input type="button" id="btnSave" value="Save" class="btn btn-primary" />
+                    <input type="button" id="btnClear" value="Clear" class="btn btn-warning" style="margin-left:10px;" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="row">
+            <h3 class="page-title">Saved Records</h3>
+            <div class="box-content">
+                <div class="table-responsive">
+                    <div id="gridKendo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#EmployeeCode").blur(function (e) {
+            debugger;
+            var employeeCode = $("#EmployeeCode").val();
+            if (employeeCode != '') {
+                LoadEmpInfoByCode(employeeCode);
+            }
+        });
+        function LoadEmpInfoByCode(employee_code) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeProfileReport")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                console.log("Emp info response:", data);
+                if (data && data.result == 1 && data.data && data.data.length > 0) {
+                    $("#EmployeeName").val(data.data[0].EmployeeName);
+                } else {
+                    ClearControl();
+                    $.alert.open("Error", "Invalid code");
+                }
+            },
+        });
+    }
+
+        // Autocomplete for cost center
+       $("#CostCenterName").autocomplete({
+    source: function (request, response) {
+        $.ajax({
+            url: '@Url.Action("GetCostCenters", "CostCenter")',
+            data: { term: request.term },
+            dataType: "json",
+            success: function (data) {
+                // data should now be a list of objects { id, label (name) }
+                response($.map(data, function (item) {
+                    return {
+                        label: item.Cost_Center_Name,
+                        value: item.Cost_Center_Name,
+                        id: item.id
+                    };
+                }));
+            }
+        });
+    },
+    minLength: 1,
+    select: function (event, ui) {
+        $("#CostCenterId").val(ui.item.id); // save id in hidden field
+    }
+});
+
+
+        // Save mapping
+       $("#btnSave").click(function () {
+    var EmployeeCode = $("#EmployeeCode").val();
+    var EmployeeName = $("#EmployeeName").val();
+    var CostCenterName = $("#CostCenterName").val();
+    var CostCenterId = $("#CostCenterId").val(); // hidden id
+
+    if (!EmployeeCode || !EmployeeName || !CostCenterName) {
+        alert("All fields are required!");
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: '@Url.Action("SaveEmployeeCostCenter", "CostCenter")',
+        data: { EmployeeCode, EmployeeName, CostCenterName, CostCenterId },
+        success: function (data) {
+            if (data.result === 1) {
+                alert("Saved successfully!");
+                getEmployeeCostCenterList();
+                clearForm();
+            } else {
+                alert("Error: " + data.Message);
+            }
+        }
+    });
+});
+
+
+        // Clear form
+        $("#btnClear").click(clearForm);
+        function clearForm() {
+            $("#EmployeeCode").val("");
+            $("#EmployeeName").val("");
+            $("#CostCenterName").val("");
+        }
+
+        // Grid load
+        getEmployeeCostCenterList();
+    });
+
+    function getEmployeeCostCenterList() {
+        $("#gridKendo").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: '@Url.Action("GetEmployeeCostCenterList", "CostCenter")',
+                        dataType: 'json'
+                    }
+                },
+                schema: { data: "data", total: "total" },
+                pageSize: 20
+            },
+            pageable: true,
+            sortable: true,
+            filterable: true,
+            columns: [
+                { field: "SL", title: "SL", width: "50px" },
+                { field: "EmployeeCode", title: "Employee ID", width: "120px" },
+                { field: "EmployeeName", title: "Employee Name", width: "200px" },
+                { field: "CostCenterName", title: "Cost Center", width: "150px" },
+                { field: "CreatedDate", title: "Created On", width: "130px" }
+            ]
+        });
+    }
+</script>

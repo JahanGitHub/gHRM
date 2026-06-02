@@ -1,0 +1,179 @@
+﻿@model gHRM.Web.ViewModels.PF.AccountChartViewModel
+
+@{
+    ViewBag.Title = "Chart of Accounts";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function UpdateAccountChart(accountId, accountCode, accountName, accountTypeCode, glLevelId, parentAccountCode, isVoucher) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateAccountChart", "PFAccountChart", "http")',
+            data: { accountId: accountId, accountCode: accountCode, accountName: accountName, accountTypeCode: accountTypeCode, glLevelId: glLevelId, parentAccountCode: parentAccountCode, isVoucher: isVoucher },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open(data.message);
+                if (data.status == 'ok') {
+                    setTimeout(function () {
+                        window.location.href = "/PFAccountChart/Index";
+                    }, 1500);
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+            }
+        });
+    }
+
+    function GetParentAccount() {
+        $('#ParentAccountList').empty();
+        var accountTypeCode = $("#AccountTypeCode option:selected").val();
+        var glLevelId = $("#GLLevelId option:selected").val();
+        if (accountTypeCode == '' || glLevelId == '') {
+            return;
+        }
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetParentAccount", "PFAccountChart", "http")',
+            data: { accountTypeCode: accountTypeCode, glLevelId: glLevelId },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.each(data, function (index, option) {
+                    $('#ParentAccountList').append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function Update() {
+        var accountId = $("#AccountId").val();
+        var accountCode = $("#AccountCode").val();
+        var accountName = $("#AccountName").val();
+        var accountTypeCode = $("#AccountTypeCode option:selected").val();
+        var glLevelId = $("#GLLevelId option:selected").val();
+        var parentAccountCode = $("#ParentAccountList option:selected").val();
+        var isVoucher = $('#IsVoucher').is(':checked');
+
+        if (glLevelId > 1 && parentAccountCode == '') {
+            $.alert.open("Select parent account.");
+            return;
+        }             
+
+        if (accountCode == '' || accountName == '' || accountTypeCode == '' || glLevelId == '') {
+        $.alert.open("Please enter valid data");
+        return;
+        }
+        UpdateAccountChart(accountId, accountCode, accountName, accountTypeCode, glLevelId, parentAccountCode, isVoucher);
+    }
+
+   
+    $(document).ready(function () {
+       
+        $('#AccountTypeCode').val($('#acCode').val());
+        $('#GLLevelId').val($('#glLevel').val());
+        $('#ParentAccountList').val($('#ParentAccountCode').val());
+       
+        $("#AccountTypeCode").change(function () {
+            GetParentAccount();
+        });
+        $("#GLLevelId").change(function () {
+            GetParentAccount();
+        });
+
+        $("#btnUpdateAccountChart").click(function () {
+           
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });          
+        });
+    });
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Edit Account Chart</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.AccountCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.AccountCode, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
+                    @Html.HiddenFor(model => model.AccountId)
+                </div>
+                @Html.LabelFor(model => model.AccountName, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.AccountName, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.AccountTypeCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.AccountTypeCode, new SelectList(Model.AccountTypeList, "Value", "Text"), "Select Account Type", new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.acCode)
+                </div>
+                @Html.LabelFor(model => model.GLLevelId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.GLLevelId, new SelectList(Model.GLLevelList, "Value", "Text"), "Select GL Level", new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.glLevel)
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ParentAccountCode, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.DropDownListFor(model => model.ParentAccountList, new SelectList(Model.ParentAccountList, "Value", "Text", ""), "Select Parent Account", new { @class = "form-control" })
+                    @Html.HiddenFor(model => model.ParentAccountCode)
+                </div>
+                @Html.LabelFor(model => model.IsVoucher, new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.CheckBoxFor(model => model.IsVoucher)
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Update" id="btnUpdateAccountChart" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

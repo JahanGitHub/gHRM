@@ -1,0 +1,96 @@
+﻿@model gHRM.Web.ViewModels.Cooperative.CooperativeConfigurationViewModel
+
+@{
+    ViewBag.Title = "Cooperative Configuration";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/CooperativeConfiguration">Cooperative Configuration</a></li>
+    </ol>
+</div>
+
+    &nbsp;
+<h2 class="page-title">Cooperative Configuration</h2>
+    &nbsp;
+<div class="container-fluid">
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    @using (Html.BeginForm("AddNew", "CooperativeConfiguration", FormMethod.Post, new { @role = "form", @class = "form-horizontal", @id = "add-or-edit-form" }))
+    {
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @Html.HiddenFor(model => model.Id)
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ComponentId, new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.ComponentId, Model.ComponentLst, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.HiddenFor(model=>model.EmployeeId)
+                    @Html.LabelFor(model => model.EmployeeCode, new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeName, new { @class = "control-label col-sm-4" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MonthlyInstallment, new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.MonthlyInstallment, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.StartDate, new { @class = "control-label col-sm-4 required" })
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control", @autocomplete = "off" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <button type="button" class="btn btn-success" id="btnSave">Save</button>
+                        &nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="grid-listing">
+        <!--To view Listings-->
+        <div id="grid"></div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+<script src="~/Assets/js/app/cooperative/cooperativeConfigurationManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

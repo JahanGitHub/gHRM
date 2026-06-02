@@ -1,0 +1,245 @@
+﻿@model gHRM.Web.ViewModels.PF.PFTypeViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    var pfTypeEnum = {
+        CPF: "CPF",
+        GPF: "GPF"
+    }
+
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function UpdatePFType(pfTypeId, fullName, hasSelfContribution, hasOrgContribution, hasAddSelfContribution, selfContributionRate, orgContributionRate) {
+
+        debugger;
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdatePFType", "PFType", "http")',
+            data: { pFTypeId: pfTypeId, fullName: fullName, hasSelfContribution: hasSelfContribution, hasOrgContribution: hasOrgContribution, hasAddSelfContribution: hasAddSelfContribution, selfContributionRate: selfContributionRate, orgContributionRate: orgContributionRate },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                setTimeout(function () {
+                    window.location.href = "/PFType/Index";
+                }, 1500);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+            }
+        });
+    }
+
+    function IsValidate(shortName, fullName, hasSelfContribution, hasOrgContribution, selfContributionRate, orgContributionRate) {
+        var message = '';
+
+        //Checking Self Contribution
+        if (fullName == '') {
+            message = 'Enter Full Name.';
+            return message;
+        }
+        if (hasSelfContribution == false) {
+            message = 'Allow Self Contribution.';
+            return message;
+        }
+        if (selfContributionRate == '') {
+            message = 'Enter Self Contribution Rate.';
+            return message;
+        }
+
+        if (shortName == pfTypeEnum.CPF) {
+            if (hasOrgContribution == false) {
+                message = 'Allow Organization Contribution.';
+                return message;
+            }
+            if (!orgContributionRate) {
+                message = 'Enter Organization Contribution Rate.';
+                return message;
+            }
+        }
+        return message;
+    }
+
+    function SpecializeUI() {
+        var shortName = '';
+        var sName = $("#ShortName option:selected");
+        if (sName.val() != '') {
+            var shortName = sName.text();
+            shortName = shortName.split('[')[0].trim();
+        }
+
+        if (shortName == pfTypeEnum.GPF) {
+            $("#HasOrgContribution").prop("disabled", true);
+            $("#OrgContributionRate").prop("disabled", true);
+            $("#OrgContributionRate").val('');
+        }
+        if (shortName == pfTypeEnum.CPF) {
+            $("#HasOrgContribution").prop("disabled", false);
+            $("#OrgContributionRate").prop("disabled", false);
+        }
+    }
+
+    function Update() {
+        var sName = $("#ShortName option:selected");
+        var pfTypeId = sName.val();
+        var shortName = sName.text();
+        shortName = shortName.split('[')[0].trim();
+
+        var fullName = $("#FullName").val();
+
+        //New Fields
+        var hasSelfContribution = $("#HasSelfContribution").is(":checked");
+        var hasOrgContribution = $("#HasOrgContribution").is(":checked");
+        var hasAddSelfContribution = $("#HasAddSelfContribution").is(":checked");
+        var selfContributionRate = $("#SelfContributionRate").val();
+        var orgContributionRate = $("#OrgContributionRate").val();
+
+        var message = IsValidate(shortName, fullName, hasSelfContribution, hasOrgContribution, selfContributionRate, orgContributionRate);
+
+        if (message != '') {
+            alert(message);
+            return;
+        }
+
+        UpdatePFType(pfTypeId, fullName, hasSelfContribution, hasOrgContribution, hasAddSelfContribution, selfContributionRate, orgContributionRate);
+    }
+
+
+    $(document).ready(function () {
+        //disable Full Name
+        $('#FullName').attr('disabled', true);
+
+        $("#FullName").focus();
+        var pfTypeId = $('#PFTypeId').val();
+        $('#ShortName').val(pfTypeId);
+        $("#ShortName").prop("disabled", true);
+        SpecializeUI();
+
+        $('#SelfContributionRate').keypress(function (event) {
+            return isNumber(event, this)
+        });
+        $('#OrgContributionRate').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+        $("#btnUpdatePFType").click(function (e) {
+
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+    });
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Edit PF Type</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ShortName, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.DropDownListFor(model => model.ShortName, Model.PFTypeList, new { @class = "form-control", @tabindex = 1 })
+                    @Html.HiddenFor(model => model.PFTypeId)
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.FullName, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(model => model.FullName, new { @class = "form-control", @tabindex = 2 })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.HasSelfContribution, new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.CheckBoxFor(model => model.HasSelfContribution, new { @tabindex = 3 })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.SelfContributionRate, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(model => model.SelfContributionRate, new { @class = "form-control", @tabindex = 5 })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.HasOrgContribution, new { @class = "control-label col-md-2" })
+                <div class="col-md-1">
+                    @Html.CheckBoxFor(model => model.HasOrgContribution, new { @tabindex = 6 })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.OrgContributionRate, new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.TextBoxFor(model => model.OrgContributionRate, new { @class = "form-control", @tabindex = 7 })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.HasAddSelfContribution, new { @class = "control-label col-md-2" })
+                <div class="col-md-2">
+                    @Html.CheckBoxFor(model => model.HasAddSelfContribution, new { @tabindex = 4 })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-3">
+                <div class="form-group" style="padding-left:5px;">
+                    <input type="button" value="Update" id="btnUpdatePFType" class="btn btn-success" tabindex="8" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

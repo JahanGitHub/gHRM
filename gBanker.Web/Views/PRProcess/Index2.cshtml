@@ -1,0 +1,107 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+
+@{
+    ViewBag.Title = "Payroll Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var officeTypeid = SessionHelper.LoggedInOfficeTypeId;
+    var system = SessionHelper.CompanyInfo.CompanyShortName;
+}
+<input id="system" value="@system" type="hidden">
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRProcess">PRProcess</a></li>
+    </ol>
+</div>
+
+<h2 class="page-title">Payroll Process</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(m => m.SalaryDay)
+
+        @*@Html.TextBoxFor( model=> model.SalaryDay)*@
+
+        <div class="container-fluid">
+            <div id="AjaxLoader" class="ajaxLoader"></div>
+
+            @Html.Partial("_SalaryProcessOfficePartial", Model)
+            @if (officeTypeid == 1)
+            {
+                <div class="row" id="dvButton">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                                <input type="button" value="Summary Before Send for Approval" id="btnSummaryPreview" class="btn btn-primary" /> &nbsp;&nbsp;
+                                <input type="button" value="Generate Salary" id="btnProcessMonthlySalary" class="btn btn-primary" />&nbsp;&nbsp;
+                                <input type="button" value="Send For Approval" id="btnSendForApproval" class="btn btn-primary" />&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    </div>
+                </div>
+            }
+            else if(system == "Pidim")
+            {
+                <div class="row" id="dvButton">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                                <input type="button" value="Summary Before Send for Approval" id="btnSummaryPreview" class="btn btn-primary" /> &nbsp;&nbsp;
+                                <input type="button" value="Generate Salary" id="btnProcessMonthlySalary" class="btn btn-primary" />&nbsp;&nbsp;
+                                <input type="button" value="Send For Approval" id="btnSendForApproval" class="btn btn-primary" />&nbsp;&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    </div>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Report Type</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.ReportType, Model.ReportList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                </div>
+            </div>
+
+            <div class="box-content">
+                <h4><label id="beforeApprovalLbl">Before Approval</label></h4>
+                <div class="table-responsive">
+                    <div id="beforeApprovalGridKendo"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script src="~/Assets/js/app/payroll/prProcessManager2.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()@System.DateTime.Now"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,0 +1,63 @@
+﻿@model gHRM.Web.ViewModels.DigitalIDCardListViewModel
+
+@{
+    ViewBag.Title = "Digital ID Card";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<h2 class="page-title">@ViewBag.Title</h2>
+<br />
+
+<button type="button" class="btn btn-success" id="btnPrint" > <i class="fa fa-print"></i> Print</button>
+
+<div class="row digital-id-card print-section">
+
+    @foreach (var item in Model.DigitalIDCardInfos)
+    {
+        var companyLogo = string.Format("{0}{1}", Model.BaseUrl, item.CompanyLogo);
+        var employeeProfileImage = string.Format("{0}{1}", Model.BaseUrl, item.EmployeeImageLink);
+    <div class="" style=" width: 420px !important; position: relative; min-height: 1px; padding-right: 0px; padding-left: 0px; float: left; margin: 5px;">
+        <div style=" padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; float: left; margin: 1px; width: 207px !important; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; " class="id-card-front-part text-center border border-1">
+            <img class="img-id-card-org-logo" src="@companyLogo" alt="John" style="width:100%">
+            <h5>@item.CompanyName</h5>
+            <p class="slogan">(@item.CompanySlogan)</p>
+            <img class="img-id-card-profile" src="@employeeProfileImage" alt="John" style="width:100%">
+            <p class="emp-name">@item.EmployeeName</p>
+            <p class="emp-pin">PIN: @item.EmployeeCode</p>
+            <p class="emp-dsgnation">@item.DesignationName</p>
+            <div class="trapezoid-card-bottom "></div>
+
+        </div>
+        <div style="padding-right: 0px !important; padding-left: 0px !important; height: 321px !important; width: 207px !important; float: left; background-image: linear-gradient(180deg, #FFFFFF 25%, #4FCF95 100%) !important; margin:1px; " class="id-card-back-part border border-1">
+            <div class="trapezoid-card-top"></div>
+            <div class="text-center img-id-card-org-logo-ptb">
+                <img class="img-id-card-qr" src="@Model.BaseUrl@item.QRCode" alt="John" style="width:100%">
+            </div>
+            <p class="p-pf program-name">Name of Program <span style="padding-left:0px">: @item.NameofOperation</span></p>
+            <p class="p-pf blood-group">Blood Group     <span style="padding-left:21px">: @item.BloodGroup</span></p>
+            <p class="p-pf issue-date">Issue Date      <span style="padding-left:31px">: @item.IssueDate</span></p>
+            <p class="contact-info text-center">If found, Please inform : @item.CompanyMobile</p>
+
+            <p><i class="fa fa-map-marker"></i> @item.CompanyAddress</p>
+            <p><i class="fa fa-phone"></i> @item.CompanyMobile</p>
+            <p><i class="fa fa-at"></i> @item.CompanyEmail</p>
+            <p><i class="fa fa-globe"></i> @item.WebsiteUrl</p>
+            <p class="signature">
+                <img src="@Model.BaseUrl@item.CompanySignaturePath" alt="Signature" />
+                <span class="authorized-sign">Authorized Sign</span>
+            </p>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <!--id single end -->
+
+    }
+
+
+</div>
+
+@section Scripts {
+    <link href="~/Assets/css/digitalIDCard.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <script type="text/javascript" src="https://jasonday.github.io/printThis/printThis.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <script src="~/Assets/js/app/employee/digitalIDCardManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

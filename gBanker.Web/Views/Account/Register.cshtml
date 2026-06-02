@@ -1,0 +1,144 @@
+﻿@model gHRM.Web.Models.RegisterModel
+
+@{
+    ViewBag.Title = "User Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var roleList = ViewBag.RoleList as IEnumerable<SelectListItem>;
+}
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Account">Account</a></li>
+        <li><a href="/Account/Register">Register</a></li>
+    </ol>
+</div>
+
+<script type="text/javascript">
+    function LoadEmpInfo(employee_Code) {
+        if (employee_Code != '') {
+            var Employee_Id = 0;
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("GetEmpInfo", "Account", "http")',
+                data: { employee_Code: employee_Code },
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $('#EmployeeId').val(data.empId);
+                        $("#txtEmployeeCode").val(data.data);
+                    }
+                    else {
+                        $('#EmployeeId').val('');
+                        $("#txtEmployeeCode").val('');
+                        $.alert.open('alert', 'Invalid code');
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        }
+        else {
+            $.alert.open('alert', 'Please insert employee code.');
+        }
+    }
+
+    $(document).ready(function () {
+        $("#txtEmployeeCode").blur(function () {
+            var employee_Code = $("#txtEmployeeCode").val();
+            if (employee_Code != "") {
+                LoadEmpInfo(employee_Code);
+            } else {
+                return false;
+            }
+        });        
+    });
+
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success btn-sm pull-right" })
+
+<h2 class="page-title">Add New Login(নতুন লগইন যোগ)</h2>
+
+@using (Html.BeginForm("Register", "Account",FormMethod.Post, new { @class = "global-submit-form" , @autocomplete="off" }))
+{
+    @Html.AntiForgeryToken()
+    //@Html.ValidationSummary()
+    <br />
+    <div class="">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label required" style="padding: 0px;">Employee Code (উদ্যোক্তা কোড)</label>                  
+                    @Html.TextBox("txtEmployeeCode", "", new { @class = "form-control", @id = "txtEmployeeCode", @autocomplete="off" })
+                    @Html.HiddenFor(model => model.EmployeeId)                   
+                </div>
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="form-group">
+
+                    @Html.LabelFor(m => m.UserName, htmlAttributes: new { @class = "control-label required" })
+                    @Html.TextBoxFor(m => m.UserName,  new { @class = "form-control",@autocomplete="off" } )
+                    @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="form-group">
+
+                    @Html.LabelFor(m => m.Password, htmlAttributes: new { @class = "control-label required" })
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", @autocomplete="off" })
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="form-group">
+
+                    @Html.LabelFor(m => m.ConfirmPassword, htmlAttributes: new { @class = "control-label required" })
+                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control", @autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.RoleId, htmlAttributes: new { @class = "control-label" })
+                    @Html.DropDownListFor(m => m.RoleId, roleList, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.RoleId, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="form-group form-action">              
+                <button type="submit" class="btn btn-primary"> Create New User </button>
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script src="~/Assets/js/app/account/registerManager.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

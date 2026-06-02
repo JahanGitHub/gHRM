@@ -1,0 +1,256 @@
+﻿@model gHRM.Web.ViewModels.PF.ProfitDeclarationViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    .ui-datepicker-calendar, .ui-datepicker-current {
+        display: none;
+    }
+</style>
+
+<script type="text/javascript">
+    function CalculateProfitRate() {
+        var e = "";
+        if ($("#YearEndDate").val()) {
+            e = "01-" + $("#YearEndDate").val();
+            e = new Date(new Date(e).getFullYear(), new Date(e).getMonth() + 1, 0).getDate() + "-" + $("#YearEndDate").val();
+        }
+        if (e && $("#Profit").val()) {
+            var _data = GenerateAjaxRequist('/PFProfitDeclaration/GetProfitRate', { profitAmt: $("#Profit").val(), withprofit: $("#CalculationWithProfit").is(":checked"), enddate: e }, 'GET');
+
+            //$("#ProfitRate,#InduceRate").val(_data);
+            $("#ProfitRate").val(_data);
+        }
+        else $("#ProfitRate").val('');
+    }
+
+    function Delete(id) {
+        var msg = GenerateAjaxRequist('/PFProfitDeclaration/DeleteProfitDeclaration', JSON.stringify({ id: id }), 'POST');
+        $.alert.open("Message", msg);
+        reloadGrid();
+    }
+    function Approved(id) {
+        var msg = GenerateAjaxRequist('/PFProfitDeclaration/ApprovedProfitDeclaration', JSON.stringify( { id: id }), 'POST');
+        $.alert.open("Message", msg);
+        reloadGrid();
+    }
+    $(document).ready(function () {
+        $("#YearStartDate,#YearEndDate").datepicker({
+            dateFormat: "MM-yy",
+            //showAnim: "scale",
+            showButtonPanel: true,
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "@DateTime.Now.AddYears(-1).Year:@DateTime.Now.Year",
+            onClose: function (dateText, inst) {
+                $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+            }
+        });
+
+        $("#Profit,#ProfitRate,#InduceRate").keyup(function (e) {
+            var isNumeric = app.checkNumeric(e);
+            if (!isNumeric)
+                $(this).val('');
+        });
+        $("#CalculationWithProfit").change(function () {
+            CalculateProfitRate();
+        });
+        $("#Profit,#YearEndDate").blur(function () {
+            CalculateProfitRate();
+        });
+        $("#InduceRate").blur(function () {
+            var Profit = $("#Profit").val();
+            var rate = $(this).val();
+            $("#DistribursAmount").prop('readonly', false);
+            if (Profit > 0 && rate>0) {
+                var p_amt = ((rate/ 100) * Profit).toFixed(2);
+                $("#DistribursAmount").val(p_amt).prop('readonly', true);
+            }
+
+        });
+
+        $("#btnSaveProfitDeclaration").click(function (event) {
+            event.preventDefault();
+            var s = "", e = "";
+            if ($("#YearStartDate").val()) s = "01-" + $("#YearStartDate").val();
+            else {
+                $.alert.open("Message", "Start Date is required."); return;
+            }
+            if ($("#YearEndDate").val()){
+                e = "01-" + $("#YearEndDate").val();
+                e = new Date(new Date(e).getFullYear(), new Date(e).getMonth()+1, 0).getDate() + "-" + $("#YearEndDate").val();
+            }
+            else {
+                $.alert.open("Message", "End Date is required."); return;
+            }
+
+            var obj = {
+                YearStartDate: s,
+                YearEndDate: e,
+                Profit: $("#Profit").val(),
+                ProfitRate: $("#ProfitRate").val(),
+                InduceRate: $("#InduceRate").val(),
+                DistribursAmount: $("#DistribursAmount").val(),
+                CalculationWithProfit: $("#CalculationWithProfit").is(":checked")
+            };
+            if ((new Date(obj.YearStartDate) > new Date(obj.YearEndDate)) | (new Date(obj.YearStartDate).getMonth() == new Date(obj.YearEndDate).getMonth())) $.alert.open("Message", "Please check start date & end date.");
+            else if (!obj.Profit ) $.alert.open("Message", "Profit Amount is required.");
+            //else if (!obj.ProfitRate) $.alert.open("Message", "Profit rate is required.");
+            //else if (!obj.InduceRate) $.alert.open("Message", "Induce rate is required.");
+            //else if (obj.ProfitRate < obj.InduceRate) $.alert.open("Message", "Profit Rate never smaller than Induce rate.");
+            else {
+                var _data = GenerateAjaxRequist('/PFProfitDeclaration/PostProfitDeclaration', JSON.stringify(obj), 'POST')
+                if (_data) {
+                    $.alert.open("Message", _data.Message);
+                    reloadGrid();
+                }
+            }
+
+        });
+
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFProfitDeclaration/GetProfitDeclarationList'
+            },
+            fields: {
+                DeclararionId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                DeclararionId: {
+                    title: 'ID',
+                    visibility: 'hidden'
+                },
+                DeclarationYear: {
+                    title: 'Year',
+                    width: '15%'
+                },
+                Profit: {
+                    title: 'Profit',
+                    width: '10%'
+                },
+                ProfitRate: {
+                    title: 'Profit Rate',
+                    width: '10%'
+                },
+                InduceRate: {
+                    title: 'Dis. Rate',
+                    width: '10%'
+                },
+                DistribursAmount: {
+                    title: 'Dis. Amt.',
+                    width: '10%'
+                },
+                DeclarationStatus: {
+                    title: 'Status',
+                    width: '10%',
+                    display: function (data) {
+                        return `${(data.record.DeclarationStatus =="@ProfitDeclarationConstants.Close"? "Close" : data.record.DeclarationStatus =="@ProfitDeclarationConstants.Entry"? "Create" : data.record.DeclarationStatus =="@ProfitDeclarationConstants.Approved"? "Approved":"")}`;
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        // 
+                        return `${(data.record.DeclarationStatus == "@ProfitDeclarationConstants.Entry" ? `<div class="text-center"><a href="#" onClick="Delete(${data.record.DeclararionId})"><i title="Delete" class="fa fa-trash-o"></i></a>|<a href="#" onClick="Approved(${data.record.DeclararionId})"><i title="Approved" class="fa fa-check"></i></a></div>`:"")}`;
+                    }
+                }
+            }
+        });
+
+        reloadGrid();
+
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        
+
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+</script>
+
+<h2 class="page-title">Profit Declaration</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.YearStartDate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.YearStartDate, new { htmlAttributes = new { @class = "form-control", @tabindex = 1, @Placeholder = "Start Date", @autocomplete = "off" } })
+                </div>
+                @Html.LabelFor(model => model.YearEndDate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.YearEndDate, new { htmlAttributes = new { @class = "form-control", @tabindex = 2, @Placeholder = "End Date", @autocomplete = "off" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Profit, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Profit, new { htmlAttributes = new { @class = "form-control", @tabindex = 3, @Placeholder = "Profit Amount", @autocomplete = "off" } })
+                </div>
+                @Html.LabelFor(model => model.CalculationWithProfit, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.CheckBoxFor(model => model.CalculationWithProfit, new { htmlAttributes = new { @class = "form-control", @tabindex = 4, } })
+                </div>
+            </div>
+        </div>
+        <div class="row" style="display:none;">
+            <div class="form-group">
+                @Html.LabelFor(model => model.ProfitRate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.ProfitRate, new { htmlAttributes = new { @class = "form-control", @tabindex = 50, @Placeholder = "Profit Rate", @readonly = "readonly" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InduceRate, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InduceRate, new { htmlAttributes = new { @class = "form-control", @tabindex = 5, @Placeholder = "Induce Rate", @autocomplete = "off" } })
+                </div>
+                @Html.LabelFor(model => model.DistribursAmount, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.DistribursAmount, new { htmlAttributes = new { @class = "form-control", @tabindex = 6, @Placeholder = "Distriburs Amount", @autocomplete = "off" } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7"></div>
+            <div class="col-md-3">
+                <input type="button" value="Save" id="btnSaveProfitDeclaration" class="btn btn-success" tabindex="7" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div id="grid">
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+}

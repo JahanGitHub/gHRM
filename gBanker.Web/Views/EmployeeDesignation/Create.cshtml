@@ -1,0 +1,193 @@
+﻿@model gHRM.Web.ViewModels.EmployeeDesignationViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeDesignation">Designation</a></li>
+        <li><a href="/EmployeeDesignation/Create">DesignationCreate</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var salList = Model == null ? null : Model.SalaryScaleList;
+    var designationTypeList = Model == null ? null : Model.DesignationTypeList;
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#DateFrom").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale"
+            });
+
+        $("#DateFrom").datepicker('setDate', new Date());
+
+        $("#DateTo").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale"
+            });
+
+        $("#DateTo").datepicker('setDate', new Date());
+
+        $("#btnDesignationSave").click(function (e) {
+            
+            if ($("#DesignationCode").val() == '' && $("#DesignationName").val() == '' && $("#DesignationShortName").val() == '' && $("#DesignationType").val() == '' && $("#Rank").val() == '') {
+                $("#DesignationCode").addClass("errorClass");
+                $("#DesignationName").addClass("errorClass");
+                $("#DesignationShortName").addClass("errorClass");
+                $("#DesignationType").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() != '' && $("#DesignationName").val() == '' && $("#DesignationShortName").val() == '' && $("#DesignationType").val() == '' && $("#Rank").val() == '') {
+                $("#DesignationName").addClass("errorClass");
+                $("#DesignationShortName").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() == '' && $("#DesignationName").val() != '' && $("#DesignationShortName").val() == '' && $("#DesignationType").val() == '' && $("#Rank").val() == '') {
+                $("#DesignationCode").addClass("errorClass");
+                $("#DesignationShortName").addClass("errorClass");
+                $("#DesignationType").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() == '' && $("#DesignationName").val() != '' && $("#DesignationShortName").val() != '' && $("#DesignationType").val() == '' && $("#Rank").val() == '') {
+                $("#DesignationCode").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() != '' && $("#DesignationName").val() == '' && $("#DesignationShortName").val() == '' && $("#DesignationType").val() == '' && $("#Rank").val() == '') {
+                $("#DesignationName").addClass("errorClass");
+                $("#DesignationShortName").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() != '' && $("#DesignationName").val() == '' && $("#DesignationShortName").val() != '' && $("#DesignationType").val() == '' && $("#Rank").val() == '') {
+                $("#DesignationName").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() != '' && $("#DesignationName").val() != '' && $("#DesignationShortName").val() == '' && $("#DesignationType").val() == '' && $("#Rank").val() != '') {
+                $("#DesignationShortName").addClass("errorClass");
+                return false;
+            }
+            else if ($("#DesignationCode").val() != '' && $("#DesignationName").val() != '' && $("#DesignationShortName").val() != '' && $("#DesignationType").val() != '' && $("#Rank").val() == '') {
+                //$("#DesignationType").addClass("errorClass");
+                $("#Rank").addClass("errorClass");
+                return false;
+            }
+            return true;
+
+        });
+    });
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">Add Payroll Designation (পে-রোল পদবী অন্তর্ভূক্তকরণ)</h2>
+&nbsp;
+
+@using (Html.BeginForm("Create", "EmployeeDesignation", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "EmployeeDesignationProfile" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationCode, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.DesignationCode, new { htmlAttributes = new { @class = "form-control", @placeholder = "Designation Code" } })
+                            @*@Html.ValidationMessageFor(model => model.EmployeeDesignationCode, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Designation Name" } })
+                            @*@Html.ValidationMessageFor(model => model.EmployeeDesignationName, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationShortName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.DesignationShortName, new { htmlAttributes = new { @class = "form-control", @placeholder = "Short Name" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationType, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.DesignationType, designationTypeList, new { @class = "form-control", @readonly = "readonly" })
+                            @*@Html.ValidationMessageFor(model => model.EmployeeSalaryScaleId, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Rank, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.Rank, Model.RankList, new { @class = "form-control" })
+                            @*@Html.ValidationMessageFor(model => model.EmployeeSalaryScaleId, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.InsuranceAmount, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.InsuranceAmount, new { htmlAttributes = new { @class = "form-control", @placeholder = "insurance Amount" } })
+                            @*@Html.ValidationMessageFor(model => model.EmployeeDesignationName, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="visibility:hidden">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryScaleId, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.SalaryScaleId, salList, new { @class = "form-control" })
+                            @*@Html.ValidationMessageFor(model => model.EmployeeSalaryScaleId, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <input type="submit" value="Save" id="btnDesignationSave" class="btn btn-primary" />
+                        <input type="hidden" value="" id="hdnDesignationSave" />
+                        <input type="hidden" value="" id="hdnEmpDesignationId" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

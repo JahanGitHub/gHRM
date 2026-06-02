@@ -1,0 +1,444 @@
+﻿@model gHRM.Web.ViewModels.LeaveSellViewModel
+
+@{
+    ViewBag.Title = "ELOpeningIndex";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    //function validateForm() {
+    //    var x = document.forms["myForm"]["txtLeaveEndDateMsg"].value;
+    //    if (x == null || x == "") {
+    //        alert("Name must be filled out");
+    //        return false;
+    //    }
+    //}
+
+    function CalcBalanceFull() {
+
+        var ELFull = $("#txtELFull").val();
+        var EnjoyFull = $("#txtELFullEnjoy").val();
+
+        if (ELFull == '') {
+            ELFull = 0;
+        }
+        if (EnjoyFull == '') {
+            EnjoyFull = 0;
+        }
+        var balanceFull = parseInt(ELFull) - parseInt(EnjoyFull);
+        $("#txtELFullBalance").val(balanceFull);
+    }
+
+    function CalcBalanceHalf() {
+
+        var ELHalf = $("#txtELHalf").val();
+        var EnjoyHalf = $("#txtELHalfEnjoy").val();
+        if (ELHalf == '') {
+            ELHalf = 0;
+        }
+        if (EnjoyHalf == '') {
+            EnjoyHalf = 0;
+        }
+        var balanceHalf = parseInt(ELHalf) - parseInt(EnjoyHalf);
+        $("#txtELHalfBalance").val(balanceHalf);
+    }
+
+    function Calender() {
+
+        $('.CalenderDt').datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+    }
+
+
+    function checkNumberic(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 46 || e.which > 57)) {
+            return false;
+        }
+        else
+            return true;
+    }
+
+    function LoadLeaveInfoByCode(Code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetLeaveOpening", "LeaveOpening", "http")',
+            data: { EmployeeCode: Code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+                if (data.Result == 1) {
+                    $("#txtEmployeeCode").val(data.CodeName);
+                    $("#txtLeaveStartDateMsg").val('');
+                    $("#txtLeaveEndDateMsg").val('');
+                    $("#txtLastSaleDateMsg").val('');
+                    $("#txtELFull").val('');
+                    $("#txtELFullEnjoy").val('');
+                    $("#txtELFullBalance").val('');
+                    $("#txtELHalf").val('');
+                    $("#txtELHalfEnjoy").val('');
+                    $("#txtELHalfBalance").val('');
+                    $("#EmployeeId").val(data.EmpId);
+                    $("#btnElOpeningUpdateDiv").attr('hidden', true);
+                    $("#btnElOpeningSaveDiv").removeAttr('hidden');
+
+                } else if (data.Result == 2) {
+
+                    $("#btnElOpeningSaveDiv").attr('hidden', true);
+                    $("#btnElOpeningUpdateDiv").removeAttr('hidden');
+                    $.each(data.Data, function (index, data) {
+                            //if (data.HasOpened == 0) {
+                            $("#txtEmployeeCode").val(data.EmployeeName);
+                            $("#txtLeaveStartDateMsg").val(data.LeaveStartDateMsg);
+                            $("#txtLeaveEndDateMsg").val(data.LeaveEndDateMsg);
+                            $("#txtLastSaleDateMsg").val(data.LastSaleDateMsg);
+                            $("#txtELFull").val(data.ELFull);
+                            $("#txtELFullEnjoy").val(data.EnjoyFull);
+                            $("#txtELFullBalance").val(data.BalanceFull);
+                            $("#txtELHalf").val(data.ELHalf);
+                            $("#txtELHalfEnjoy").val(data.EnjoyHalf);
+                            $("#txtELHalfBalance").val(data.BalanceHalf);
+                            $("#ELOpeningId").val(data.ELOpeningId);
+                            //} else {
+                            //    $.alert.open('Info',"Leave opening already esists");
+                            //}
+                    });
+                }
+
+                else {
+                    $.alert.open('Error', "Employee status not active or Code does not exist");
+                }
+            },
+            error: function (request, status, error) {
+                $.alert.open("Info", "Employee status not active or Code does not exist");
+            }
+        });
+    }
+
+    function RecordEdit() {
+        //$("#txtEmployeeCode").val();
+        var LeaveStartDateMsg = $("#txtLeaveStartDateMsg").val();
+        var LeaveEndDateMsg = $("#txtLeaveEndDateMsg").val();
+        var LastSaleDateMsg = $("#txtLastSaleDateMsg").val();
+        var ELFull = $("#txtELFull").val();
+        var EnjoyFull = $("#txtELFullEnjoy").val();
+        var BalanceFull = $("#txtELFullBalance").val();
+        var ELHalf = $("#txtELHalf").val();
+        var EnjoyHalf = $("#txtELHalfEnjoy").val();
+        var BalanceHalf = $("#txtELHalfBalance").val();
+        var ELOpeningId = $("#ELOpeningId").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("EditELOpening", "LeaveOpening", "http")',
+            data: { ELOpeningId: ELOpeningId, LeaveStartDateMsg: LeaveStartDateMsg, LeaveEndDateMsg: LeaveEndDateMsg, LastSaleDateMsg: LastSaleDateMsg, ELFull: ELFull, EnjoyFull: EnjoyFull, BalanceFull: BalanceFull, ELHalf: ELHalf, EnjoyHalf: EnjoyHalf, BalanceHalf: BalanceHalf },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+                if (data.Result == 1) {
+                    $("#txtEmployeeCode").val('');
+                    $("#txtLeaveStartDateMsg").val('');
+                    $("#txtLeaveEndDateMsg").val('');
+                    $("#txtLastSaleDateMsg").val('');
+                    $("#txtELFull").val('');
+                    $("#txtELFullEnjoy").val('');
+                    $("#txtELFullBalance").val('');
+                    $("#txtELHalf").val('');
+                    $("#txtELHalfEnjoy").val('');
+                    $("#txtELHalfBalance").val('');
+                    $("#ELOpeningId").val('');
+
+                    $.alert.open("Success", data.Message);
+                }
+                else {
+                    $.alert.open("Error", data.Message);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function RecordInsert() {
+        var LeaveStartDateMsg = $("#txtLeaveStartDateMsg").val();
+        var LeaveEndDateMsg = $("#txtLeaveEndDateMsg").val();
+        var LastSaleDateMsg = $("#txtLastSaleDateMsg").val();
+        var ELFull = $("#txtELFull").val();
+        var EnjoyFull = $("#txtELFullEnjoy").val();
+        var BalanceFull = $("#txtELFullBalance").val();
+        var ELHalf = $("#txtELHalf").val();
+        var EnjoyHalf = $("#txtELHalfEnjoy").val();
+        var BalanceHalf = $("#txtELHalfBalance").val();
+        var EmployeeId = $("#EmployeeId").val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("InsertELOpening", "LeaveOpening", "http")',
+            data: { EmployeeId: EmployeeId, LeaveStartDateMsg: LeaveStartDateMsg, LeaveEndDateMsg: LeaveEndDateMsg, LastSaleDateMsg: LastSaleDateMsg, ELFull: ELFull, EnjoyFull: EnjoyFull, BalanceFull: BalanceFull, ELHalf: ELHalf, EnjoyHalf: EnjoyHalf, BalanceHalf: BalanceHalf },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+
+                if (data.Result == 1) {
+                    $("#txtEmployeeCode").val('');
+                    $("#txtLeaveStartDateMsg").val('');
+                    $("#txtLeaveEndDateMsg").val('');
+                    $("#txtLastSaleDateMsg").val('');
+                    $("#txtELFull").val('');
+                    $("#txtELFullEnjoy").val('');
+                    $("#txtELFullBalance").val('');
+                    $("#txtELHalf").val('');
+                    $("#txtELHalfEnjoy").val('');
+                    $("#txtELHalfBalance").val('');
+                    $("#EmployeeId").val('');
+
+                    $.alert.open("Success", data.Message);
+                }
+                else {
+                    $.alert.open("Error", data.Message);
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        $("#btnElOpeningSaveDiv").attr('hidden', true);
+
+        $("#txtLeaveStartDateMsg").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale"
+            });
+
+        $("#txtLeaveEndDateMsg").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale"
+            });
+
+        $("#txtLastSaleDateMsg").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale"
+            });
+
+        $("#btnSearch").click(function (e) {
+            e.preventDefault();
+            if ($("#txtEmployeeCode").val() != "") {
+                var Cod = $("#txtEmployeeCode").val();
+                LoadLeaveInfoByCode(Cod);
+            }
+            else {
+                $.alert.open("error", "Insert Employee Code");
+            }
+        });
+
+        $("#btnElOpeningUpdate").click(function (e) {
+            e.preventDefault();
+
+            if ($("#txtEmployeeCode").val() == '') {
+                $("#txtEmployeeCode").addClass("errorClass");
+                return false;
+            }
+            else if ($("#txtLeaveStartDateMsg").val() == '') {
+                $("#txtLeaveStartDateMsg").addClass("errorClass");
+                return false;
+            }
+            else if ($("#txtLeaveEndDateMsg").val() == '') {
+                $("#txtLeaveEndDateMsg").addClass("errorClass");
+                return false;
+            }
+            else if ($("#txtLastSaleDateMsg").val() == '') {
+                $("#txtLastSaleDateMsg").addClass("errorClass");
+                return false;
+            }
+            else {
+                RecordEdit();
+            }
+        });
+
+
+        $("#btnElOpeningSave").click(function (e) {
+            e.preventDefault();
+
+            if ($("#txtEmployeeCode").val() == '') {
+                $("#txtEmployeeCode").addClass("errorClass");
+                return false;
+            }
+            else if ($("#txtLeaveStartDateMsg").val() == '') {
+                $("#txtLeaveStartDateMsg").addClass("errorClass");
+                return false;
+            }
+            else if ($("#txtLeaveEndDateMsg").val() == '') {
+                $("#txtLeaveEndDateMsg").addClass("errorClass");
+                return false;
+            }
+            else if ($("#txtLastSaleDateMsg").val() == '') {
+                $("#txtLastSaleDateMsg").addClass("errorClass");
+                return false;
+            }
+            else {
+                RecordInsert();
+            }
+        });
+    });
+
+</script>
+
+
+<h2 class="page-title">EL Opening List</h2>
+<br />
+@using (Html.BeginForm("ELOpeningIndex", "LeaveOpening", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "FileDownload" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+        <div id="AjaxLoader" class="ajaxLoader"></div>
+        <div class="row">
+            &nbsp;
+        </div>
+        <div class="form-group">
+            @*@Html.HiddenFor(model => model.ELOpeningId, new { @class = "control-label col-md-4" })*@
+            <input type="hidden" value="" id="ELOpeningId" />
+            <input type="hidden" value="" id="EmployeeId" />
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4"> Employee Code</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="EmployeeCode" id="txtEmployeeCode" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <input type="button" id="btnSearch" value="Search" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("Leave Start Date", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtLeaveStartDateMsg", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("Leave End Date", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtLeaveEndDateMsg", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("Last Encashment Date", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtLastSaleDateMsg", @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("EL Full", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtELFull", @class = "form-control", @onkeyup = "CalcBalanceFull()", @onkeypress = "return checkNumberic(event);" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("EL Full Enjoy", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtELFullEnjoy", @class = "form-control", @onkeyup = "CalcBalanceFull()", @onkeypress = "return checkNumberic(event);" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("EL Full Balance", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtELFullBalance", @class = "form-control", @readonly = "true" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("EL Half", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtELHalf", @class = "form-control", @onkeyup = "CalcBalanceHalf()", @onkeypress = "return checkNumberic(event);" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("EL Half Enjoy", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtELHalfEnjoy", @class = "form-control", @onkeyup = "CalcBalanceHalf()", @onkeypress = "return checkNumberic(event);" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    @Html.Label("EL Half Balance", new { @class = "control-label col-sm-6" })
+                    <div class="col-sm-6">
+                        @Html.TextBox(" ", null, new { @ID = "txtELHalfBalance", @class = "form-control", @readonly = "true" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">&nbsp;</div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        <div id="btnElOpeningUpdateDiv">
+                            <input type="submit" value="Update" id="btnElOpeningUpdate" class="btn btn-primary" />
+                        </div>
+                        <div id="btnElOpeningSaveDiv">
+                            <input type="submit" value="Save" id="btnElOpeningSave" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

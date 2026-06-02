@@ -1,0 +1,168 @@
+﻿
+@model gHRM.Web.ViewModels.Payroll.OvertimeConfigurationViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        prevHourTo = @Model.PrevHourTo;
+        hourFrom = prevHourTo+1;
+        $("input[id=HourFrom]").val(hourFrom)
+        $("#HourFrom").prop("readonly", true);
+        $("#Rank").prop("readonly", true);
+
+        if(@Model.Rule==1){
+            $("#ZoneDividedBy").show();
+        }
+        if(@Model.Rule==2 ||@Model.Rule==3){
+            $("#ZoneAmount").hide();
+        }
+
+        $("#HourTo").blur(function () {
+            var hourTo = $("#HourTo").val();
+            if (hourTo<=hourFrom) {
+                $.alert.open("Alert", "HourTo must be greater than " + hourFrom);
+                $("#btnSave").attr("disabled", "disabled");
+                //$("#btnSave").prop("disabled", true);
+            }
+            else {
+                $("#btnSave").removeAttr('disabled')
+            }
+        });
+
+        $("#Rule").change(function () {
+            var rule = $("#Rule").val();
+
+            if (rule != "") {
+                if(rule==1){
+                    $("#DividedBy").val(0);
+                    $("#ZoneDividedBy").hide();
+                    $("#ZoneAmount").show();
+                }
+                if(rule==2||rule==3){
+                    $("#Amount").val(0);
+                    $("#ZoneAmount").hide();
+                    $("#ZoneDividedBy").show();
+                }
+            }
+        });
+
+
+        $('#btnUpdate').click(function () {
+
+            var obj = {
+                OvertimeConfigId: @Model.OvertimeConfigId,
+                HourFrom: $('#HourFrom').val(),
+                HourTo: $('#HourTo').val(),
+                Rule: $('#Rule').val(),
+                Amount:$('#Amount').val(),
+                DividedBy: $('#DividedBy').val(),
+                Rank: $('#Rank').val()
+            }
+
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("Update", "OvertimeConfiguration", "http")',
+                data: JSON.stringify(obj),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    //$(".panel-body .create-success").show(700).fadeToggle(2000);
+                    //$.alert.open('alert', 'Saved successfully');
+                    window.location.href="index";
+                    //clearOnSave();
+                },
+                error: function (request, status, error) {
+                    //$.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+                    $.alert.open("Message", "Data not Updated.");
+                }
+            });
+
+        });
+    });
+
+</script>
+
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right" })
+
+<h2 class="page-title">Overtime Configuration Edit</h2>
+<div class="form-horizontal">
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="form-horizontal">
+        <hr />
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.HourFrom, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.HourFrom, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.HourFrom, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.HourTo, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.HourTo, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.HourTo, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Rule, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Rule, Model.RuleList, new { @class = "form-control" })
+            </div>
+        </div>
+
+        <div class="form-group" id="ZoneAmount">
+            @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group" id="ZoneDividedBy">
+            @Html.LabelFor(model => model.DividedBy, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.DividedBy, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.DividedBy, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Rank, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Rank, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Rank, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-4">
+                <input type="submit" value="Save" id="btnUpdate" class="btn btn-primary" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10 text-success">
+                @ViewBag.Status
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+}
+

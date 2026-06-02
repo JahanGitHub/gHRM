@@ -1,0 +1,72 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOtherInformationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PromotionTransferReport/PossibleIncrementable">EmployeeReport</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Possible Increment Eligible Employee List";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+
+<script>
+
+    $(document).ready(function () {
+
+$("#btnViewReportIncrementElegibleEmpList").click(function () {
+        var Year = $("#Year1 option:selected").val();
+        var MonthName = $('#Month1 option:selected').val();
+                                //(string MonthName, string Year)
+       var  otherReportURL = '/PromotionTransferReport/IncrementElegibleEmpList?&MonthName='+ MonthName + '&Year= '+ Year;
+        PrintReport(otherReportURL);
+    });// END Click btnViewReportIncrementElegibleEmpList
+
+
+
+    }); // END Document REady
+
+    function PrintReport(printUrl) {
+    window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+}
+
+</script>
+
+<h2> Increment Eligible Employee List </h2> &nbsp;
+
+<div class="row" style="padding:10px;margin:5px;">
+
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label class="control-label col-md-4"> Year</label>
+            <div class="col-md-8">
+                @*<input type="number" id="SalaryYear" value="1987" class="form-control" />*@
+                @Html.DropDownList("Years", null, new { @ID = "Year1", @class = "form-control" })
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label class="control-label col-md-4"> Month</label>
+            <div class="col-md-8">
+                @*<input type="number" id="SalaryMonth" value="1" class="form-control" />*@
+                @Html.DropDownList("Months", null, new { @ID = "Month1", @class = "form-control" })
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+<br />
+
+
+
+<div class="row" style="padding:0px;margin:5px;">
+     
+        <input type="button" value="View Increment Elegible Employee List " id="btnViewReportIncrementElegibleEmpList" class="btn btn-success" />
+    
+</div>
+
+

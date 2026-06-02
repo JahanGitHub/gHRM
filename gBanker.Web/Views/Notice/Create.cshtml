@@ -1,0 +1,363 @@
+﻿@model gHRM.Web.ViewModels.Basic.NoticeViewModel
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    .required {
+        color: red;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+</style>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#btnNoticeNew").hide();
+
+        $("#btnNoticeSave").click(function (e) {
+            e.preventDefault();
+
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+
+            $('#frmNotice').ajaxSubmit({
+                    type: "POST",
+                    target: '#thumbnil',
+                    /*data: { CrimeLocation: CrimeLocation },*/
+                    dataType: 'json',
+                    resetForm: true,
+                    success: function (model) {
+                        $("#NoticeId").val(model.NoticeId);
+                        $("#Title").val(model.Title);
+                        $("#NoticeText").val(model.NoticeText);
+                        $("#PublishDateMsg").val(model.PublishDateMsg);
+                        $("#LiveFromMsg").val(model.LiveFromMsg);
+                        $("#LiveToMsg").val(model.LiveToMsg);
+
+                        $("#btnNoticeNew").show();
+                        $("#btnNoticeSave").hide();
+
+                        $.alert.open('success', 'Save Successfully', function () {
+                            window.location.href = '/Notice/Index';
+                        });
+                    },
+                    error: function () {
+                        $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                        $("#dialog-message").dialog({
+                            modal: true,
+                            buttons: {
+                                Ok: function () {
+                                    $(this).dialog("close");
+                                }
+                            }
+                        });
+                    }
+                });
+
+        });
+
+        $("#PublishDateMsg").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+        $("#LiveFromMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+        $("#LiveToMsg").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2025"
+        });
+
+        $("#btnNoticeNew").click(function () {
+            location.reload();
+        });
+
+    });
+
+</script>
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right   btn btn-success" })
+<br />
+<h2 class="page-title">Notice</h2>
+
+@using (Html.BeginForm("Create", "Notice", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "frmNotice" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="create-success create-content alert alert-success alert-dismissible" role="alert" style="display: none;">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p class="message-content">  </p>
+    </div>
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+        <br />
+        <fieldset>
+            <legend>Notice Info</legend>
+            <div class="row">
+
+                <div class="col-sm-6">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.PublishDateMsg,
+                            htmlAttributes: new { @class = "control-label col-md-4" })
+
+                        <div class="col-sm-8">
+
+                            @Html.EditorFor(model => model.PublishDateMsg,
+                                new
+                                {
+                                    htmlAttributes = new
+                                    {
+                                        @class = "form-control"
+                                    }
+                                })
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-sm-6">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.LiveFromMsg,
+                            htmlAttributes: new { @class = "control-label col-md-4" })
+
+                        <div class="col-sm-8">
+
+                            @Html.EditorFor(model => model.LiveFromMsg,
+                                new
+                                {
+                                    htmlAttributes = new
+                                    {
+                                        @class = "form-control"
+                                    }
+                                })
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-6">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.LiveToMsg,
+                            htmlAttributes: new { @class = "control-label col-md-4" })
+
+                        <div class="col-sm-8">
+
+                            @Html.EditorFor(model => model.LiveToMsg,
+                                new
+                                {
+                                    htmlAttributes = new
+                                    {
+                                        @class = "form-control"
+                                    }
+                                })
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                @*<div class="col-sm-6">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(m => m.RoleId, htmlAttributes: new { @class = "control-label col-md-4" })
+
+                        <div class="col-sm-8">
+
+                            @Html.DropDownListFor(
+                                m => m.RoleId,
+                                Model.RoleList,
+                                "-- Select Role --",
+                                new { @class = "form-control" }
+                            )
+
+                        </div>
+
+                    </div>
+
+                </div>*@
+
+            </div>
+
+            @*<div class="row">
+
+                <div class="col-sm-6">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(m => m.OfficeTypeId, htmlAttributes: new { @class = "control-label col-md-4" })
+
+                        <div class="col-sm-8">
+
+                            @Html.DropDownListFor(
+                                m => m.OfficeTypeId,
+                                Model.OfficeTypeList,
+                                "-- Select Office Type --",
+                                new { @class = "form-control" }
+                            )
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>*@
+
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.Title,
+                            htmlAttributes: new { @class = "control-label col-md-2" })
+
+                        <div class="col-sm-10">
+
+                            @Html.EditorFor(model => model.Title,
+                                new
+                                {
+                                    htmlAttributes = new
+                                    {
+                                        @class = "form-control"
+                                    }
+                                })
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-sm-12">
+
+                    <div class="form-group">
+
+                        @Html.LabelFor(model => model.NoticeText,
+                             htmlAttributes: new { @class = "control-label col-md-2" })
+
+                        <div class="col-sm-10">
+
+                            @Html.TextAreaFor(model => model.NoticeText, new { @class = "form-control", id = "NoticeText" })
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-sm-2"></div>
+
+                    <div class="col-sm-6">
+
+                        <button type="button" id="btnNoticeSave" class="btn btn-success">
+                            Save
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <br />
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div style="padding:10px;margin:5px;">
+                    <div class="nominee-save-success alert alert-success alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Saved Successfully</p>
+                    </div>
+                    <div class="nominee-save-fail alert alert-danger alert-dismissable" role="alert" style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <p class="message-content">Fail to save</p>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.config.versionCheck = false;
+    $(document).ready(function () {
+        CKEDITOR.replace("NoticeText");
+    });
+</script>

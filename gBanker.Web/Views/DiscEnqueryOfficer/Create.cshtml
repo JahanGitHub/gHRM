@@ -1,0 +1,428 @@
+﻿@model gHRM.Web.ViewModels.Discipline.DiscEnqueryOfficerViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style type="text/css">
+    #multiSection {
+        width: 40px;
+    }
+
+    .required {
+        color: red;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+</style>
+
+<script type="text/javascript">
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeePostingHistory", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        $("#EmployeeRank").val(data.EmployeeRank);
+                        $("#OfficeName").val(data.OfficeName);
+                        //$("#DepartmentName").val(data.DepartmentName);
+                        $("#DesignationName").val(data.DesignationName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+
+
+                        AvailableOfficeList();
+                        SelectedOfficeList();
+                    }
+                    else {
+                        $("#EmployeeRank").empty();
+                        $("#OfficeName").empty();
+                        //$("#DepartmentName").empty();
+                        $("#DesignationName").empty();
+                        $("#EmployeeName").empty();
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                        //$("#OfficeDesignationId").val(0);
+                    }
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function AvailableOfficeList() {
+        var dtTable = $('#tblAvailableOffice');
+        var EmployeeId = $("#EmployeeId").val();
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAvailableOfficeList", "DiscEnqueryOfficer", "http")',
+            data: { EmployeeId: EmployeeId },
+            dataType: 'json',
+            async: true,
+            success: function (List_OfficeInfoViewModel) {
+                $('#AjaxLoader').hide();
+                var tableBody = dtTable.find('tbody');
+                tableBody.empty();
+                $.each(List_OfficeInfoViewModel, function (index, offc) {
+                    var sl = index + 1;
+                    tableBody.append('<tr>' +
+                                 '<td><input type="checkbox" style="width:18px;height:18px" id="txtCheckId' + sl + '"/></td>' +
+                                 '<td>' + sl + '</td>' +
+                                 '<td>' + offc.OfficeCode + '<input type="text"  value="' + offc.OfficeId + '" style="display:none;" name="OfficeId" id="txtOfficeId' + sl + '" />' +
+                                 '<td>' + offc.OfficeName + '</td>' +
+                                 '</tr>')
+                })
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function SelectedOfficeList() {
+        var dtTable = $('#tblSelectedOffice');
+        var EmployeeId = $("#EmployeeId").val();
+        $('#AjaxLoader').show();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetSelectedOfficeList", "DiscEnqueryOfficer", "http")',
+            data: { EmployeeId: EmployeeId },
+            dataType: 'json',
+            async: true,
+            success: function (List_SelectedOfficeInfoViewModel) {
+                $('#AjaxLoader').hide();
+                var tableBody = dtTable.find('tbody');
+                tableBody.empty();
+                $.each(List_SelectedOfficeInfoViewModel, function (index, off) {
+                    var sl = index + 1;
+                    tableBody.append('<tr>' +
+                                 '<td><input type="checkbox" style="width:18px;height:18px" id="txtSelectedCheck' + sl + '"/></td>' +
+                                 '<td>' + sl + '</td>' +
+                                 '<td>' + off.OfficeCode + '<input type="text"  value="' + off.OfficeId + '" style="display:none;" name="OfficeId" id="txtSelectedOfficeId' + sl + '" />' +
+                                 '<td>' + off.OfficeName + '</td>' +
+                                 '</tr>')
+                })
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);//tblSelectedCourse
+            }
+        });
+    }
+
+    function SaveDealingOfficeList() {
+        var dtTable = document.getElementById("tblAvailableOffice").rows.length;
+        var allOfficeId = new Array();
+        for (i = 1; i < dtTable; i++) {
+            var value = $('#txtOfficeId' + i).val();
+            var chkResult = $('#txtCheckId' + i).is(":checked");
+            if (chkResult == true) {
+                allOfficeId[allOfficeId.length] = value;
+            }
+        }
+
+        var EmployeeId = $("#EmployeeId").val();
+        var allTrx = new Object();
+        allTrx.allOfficeIds = allOfficeId;
+        allTrx.employeeId = EmployeeId;
+
+        var json = JSON.stringify(allTrx);
+        $('#AjaxLoader').show();
+        $.ajax({
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("EmployeeWiseEnqueryOfficeSave", "DiscEnqueryOfficer", "http")',
+            type: "POST",
+            dataType: 'json',
+            async: true,
+            data: json,
+            success: function (data) {
+                if (data != 0) {
+                    $('#AjaxLoader').hide();
+                    AvailableOfficeList();
+                    SelectedOfficeList();
+                    $(".success").show(800).fadeToggle(3000);
+                    $.alert.open("info", "Saved Sucessfully");
+                }
+                else {
+                    $(".failed").show(800).fadeToggle(3000);
+                    $.alert.open("error", "Fail to Save");
+                }
+            },
+            error: function () {
+                $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                $("#dialog-message").dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            }
+        });
+    }
+    function EditDealingOfficeList() {
+        var dtTable = document.getElementById("tblSelectedOffice").rows.length;
+        var allOfficeId = new Array();
+        for (i = 1; i < dtTable; i++) {
+            var value = $('#txtSelectedOfficeId' + i).val();
+            var chkResult = $('#txtSelectedCheck' + i).is(":checked");
+            if (chkResult == true) {
+                allOfficeId[allOfficeId.length] = value;
+            }
+        }
+
+        var EmployeeId = $("#EmployeeId").val();
+        var allTrx = new Object();
+        allTrx.allOfficeIds = allOfficeId;
+        allTrx.employeeId = EmployeeId;
+
+        var json = JSON.stringify(allTrx);
+        $('#AjaxLoader').show();
+        $.ajax({
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("EmployeeWiseEnqueryOfficeEdit", "DiscEnqueryOfficer", "http")',
+            type: "POST",
+            dataType: 'json',
+            async: true,
+            data: json,
+
+            success: function (data) {
+                if (data != 0) {
+                    $('#AjaxLoader').hide();
+                    AvailableOfficeList();
+                    SelectedOfficeList();
+
+                    $(".success").show(800).fadeToggle(3000);
+                    $.alert.open("info", "Update Sucessfully");
+                }
+                else {
+                    $(".failed").show(800).fadeToggle(3000);
+                    $.alert.open("error", "Fail to Update");
+                }
+            },
+            error: function () {
+                $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+                $("#dialog-message").dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        $("#OfficeList").hide();
+
+        $("#check_all").click(function () {
+            $("#tblAvailableOffice tbody input:checkbox").prop('checked', $(this).is(':checked'));
+        })
+        $("#check_allSelected").click(function () {
+            $("#tblSelectedOffice tbody input:checkbox").prop('checked', $(this).is(':checked'));
+        })
+
+        $("#txtEmpName").blur(function (e) {
+            if ($("#txtEmpName").val() != '') {
+                $("#OfficeList").show();
+                LoadEmpInfoByCode($("#txtEmpName").val());
+
+            }
+
+            else {
+                $("#EmployeeRank").empty();
+                $("#OfficeName").empty();
+                //$("#DepartmentName").empty();
+                $("#DesignationName").empty();
+                $("#EmployeeName").empty();
+            }
+        });
+
+        $('#btnSelect').click(function (e) {
+            e.preventDefault();
+            SaveDealingOfficeList();
+        });
+        $("#btnCancel").click(function (e) {
+
+            e.preventDefault();
+            EditDealingOfficeList();
+        });
+
+
+    });
+</script>
+
+<h2 class="page-title">Add Enquery Officer</h2>
+&nbsp;
+
+@using (Html.BeginForm("Create", "DiscEnqueryOfficer", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "DiscEnqueryOfficerProfile" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="container-fluid">
+        <fieldset>
+            <legend>কর্মকর্তা/কর্মচারী পরিচিতি</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Code</label>
+                        <div class="col-sm-8">
+                            @*@Html.DropDownListFor(model => model.EmployeeId, empList, new { @class = "form-control" })*@
+                            @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                            @Html.HiddenFor(model => model.EmployeeId)
+                            @Html.HiddenFor(model => model.EnqueryOfficerId)
+                            @*@Html.ValidationMessageFor(model => model.AddressType, "", new { @class = "form-group has-error" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Name</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Employee Rank</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeRank, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Office Name</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Designation Name</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    &nbsp;
+                </div>
+            </div>
+        </fieldset>
+        <br />
+        <table id="OfficeList">
+            <tr class="row">
+                <td class="col-sm-5" style="vertical-align:top;">
+                    <table cellpadding="5" cellspacing="0">
+                        <tr>
+                            <td align="center">
+                                <label style="font-weight: 700; font-size: 20px; text-align: center;">Available Office List</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center">
+                                <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblAvailableOffice" style="width:100%">
+                                    <thead>
+                                        <tr class="headings">
+                                            <th>
+                                                <input type="checkbox" style="width:18px;height:18px" id="check_all" />
+                                            </th>
+                                            <th class="column-title">SL</th>
+                                            <th class="column-title">Code</th>
+                                            <th class="column-title">Office Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td class="col-sm-2" style="vertical-align:top; width:8%; padding-top:30%; text-align:center;">
+                    <button style="width:50px" type="submit" id="btnSelect" class="btn btn-success">>></button>
+                    <br />
+                    <button style="width:50px" type="submit" id="btnCancel" class="btn btn-info"><<</button>
+                </td>
+                <td class="col-sm-5" style="vertical-align:top;">
+                    <table cellpadding="5" cellspacing="0">
+                        <tr>
+                            <td align="center">
+                                <label style="font-weight: 700; font-size: 20px; text-align: center;">Assigned Office List</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center">
+                                <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblSelectedOffice" style="width:100%">
+                                    <thead>
+                                        <tr class="headings">
+                                            <th>
+                                                <input type="checkbox" style="width:18px;height:18px" id="check_allSelected" />
+                                            </th>
+                                            <th class="column-title">SL</th>
+                                            <th class="column-title">Code</th>
+                                            <th class="column-title">Office Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}

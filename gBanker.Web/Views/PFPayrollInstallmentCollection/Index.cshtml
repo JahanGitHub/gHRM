@@ -1,0 +1,234 @@
+﻿@model gHRM.Web.ViewModels.PF.PayrollInstallmentCollectionViewModel
+@*@model IEnumerable<gHRM.Web.ViewModels.PF.PayrollInstallmentCollectionViewModel>*@
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    function PrintReport(employeeCode, employeeName, collectionTypeId) {
+        var url = '/PFPayrollInstallmentCollection/PrintReport?employeeCode=' + employeeCode + '&employeeName=' + employeeName + '&collectionTypeId=' + collectionTypeId;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    $(document).ready(function () {
+        
+        $('#grdContribution').hide();
+        $('#grdLoan').hide();
+
+        $("#btnSearch").click(function () {
+
+                var collectionTypeId = $("#ddlCollectionTypeId option:selected").val();
+                if (collectionTypeId == '') {
+                    alert('Please Select Collection Type');
+                    return;
+                }
+
+                var employeeCode = $("#EmployeeCode").val();
+                var employeeName = $("#EmployeeName").val();
+
+                if (collectionTypeId == 1) {
+                    $('#grdContribution').show();
+                    $('#grdLoan').hide();
+                    $('#grdContribution').jtable('load', { employeeCode: employeeCode, employeeName: employeeName,  collectionTypeId: collectionTypeId });
+                }
+                if (collectionTypeId == 6) {
+                    $('#grdContribution').hide();
+                    $('#grdLoan').show();
+                    $('#grdLoan').jtable('load', { employeeCode: employeeCode, employeeName: employeeName, collectionTypeId: collectionTypeId });
+                }
+        });
+
+        $("#btnReport").click(function () {
+
+            var collectionTypeId = $("#ddlCollectionTypeId option:selected").val();
+            if (collectionTypeId == '') {
+                alert('Please Select Collection Type');
+                return;
+            }
+
+            var employeeCode = $("#EmployeeCode").val();
+            var employeeName = $("#EmployeeName").val();
+
+            PrintReport(employeeCode, employeeName, collectionTypeId);
+        });
+     
+
+            $('#grdContribution').jtable({
+            title: 'Contribution Installment',
+            paging: true,
+            pageSize: 10,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFPayrollInstallmentCollection/GetContributionCollectionList'
+            },
+            fields: {
+                CollectionId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Employee Code',
+                    width: '10%',
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '25%',
+                },
+                
+                SelfContribution: {
+                    title: 'Self Contribution',
+                    width: '15%'
+                },
+                OrgContribution: {
+                    title: 'Org Contribution',
+                    width: '15%'
+                },
+                TransactionType: {
+                    title: 'Trans Type',
+                    width: '10%',
+                },
+                TransactionDateString: {
+                    title: 'Transaction Date',
+                    width: '12%',
+                }
+            }
+        });
+
+        $('#grdLoan').jtable({
+            title: 'Loan Installment',
+            paging: true,
+            pageSize: 10,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFPayrollInstallmentCollection/GetContributionCollectionList'
+            },
+            fields: {
+                CollectionId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeCode: {
+                    title: 'Emp. Code',
+                    width: '7%',
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '20%',
+                },
+                LoanId: {
+                    title: 'Loan No',
+                    width: '6%',
+                },
+                LoanTerm: {
+                    title: 'Loan Term',
+                    width: '5%',
+                },
+                LoanAmount: {
+                    title: 'Principal',
+                    width: '10%'
+                },
+                InterestAmount: {
+                    title: 'Interest',
+                    width: '10%'
+                },
+                InterestCharge: {
+                    title: 'Intterest Charge',
+                    width: '10%'
+                },
+                Sundry: {
+                    title: 'Sundry',
+                    width: '7%'
+                },
+                TransactionType: {
+                    title: 'TrX Type',
+                    width: '5%',
+                },
+                TransactionDateString: {
+                    title: 'TrX Date',
+                    width: '10%',
+                },
+            }
+        });
+
+    });// End Document Rready
+</script>
+
+@Html.ActionLink("Payroll Installment Collection", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Payroll Installment Collection List</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="form-group">
+
+                <div class="row">
+
+                    <div class="col-sm-7">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-sm-2" })
+                        <div class="col-sm-4">
+                            @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Employee Code" } })
+                        </div>
+
+                        <label for="EmployeeName" class="control-label col-sm-1">Name</label>
+                        <div class="col-sm-5">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @Placeholder = "Employee Name" } })
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="col-sm-2" style="text-align:right;">
+                            <label for="ddlCollectionTypeId" class="control-label">Collection Type</label>
+                        </div>
+                        <div class="col-sm-6">
+                            <select id="ddlCollectionTypeId" class="form-control">
+                                <option value="">Please Select</option>
+                                <option value="1">Contribution Installment</option>
+                                <option value="6">Loan Installment</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button type="button" id="btnSearch" class="btn btn-warning"><span class="glyphicon glyphicon-search"></span> </button> &nbsp;
+                            <button type="button" id="btnReport" class="btn btn-warning"><span class="glyphicon glyphicon-print"></span> </button>
+                        </div>
+                       
+                    </div>
+                    @*<div class="col-sm-1">
+                        <button type="button" id="btnSearch" class="btn btn-warning"><span class="glyphicon glyphicon-search"></span> </button>
+                        <button type="button" id="btnReport" class="btn btn-warning"><span class="glyphicon glyphicon-print"></span> </button>
+                    </div>*@
+                    
+                </div>
+             </div>
+        </div>
+    </div>
+   
+    <div id="grdContribution">
+    </div>
+    <div id="grdLoan">
+    </div>
+
+
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+}

@@ -1,0 +1,49 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRSalaryConfigurationViewModel2
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#newDesignationIdDiv").hide();
+        $("#PromotionDate").attr("disabled", true);
+        $("#NextReviewDate").attr("disabled", true);
+    });
+     var system = '@SessionHelper.CompanyInfo.CompanyShortName';
+</script>
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRSalaryConfiguration">PR Salary Configuration</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var proOfficeNevigation = new gHRM.Web.ViewModels.PromotionNevigationPartialViewModel2
+    {
+        DesignationList = Model == null ? null : Model.DesignationList,
+        EmployeeSalaryType = Model.EmployeeSalaryType,
+        SalaryGenerationTypeList = Model.SalaryGenerationTypeList,
+        GradeList = Model.GradeList,
+        SalaryScaleList = Model.SalaryScaleList,
+        OverTimeList = Model.OverTimeList,
+        PFTypeList = Model == null ? null : Model.PFTypeList,
+        PromotionTypeList = Model == null ? null : Model.PromotionTypeList,
+        MonthList = Model.MonthList,
+        IncrementYearFromList = Model.IncrementYearFromList,
+        BankList = Model.BankList,
+        EmployeeStatusList = Model.EmployeeStatusList
+    };
+
+   
+}
+
+@Html.Partial("~/Views/Shared/_PromotionNevigationPane2.cshtml", proOfficeNevigation)
+
+@section Scripts {
+    <script src="~/Scripts/wickedpicker.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    <link href="~/Content/wickedpicker.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" />
+    <script src="~/Assets/js/app/payroll/employeeSalaryConfigurationManager2.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()@System.DateTime.Now"></script>
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}

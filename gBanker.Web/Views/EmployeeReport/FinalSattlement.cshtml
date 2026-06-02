@@ -1,0 +1,758 @@
+﻿@{
+    ViewBag.Title = "Final Sattlement";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var EmployeeCode = ViewBag.EmpCode;
+    var Edit = ViewBag.EditSattlement??"True";   
+}
+
+<h2>Final Salttlement</h2>
+
+<br />
+
+<div class="form-horizontal">
+
+    <div class="container-fluid">
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">তারিখ ও বিষয় </legend>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("তারিখ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("Date", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রাপক", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("Prapok", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রেরক", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("Prerok", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("বিষয়", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("Bishoy", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("নিম্মক্ত বিষয়াদি ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+
+                            <textarea id="nimnokotobisoyadi" name="nimnokotobisoyadi" rows="4" cols="50" class="form-control" readonly></textarea>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </fieldset>
+
+
+
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">কর্মকর্তা/কর্মচারীর বিবরণঃ </legend>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("নাম ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("name", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("কর্ম স্থল ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("kormosthol", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("যোগদানের তারিখ ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("jogdanertarikh", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("চাকুরিতে নিশ্চিত করনের তারিখ  ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("nishchitkoronertarikh", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("পদত্যাগ পত্রের দাখিলের  তারিখ ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("podtagpotraDhakilerDate", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("পদত্যাগপত্র কার্যকরের তারিখ  ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("podotagpotrokarjokordate", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("সর্বশেষ বেতন", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("sorboshesbeton", "", new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("ভাতা ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("vata", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("শেষ কর্ম দিবস", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("lastworkingday", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("পদত্যাগ পত্রের বিবরন ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("podotagpotrerbiboron", "পত্র সূত্র নং গক/প্রশা/১(৪)/২২-২১২৩, তারিখঃ ২৫/১০/২০২২", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("রিলিজ অর্ডারের বিবরন ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("rilizorderbiboron", "গব/এঅ/কলমা/১(৪)/২০২৩-১৫৬(১), তারিখ- ৩১/০১/২০২৩", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("মহার্ঘ নাই ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("mohargonai", "মহার্ঘ নাই", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">চাকুরীর যে সকল সুবিধাদি দেয়া যেতে পারেঃ  </legend>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রভিডেন্ট ফান্ডে নিজের জমাকৃত টাকা ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+
+                            <select id="providentfundenijertaka" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রভিডেন্ট ফান্ডে নিজের জমাকৃত টাকার সুদ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+
+                            <select id="providentfundenijerjomatakarsud" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রভিডেন্ট ফান্ডে প্রতিষ্ঠানের অনুদান", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+
+                            <select id="providentfundeprotisthanerobodan" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রভিডেন্ট ফান্ডে প্রতিষ্ঠানের অনুদানের সুদ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="providendfundeprotisthaneronudanersud" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("গ্রাচুইটি তহবিলে জমাকৃত টাকা", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("gratuitytohobillejomakritotaka", "প্রযোজ্য ( ...... থেকে  ......... সাল পর্যন্ত ...... টি মূল বেতন )** ", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("গ্রুপ জীবন বীমা", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="groupjibonbima" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়" selected>No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("ছুটির পরির্বতে বেতন", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="chutirporibortebeton" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("বকেয়া বেতন  ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="bokyeabeton" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("বকেয়া  ভাতা ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="bokyeavata" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("অন্যান্য বকেয়া", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("onnannobokyea", "", new { @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">কর্তন সমূহ :</legend>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("নোটিশ পে ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="noticepay" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("মোবাইল লোন ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("mobileloan", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("প্রভিডেন্ট ফান্ড লোন ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("providentfundloan", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("মোবাইল বিল ", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            <select id="mobilebill" class="form-control">
+                                <option value="প্রযোজ্য">Yes</option>
+                                <option value="প্রযোজ্য নয়">No</option>
+                            </select>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("অন্যান্য পাওনা", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+                            @Html.TextBox("onnannopauna", "", new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name"> মন্তব্য (যদি থাকে): </legend>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        @Html.Label("মন্তব্য (যদি থাকে):", htmlAttributes: new { @class = "control-label col-md-2 required" })
+                        <div class="col-md-8">
+
+                            <textarea id="comments" name="comments" rows="4" cols="50" class="form-control"> </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <fieldset>
+            <legend class="text-info" id="rpt_name">সংরক্ষণ , সংযোজন , বিয়োজন</legend>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            <input type="button" id="btnPrint" value="Save" class="btn btn-primary" formtarget="_blank" />
+                            @*<input style="margin-left:10px;" type="button" id="btnBack"  value="Back" class="btn btn-success" />*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </fieldset>
+
+    </div>
+</div>
+
+<script>
+           
+
+    $(document).ready(function () {
+
+                //$('#btnBack').click(function ()
+                //{
+                //    window.location.href = '/EmployeeReport/EmployeeReport?FinalSattlement=True';
+                //});
+
+                $('#btnPrint').click(function () {
+
+                    var Date = $("#Date").val();
+                    var Prapok = $("#Prapok").val();
+                    var Prerok = $("#Prerok").val();
+                    var Bishoy = $("#Bishoy").val();
+                    var podtagpotraDhakilerDate = $("#podtagpotraDhakilerDate").val();
+                    var nimnokotobisoyadi = $("#nimnokotobisoyadi").val();
+                    var name = $("#name").val();
+                    var kormosthol = $("#kormosthol").val();
+                    var jogdanertarikh = $("#jogdanertarikh").val();
+                    var podotagpotrokarjokordate = $("#podotagpotrokarjokordate").val();
+                    var sorboshesbeton = $("#sorboshesbeton").val();
+                    var nishchitkoronertarikh = $("#nishchitkoronertarikh").val();
+                    var vata = $("#vata").val();
+                    var podotagpotrerbiboron = $("#podotagpotrerbiboron").val();
+                    var rilizorderbiboron = $("#rilizorderbiboron").val();
+                    var mohargonai = $("#mohargonai").val();
+                    var providentfundenijertaka = $("#providentfundenijertaka").val();
+                    var providentfundenijerjomatakarsud = $("#providentfundenijerjomatakarsud").val();
+                    var providentfundeprotisthanerobodan = $("#providentfundeprotisthanerobodan").val();
+                    var providentfundeprotisthaneronudanrsud = $("#providentfundeprotisthaneronudanrsud").val();
+                    var gratuitytohobillejomakritotaka = $("#gratuitytohobillejomakritotaka").val();
+                    var groupjibonbima = $("#groupjibonbima").val();
+                    var chutirporibortebeton = $("#chutirporibortebeton").val();
+                    var bokyeavata = $("#bokyeavata").val();
+                    var bokyeabeton = $("#bokyeabeton").val();
+                    var onnannobokyea = $("#onnannobokyea").val();
+                    var noticepay = $("#noticepay").val();
+                    var mobileloan = $("#mobileloan").val();
+                    var providentfundloan = $("#providentfundloan").val();
+                    var mobilebill = $("#mobilebill").val();
+                    var onnannopauna = $("#onnannopauna").val();
+                    var comments = $("#comments").val();
+                    var lastworkingday = $("#lastworkingday").val();
+                    var providendfundeprotisthaneronudanersud = $("#providendfundeprotisthaneronudanersud").val();
+
+                    var sattlement = {
+                        EmployeeCode: '@EmployeeCode',
+                        Date: Date,
+                        OfficeTypeName: nimnokotobisoyadi,
+                        PassportNo: kormosthol,
+                        BloodGroup: sorboshesbeton,
+                        EmployeeName: name,
+                        FirstJoiningDateMsg: jogdanertarikh,
+                        EmployeeStatusValue:nishchitkoronertarikh,
+                        BatchNo: Prapok,
+                        kMessage: Prerok,
+                        BirthPlace: Bishoy,
+                        PermanentAddress: podtagpotraDhakilerDate,
+                        OfficialEmail: podotagpotrokarjokordate,
+                        EmployeeStatusName: bokyeabeton,
+                        Marks: vata,
+                        CompanyName: podotagpotrerbiboron,
+                        CompanyAddress: rilizorderbiboron,
+                        RosterName: mohargonai,
+                        Section: providentfundenijertaka,
+                        IsSameAsPresentAddress: providentfundenijerjomatakarsud,
+                        AttendanceDateFrom: providentfundeprotisthanerobodan,
+                        AttendanceDateTo: providentfundeprotisthaneronudanrsud,
+                        PABXExtension: gratuitytohobillejomakritotaka,
+                        ETinNo: groupjibonbima,
+                        AddressDetail: chutirporibortebeton,
+                        PresentAddressDetailForGuarantor: bokyeavata,
+                        PermanentAddressDetailForGuarantor: onnannobokyea,
+                        EmployeeImageBase64: noticepay,
+                        ImageFilePath: mobileloan,
+                        EmployeeImageLink: providentfundloan,
+                        ReferenceORGuarantorDetail: mobilebill,
+                        BankAccountNo: onnannopauna,
+                        BirthCertificateNo: comments,
+                        Nationality: lastworkingday,
+                        NationalId: providendfundeprotisthaneronudanersud,
+                    };
+
+                    console.log(sattlement);
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("FinalSattlementSave", "EmployeeReport", "http")',
+                        data: JSON.stringify(sattlement),
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (data) {
+                            var url = "/EmployeeReport/FinalSattlementReport?EmployeeCode=@EmployeeCode"
+                            window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+                        },
+                        error: function (xhr, status, error) {
+                            // Handle the error here
+                            console.log(error);
+                        }
+                    });
+                });
+
+
+
+                $("#Date").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                $("#Date").datepicker('setDate', new Date());
+
+                $("#podtagpotraDhakilerDate").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                $("#podtagpotraDhakilerDate").datepicker('setDate', new Date());
+
+
+    
+
+                $("#podotagpotrokarjokordate").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                $("#podotagpotrokarjokordate").datepicker('setDate', new Date());
+
+                $("#lastworkingday").datepicker({
+                    dateFormat: "dd/mm/yy",
+                    showAnim: "scale",
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: "1950:2050"
+                });
+                $("#lastworkingday").datepicker('setDate', new Date());
+
+                var Edit = '@Edit';
+
+                if (Edit == 'False') {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetEmployeeData", "EmployeeReport", "http")',
+                        data: { EmployeeCode: '@EmployeeCode' },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            $.each(data, function (index, data) {
+                                if (data != "Error") {
+                                    // alert(data.PermanentAddress);
+                                    $("#name").val(data.EmployeeName);
+                                    $("#Prapok").val(data.BatchNo);
+                                    $("#Prerok").val(data.kMessage);
+                                    $("#Bishoy").val(data.BirthPlace);
+                                    $("#nishchitkoronertarikh").val(data.ConfirmationDateMsg);
+                                    $("#kormosthol").val(data.OfficeName);
+                                    $("#nimnokotobisoyadi").val(data.PermanentAddress);
+                                    $("#jogdanertarikh").val(data.FirstJoiningDateMsg);
+                                    $("#sorboshesbeton").val(data.DefaultRetiredCause);
+                                    $("#comments").val(data.DefaultTerminationCause);
+                                }
+                                else {
+
+                                    $("#EmployeeName").val('');
+                                    alert("Wrong Employe Code");
+                                    $("#txtEmpName").focus();
+                                }
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+
+                if (Edit == 'True') {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("GetEmployeeDataFinalSattlment", "EmployeeReport", "http")',
+                        data: { EmployeeCode: '@EmployeeCode' },
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            $.each(data, function (index, data) {
+                                if (data != "Error") {
+                                    // alert(data.PermanentAddress);
+                                    $('#Date').val(data.StatusDateForCertificate);
+                                    $("#name").val(data.EmployeeName);
+                                    $("#Prapok").val(data.BatchNo);
+                                    $("#Prerok").val(data.kMessage);
+                                    $("#Bishoy").val(data.BirthPlace);
+                                    $("#nishchitkoronertarikh").val(data.ConfirmationDateMsg);
+                                    $("#kormosthol").val(data.OfficeName);
+                                    $("#nimnokotobisoyadi").val(data.PermanentAddress);
+                                    $("#jogdanertarikh").val(data.FirstJoiningDateMsg);
+                                    $("#sorboshesbeton").val(data.DefaultRetiredCause);
+                                    $("#comments").val(data.DefaultTerminationCause);
+                                
+                                    $("#lastworkingday").val(data.Nationality);
+                                    $("#podtagpotraDhakilerDate").val(data.EmployeeStatusValue);
+                                    $("#podotagpotrokarjokordate").val(data.OfficialEmail);
+                                    $("#vata").val(data.Marks);
+                                    $("#podotagpotrerbiboron").val(data.CompanyName);
+                                    $("#rilizorderbiboron").val(data.CompanyAddress);
+                                    $("#providentfundenijertaka").val(data.Section);
+                                    $("#providentfundenijerjomatakarsud").val(data.IsSameAsPresentAddress );
+                                    $("#providentfundeprotisthanerobodan").val(data.AttendanceDateFrom);
+                                    $("#gratuitytohobilejomakritotaka").val(data.PABXExtension);
+                                    $("#groupjibonbima").val(data.ETinNo);
+                                    $("#chutirporibortebeton").val(data.AddressDetail);
+                                    $("#bokyeabeton").val(data.EmployeeStatusName);
+                                    $("#bokyeavata").val(data.PresentAddressDetailForGuarantor);
+                                    $("#comments").val(data.DefaultTerminationCause);
+                                    $("#onnannobokyea").val(data.PermanentAddressDetailForGuarantor);
+                                    $("#noticepay").val(data.EmployeeImageBase64);
+                                    $("#mobileloan").val(data.ImageFilePath);
+                                    $("#providentfundloan").val(data.EmployeeImageLink);
+                                    $("#mobilebill").val(data.ReferenceORGuarantorDetail);
+                                    $("#onnannopauna").val(data.BankAccountNo);
+                                    $("#providendfundeprotisthaneronudanersud").val(data.NationalId);
+
+                                }
+                                else {
+
+                                    $("#EmployeeName").val('');
+                                    alert("Wrong Employe Code");
+                                    $("#txtEmpName").focus();
+                                }
+                            });
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+
+
+            });
+
+</script>

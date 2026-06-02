@@ -1,0 +1,469 @@
+﻿@model gHRM.Web.ViewModels.Loan.ApplicantInfoViewModel2
+@{
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    ViewBag.Title = "Loan Application form";
+}
+<style type="text/css">
+    textarea {
+        resize: none;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#DisburseDate").datepicker(
+            {
+                dateFormat: "dd-M-yy",
+                showAnim: "scale",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:2050"
+
+            });
+        $("#DisburseDate").datepicker('setDate', new Date());
+
+         $("#EmployeeCode").prop('readonly', false);
+         $("#EmployeeCode").blur(function () {
+                $("#PurposeId").val('0');
+                $("input[type='text'],[type='number'],textarea").not("#EmployeeCode").val('');
+
+                var obj = GenerateAjaxRequist('/Employee/GetEmployeeByEmployeeCode', { employeeCode: $(this).val() }, "GET");
+                if (obj.EmployeeId) {
+                    $("#EmployeeId").val(obj.EmployeeId);
+                    $("#EmployeeCode").val(obj.EmployeeCode);
+                    $("#EmployeeName").val(obj.EmployeeName);
+                    reloadGrid();
+                }
+
+                if (obj.EmployeeId) {
+
+                    var ddlObj = GenerateAjaxRequist('/Loan/GetLoanNoByEmployeeForDropdown3', { employeeId: obj.EmployeeId }, "GET");
+                    var htm = "";
+                    $.each(ddlObj, function (key, val) {
+                        htm += `<option value="${val.Value}">${val.Text}</option>`
+                    });
+                    $("#LoanNo").html(htm);
+                }
+            });
+        
+
+        $("#LoanNo").change(function () {
+            const loanNo = $("#LoanNo").val();
+            const empId = $("#EmployeeId").val();
+
+            $.ajax({
+                url: `/Loan/LoanData`,
+                type: "GET",
+                data: { LoanNo: loanNo, empid: empId },
+                success: function (data) {
+                    if (data && data.MaxDis && data.MaxDis.length > 0) {
+                        const maxDis = {};
+                        data.MaxDis.forEach(item => {
+                            maxDis[item.Key] = item.Value;
+                        });
+
+                        // Example: Set interest rate field
+                        $("#InterestRate, #IntRate").val(maxDis.InterestRate || '');
+                        $('#Id').val(loanNo);
+                        // You can also set other values if needed:
+                        $("#LoanAmount").val(maxDis.DisburseAmount || '');
+                        $("#InstallmentNo").val(maxDis.NoOfInstallment || '');
+                        $("#InstallmentAmount").val(maxDis.MonthlyInstallment || '');
+                        $("#InterestAmount").val(maxDis.InterestCharge || '');                      
+                        $("#PreviousLoanAmount").val(maxDis.Coll_LoanAmount || '');
+                        $("#MaxLoanAmount").val(maxDis.Coll_InterestAmount || '');
+                        $("#InstallmentInterest").val(maxDis.InstallmentInterest || '');
+                        $("#InstallmentPrincipal").val(maxDis.InstallmentPrincipal || '');
+                        $("#DisburseDate").val(maxDis.DisburseDate || '');
+                        // Add more as needed
+                    }
+                },
+                error: function (err) {
+                    console.error("Failed to fetch loan data:", err);
+                }
+            });
+        });
+
+
+
+        $("#LoanType").change(function () {
+            getPopose($(this).val(), 0);
+            $("#MaxLoanAmount").val('');
+        });
+
+        $("#PurposeId").change(function () {
+            $("#AjaxLoader").show();
+            $("#MaxLoanAmount,#InterestRate,#IntRate").val('')
+            if ($("#PurposeId").val() && $("#PurposeId").val() > 0) {
+                //PreviousLoanInfo($("#LoanType").val(), $("#PurposeId").val(),);
+                var data = GenerateAjaxRequist('/Loan/LoanEligibilityCheckInfo', { empid: $("#EmployeeId").val(), loanType: $("#LoanType").val(), purposeid: $("#PurposeId").val() }, "GET");
+                var msg = ""
+                $.each(data.MaxDis, function (index, row) {
+                    msg = row.Key == "Msg" ? row.Value : "";
+                });
+
+                if (msg == "") {
+                    var maxAmt = 0;
+                    $.each(data.MaxDis, function (index, row) { maxAmt = row.Key == "MaxAmt" ? row.Value : "0"; });
+                    $("#MaxLoanAmount").val(maxAmt);
+                    $("#MethodType").val(data.MethodType);
+                    $("#GracePeriod").val(data.GracePeriod);
+
+                    if (data.MethodType == "F")
+                        $("#dvGracePeriod").css('display', 'none');
+                    else
+                        $("#dvGracePeriod").css('display', '');
+                }
+                else $.alert.open("Warning", msg);
+
+                var data = GenerateAjaxRequist(`/PRComponent/GetInterestRateForLoan/`, { PurposeId: $("#PurposeId").val(), empid: $("#EmployeeId").val() }, "GET");
+                if (data > 0) {
+                    $("#InterestRate,#IntRate").val(data)
+                }
+            }
+            else {
+                $("#PreviousLoanID").val('');
+                $("#PreviousLoanNo").val('');
+                $("#PreviousLoanAmount").val('');
+            }
+        });
+
+
+        $('#LoanAmount,#InstallmentNo,#GracePeriod').on("input", function (e) {
+            var interesrRate = $("#InterestRate").val();
+            var LoanAmount = (e.target.id == "LoanAmount" ? e.target.value : $("#LoanAmount").val())
+                , InstallmentNo = e.target.id == "InstallmentNo" ? e.target.value : $("#InstallmentNo").val();
+            LoanAmount = parseFloat(LoanAmount>0?LoanAmount:0);
+            InstallmentNo = parseInt(InstallmentNo > 0 ? InstallmentNo : 0);
+            var ins_prin = Math.round(LoanAmount / InstallmentNo), ins_int = 0,int_amt=0;
+
+            if ($("#MethodType").val() == "D") {
+                var today = new Date();
+                var lastpaydate = new Date();
+                lastpaydate = new Date(lastpaydate.setMonth((lastpaydate.getMonth() + parseInt($("#GracePeriod").val()) + InstallmentNo)));
+                var datediff = (lastpaydate - today) / (1000 * 60 * 60 * 24);
+                int_amt = Math.ceil((LoanAmount * datediff * interesrRate) / 36500);
+            }
+            else if ($("#MethodType").val() == "F")
+                int_amt = ((LoanAmount * interesrRate) / 100);
+            if (InstallmentNo == 0)
+                int_amt = 0;
+            else
+                ins_int = Math.ceil(int_amt / InstallmentNo);
+            $("#InstallmentPrincipal").val(ins_prin);
+            $("#InstallmentInterest").val(ins_int);
+            $("#InterestAmount").val(int_amt);
+           // $("#InstallmentAmount").val(ins_prin + ins_int);
+            $("#InstallmentAmount").val(ins_prin);
+        });
+
+        function getPopose(type, id) {
+            $("#PurposeId").html("");
+            var data = GenerateAjaxRequist('/LoanConfig/GetProposeXLoanType', JSON.stringify({ loanType: type, id: id }), "POST");
+            var htm = "";
+            $.each(data, function (index, row) {
+                htm += "<option value=" + row.Value + ">" + row.Text + "</option>";
+            });
+            $("#PurposeId").html(htm);
+        }
+        function PreviousLoanInfo(loanType, purposeid) {
+            var data = GenerateAjaxRequist('/Loan/PreviousLoan', JSON.stringify({ loantype: loanType, purposeid: purposeid, employeeid: $("#EmployeeId").val() }), "POST");
+            if (data != null) {
+                $("#PreviousLoanID").val(data.LoanId);
+                $("#PreviousLoanNo").val(data.LoanNo);
+                $("#PreviousLoanAmount").val(data.DisburseAmount);
+            }
+        }
+
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+
+            var dataObject = {
+                Id: $("#Id").val(),
+                EmployeeId: $("#EmployeeId").val(),
+                LoanAmount: $("#LoanAmount").val(),
+                InstallmentNo: $("#InstallmentNo").val(),
+                InterestRate: $("#IntRate").val(),
+                InterestAmount: $("#InterestAmount").val(),
+                InstallmentPrincipal: $("#InstallmentPrincipal").val(),
+                InstallmentInterest: $("#InstallmentInterest").val(),
+                InstallmentAmount: $("#InstallmentAmount").val(),
+                PreviousLoanAmount: $("#PreviousLoanAmount").val(),
+                MaxLoanAmount: $("#MaxLoanAmount").val(),
+                DisburseDate: $("#DisburseDate").val(),
+            };
+            var data = GenerateAjaxRequist('/Loan/PostLoanEdit', JSON.stringify({ model: dataObject }), "POST");
+            if (data.Result == 1) {
+                $("Input,textarea").val('');
+                // $("#Id").val(0);
+            }
+
+            $.alert.open((data.Result == 0 ? "Failed" : "Success"), data.Message);
+            reloadGrid();
+        });
+
+       
+
+        $('#grid').jtable({
+            // title: 'Product List',
+            paging: false,
+            //pageSize: 10,
+            sorting: false,
+            //defaultSorting: 'Name ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/Loan/GetAllApplication',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                },
+            },
+            fields: {
+                LoanType: {
+                    title: "Loan Type",
+                    width: "30px",
+                    display: function (dataItem) {
+                        return dataItem.record.LoanType == "PFL" ? "PF Loan" : "Company Loan";
+                    }
+                },
+                Purpose: {
+                    title: "Purpose",
+                    width: "30px",
+                },
+                LoanAmount: {
+                    title: "Loan Amt.",
+                    width: "20px",
+                },
+                InstallmentNo: {
+                    title: "Ins.No",
+                    width: "20px",
+
+                },
+                NotificationStatus: {
+                    title: "Notification",
+                    width: "20px",
+                    display: function (dataItem) {
+                        return dataItem.record.NotificationStatus == "ACC" ? "Accounts" : dataItem.record.NotificationStatus == "DAP" ? "Approval" : "Pending";
+                    }
+                },
+                ApplicationStatus: {
+                    title: "App. Status",
+                    width: "20px",
+
+                },
+                DisburseDate: {
+                    title: "Dis. Date",
+                    width: "25px",
+                    type: 'date',
+                    displayFormat: 'yy-mm-dd'
+
+                },
+                LastInstallmentDate: {
+                    title: "Last Ins. Date",
+                    width: "25px",
+                    type: 'date',
+                    displayFormat: 'yy-mm-dd'
+                },
+                IsClose: {
+                    title: "Loan Status",
+                    width: "20px",
+                    display: function (data) {
+                        return data.record.IsClose == false?"Running":data.record.IsClose ==true?"Close":"Pending"
+                    }
+                },
+                //Link: {
+                //    title: "Action",
+                //    width: '10%',
+                //    sorting: false,
+                //    display: function (data) {
+                //        return `<div class="text-center">${data.record.IsClose == true || data.record.ApplicationStatus == "Disburse" ? `<a href="#" OnClick="Delete(${data.record.Id})"><i class="fa fa-trash"></i></a> | ` : ``}<a href="#" OnClick="View(${data.record.Id})"><i class="fa fa-bar-chart"></i></a></div>`;
+                //    }
+                //},
+            }
+        });
+        reloadGrid();
+    });
+    function reloadGrid() {
+        $('#grid').jtable('load', { employeeId: $("#EmployeeId").val(), filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });
+    }
+
+    function Delete(id) {
+        var data = GenerateAjaxRequist('/Loan/ApplicationDelete', JSON.stringify({ id: id }), "POST");
+        reloadGrid();
+    }
+    function View(id) {
+
+    }
+</script>
+<h2 class="page-title">Loan Edit</h2>
+@using (Html.BeginForm("PostLoanEdit", "Loan", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "CollectionMethod" }))
+{
+<div class="">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.EmployeeId)
+    @Html.HiddenFor(model => model.InterestRate)
+    @Html.HiddenFor(model => model.MethodType)
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control", @required = "true", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @required = "true", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="dvLoan" style="display:block;">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-sm-4" for="LoanNo">Loan No</label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="LoanNo"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InterestRate, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.InterestRate, new { @class = "form-control", @required = "true", @id = "IntRate", Name = "IntRate" })   @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Disburse Date", htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.DisburseDate, new { @class = "form-control", @required = "true",  @autocomplete = "off" })
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Disburse Amount", htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.LoanAmount, new { @class = "form-control", @required = "true", @type = "number", @autocomplete = "off" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Installment No", htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.InstallmentNo, new { @class = "form-control", @required = "true", @autocomplete = "off" })
+                </div>
+            </div>
+        </div>
+    </div>
+ 
+    <div class="row" style="display:block;">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InstallmentPrincipal, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.InstallmentPrincipal, new { @class = "form-control", @required = "true" })  @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InstallmentInterest, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.InstallmentInterest, new { @class = "form-control", @required = "true", @type = "number" })  @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6" style="display:block;">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InterestAmount, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.InterestAmount, new { @class = "form-control", @required = "true" })  @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.InstallmentAmount, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.InstallmentAmount, new { @class = "form-control", @required = "true" }) @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="display:block;">
+      
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Opening Collection Amount", htmlAttributes: new { @class = "control-label col-sm-4" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.PreviousLoanAmount, new { @class = "form-control" })  @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Opening Collection Interest Amount", htmlAttributes: new { @class = "control-label col-sm-4" })
+                <div class="col-sm-8">
+                    @Html.TextBoxFor(model => model.MaxLoanAmount, new { @class = "form-control" })  @*, @readonly = "readonly"*@
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+
+    </div>
+    <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-1">
+            <button type="button" id="btnSave" class="btn btn-success">Save</button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+</div>
+}
+@section Scripts {
+    <script src="~/Assets/js/app/CommonMethod.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+    @Scripts.Render("~/bundles/jqueryval")
+}

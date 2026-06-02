@@ -1,0 +1,296 @@
+﻿@model gHRM.Web.ViewModels.TaDa.EmployeeTADABillViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+<style>
+    .jtable > thead > tr {
+        height: 40px;
+    }
+</style>
+<script type="text/javascript">
+
+    var ApprovalStatus = "E";//for encashment with salary
+
+
+    function LoadTADAGrid(filterBy, filterValue, Filter_Valuedate, ApprovalStatus) {
+        
+        // alert(FilterValuedate);
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            defaultSorting: 'EmployeeCode ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        //ApprovalStatus = "A";
+                        $.ajax({
+                            url: '/EmployeeTADABill/GetWaitingTADABillList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting + '&FilterBy=' + filterBy + '&FilterValue=' + filterValue + '&FilterValuedate=' + Filter_Valuedate + '&ApprovalStatus=' + ApprovalStatus,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                TADABillId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                rowSl: {
+                    title: 'SL',
+                    width: '5%'
+                },
+                EmployeeCode: {
+                    title: 'Code',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'Name',
+                    width: '20%'
+                },
+
+                MemoNo: {
+                    title: 'MemoNo',
+                    width: '10%'
+                },
+
+                TravelDateMsg: {
+                    title: 'Travel Date',
+                    width: '10%'
+                },
+                TravelPlace: {
+                    title: 'Travel Place',
+                    width: '10%'
+                },
+                TravelPurpose: {
+                    title: 'Travel Purpose',
+                    width: '10%'
+                },
+                ApproveDateMsg: {
+                    title: 'Approve Date',
+                    width: '10%'
+                },
+                ClaimAmount: {
+                    title: 'Claim Amount',
+                    width: '10%'
+                },
+                ApproveAmount: {
+                    title: 'Approved Amount',
+                    width: '10%'
+                },
+                //Remark: {
+                //    title: 'Remark',
+                //    display: function (data) {
+                //        
+                //        if (data.record.IsAmountPaid == true) {
+                //            return '<div class="text-center"><label>' + data.record.Remark + '</label></div>';
+                //        } else {
+                //            return '<div class="text-center"><input type="text" id="txtRemarks' + data.record.TADABillId + '"></input></div>';
+                //        }
+
+
+
+                //    }
+                //},
+                //Approve: {
+                //    title: "Action",
+                //    display: function (data) {
+                //        if (data.record.IsAmountPaid != true) {
+                //            return '<div class="text-center"><a title="Provide TADA Bill" href="#" OnClick="ProvideTADABill(' + data.record.TADABillId + ');"><i class="fa fa-check"></i></a></div>';
+                //        }
+                //    }
+                //},
+                //Delete: {
+                //    title: "Delete",
+                //    width: '5%',
+                //    display: function (data) {
+                //        if (data.record.IsAmountPaid != true) {
+                //            return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.record.TADABillId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                //        }
+                //    }
+                //}
+                SelectLink: {
+                    title: "Select <input type='checkbox' id='selectall'/>",
+                    sorting:false,
+                    width: '20%',
+                    display: function (data) {
+                        return '<div class="text-center"><input type="checkbox" class="chk" name="showCauseRadio"><input type="hidden" class="txtTADAId" value=' + data.record.TADABillId + '>' +
+                            '<input type="hidden" class="txtEmployeeCode" value=' + data.record.EmployeeCode + '>' +                          
+
+                            '</div>'
+
+                    }
+                }
+            }
+        });
+        reloadGrid();
+    }
+
+    $(document).ready(function () {
+        LoadTADAGrid("", "", "", "");
+        $("#selectall").click(function () {
+            
+            var status = $('#selectall').is(':checked');
+            //if (status === true) {
+                $('.chk').attr('checked', this.checked);
+            //} else {
+            //    $('.chk').removeAttr('checked');
+            //}
+            
+        });
+        $(".chk").click(function () {
+            
+            if ($(".chk").length == $(".chk:checked").length) {
+                $("#selectall").attr("checked", "checked");
+            } else {
+                $("#selectall").removeAttr("checked");
+            }
+
+        });
+
+        $("#btnSave").click(function () {
+            
+
+            var checkedList = new Array();
+            var month = $("#Month").val();
+            var year = $("#Year").val();
+
+            if (month != "" && year != "") {
+
+                $('.jtable tbody tr ').each(function (i, row) {
+                    var that = $(this);
+                    var isChecked = that.find("td div input.chk").is(':checked');
+                    var TADABillId = 0;
+                    var EmployeeCode = "";
+                    if (isChecked == true) {
+                        TADABillId = that.find("td div input.txtTADAId").val();
+                        EmployeeCode = that.find("td div input.txtEmployeeCode").val();
+
+                        var checkedItem = {
+                            Month: month,
+                            Year:year,
+                            TADABillId: TADABillId,
+                            EmployeeCode: EmployeeCode
+                        };
+                        checkedList.push(checkedItem);
+                    }
+
+                });
+            } else {
+                $.alert.open("Error", "Please Select Salary Month and Year");
+                return false;
+            }
+            
+            if (checkedList.length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("SaveTADABillWithSalary", "EmployeeTADABill", "http")',
+                    data: JSON.stringify(BillList = checkedList),
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.Result == 1) {
+                            $("#Month").val("");
+                            $("#Year").val("");
+                            reloadGrid();
+                            $.alert.open("Success", "TADA bill successfully added with salary");
+                        } else {
+                            $.alert.open("Error", "Error Occured");
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please Select Employee");
+            }
+        });
+    });
+
+    function reloadGrid() {
+        var filterBy = "";
+        var filterValue = "";
+        var Filter_Valuedate = "";
+        $('#grid').jtable('load', { filterBy: filterBy, filterValue: filterValue, FilterValuedate: Filter_Valuedate, ApprovalStatus: ApprovalStatus });
+    }
+
+
+</script>
+<style type="text/css">
+    .jtable thead th {
+        height: 50px;
+    }
+</style>
+@*@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })*@
+&nbsp;
+<h2 class="page-title">TADA Bill With Salary</h2>
+&nbsp;
+
+<div class="row">
+    @*<div class="col-md-12">
+            &nbsp;
+        </div>*@
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Month, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Month, Model.MonthList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                <div class="col-sm-8">
+                    @Html.DropDownListFor(model => model.Year, Model.YearList, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="grid"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group" style="padding:10px; margin:5px;">
+                <input type="button" value="Save" id="btnSave" class="btn btn-success" />
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+}
+
+
+
+

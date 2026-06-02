@@ -1,0 +1,107 @@
+﻿@model gHRM.Web.ViewModels.PayrollReportViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/AttendanceReport">AttendanceReport</a></li>
+        <li><a href="/AttendanceReport/MonthlyAttenSummary">MonthlyAttenSummary</a></li>
+    </ol>
+</div>
+@{
+    ViewBag.Title = "Monthly Attendance Summary";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+}
+<script type="text/javascript">
+
+
+    function rptValidation() {
+
+        return true;
+
+    }
+
+    $(document).ready(function () {
+
+        $("#FromDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2050"
+
+        });
+        $("#FromDate").datepicker(
+      'setDate', new Date());
+
+        $("#ToDate").datepicker(
+      {
+          dateFormat: "dd-M-yy",
+          showAnim: "scale",
+          changeMonth: true,
+          changeYear: true,
+          yearRange: "1920:2050"
+
+      });
+        $("#ToDate").datepicker(
+      'setDate', new Date());
+
+
+        ////////
+        $("#reportView").click(function (e) {
+
+            var FromDate = $("#FromDate").val();
+            var ToDate = $("#ToDate").val();
+
+
+            // var EmployeeCode = $("#EmployeeID").val();
+            //var qType = $("#qType").val();
+            if (rptValidation() == true) {//GenerateAttendanceRegister(string FromDate = "", string ToDate = "")
+                url = '/AttendanceReport/MonthlyAttendanceSummaryRpt?FromDate=' + FromDate + '&ToDate=' + ToDate;
+                window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+            }
+
+        });//// End of Button
+
+    });
+</script>
+
+<h2 class="page-title">Monthly Attendance Summary</h2>
+<br />
+<div class="row">
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Attendance From Date</label>
+                        <div class="col-md-8">
+                            <input type="text" id="FromDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Attendance To Date</label>
+                        <div class="col-md-8">
+                            <input type="text" id="ToDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-8">
+        <input type="submit" id="reportView" value="View" class="btn btn-warning" />
+    </div>
+</div>

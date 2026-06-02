@@ -1,0 +1,422 @@
+﻿@model gHRM.Web.ViewModels.PromotionNevigationPartialViewModel2
+
+<style type="text/css">
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    #multiSection {
+        width: 40px;
+    }   
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+</style>
+
+&nbsp;
+<h2 class="page-title">Employee Salary Configuration</h2>
+&nbsp;
+<div id="AjaxLoader" class="ajaxLoader"></div>
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                        @Html.HiddenFor(model => model.EmployeeID)
+                        @Html.HiddenFor(model => model.EmployeeStatusName)
+                        @Html.HiddenFor(model => model.PRSalaryConfigurationID)
+                        @Html.HiddenFor(model => model.OfficeID)
+                        @Html.HiddenFor(model => model.PRComponentID)
+                        @Html.HiddenFor(model => model.OfficeLocationId)
+                        @Html.HiddenFor(model => model.PRWorkAreaID)
+                        @Html.HiddenFor(model => model.BasicSalary)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Status</label>
+                    <div class="col-sm-8">
+                        @Html.TextBox("txtEmpStatus", "", new { @class = "form-control", @readonly = "readonly" })
+                        @Html.HiddenFor(model => model.EmployeeStatusId)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Department Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Designation Status</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Joining Date</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.JoiningDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Confirmation Date</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.ConfirmationDate, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="newDesignationIdDiv">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NewDesignationId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6" id="PromotionTypeIdDiv">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PromotionTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PFTypeId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.PFTypeId, Model.PFTypeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmployeeSalaryType, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.EmployeeSalaryType, Model.EmployeeSalaryType, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SalaryGenerationType, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryGenerationType, Model.SalaryGenerationTypeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6" id="dvFractionStep">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Input Step</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="FractionStep" class="form-control" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="gradeScaleDiv">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.GradeList, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.GradeList, Model.GradeList, new { @class = "form-control" })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SalaryScaleList, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.SalaryScaleList, Model.SalaryScaleList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="grossSalaryDiv">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.GrossSalary, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.GrossSalary, new { htmlAttributes = new { @class = "form-control" } })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BankAccountNo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.BankAccountNo, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BankName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.BankName, Model.BankList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BankBranchName, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.BankBranchName, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+         
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.RoutingNo, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.RoutingNo, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.IsOverTime, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.IsOverTime, Model.OverTimeList, new { @class = "form-control" })
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 section-overtime">
+                <div class="form-group">
+                    <label class="control-label col-md-4"></label>
+                    <div class="col-sm-8">
+                        <label class="switch ib switch-primary mt10">
+                            @Html.CheckBoxFor(m => m.IsOvertimeException)
+                            <label for="IsOvertimeException" data-on="YES" data-off="NO"></label>
+                            <span>Is Overtime Exception</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row section-overtime">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MaxOvertimePerDay, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.MaxOvertimePerDay, new { htmlAttributes = new { @class = "form-control", @onkeypress = "return checkDecimal(event);" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MaxOvertimePerMonth, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.MaxOvertimePerMonth, new { htmlAttributes = new { @class = "form-control", @onkeypress = "return checkDecimal(event);" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="effectiveDuration">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EffectiveStartDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EffectiveStartDate, new { htmlAttributes = new { @class = "form-control" } })
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EffectiveEndDate, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EffectiveEndDate, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="promotionDuration">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PromotionDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.PromotionDate, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.NextReviewDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.NextReviewDate, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="DivTableView">
+                    <div class="box-header">
+                        <h3 class="box-title">Salary Detail List</h3>
+                    </div>
+                    <div class="box-body no-padding table-responsive">
+                        <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblSalaryConfiguration">
+                            <thead>
+                                <tr class="headings">
+
+                                    <th class="column-title">Sl</th>
+                                    <th class="column-title">Component Name</th>
+                                    <th class="column-title">Amount</th>
+                                    <th class="column-title">Category</th>
+                                    <th class="column-title">Transaction Type</th>
+                                    <th class="column-title">Is effective</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <br />
+            </div>
+        </div>
+
+        <div class="row" id="incomeTaxDivXX" style="display: none;">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.IncomeTax, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.IncomeTax, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <button type="button" id="btnSalaryConfigurationSave" class="btn btn-success"><i class="fa fa-check-circle"></i> Save</button>
+            </div>
+        </div>
+
+        <div class="row" style="display:none">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LoginTime, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.LoginTime, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LogoutTime, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.LogoutTime, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="display:none">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LastLoginTime, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.LastLoginTime, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,514 @@
+﻿@model gHRM.Web.ViewModels.Payroll.EmployeeSalaryBonusViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/EmployeeSalaryBonus">Employee Salary Bonus</a></li>
+        <li><a href="/EmployeeSalaryBonus/BonusApprovedReports">BonusApprovedReports</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Employee Salary Bonus";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function LoadBankAccounts(branchId) {
+        var ddlAccount = $("#AreaList");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBankAccountList", "PRSalaryStatement", "http")',
+            data: { BranchId: branchId },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlAccount.html('');
+                $.each(data, function (id, option) {
+                    ddlAccount.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function LoadBankBranch(bankCode) {
+        var ddlBranch = $("#ZoneList");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetBankBranchList", "PRSalaryStatement", "http")',
+            data: { BankCode: bankCode },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlBranch.html('');
+                $.each(data, function (id, option) {
+                    ddlBranch.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                ddlBranch.trigger('change');
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function PrintBonusBankSummaryReportBeforeApproval(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName) {
+        url = '/EmployeeSalaryBonus/PrintBonusBankSummaryReportBeforeApproval2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&BankName=' + bankName + '&BranchId=' + branchId + '&AccountId=' + accountId + '&SalaryType=' + salaryType + '&PersonToContactFromBankId=' + PersonToContactFromBankId + '&ReportName=' + ReportName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintBonusBankSummaryReportBeforeApprovalPDF(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName) {
+        url = '/EmployeeSalaryBonus/PrintBonusBankSummaryReportBeforeApprovalPDF2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&BankName=' + bankName + '&BranchId=' + branchId + '&AccountId=' + accountId + '&SalaryType=' + salaryType + '&PersonToContactFromBankId=' + PersonToContactFromBankId + '&ReportName=' + ReportName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintBonusBankSummaryReportAfterApproval(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName) {
+        url = '/EmployeeSalaryBonus/PrintBonusBankSummaryReportAfterApproval2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&BankName=' + bankName + '&BranchId=' + branchId + '&AccountId=' + accountId + '&SalaryType=' + salaryType + '&PersonToContactFromBankId=' + PersonToContactFromBankId + '&ReportName=' + ReportName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintBonusBankSummaryReportAfterApprovalPDF(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName ) {
+        url = '/EmployeeSalaryBonus/PrintBonusBankSummaryReportAfterApprovalPDF2?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&BankName=' + bankName + '&BranchId=' + branchId + '&AccountId=' + accountId + '&SalaryType=' + salaryType + '&PersonToContactFromBankId=' + PersonToContactFromBankId + '&ReportName=' + ReportName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    // GSSB
+    function PrintBonusBankSummaryReportBeforeApprovalPDF_GSSB(year, month, officeTypeId, bankName) {
+        url = '/EmployeeSalaryBonus/PrintBonusBankSummaryReportBeforeApprovalForGSSBPDF?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&BankName=' + bankName;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+
+
+    $(document).ready(function () {
+
+        $("#BankCode").change(function () {
+            var code = $("#BankCode").val();
+            if (code != "") {
+                LoadBankBranch(code);
+            } else {
+                $("#ZoneList").html('<option value="">Please Select</option>');
+
+            }
+        });
+        $("#ZoneList").change(function () {
+            var branchId = $("#ZoneList").val();
+
+            if (branchId != "" && branchId > 0) {
+                LoadBankAccounts(branchId);
+            } else {
+                $("#AccountId").html('<option value="">Please Select</option>');
+            }
+        });
+
+        $("#ZoneDiv").hide();
+
+        //$("#OfficeTypeId").change(function () {
+        //    var OfficeTypeId = $("#OfficeTypeId").val();
+        //    if (OfficeTypeId == 4) {
+        //        $("#ZoneDiv").show();
+        //    } else {
+        //        $("#ZoneDiv").hide();
+        //    }
+        //});
+
+
+        $("#Process1Date").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2100"
+          });
+
+        $("#Process1Date").datepicker('setDate', new Date());
+
+
+        $("#btnBonusAtBankBeforeApprovalExcel").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            // new four vairable 
+            var branchId = $("#ZoneList").val();
+            console.log(branchId);
+            var accountId = $("#AreaList").val();
+            console.log(accountId);
+
+            var salaryType = $("#SalaryType").val();
+
+            var PersonToContactFromBankId = $("#PersonToContactFromBankId").val();
+            var ReportName = $('#ReportName').val();
+
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintBonusBankSummaryReportBeforeApproval(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnBonusAtBankBeforeApprovalPDF").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+
+            // new four vairable 
+            var branchId = $("#ZoneList").val();
+            console.log(branchId);
+            var accountId = $("#AreaList").val();
+            console.log(accountId);
+
+            var salaryType = $("#SalaryType").val();
+
+            var PersonToContactFromBankId = $("#PersonToContactFromBankId").val();
+            var ReportName = $('#ReportName').val();
+
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintBonusBankSummaryReportBeforeApprovalPDF(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnBonusAtBankAfterApprovalExcel").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+
+            // new four vairable 
+            var branchId = $("#ZoneList").val();
+            console.log(branchId);
+            var accountId = $("#AreaList").val();
+            console.log(accountId);
+
+            var salaryType = $("#SalaryType").val();
+
+            var PersonToContactFromBankId = $("#PersonToContactFromBankId").val();
+
+            var ReportName = $('#ReportName').val();
+
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintBonusBankSummaryReportAfterApproval(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnBonusAtBankAfterApprovalPDF").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+
+            // new four vairable 
+            var branchId = $("#ZoneList").val();
+            console.log(branchId);
+            var accountId = $("#AreaList").val();
+            console.log(accountId);
+
+            var salaryType = $("#SalaryType").val();
+
+            var PersonToContactFromBankId = $("#PersonToContactFromBankId").val();
+
+            var ReportName = $('#ReportName').val();
+
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintBonusBankSummaryReportAfterApprovalPDF(year, month, officeTypeId, bankName, branchId, accountId, salaryType, PersonToContactFromBankId, ReportName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+
+        //GSSB
+        $("#btnBonusAtBankBeforeApprovalPDFGSSB").click(function () {
+            var year = $("#Year1").val();
+            var month = $("#Month1").val();
+            var bankName = $("#BankCode").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+            if (officeTypeId == "") {
+                officeTypeId = 0;
+            }
+            if (year != "" && year != '0' && month != "" && month != '0' && bankName != "") {
+                PrintBonusBankSummaryReportBeforeApprovalPDF_GSSB(year, month, officeTypeId, bankName);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#PersonToContactFromBank_Code").blur(function () {
+            $("#PersonToContactFromBankDetail").html("");
+            var data = JSON.stringify({ Code: $("#PersonToContactFromBank_Code").val() });
+            Req.POST.GetEmployeeShortInfoByCode(data, function (response) {
+                if (response.EmployeeId == 0) {
+                    $("#PersonToContactFromBankId").val(0);
+                    $("#PersonToContactFromBankDetail").html("");
+                    return;
+                }
+                $("#PersonToContactFromBankId").val(response.EmployeeId);
+                var Html = "Name: <b>" + response.EmployeeName + "</b>, " +
+                    "Office: <b>" + response.OfficeName + "</b>, " +
+                    "Department: <b>" + response.DepartmentName + "</b>, " +
+                    "DesignationName: <b>" + response.DesignationName + "</b>";
+                $("#PersonToContactFromBankDetail").html(Html);
+            }, function () {
+                $("#PersonToContactFromBankId").val(0);
+            });
+        });
+
+    });
+
+
+    var Req = {
+        POST: {
+            GetEmployeeShortInfoByCode: function (Data, callback, err_callback) {
+                $.ajax({
+                    url: '/Employee/GetEmployeeShortInfoByCode',
+                    type: 'Post',
+                    data: Data,
+                    dataType: 'json',
+                    async: true,
+                    contentType: 'application/json',
+                    success: function (response) {
+
+                        if (!response.success) {
+                            $.alert.open("Error", response.message);
+                            if (null != err_callback) { err_callback(); }
+                            return;
+                        }
+                        if (null != callback) { callback(response.data); }
+                    },
+                    error: function (data, textStatus, jqXHR) {
+                        $.alert.open("Error", data + ": " + textStatus + ": " + jqXHR, 'Error!!!');
+                        if (null != err_callback) { err_callback(); }
+                    }
+                });
+            }
+        }
+    };
+
+</script>
+
+<h2 class="page-title">Bonus at Bank</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ReportName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ReportName, Model.ReportTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.SalaryType, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.SalaryType, Model.SalaryTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Office Type</label>
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.OfficeTypeId, Model.OfficeTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div id="MonthlySalaryProcess">
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4"> Year</label>
+                                <div class="col-md-8">
+                                    @*<input type="number" id="SalaryYear" value="1987" class="form-control" />*@
+                                    @Html.DropDownList("Years", null, new { @ID = "Year1", @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4"> Month</label>
+                                <div class="col-md-8">
+                                    @Html.DropDownList("Months", null, new { @ID = "Month1", @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Bank Name</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.BankCode, Model.BankList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Bank Branch</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.ZoneList, Model.ZoneList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Account</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.AreaList, Model.AreaList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Date</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="Process1Date" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div id="PersonToContactFromBankContainer" class="row" >
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                @Html.HiddenFor(m => m.PersonToContactFromBankId)
+                                <label class="control-label col-sm-4 required" for="Year" aria-required="true">Person To Contact From Bank</label>
+                                <div class="col-sm-8">
+                                    <input id="PersonToContactFromBank_Code" class="form-control" type="text" placeholder="Employee Code" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <span id="PersonToContactFromBankDetail" style="font-size: 13px;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="form-group" style="margin:5px;">
+
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="button" value="Bonus At Bank Before Approval (Excel)" id="btnBonusAtBankBeforeApprovalExcel" class="btn btn-success btn-block" />
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Bonus At Bank Before Approval (PDF)" id="btnBonusAtBankBeforeApprovalPDF" class="btn btn-success btn-block" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="button" value="Bonus At Bank After Approval (Excel)" id="btnBonusAtBankAfterApprovalExcel" class="btn btn-success btn-block" />
+                                            </td>
+                                            <td>
+                                                <input type="button" value="Bonus At Bank After Approval (PDF)" id="btnBonusAtBankAfterApprovalPDF" class="btn btn-success btn-block" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Summary</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.SummaryType, Model.SummaryList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="control-label col-md-4">Report</label>
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.ReportType, Model.ReportList, new { @class = "form-control" })
+                                </div>
+                            </div>
+                        </div>*@
+                </div> <!--New Div-->
+                @*<div id="grid">
+                        <h4><label id="beforeApprovalLbl">Before Approval</label></h4>
+                    </div>*@
+                <br />
+
+
+            </div> <!-- End of Monthly Salary Process -->
+
+
+        </div>
+
+    </div> <!--Main Container Fluid-->
+
+
+    <!--Form Horizontal-->
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+

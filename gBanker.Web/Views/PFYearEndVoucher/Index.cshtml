@@ -1,0 +1,106 @@
+﻿@model gHRM.Web.ViewModels.PF.YearEndVoucherViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#grid2').jtable({
+            //title: 'Employee Drop List',
+            paging: true,
+            pageSize: 5,
+            sorting: false,
+            defaultSorting: 'Name ASC',
+            actions: {
+                listAction: '/PFYearEndVoucher/GetYearEndVoucherList'
+            },
+            fields: {
+                SerialNo: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                SerialNo: {
+                    title: 'Serial No',
+                    width: '7%'
+                },
+                TransactionDate: {
+                    title: 'Transaction Date',
+                    width: '10%'
+                },
+                VoucherNo: {
+                    title: 'VoucherNo',
+                    width: '10%'
+                },
+                AccountCode: {
+                    title: 'Account Code',
+                    width: '7%'
+                },
+                AccountName: {
+                    title: 'Account Name',
+                    width: '20%'
+                },
+                Dr: {
+                    title: 'Dr',
+                    width: '10%'
+                },
+                Cr: {
+                    title: 'Cr',
+                    width: '5%'
+                },
+                TransactionType: {
+                    title: 'Transaction Type',
+                    width: '8%'
+                },
+                Particulars: {
+                    title: 'Particulars',
+                    width: '20%'
+                }
+            }
+        });
+
+        reloadGrid2();
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+
+        function reloadGrid2() {
+            $('#grid2').jtable('load', { filterColumn: $('#filterColumn').val(), filterValue: $('#filterValue').val() });            
+        }
+
+    });
+</script>
+
+&nbsp;
+<h2 class="page-title">Year End Voucher</h2>
+&nbsp;
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true)       
+        <div class="row">
+            <div id="grid2">
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

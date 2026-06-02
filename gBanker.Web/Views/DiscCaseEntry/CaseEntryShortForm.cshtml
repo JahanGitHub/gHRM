@@ -1,0 +1,1789 @@
+﻿@model gHRM.Web.ViewModels.Discipline.CaseEntryViewModel
+
+@{
+    ViewBag.Title = "CaseEntryShortForm";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var CrimeLists = Model == null ? null : Model.CrimeList;
+
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+}
+<link href="~/Content/bpopup/bpopupStyle.css?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" rel="stylesheet" type="text/css" />
+<script src="~/Content/bpopup/jquery.bpopup.min.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()" type="text/javascript"></script>
+
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+    #ProgramDiv {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+</style>
+<script type="text/javascript">
+
+    function fnPopupClose1() {
+        var popup = $('#ProgramDiv').bPopup();
+        popup.dispose = true;
+        popup.close();
+    }
+
+
+    function CaseDelete(CaseMasterId) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("CaseDelete", "DiscCaseEntry", "http")',
+                    data: { CaseMasterId: CaseMasterId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        EmployeeWiseCaseList();
+                        $.alert.open('Message', 'Data deleted successfully.');
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function EmployeeWiseCaseList() {
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 10,
+            sorting: false,
+            defaultSorting: 'EmployeeName ASC',
+            actions: {
+                listAction: function (postData, jtParams) {
+                    //console.log("Loading from custom function...");
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/DiscCaseEntry/GetEmployeeWiseCaseList?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+            fields: {
+                CaseMasterId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                SlNo: {
+                    title: 'Sl',
+                    width: '5%'
+                },
+                Employees: {
+                    title: 'Employees',
+                    width: '16%'
+                },
+                Crimes: {
+                    title: 'Crimes',
+                    width: '26%'
+                },
+                CaseType: {
+                    title: 'Case Type',
+                    width: '7%'
+                },
+
+                TotalAnnexationAmountMsg: {
+                    title: 'Embezzle',
+                    width: '5%'
+                },
+                OfficeName: {
+                    title: 'Crime Location',
+                    width: '17%'
+                },
+                ZoneName: {
+                    title: 'Zone',
+                    width: '9%',
+                },
+                CaseDateFromMsg: {
+                    title: 'Case Issue Dt',
+                    width: '12%'
+                },
+                //CaseNo: {
+                //    title: 'Case No',
+                //    width: '5%'
+                //},
+                PunishmentDateMsg: {
+                    title: 'Punishment Dt',
+                    width: '12%'
+                },
+                PunishmentDespatchNo: {
+                    title: 'Despatch No',
+                    width: '9%'
+                },
+
+                PunishmentName: {
+                    title: 'Punishment',
+                    width: '10%'
+                },
+                ActivatedFromMsg: {
+                    title: 'Activated On',
+                    width: '12%'
+                },
+                DaysLose: {
+                    title: 'Seniority Loss(Days)',
+                    width: '7%'
+                },
+                PunishmentName: {
+                    title: 'Punishment',
+                    width: '10%'
+                },
+
+                EditLink: {
+                    title: "Edit",
+                    width: '5%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="PopupDiv(' + data.record.CaseMasterId + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                        //return '<div class="text-center"><a href="#" OnClick="popupPromotionNavDiv(' + data.record.CaseMasterId + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+
+                DeleteLink: {
+                    title: "Delete",
+                    width: '5%',
+                    display: function (data) {
+                        if (data.StatusMsg == null) {
+                            return '<div class="text-center"><a href="#" OnClick="CaseDelete(' + data.record.CaseMasterId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                        }
+                        else return '';
+                    }
+                },
+            }
+        });
+        var EmployeeId = $("#EmployeeId").val();
+        $('#grid').jtable('load', { EmployeeId: EmployeeId });
+    }
+
+
+    //function popupPromotionNavDiv(CaseMasterId) {
+
+    //    $('#PromotionNavDiv').bPopup({
+    //        speed: 450,
+    //        transition: 'slideDown'
+    //    });
+
+    //    $("#NRDM").val(CaseMasterId);
+    //}
+
+
+
+    function GetOthersOffice() {
+        var ddlOthersOffice = $("#ddlOtherOfficeList");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetOthersOfficeList", "EmployeePromotion", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlOthersOffice.html('');
+                $.each(data, function (id, option) {
+                    ddlOthersOffice.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+
+    function GetRestrictedZOOffice() {
+        var ddlZOOffice = $("#ddlRestrictedZOOffice");
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetZOOfficeList", "EmployeePromotion", "http")',
+            data: {},
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                ddlZOOffice.html('');
+                var Offi = "";
+                $.each(data, function (id, option) {
+                    var str = option.Text;
+                    if (str != "Please Select") {
+                        var res = str.split(" ");
+                        Offi = res[0] + res[1] + res[4];
+                    }
+                    else {
+                        Offi = "Please Select";
+                    }
+                    ddlZOOffice.append($('<option></option>').val(option.Value).html(Offi));
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+    function CrimePunishmentSave() {
+        $("#AjaxLoader").show();
+        var allSno = new Array();
+        var allCaseType = new Array();
+        var allCrimeId = new Array();
+        var allCrimeDtFrom = new Array();
+        var allCrimeDtTo = new Array();
+        var allDespatch = new Array();
+        var allCrimeOffice = new Array();
+        //var allPunishment = new Array();
+
+
+        var $allSnoId = $(".SLNo");
+        $allSnoId.each(function () {
+            var value = $(this).val();
+            allSno[allSno.length] = value;
+        });
+
+
+        var $allCrimeOfficeNo = $(".CrimeOffice");
+        $allCrimeOfficeNo.each(function () {
+            var value = $(this).val();
+            allCrimeOffice[allCrimeOffice.length] = value;
+        });
+
+
+        var $allDespatchNo = $(".Despatch");
+        $allDespatchNo.each(function () {
+            var value = $(this).val();
+            var id = $(this).attr('id');
+            var objDespatch = new Object();
+            objDespatch.Key = id;
+            objDespatch.Value = value;
+            allDespatch[allDespatch.length] = objDespatch;
+        });
+
+
+        var $allCrimeDateTo = $(".CrimeDtTo");
+        $allCrimeDateTo.each(function () {
+            var value = $(this).val();
+            var id = $(this).attr('id');
+            var objCrimeDateTo = new Object();
+            objCrimeDateTo.Key = id;
+            objCrimeDateTo.Value = value;
+            allCrimeDtTo[allCrimeDtTo.length] = objCrimeDateTo;
+        });
+
+
+
+        var $allCrimeDateFrom = $(".CrimeDtFrom");
+        $allCrimeDateFrom.each(function () {
+            var value = $(this).val();
+            var id = $(this).attr('id');
+            var objCrimeDateFrom = new Object();
+            objCrimeDateFrom.Key = id;
+            objCrimeDateFrom.Value = value;
+            allCrimeDtFrom[allCrimeDtFrom.length] = objCrimeDateFrom;
+        });
+
+
+        var $allCaseType = $(".caseType");
+        $allCaseType.each(function () {
+            var value = $(this).val();
+            var id = $(this).attr('id');
+            var objCaseType = new Object();
+            objCaseType.Key = id;
+            objCaseType.Value = value;
+            allCaseType[allCaseType.length] = objCaseType;
+        });
+
+
+        var $allCrime = $(".Crime_Id");
+        $allCrime.each(function () {
+            var value = $(this).val();
+            var id = $(this).attr('id');
+            var objCrime = new Object();
+            objCrime.Key = id;
+            objCrime.Value = value;
+            allCrimeId[allCrimeId.length] = objCrime;
+        });
+
+
+        //var $allCasePunishment = $('.divPunishment');
+        //$allCasePunishment.each(function () {
+        //    var value = $(this).val();
+        //    var id = $(this).attr('id');
+        //    var obj = new Object();
+        //    obj.Key = id;
+        //    obj.Value = value;
+        //    allPunishment[allPunishment.length] = obj;
+        // });
+
+
+        var EmployeeId = $('#EmployeeId').val()
+        var PunishmentDespatchNo = $("#PunishmentDespatchNo").val();
+        var PunishmentDt = $("#PunishmentDt").val();
+        var CommonPunishmentId = $("#ddPunishmentList option:selected").val();
+        var AnnexationAmount = $("#AnnexationAmount").val();
+        var CaseDateFromMsg = $("#CaseDateFromMsg").val();
+        var DaysLose = $("#DaysLose").val();
+        var ActivatedDt = $("#ActivatedDt").val();
+
+        var FirstIncSuspendDt = $("#FirstIncSuspendDt").val();
+        var SecondIncSuspendDt = $("#SecondIncSuspendDt").val();
+        var ThirdIncSuspendDt = $("#ThirdIncSuspendDt").val();
+        var FourthIncSuspendDt = $("#FourthIncSuspendDt").val();
+
+
+        if (PunishmentDt == "") {
+            $.alert.open("Please Select Punishment Issue Date.");
+            return false;
+
+        }
+
+
+        var allDetails = new Object();
+
+        allDetails.allCrimeOffices = allCrimeOffice;
+        allDetails.allSnos = allSno;
+
+        allDetails.allCaseTypes = allCaseType;
+        allDetails.allCrimeIds = allCrimeId;
+        allDetails.allCrimeDtFroms = allCrimeDtFrom;
+        allDetails.allCrimeDtTos = allCrimeDtTo;
+        allDetails.allDespatchs = allDespatch;
+        //allDetails.allPunishments = allPunishment;
+
+        allDetails.EmployeeIds = EmployeeId;
+        allDetails.PunishmentDespatchNos = PunishmentDespatchNo;
+        allDetails.PunishmentDts = PunishmentDt;
+        allDetails.CommonPunishmentIds = CommonPunishmentId;
+        allDetails.AnnexationAmounts = AnnexationAmount;
+        allDetails.CaseDateFromMsgs = CaseDateFromMsg;
+        allDetails.DaysLose = DaysLose
+        allDetails.ActivatedDt = ActivatedDt;
+
+        allDetails.FirstIncSuspendDt = FirstIncSuspendDt;
+        allDetails.SecondIncSuspendDt = SecondIncSuspendDt;
+        allDetails.ThirdIncSuspendDt = ThirdIncSuspendDt;
+        allDetails.FourthIncSuspendDt = FourthIncSuspendDt;
+
+
+        var json = JSON.stringify(allDetails);
+        console.log(json);
+
+        $.ajax({
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("CasePunishmentSave", "DiscCaseEntry", "http")',
+            type: "POST",
+            dataType: 'json',
+            async: true,
+            data: json,
+            success: function (data) {
+
+                if (data.Result == "OK") {
+                    $.alert.open("info", "Save Successfully");
+                    EmployeeWiseCaseList();
+
+                    // location.reload();
+
+
+                    $("#txtEmployeeCode").val("");
+                    $("#EmployeeName").val('');
+                    $("#DesignationName").val('');
+                    $("#OfficeName").val('');
+                    $("#ddlCrimeId").val('0');
+
+                    $("#CaseDateFromMsg").val('');
+                    $("#DispatchNo").val('');
+                    $("#CrimeDateFrom").val('');
+                    $("#CrimeDateTo").val('');
+                    $("#AnnexationAmount").val('');
+
+                    $("#PunishmentDespatchNo").val('');
+                    $("#PunishmentDt").val('');
+                    $("#ddPunishmentList").val('0');
+                    $("#tblCrimeDetails > tbody").empty();
+                    $("#tblCrimeLocationDetails >tbody >tr").empty();
+                    $("#AjaxLoader").hide();
+                }
+                else {
+                    $.alert.open("error", "Fail to Save");
+                }
+            },
+            error: function () {
+                $("#AjaxLoader").hide();
+                $("#dialog-message").html('<p>Error, Fail to Save.</p>');
+
+                $("#dialog-message").dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            }
+
+        });
+        $("#AjaxLoader").hide();
+    }
+
+    function loadPunishment(sl) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPunishmentList", "DiscCaseEntry", "http")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                $("#" + sl).append($("<option     />").val('0').text('Select Punishemnt'));
+                $.each(data.Options, function () {
+                    $("#" + sl).append($("<option     />").val(this.Value).text(this.DisplayText));
+                });
+                $("#loading").hide();
+            },
+            failure: function () {
+                alert("Failed!");
+            }
+        });
+    }
+
+
+    function loadPunishmentForEmployeewise() {
+        var ddPunishment = $("#ddPunishmentList")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetPunishmentList", "DiscCaseEntry", "http")',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                ddPunishment.html("");
+                ddPunishment.append($('<option></option>').val("0").html("Please Select"));
+                $.each(data.Options, function () {
+                    ddPunishment.append($('<option></option>').val(this.Value).text(this.DisplayText));
+                });
+            },
+            failure: function () {
+                alert("Failed!");
+            }
+        });
+    }
+
+
+    function CrimeAdd() {
+        var dtTable = $("#tblCrimeDetails")
+        var CaseType = $("#filterColumn option:selected").text();
+        var CaseTypeValue = $("#filterColumn option:selected").val();
+        var CrimeName = $("#ddlCrimeId option:selected").text();
+        var CrimeId = $("#ddlCrimeId option:selected").val();
+        var CrimeDateFrom = $("#CrimeDateFrom").val();
+        var CrimeDateTo = $("#CrimeDateTo").val();
+        var DespatchNo = $("#DispatchNo").val();
+        var EmbezzleAmt = $('#AnnexationAmount').val();
+        var IssueDt = $('#CaseDateFromMsg').val();
+        var rowCount = $('#tblCrimeDetails >tbody >tr').length;
+
+        if (IssueDt == "") {
+            $.alert.open("Please Select Issue Date.");
+            return false;
+
+        }
+        //rowCount = $('#tblDealinOfficerList >tbody >tr').length;
+
+        //for (i = 1; i <= rowCount; i++) {
+        //    var Crime_Id = $("#txtCrimeId" + i).val();
+
+        //    if (Crime_Id != undefined)
+        //    {
+        //        if (Crime_Id == CrimeId) {
+        //        $.alert.open("error", "This crime has been added")
+        //        return false;
+        //    }
+        //    }
+
+        //}
+
+        var sl = rowCount + 1;
+        var tableBody = dtTable.find('tbody');
+        tableBody.append('<tr id="table_Row' + sl + '">' +
+                                                     '<td style="text-align: center">' + sl + '<input type="text" class="SLNo" value="' + sl + '" style="display:none;" name="SLNo" id="txtSLNo' + sl + '" /></td>' +
+                                                     '<td style="text-align: center">' + CaseType + '<input type="text" class="caseType" value="' + CaseTypeValue + '" style="display:none;" name="CaseTypeValue" id="txtCaseTypeValue' + sl + '" /></td>' +
+                                                     '<td>' + CrimeName + '<input type="text" class="Crime_Id" value="' + CrimeId + '" style="display:none;" name="CrimeId" id="txtCrimeId' + sl + '" /></td>' +
+                                                     '<td style="text-align: center">' + EmbezzleAmt + '<input type="text" class="CrimeDtFrom" value="' + CrimeDateFrom + '" style="display:none;" name="CrimeDateFrom" id="txtCrimeDateFrom' + sl + '" /></td>' +
+                                                     '<td style="text-align: center">' + IssueDt + '<input type="text" class="CrimeDtTo" value="' + CrimeDateTo + '" style="display:none;" name="CrimeDateTo" id="txtCrimeDateTo' + sl + '" /></td>' +
+                                                     '<td style="text-align: center">' + DespatchNo + '<input type="text" class="Despatch" value="' + DespatchNo + '" style="display:none;" name="DespatchNo" id="txtDespatchNo' + sl + '" /></td>' +
+                                                     //'<td><div ><select class="divPunishment" style="width:180px" ' + 'id="NewPunishmentID' + sl + '"></select></div></td>'+
+                                                    '<td style="text-align: center"><a href="javascript:;" onclick="delete_Crime_row(' + sl + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                                                     '</td>' +
+                                                  '</tr>'
+                                )
+        //loadPunishment('NewPunishmentID' + sl);
+    }
+
+    function checkNumberic(e) {
+        if (e.which != 8 && e.which != 0 && (e.which < 46 || e.which > 57)) {
+            return false;
+        }
+        else
+            return true;
+    }
+    function delete_row(sl) {
+        $("#table_Row" + sl).remove();
+    }
+    function delete_Crime_row(sl) {
+        $("#table_Row" + sl).remove();
+    }
+    function LoadCrimeLocationInfo(office_Id) {
+
+        var row_Count = $('#tblCrimeLocationDetails >tbody >tr').length;
+        for (i = 1; i <= row_Count; i++) {
+            var OfficeId = $("#txtOffice_Id" + i).val();
+
+            if (OfficeId != undefined) {
+                if (OfficeId == office_Id) {
+                    $.alert.open("error", "This office has been added")
+                    return false;
+                }
+            }
+
+        }
+
+        var dtTable = $("#tblCrimeLocationDetails")
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetCrimeLocationByCode", "DiscCaseEntry", "http")',
+            data: { office_Id: office_Id },
+            dataType: 'json',
+            async: true,
+            success: function (List_EmployeeViewModel) {
+                if (List_EmployeeViewModel != "") {
+                    var rowCount = $('#tblCrimeLocationDetails >tbody >tr').length;
+                    var sl = rowCount + 1;
+                    var tableBody = dtTable.find('tbody');
+                    $.each(List_EmployeeViewModel, function (index, off) {
+
+                        tableBody.append('<tr id="table_Row' + sl + '">' +
+                                                     '<td style="text-align: center">' + sl + '<input type="text" class="CrimeOfficeNo" value="' + off.OfficeId + '" style="display:none;" name="OfficeId" id="txtOffice_Id' + sl + '" /></td>' +
+                                                     '<td style="text-align: center">' + off.OfficeCode + '<input type="text" class="CrimeOffice" value="' + off.OfficeId + '" style="display:none;" name="OfficeId" id="txtOfficeId' + off.OfficeId + '" /></td>' +
+                                                     '<td>' + off.OfficeName + '<input type="text" value="' + off.OfficeName + '" style="display:none;" name="OfficeName" id="txtOfficeName' + off.OfficeId + '" /></td>' +
+                                                     '<td style="text-align: center"><a href="javascript:;" onclick="delete_row(' + sl + ')"><i class="fa fa-trash-o fa-2x"></i></a>' +
+                                                     '</td>' +
+                                                  '</tr>'
+                                )
+                    });
+                }
+                else {
+                    $.alert.open('alert', 'Invalid code');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function LoadEmpInfo(employee_code) {
+        // alert(employee_code);
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "EmployeeTransferNew", "http")',
+            data: { employee_code: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                if (data.result == 1) {
+                    $.each(data.data, function (index, data) {
+                        // $("#EmployeeRank").val(data.EmployeeRank);
+                        $("#OfficeName").val(data.EmployeeCurrentOfficeName);
+                        //$("#DepartmentName").val(data.DepartmentName);
+                        $("#DesignationName").val(data.EmployeeCurrentDesignation);
+                        $("#OffcDesignName").val(data.EmployeeCurrentDesignation);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        //  $("#OfficeDesignationId").val(data.EmpOfficeDesigId);
+                        EmployeeWiseCaseList();
+
+                    });
+
+                }
+
+                else {
+
+                    $("#EmployeeRank").empty();
+                    $("#OfficeName").empty();
+                    //$("#DepartmentName").empty();
+                    $("#DesignationName").empty();
+                    $("#EmployeeName").empty();
+                    alert("Wrong Employe Code");
+                    $("#txtEmpName").focus();
+                    $("#OfficeDesignationId").val(0);
+                }
+
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+
+
+
+
+    function GetDataPopUp(masterId) { //populate Popup Form
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetDataPopup", "DiscCaseEntry", "http")',
+            data: { MasterId: masterId, jtStartIndex: 1, jtPageSize: 5, jtSorting: true, filterColumn: null, filterValue: null },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (id, option) {
+
+
+                    $('#txtFirstIncSuspendDt').val(option.FirstIncSuspendDtmsg);
+                    $('#txtSecondIncSuspendDt').val(option.SecondIncSuspendDtmsg);
+                    $('#txtThirdIncSuspendDt').val(option.ThirdIncSuspendDtmsg);
+                    $('#txtFourthIncSuspendDt').val(option.FourthIncSuspendDtmsg);
+
+                    $('#txtSeniorityLoss').val(option.DaysLose);
+                    $('#txtDespatchNo').val(option.PunishmentDespatchNo);
+                    $('#txtCaseIssueDate').val(option.CaseDateFromMsg);
+                    $('#txtPunishmentDate').val(option.PunishmentDateMsg);
+                    $('#txtActivatedDate').val(option.CrimeDateFromMsg);
+
+                });
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+                clear();
+            }
+        });
+    }
+
+    function updatePopup() {
+        var hdnMasterId = $('#hdnMasterId').val();
+
+        var DespatchNo = $('#txtDespatchNo').val();
+        var CaseIssueDate = $('#txtCaseIssueDate').val();
+        var PunishmentDate = $('#txtPunishmentDate').val();
+        var ActivatedDate = $('#txtActivatedDate').val();
+
+        var daysLoss = $('#txtSeniorityLoss').val();
+
+        var FirstIncSuspendDt = $('#txtFirstIncSuspendDt').val();
+        var SecondIncSuspendDt = $('#txtSecondIncSuspendDt').val();
+        var ThirdIncSuspendDt = $('#txtThirdIncSuspendDt').val();
+        var FourthIncSuspendDt = $('#txtFourthIncSuspendDt').val();
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdatePOPUPData", "DiscCaseEntry", "http")',
+            //UpdatePOPUPData(string masterId, string PunishmentDespatchNo, string CaseDateFrom, string CaseDateTo, string PunishmentDate,
+            //string FirstIncSuspendDt, string SecondIncSuspendDt, string ThirdIncSuspendDt, string FourthIncSuspendDt)
+            //
+            data: {
+                masterId: hdnMasterId,
+                PunishmentDespatchNo: DespatchNo,
+                CaseDateFrom: CaseIssueDate,
+                PunishmentDate: PunishmentDate,
+                CaseDateTo: ActivatedDate,
+
+                daysLoss: daysLoss,
+                FirstIncSuspendDt: FirstIncSuspendDt,
+                SecondIncSuspendDt: SecondIncSuspendDt,
+                ThirdIncSuspendDt: ThirdIncSuspendDt,
+                FourthIncSuspendDt: FourthIncSuspendDt
+            },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", "Data Update Successfully");
+                fnPopupClose1();
+                EmployeeWiseCaseList();
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Update");
+                fnPopupClose1();
+                EmployeeWiseCaseList();
+            }
+
+        });
+
+
+    }
+
+    //Popup Restricted Start
+    function PopupRestrictedZoneDiv() {
+
+        $('html, body').animate({ scrollTop: $('#RestrictZoneDiv').offset().top }, 'slow');
+        // $("#PddPunishmentListrogramDiv").attr("tabindex", -1).focus();
+
+        $("#RestrictZoneDiv").dialog({
+            autoOpen: false,
+            height: 170,
+            width: 650,
+            modal: true,
+            scroll: false,
+            buttons: {
+                "Ok": function () {
+                    //SaveUpdateProgram();
+                    // ddlRestrictedZOOffice
+                    var RestrictedZoneId = $("#ddlRestrictedZOOffice option:selected").val();
+                    var RestrictedZoneName = $("#ddlRestrictedZOOffice option:selected").Text;
+                    // alert(RestrictedZoneName);
+                    ///Update Punishment ddPunishmentList Text
+                    // $("#ddPunishmentList option:selected").Text = RestrictedZoneName + "is Restricted.";
+
+                    $(this).dialog("close");
+
+                },
+                "Close": function () {
+                    //alert("No Office selected. Employee office will be used.");
+                    // window.location.href = "Member/Create";
+
+                    $(this).dialog("close");
+                }
+            }
+        });
+        var showPopup = "True";
+        if (showPopup == "True") {
+            $("#RestrictZoneDiv").dialog('open');
+        }
+
+    }//End of Show Restricted Zone Popup
+
+
+    //Popup Start
+    function PopupDiv(masterId) {
+        $('#ProgramDiv').bPopup({
+            speed: 450,
+            transition: 'slideUp',
+            positionStyle: 'fixed'
+        });
+
+        GetDataPopUp(masterId);
+        $('#hdnMasterId').val(masterId);
+        //$('html, body').animate({ scrollTop: $('#ProgramDiv').offset().top }, 'slow');
+
+
+        //$("#ProgramDiv").dialog({
+        //    autoOpen: false,
+        //    height: 700,
+        //    width: 650,
+        //    modal: true,
+        //    buttons: {
+        //        //"Save": function () {
+        //        //    SaveUpdateProgram();
+        //        //},
+        //        "Close": function () {
+        //            //alert("No Office selected. Employee office will be used.");
+        //            // window.location.href = "Member/Create";
+
+        //            $(this).dialog("close");
+        //        }
+        //    }
+        //});
+
+        //var showPopup = "True";
+        //if (showPopup == "True") {
+        //    $("#ProgramDiv").dialog('open');
+        //}
+
+
+
+    }//End of Show Popup
+
+
+    function GetOfficeLocation() {
+
+
+        var CrimeLocation = 0;
+
+        CrimeLocation = $("#hdnSelectedOfficeId").val();
+
+        return CrimeLocation;
+    }
+
+
+
+    $(document).ready(function () {
+
+
+        $("#OfficeTypeId").change(function () {
+
+            var val = $("#OfficeTypeId").val();
+
+            //Reset
+            $("#hdnSelectedOfficeId").val("");
+
+            if (val == 1) {
+                setTimeout(function () {
+                    $("#hdnSelectedOfficeId").val($("#PVHeadOfficeId").val()); //$("#PVHeadOfficeId").val()
+                }, 10); 
+            }
+
+        });
+
+        $("#PVHeadOfficeId").change(function () {
+
+            $("#hdnSelectedOfficeId").val($("#PVHeadOfficeId option:selected").val());
+
+        });
+
+        $("#PVHeadOfficeId").change(function () {
+
+            $("#hdnSelectedOfficeId").val($("#PVHeadOfficeId option:selected").val());
+
+        });
+
+        $("#PVProjectId").change(function () {
+
+            $("#hdnSelectedOfficeId").val($("#PVProjectId option:selected").val());
+
+        });
+
+        $("#ZoneId").change(function () {
+
+            $("#hdnSelectedOfficeId").val($("#ZoneId option:selected").val());
+
+        });
+
+        $("#AreaId").change(function () {
+
+            $("#hdnSelectedOfficeId").val($("#AreaId option:selected").val());
+
+        });
+
+        $("#UnitId").change(function () {
+
+            $("#hdnSelectedOfficeId").val($("#UnitId option:selected").val());
+
+        });
+
+
+
+        $("#btnPopUpUpdate").click(function () {
+
+            updatePopup();
+
+        });
+
+        //
+        $("#ddlRestrictedZOOffice").change(function () {
+            var ZoneName = $("#ddlRestrictedZOOffice option:selected").text();
+            $("#btnSelectZone").val(ZoneName);
+            $("#hdnRestrictZoneId").val($("#ddlRestrictedZOOffice option:selected").val());
+
+        });
+
+
+
+        $("#IndividualAnnexationAmount").hide();
+        loadPunishmentForEmployeewise();
+
+        $("#txtEmployeeCode").blur(function () {
+            var employee_Code = $("#txtEmployeeCode").val();
+            LoadEmpInfo(employee_Code);
+        });
+
+        $("#DispatchNo").blur(function () {
+
+            var DespatchNo = $("#DispatchNo").val();
+            $.ajax({
+                type: 'GET',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("CheckDespatchValidation", "DiscCaseEntry", "http")',
+                data: { DespatchNo: DespatchNo },
+                dataType: 'json',
+                async: true,
+                success: function (Result) {
+                    if (Result == "error") {
+
+                        $.alert.open('alert', 'This despatch number is already use');
+                    }
+
+                },
+                error: function (request, status, error) {
+                    alert(request.statusText + "/" + request.statusText + "/" + error);
+                }
+            });
+        });
+
+        $("#btnCrimeLocationAdd").click(function (e) {
+            e.preventDefault();
+            var office_Id = GetOfficeLocation();
+            if (office_Id >= 1) {
+                LoadCrimeLocationInfo(office_Id);
+            }
+            else {
+                $.alert.open("error", "Please Select Office");
+            }
+        });
+
+        $("#btnCaseEntryAdd").click(function (e) {
+            e.preventDefault();
+            var EmployeeId = $("#EmployeeId").val();
+            var CrimeId = $("#ddlCrimeId").val();
+            if (EmployeeId == 0 || EmployeeId == '') {
+                $.alert.open("error", "Please Add Employee Info");
+            }
+            else if (CrimeId == "0" || CrimeId == "") {
+                $.alert.open("error", "Please Add Crime Information");
+            }
+            else {
+                CrimeAdd();
+            }
+
+
+        });
+
+        $("#btnCaseEntrySave").click(function (e) {
+            e.preventDefault();
+
+            var EmployeeId = $("#EmployeeId").val();
+
+
+            //////////// SAVE Transfer Restricted Zone Name
+
+            var ddPunishmentList = $("#ddPunishmentList").val();
+            if (ddPunishmentList == 24) //When Resricted Zone Selected
+            {
+                //var hdnRestrictZoneId = $("#hdnRestrictZoneId").val();
+                //alert(hdnRestrictZoneId);
+
+                if (hdnRestrictZoneId = 0 || hdnRestrictZoneId == '0' || hdnRestrictZoneId == '') {
+                    $.alert.open('Message', 'Please Select restricted Zone.');
+                    return false;
+                }
+                else { //Save Restricted Zone in Table DiscRestrictedZone
+
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("InsertRestrictedZone", "DiscCaseEntry", "http")',
+                        data: { EmployeeId: EmployeeId, hdnRestrictZoneId: $("#hdnRestrictZoneId").val() },
+                        dataType: 'json',
+                        async: true,
+                        success: function (Result) {
+
+                        },
+                        error: function (Result) {
+                            alert(Result);
+                        }
+                    });
+
+
+
+                }
+
+
+            }
+            //////////////End TransferRestricted Zone Name
+
+            var tblCrimeLocationrowCount = $('#tblCrimeLocationDetails >tbody >tr').length;
+            var tblCrimeDetailsrowCount = $('#tblCrimeDetails >tbody >tr').length;
+
+            var PunishmentList = $("#ddPunishmentList option:selected").val();
+            if (EmployeeId == 0 || EmployeeId == "") {
+                $.alert.open("error", "Please Select Employee");
+
+            }
+            else if (tblCrimeLocationrowCount == 0) {
+                $.alert.open("error", "Please Add Crime Location");
+            }
+            else if (tblCrimeDetailsrowCount == 0) {
+                $.alert.open("error", "Please Add Crime Information");
+            }
+            else if (PunishmentList == 0) {
+                $.alert.open("error", "Please Select Punishment");
+            }
+            else if (DispatchNo == "") {
+                $.alert.open("error", "Please Insert Case Despatch number");
+            }
+            else if (PunishmentDespatchNo == "") {
+                $.alert.open("error", "Please insert punishment despatch number");
+            }
+            else {
+                CrimePunishmentSave();
+            }
+
+
+        });
+
+        $("#ddPunishmentList").change(function () {
+
+            var ddPunishmentList = $("#ddPunishmentList").val();
+
+            if (ddPunishmentList != "0") {
+                $(".divPunishment").hide();
+                if (ddPunishmentList > 0) { // Show For All.
+
+                    $("#idDaysLose").show(); //Show Days Lose
+                }
+                else {
+                    $("#idDaysLose").hide();// Hide Days Lose
+                }
+            }
+            else {
+                $(".divPunishment").show();
+                $("#idDaysLose").hide();// Hide Days Lose
+            }
+
+            $("#DivRestrictedZone").hide();
+            if (ddPunishmentList == 24) //When Resricted Zone Selected
+            {
+                GetRestrictedZOOffice();
+                //PopupRestrictedZoneDiv();
+                $("#DivRestrictedZone").show();
+
+            }// End of Restricted Zone
+
+            if (ddPunishmentList == 7) {
+                $("#idFirstIncrement").show(); //Show First Increment Suspended Date
+            }
+            else if (ddPunishmentList == 16) {
+                $("#idFirstIncrement").show(); //Show First Increment Suspended Date
+                $("#idSecondIncrement").show(); //Show Second Increment Suspended Date
+            }
+            else if (ddPunishmentList == 17) {
+                $("#idFirstIncrement").show(); //Show First Increment Suspended Date
+                $("#idSecondIncrement").show(); //Show Second Increment Suspended Date
+                $("#idThirdIncrement").show(); //Show Third Increment Suspended Date
+
+            }
+            else if (ddPunishmentList == 18) {
+                $("#idFirstIncrement").show(); //Show First Increment Suspended Date
+                $("#idSecondIncrement").show(); //Show Second Increment Suspended Date
+                $("#idThirdIncrement").show(); //Show Third Increment Suspended Date
+                $("#idFourthIncrement").show(); //Show Fourth Increment Suspended Date
+
+            }
+            else {
+
+                $("#idFirstIncrement").hide(); //hide First Increment Suspended Date
+                $("#idSecondIncrement").hide(); //hide Second Increment Suspended Date
+                $("#idThirdIncrement").hide(); //hide Third Increment Suspended Date
+                $("#idFourthIncrement").hide(); //hide Fourth Increment Suspended Date
+
+            }
+
+
+        });
+        $("#ddlCrimeId").change(function () {
+            if ($("#ddlCrimeId").val() > 0) {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetCrimeType", "DiscCaseEntry", "http")',
+                    data: { crimeId: $("#ddlCrimeId").val() },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data == '1') {
+                            $("#IndividualAnnexationAmount").show();
+                        }
+                        else {
+                            $("#IndividualAnnexationAmount").hide();
+                        }
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+            }
+        });
+
+
+        $("#FirstIncSuspendDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+        $("#SecondIncSuspendDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+
+        $("#ThirdIncSuspendDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+        $("#FourthIncSuspendDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+
+
+
+        $("#ActivatedDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+
+
+        $("#PunishmentDt").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2025"
+         });
+        $("#CrimeDateFrom").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2025"
+          });
+        $("#CrimeDateTo").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2025"
+           });
+        $("#CaseDateFromMsg").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2025"
+           });
+
+        /////POPUP Start Dates
+
+        $("#txtCaseIssueDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+        $("#txtPunishmentDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+        $("#txtPunishmentDate2").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2055"
+       });
+        $("#txtActivatedDate").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+
+
+
+        $("#txtFirstIncSuspendDt").datepicker(
+        {
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1920:2055"
+        });
+
+        $("#txtSecondIncSuspendDt").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           changeYear: true,
+           yearRange: "1920:2055"
+       });
+
+        $("#txtThirdIncSuspendDt").datepicker(
+             {
+                 dateFormat: "dd-M-yy",
+                 showAnim: "scale",
+                 changeMonth: true,
+                 changeYear: true,
+                 yearRange: "1920:2055"
+             });
+
+        $("#txtFourthIncSuspendDt").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2055"
+         });
+
+
+
+        //// End POPUP Dates Ends
+
+
+
+
+        $("#AnnexationAmount").keypress(function (e) {
+            return checkNumberic(e);
+        });
+    });
+</script>
+
+
+<h2 class="page-title">Case Entry Short Form</h2>
+@using (Html.BeginForm("CaseEntryShortForm", "DiscCaseEntry", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "frmCaseEntryShortForm" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="create-success create-content alert alert-success alert-dismissible" role="alert" style="display: none;">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p class="message-content">  </p>
+    </div>
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+        <fieldset>
+            <legend>Employee Info</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Employee Code<b class="required"></b></label>
+                        @* @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4" })*@
+                        <div class="col-sm-8">
+                            @Html.TextBox("txtEmpCode", "", new { @class = "form-control", id = "txtEmployeeCode" })
+                            @Html.HiddenFor(model => model.EmployeeId)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" value="" id="hdnSelectedOfficeId" />
+        </fieldset>
+        <br />
+        <fieldset>
+            <legend>Crime Location</legend>
+            <div class="row">
+                <!-- OFFICE TYPE  OFFICE  Department-->
+                <br />
+                @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2">
+                    &nbsp;
+                </div>
+                <div class="col-sm-4">
+                    <input type="submit" value="Add" id="btnCrimeLocationAdd" class="btn btn-info" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12">
+                    <table id="tblCrimeLocationDetails" style="width:90%;margin-left:10%" border="1">
+                        <thead style="background-color:green;color:white;">
+                            <tr class="headings">
+                                <th class="column-title" style="text-align: center">Sl</th>
+                                <th class="column-title" style="text-align: center">Office Code</th>
+                                <th class="column-title" style="text-align: center">Crime Location</th>
+                                <th class="column-title" style="text-align: center">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+        <br />
+        <fieldset>
+            <legend>Case Info</legend>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Case Type</label>
+                        <div class="col-sm-8">
+                            <select id="filterColumn" class="form-control">
+                                <option value="D">Explanation</option>
+                                <option value="C">Charge Sheet</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Crime<b class="required"></b></label>
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.CrimeId, CrimeLists, new { @ID = "ddlCrimeId", @class = "form-control" })
+                            <input type="text" id="txtCrimeType" style="display:none;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Crime Find out Date From</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CrimeDateFrom, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Crime  Find out Date To</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CrimeDateTo, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Case Issue Date</label> <b class="required"></b>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.CaseDateFromMsg, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Despatch No<b class="required"></b></label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DispatchNo, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div id="IndividualAnnexationAmount">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4">Embezzle Amount</label>
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.AnnexationAmount, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-10">
+                    <input type="submit" value="Add" id="btnCaseEntryAdd" class="btn btn-info" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-sm-12">
+                    <table id="tblCrimeDetails" style="width:90%;margin-left:10%" border="1">
+                        <thead style="background-color:green;color:white;">
+                            <tr class="headings">
+                                <th class="column-title" style="text-align: center">Sl</th>
+                                <th class="column-title" style="text-align: center">Case Type</th>
+                                <th class="column-title" style="text-align: center">Crime</th>
+                                <th class="column-title" style="text-align: center">Embezzle Amt</th>
+                                <th class="column-title" style="text-align: center">Issue Date</th>
+                                <th class="column-title" style="text-align: center">Despatch No</th>
+                                @*  <th class="column-title" style="text-align: center">Punishment</th>*@
+                                <th class="column-title" style="text-align: center">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+        <br />
+        <br />
+        <fieldset>
+            <legend>Punishment</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Punishment Despatch No<b class="required"></b></label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.PunishmentDespatchNo, new { htmlAttributes = new { @class = "form-control txtcapitalize" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Punishment Issue Date</label><b class="required"></b>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.PunishmentDt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6" id="idpunishment">
+                    <div class="form-group">
+                        @*@Html.Label("Punishment", new { @class = "control-label col-md-4" })*@
+                        <label class="control-label col-sm-4">Punishment<b class="required"></b></label>
+                        <div class="col-md-8">
+                            @Html.DropDownList("PunishmentList", null, new { @ID = "ddPunishmentList", @class = "form-control" })
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6" id="DivRestrictedZone" style=" display:none;">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <input type="button" id="btnSelectZone" value="Select Zone" onclick="PopupRestrictedZoneDiv();" class=" btn btn-warning" />
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+                <div class="col-sm-6" id="idDaysLose" style=" display:none;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">জ্যেষ্ঠতা কর্তনসহ বিনা বেতনে ছুটি মনজুর<b></b></label>
+                        <div class="col-md-8">
+                            @Html.EditorFor(model => model.DaysLose, new { htmlAttributes = new { @placeholder = "Days", @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6" id="idFirstIncrement" style=" display:none;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">First Increment Cancel Date</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.FirstIncSuspendDt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6" id="idSecondIncrement" style=" display:none;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Second Increment Cancel Date</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.SecondIncSuspendDt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6" id="idThirdIncrement" style=" display:none;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Third Increment Cancel Date</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.ThirdIncSuspendDt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6" id="idFourthIncrement" style=" display:none;">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Fourth Increment Cancel Date</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.FourthIncSuspendDt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Punishment Activated Date</label>
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.ActivatedDt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </fieldset>
+        <br />
+        <div class="row">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-10">
+                <input type="submit" value="Save" id="btnCaseEntrySave" class="btn btn-info" />
+            </div>
+        </div>
+        <br />
+        <div id="grid"></div>
+    </div>
+
+
+
+
+            <!-- Popup Program Entry -->
+    <div id="ProgramDiv" style="width:70%">
+        @*Sakib*@
+        <input type="button" value="Close" onclick="fnPopupClose1();" class="btn btn-facebook  b-close" /><br>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required"> Despatch No  </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtDespatchNo" class="form-control" placeholder="Despatch No" />
+                        <input type="hidden" id="hdnMasterId" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required">Case Issue Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtCaseIssueDate" class="form-control" placeholder="Case Issue Date" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required"> Punishment Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtPunishmentDate" class="form-control" placeholder="Punishment Date" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4"> Punishment Activated Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtActivatedDate" class="form-control" placeholder="Activated Date" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 ">Seniority Loss(Days)</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtSeniorityLoss" class="form-control" placeholder=" " />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 "> 1st Incr Cancel Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtFirstIncSuspendDt" class="form-control" placeholder="" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4  ">2nd Incr Cancel Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtSecondIncSuspendDt" class="form-control" placeholder=" " />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 ">3rd Incr Cancel Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtThirdIncSuspendDt" class="form-control" placeholder=" " />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 ">4th Incr Suspend Date </label>
+                    <div class="col-sm-8">
+                        <input type="text" id="txtFourthIncSuspendDt" class="form-control" placeholder=" " />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        <input type="button" value="Save" id="btnPopUpUpdate" class="btn btn-success" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+        <!-- End Of Program Entry Div -->
+    <!-- Popup Restrict ZONE Entry -->
+    <div id="RestrictZoneDiv" title="Restricted Zonal Area" style="display:none">
+        @*khalid*@
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label class="control-label col-md-4 required"> Restrict Zone Name  </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownList("ZOOfficeList", null, new { @ID = "ddlRestrictedZOOffice", @class = "form-control" })
+                        <input type="hidden" id="hdnRestrictZoneId" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<br />
+               <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding:10px;margin:5px;">
+                            &nbsp;
+                            <input type="button" value="Save" id="btnPopUpRestrictedZone" class="btn btn-success" />
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+
+
+    </div>
+
+        <!-- End Of Restricted Zone Entry Div -->
+
+
+
+    @*<div id="PromotionNavDiv" title="Promotion Rejection" style="width:70%">
+        <input type="button" value="Close" id="btnPromotionRejectionCancel" class="btn btn-facebook  b-close" />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-3">(Old) Next Review Date </label>
+                    <div class="col-sm-6">
+                        <input type="text" id="NRDM" class="form-control" disabled="disabled" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+
+
+
+
+
+}

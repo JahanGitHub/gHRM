@@ -1,0 +1,284 @@
+﻿@model gHRM.Web.ViewModels.EducationDegreeViewModel
+
+@{
+    ViewBag.Title = "EducationDegreeCreate";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var DegreeLevelList = Model == null ? null : Model.DegreeLevelList;
+}
+
+<script>
+    $(document).ready(function () {
+
+        GetEducationDegreeDashBoard();
+        $('[name="DegreeLevel"]').prop('readonly', true);
+        $("#customControlAutosizing").click(function () {
+            if ($(this).prop('checked') == true) {
+                $('#DegreeLevelId').val(0).prop('disabled', true);
+                $('[name="DegreeLevel"]').prop('readonly', false);
+            } else {
+                $('#DegreeLevelId').prop('disabled', false);
+                $('[name="DegreeLevel"]').prop('readonly', true);
+            }
+
+        });
+        $("#DegreeLevelId").change(function () {
+            var degreeLevelId = $("#DegreeLevelId").val();
+
+            if (degreeLevelId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDegreesByDegreeLevelId", "EducationSubjects", "http")',
+                    data: { degreeLevelId: degreeLevelId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            $("#DegreeLevel").val(data);
+                        } else {
+                            $("#DegreeLevel").val("");
+                        }
+                    },
+                });
+          } 
+        });
+        $("#btnSave").click(function (e) {
+            e.preventDefault();
+
+            debugger;
+
+            var DegreeId = $("#DegreeId").val();
+            var DegreeLevelId = $("#DegreeLevelId").val();
+            var DegreeLevel = $("#DegreeLevel").val();
+            var DegreeCode = $("#DegreeCode").val();
+            var DegreeName = $("#DegreeName").val();
+
+            if ($("#DegreeLevelId").val() == "") {
+                $.alert.open("Error", "Please Insert Degree Level Id");
+                return false;
+            }
+            //if ($("#DegreeLevel").val() == "") {
+            //    $.alert.open("Error", "Please Insert Degree Level");
+            //    return false;
+            //}
+            if ($("#DegreeCode").val() == "") {
+                $.alert.open("Error", "Please Insert DegreeCode");
+                return false;
+            }
+            if ($("#DegreeName").val() == "") {
+                $.alert.open("Error", "Please Insert DegreeName");
+                return false;
+            }
+
+            $('#AjaxLoader').show();
+            $.ajax({
+                type: "GET", //GET or POST or PUT or DELETE verb
+                url: '/EducationSubjects/SaveEducationDegree',
+                data: {
+                    DegreeId: DegreeId, DegreeLevelId: DegreeLevelId, DegreeLevel: DegreeLevel,
+                    DegreeCode: DegreeCode, DegreeName: DegreeName
+                },
+                dataType: "json", //Expected data format from server
+                processdata: false, //True or False
+                success: function (data) { //On Successful service call
+                    $('#AjaxLoader').hide();
+                    $.alert.open("Alert", data.message);
+                    ClearForm();
+                    GetEducationDegreeDashBoard();
+                },
+                error: function (data) {
+                    $('#AjaxLoader').hide();
+                    $.alert.open('error', 'Error');
+                }
+            });
+            //} else {
+            //    $.alert.open("Error", "Please Insert required fields");
+            //}
+
+        });
+    });
+    function GetEducationDegreeDashBoard() {
+        $('#gridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data",
+                total: "total"
+            },
+            serverPaging: true,
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetEducationDegree", "EducationSubjects", "http")',
+                    dataType: 'json',
+                    data: {}
+                }
+            }
+        });
+
+        $("#gridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "DegreeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "rowSl",
+                    title: "SL",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "DegreeLevel",
+                    title: "DegreeLevel",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "DegreeCode",
+                    title: "Degree Code",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "DegreeName",
+                    title: "Degree Name",
+                    width: "60px",
+                    filterable: true,
+                },
+                 {
+                     title: "Edit",
+                     width: "20px",
+                     template: function (dataItem) {
+                         if (dataItem.DegreeId > 0) {
+                             return "<a href='/EducationSubjects/AddEducationDegree/?DegreeId=" + dataItem.DegreeId + "'><i class='fa fa-pencil-square-o'></i></a>";
+                         } else {
+                             return "";
+                         }
+                     }
+                 }
+            ]
+        });
+    }
+
+    function ClearForm() {
+        $("#DegreeId").val('');
+        $("#DegreeLevelId").val("").trigger('change');
+        $("#DegreeLevel").val('');
+        $("#DegreeCode").val('');
+        $("#DegreeName").val('');
+        /*location.href ="/EducationSubjects/AddEducationDegree"*/
+    }
+
+
+</script>
+
+&nbsp;
+<h2 class="page-title">Add Education Degree</h2>
+&nbsp;
+@using (Html.BeginForm("Step_02", "Apply", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", id = "JobExperience" }))
+
+{
+    @Html.AntiForgeryToken()
+    <form id="InputForm">
+        <div class="container-fluid">
+            <fieldset>
+                <div class="">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    @Html.HiddenFor(m => m.DegreeId)
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DegreeLevel, htmlAttributes: new { @class = "control-label col-sm-4" })
+                                <div class="col-sm-8">
+                                    @Html.DropDownListFor(model => model.DegreeLevelId, Model.DegreeLevelList, new { @id = "DegreeLevelId", @class = "form-control required" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="custom-control custom-checkbox mr-sm-3">
+                                <input type="checkbox" id="customControlAutosizing">
+                                <label for="customControlAutosizing">Add New Degree</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group NewDegreeLevel">
+                                <label class="control-label col-sm-4 required" for="DegreeLevel">Degree Level Name</label>
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.DegreeLevel, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.DegreeLevel, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DegreeCode, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.DegreeCode, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.DegreeCode, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DegreeName, htmlAttributes: new { @class = "control-label col-sm-4 required" })
+                                <div class="col-sm-8">
+                                    @Html.TextBoxFor(model => model.DegreeName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.DegreeName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                &nbsp;
+                <button type="button" id="btnSave" class="btn btn-success btn-sm" style="float:right;"><i class="fa fa-check-circle-o"></i> Save</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-horizontal">
+            <hr />
+            <div class="box-content">
+                <div class="table-responsive">
+                    <div id="gridKendo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}

@@ -1,0 +1,419 @@
+﻿@model gHRM.Web.ViewModels.Payroll.PRWorkAreaViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/PRProcess">PRProcess</a></li>
+        <li><a href="/PRProcess/MonthlySalaryApprove">MonthlySalaryApprove</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Payroll Process";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function PrintSalaryBeforeApprovalReportPDF(year, month, officeTypeId, salaryApprovalDate) {
+        url = '/PRSalaryReport/PrintSalaryBeforeApprovalReportPDF?Year=' + year + '&Month=' + month + '&officeTypeId=' + 0 + '&salaryDate=' + salaryApprovalDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintSalaryBeforeApprovalReportExel(year, month, officeTypeId, salaryApprovalDate) {
+        url = '/PRSalaryReport/PrintSalaryBeforeApprovalReportExel?Year=' + year + '&Month=' + month + '&officeTypeId=' + 0 + '&salaryDate=' + salaryApprovalDate;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintRejectedEmployeesSalaryReportPDF(year, month) {
+        url = '/PRSalaryReport/PrintRejectedEmployeesSalaryReportPDF?Year=' + year + '&Month=' + month;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintApprovedSalaryReportPDF(year, month) {
+        url = '/PRSalaryReport/PrintApprovedSalaryReportPDF?Year=' + year + '&Month=' + month;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintApprovedSalaryReportExel(year, month) {
+        url = '/PRSalaryReport/PrintApprovedSalaryReportExel?Year=' + year + '&Month=' + month;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function PrintPFReportBeforeApproval(year, month, officeTypeId, type) {
+        url = '/PRSalaryReport/PrintPFReportBeforeApproval?Year=' + year + '&Month=' + month + '&OfficeTypeId=' + officeTypeId + '&reportType=' + type;
+        window.open(url, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+    function MonthlyEmpSalaryReject(year, month, salaryApprovalDate) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("MonthlySalaryApprovalReject", "PRProcess", "http")', //Process1(string empType, string month, string Year1, string Process1Date )
+            data: { salaryMonth: month, salaryYear: year, salaryApprovalDate: salaryApprovalDate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "data");
+            }
+        });
+    }
+
+
+    function MonthlyEmpSalaryApproval(year, month, salaryApprovalDate) {
+        $("#AjaxLoader").show();
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("MonthlySalaryApproveProcess", "PRProcess", "http")',
+            data: { salaryMonth: month, salaryYear: year, salaryApprovalDate: salaryApprovalDate },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data);
+                $("#AjaxLoader").hide();
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "data");
+                $("#AjaxLoader").hide();
+            }
+        });
+
+    }// End of Function
+
+    function SummaryPreview(year, month) {
+
+        $('#previewGridKendo').html("");
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    //url: baseURL + '/ProcessCategory/GetProcessCategoryList?QueryOption=' + 1,
+                    url: '@Url.Action("SalarySummaryPreviewAfterSendForApproval", "PRProcess", "http")',
+                    dataType: 'json',
+                    data: { year: year, month: month }
+                }
+            }
+        });
+
+        $("#previewGridKendo").kendoGrid({
+            dataSource: dataSource,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "EmployeeId",
+                    hidden: true,
+                    filterable: false
+                },
+                {
+                    field: "EmployeeCode",
+                    title: "Code",
+                    width: "40px",
+                    filterable: true,
+                },
+                {
+                    field: "EmployeeName",
+                    title: "Name",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "Department",
+                    title: "Department",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "Designation",
+                    title: "Designation",
+                    width: "100px",
+                    filterable: true,
+                },
+                {
+                    field: "TotalEarning",
+                    title: "Total Earning",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "TotalDeduction",
+                    title: "Total Deduction",
+                    width: "50px",
+                    filterable: false,
+                },
+                {
+                    field: "NetPayable",
+                    title: "Net Payable",
+                    width: "50px",
+                    filterable: false,
+                },
+            {
+                title: "HoldSalary",
+                width: "50px",
+                template: function (dataItem) {
+                    return "<a href='#' title='Hold Salary' OnClick='HoldSalary(" + dataItem.EmployeeId + ");'><i class='fa fa-pause'></i></a>";
+                }
+            }
+            ]
+        });
+    }
+
+    function HoldSalary(EmployeeId) {
+        if (EmployeeId > 0) {
+            var SalaryYear = $("#SalaryYear").val();
+            var SalaryMonth = $("#SalaryMonth").val();
+            $.alert.open('confirm', "Are you sure you want to Hold this Employee's salary ?", function (button) {
+                if (button == 'yes') {
+                    $.ajax({
+                        type: 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("HoldSalaryFinalApproval", "PRProcess", "http")',
+                        data: { EmployeeId: EmployeeId, Year: SalaryYear, Month: SalaryMonth },
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {
+                            if (data.result == 0) {
+                                $.alert.open("success", data.message);
+                            }
+                            if (data.result == 1) {
+                                $('#previewGridKendo').jtable('load');
+                                //$('#grid2').jtable('load');
+                            }
+
+                        },
+                        error: function (request, status, error) {
+                            $.alert.open(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+                return true;
+            });
+        } else {
+            $.alert.open("Error", "Invalid Employee Id");
+        }
+    }
+
+    $(document).ready(function () {
+
+        $("#SalaryApprovalDate").datepicker(
+           {
+               dateFormat: "dd-M-yy",
+               showAnim: "scale",
+               changeMonth: true,
+               changeYear: true,
+               yearRange: "1920:2100"
+           });
+
+        $("#SalaryApprovalDate").datepicker('setDate', new Date());
+
+        $("#btnSummaryPreview").click(function () {
+            var year = $("#SalaryYear").val();
+            var month = $("#SalaryMonth").val();
+
+            if (year != "" && year != '0' && month != "" && month != '0') {
+                SummaryPreview(year, month);
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnMonthlySalaryReject").click(function () {
+
+            var year = $("#SalaryYear").val();
+            var month = $("#SalaryMonth").val();
+            var salaryRejectDate = $("#SalaryApprovalDate").val();
+            if (year != "" && year != '0' && month != "" && month != '0' && salaryRejectDate != "") {
+                $.alert.open('confirm', "Are you sure you want to Reject salary?", function (button) {
+                    if (button == 'yes') {
+                        MonthlyEmpSalaryReject(year, month, salaryRejectDate);
+                    }
+                });
+            } else {
+                $.alert.open("Error", "Please Insert Required Fields");
+            }
+        });
+
+        $("#btnMonthlySalaryApproval").click(function () {
+            var year = $("#SalaryYear").val();
+            var month = $("#SalaryMonth").val();
+            var salaryApprovalDate = $("#SalaryApprovalDate").val();
+            if (year != "" && year != '0' && month != "" && month != '0' && salaryApprovalDate != "") {
+                $.alert.open('confirm', "Are you sure you want to Approve salary?", function (button) {
+                    if (button == 'yes') {
+                        MonthlyEmpSalaryApproval(year, month, salaryApprovalDate);
+                    }
+                });
+            }
+            else {
+                $.alert.open("Error", "Please Insert Required Fields");
+                return false;
+            }
+        });
+
+        $("#btnPrint").click(function () {
+            var type = $("#ReportType").val();
+            var year = $("#SalaryYear").val();
+            var month = $("#SalaryMonth").val();
+            var salaryApprovalDate = $("#SalaryApprovalDate").val();
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (type == "1") {
+                if (year != "" && year != '0' && month != "" && month != '0') {
+                    PrintSalaryBeforeApprovalReportPDF(year, month, officeTypeId, salaryApprovalDate);
+                } else {
+                    $.alert.open("Error", "Please Insert Required Fields");
+                }
+            }
+
+            else if (type == "2") {
+                if (year != "" && year != '0' && month != "" && month != '0') {
+                    PrintSalaryBeforeApprovalReportExel(year, month, officeTypeId, salaryApprovalDate);
+                } else {
+                    $.alert.open("Error", "Please Insert Required Fields");
+                }
+            }
+
+            else if (type == "3") {
+                if (year != "" && year != '0' && month != "" && month != '0') {
+                    PrintRejectedEmployeesSalaryReportPDF(year, month);
+                } else {
+                    $.alert.open("Error", "Please Insert Required Fields");
+                }
+            }
+
+            else if (type == "4") {
+                if (year != "" && year != '0' && month != "" && month != '0') {
+                    PrintApprovedSalaryReportPDF(year, month);
+                } else {
+                    $.alert.open("Error", "Please Insert Required Fields");
+                }
+            }
+
+            else if (type == "5") {
+                if (year != "" && year != '0' && month != "" && month != '0') {
+                    PrintApprovedSalaryReportExel(year, month);
+                } else {
+                    $.alert.open("Error", "Please Insert Required Fields");
+                }
+            }
+            else if (type == "9" || type == "10" || type == "11") {
+                if (year != "" && year != '0' && month != "" && month != '0') {
+                    PrintPFReportBeforeApproval(year, month, 0, type);
+                } else {
+                    $.alert.open("Error", "Please Insert Required Fields");
+                }
+            }
+        });
+
+    });// End Document Rready
+</script>
+
+<h2 class="page-title">Monthly Salary Approve</h2>
+&nbsp;
+@using (Html.BeginForm())
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+
+            <div id="AjaxLoader" class="ajaxLoader"></div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> Year</label>
+                        <div class="col-md-8">
+
+                            @Html.DropDownList("Years", null, new { @ID = "SalaryYear", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4"> Month</label>
+                        <div class="col-md-8">
+                            @Html.DropDownList("Months", null, new { @ID = "SalaryMonth", @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Date</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="SalaryApprovalDate" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="form-group form-action" style="padding-top:10px ;padding-left:10px;margin:5px;">
+                            <input type="button" value="Summary Before Approval" id="btnSummaryPreview" class="btn btn-primary" /> &nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Salary Approve" id="btnMonthlySalaryApproval" class="btn btn-primary" /> &nbsp;&nbsp;&nbsp;
+                            <input type="button" value="Salary Reject" id="btnMonthlySalaryReject" class="btn btn-primary" /> &nbsp;&nbsp;&nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-sm-4">Report Type</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.ReportType, Model.ReportList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="button" id="btnPrint" value="Print" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+   
+            <div class="box-content">
+                <div class="table-responsive">
+                    <div id="previewGridKendo"></div>
+                </div>
+            </div>
+
+        </div> <!--Main Container Fluid-->
+    </div> <!--Form Horizontal-->
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

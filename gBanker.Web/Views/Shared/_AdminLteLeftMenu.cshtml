@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null;
+}
+
+@{
+    var parentModules = gHRM.Web.Helpers.SessionHelper.AllPrentModules ?? new List<gHRM.Data.CodeFirstMigration.AspNetSecurityModule>();
+    var userModules = gHRM.Web.Helpers.SessionHelper.UserSecurityModules ?? new List<gHRM.Data.CodeFirstMigration.AspNetSecurityModule>();
+    var parent_Modules = parentModules.OrderBy(w => w.DisplayOrder);
+}
+
+<script>
+    $(document).ready(function () {
+        $("#parentChild").toggleClass("fa fa-angle-double-down");
+    });
+</script>
+<aside class="main-sidebar main-sidebar-new">
+    <section class="sidebar">
+        <ul class="sidebar-menu">
+            @foreach (var module in parent_Modules)
+            {                
+                var securityModules = userModules.Where(w => w.ParentModuleId == module.AspNetSecurityModuleId && w.IsActive == true && (!w.IsMenuItem.HasValue || w.IsMenuItem.Value)).OrderBy(o => o.DisplayOrder).ToList();
+
+                if (securityModules.Count > 0)
+                {
+                    <li class="treeview">
+                        <a href="@module.AspNetSecurityModuleId">
+                            <i class="fa fa-th-large"></i>
+                            <span>@module.LinkText</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            @foreach (var childModule in securityModules)
+                            {
+                                var level3 = userModules.Where(w => w.ParentModuleId == childModule.AspNetSecurityModuleId && w.IsActive == true && (!w.IsMenuItem.HasValue || w.IsMenuItem.Value)).OrderBy(o => o.DisplayOrder).ToList();
+                                if (level3.Count > 0)
+                                {
+                                    <li class="treeview">
+                                        <a href="@childModule.AspNetSecurityModuleId">
+                                            <i class="fa fa-angle-double-right"></i>@*id="parentChild"*@
+                                            @childModule.LinkText@*<i class="fa fa-angle-left pull-right"></i>*@
+                                        </a>
+                                        <ul class="treeview-menu">
+                                            @foreach (var lblLevel3 in level3)
+                                            {
+                                                <li><a href="~/@lblLevel3.ControllerName/@lblLevel3.ActionName"><i class="fa fa-arrow-circle-o-right"></i> @lblLevel3.LinkText </a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li><a href="~/@childModule.ControllerName/@childModule.ActionName"><i class="fa fa-arrow-circle-o-right"></i> @childModule.LinkText </a></li>
+
+                                }
+                            }
+                        </ul>
+                    </li>
+                }
+                else if (module.ControllerName == "FixedAsset")
+                {
+                    <li class="treeview">
+                        <a href="~/@module.ControllerName/@module.ActionName">
+                            <i class="fa fa-th-large"></i>
+                            <span>@module.LinkText</span><i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                    </li>
+                }
+                else if (module.ControllerName != "#" && module.ControllerName != "Home")
+                {
+                    <li><a href="~/@module.ControllerName/@module.ActionName"><span> @module.LinkText</span></a></li>
+
+                }
+                else if (module.ControllerName == "Home" || module.ControllerName == "FixedAsset")
+                {
+                    <li><a href="~/"><i class="fa fa-home" style="font-size:14px;"></i><span> @module.LinkText</span></a></li>
+                }
+            }
+        </ul>
+    </section>
+    <!-- /.sidebar -->
+</aside>

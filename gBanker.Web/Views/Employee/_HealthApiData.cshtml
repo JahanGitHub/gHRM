@@ -1,0 +1,189 @@
+﻿
+@model IEnumerable<gHRM.Web.ViewModels.GHealthPatientDetailsBasicCheckUpViewModel>
+
+<head>
+    <title>Patient Profile Portable Health Clinic </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Basic Checkup</h2>
+        <p></p>
+        <table id="classTable" class="table table-bordered">
+
+            <tbody>
+                <tr>
+
+                    <th>Date</th>
+
+                    <th>Height</th>
+
+                    <th>Weight</th>
+
+                    <th>BMI</th>
+
+                    <th>Waist</th>
+
+                    <th>Hip</th>
+
+                    <th>W/H Ratio</th>
+
+                    <th><abbr title="Body Temperature">B. Temp.</abbr></th>
+
+                    <th>SpO2</th>
+
+                    <th><abbr title="Blood Pressure">B.P.</abbr></th>
+
+                    <th><abbr title="Blood Glucose">B.G.</abbr></th>
+
+                    <th><abbr title="Blood Hemoglobin">B.H.</abbr></th>
+
+                    <th><abbr title="Urinary Glucose">U.G.</abbr></th>
+
+                    <th><abbr title="Urinary Protein">U.P.</abbr></th>
+
+                    <th><abbr title="Urinary Urobilinogen">U.U.</abbr></th>
+
+                    <th><abbr title="Pulse Rate">P.R.</abbr></th>
+
+                    <th><abbr title="Arrhythmia">Arr.</abbr></th>
+
+                    <th><abbr title="Blood cholesterol">Cho.</abbr></th>
+
+                    <th><abbr title="Blood uric acid">Uric.</abbr></th>
+
+                    <th>Patient Color</th>
+
+
+
+                </tr>
+
+                @foreach( var item in Model)
+                { 
+                <tr id="row_47789">
+
+                    <td nowrap="nowrap">@item.checkup_date</td>
+
+                    <td>@item.height</td>
+
+                    <td>@item.weight</td>
+
+                    <td>
+
+                        @item.bmi
+
+                    </td>
+
+                    <td>
+
+                        @item.waist
+
+
+
+                    </td>
+
+                    <td>@item.hip</td>
+
+                    <td>
+
+                        @item.waist_hip_ratio
+
+
+                    </td>
+
+                    <td>
+
+                        @item.temperature
+
+
+                    </td>
+
+                    <td>
+
+                        @item.bp_dia
+
+
+                    </td>
+
+                    <td nowrap="nowrap">
+                        @item.blood_glucose
+                    </td>
+
+                    <td>
+
+                        @item.blood_glucose
+
+
+                    </td>
+
+                    <td>
+                        @item.blood_hemoglobin
+
+                    </td>
+
+
+
+                    <td>
+                        @item.urinary_glucose
+
+                    </td>
+
+                    <td>
+                        @item.urinary_protein
+
+                    </td>
+
+                    <td>
+                        @item.urinary_urobilinogen
+                    </td>
+
+                    <td>
+                        @item.pulse_rate
+
+                    </td>
+
+                    <td>
+                        @item.arrhythmia
+                    </td>
+
+                    <td align="center">
+
+                        @item.cholesterol
+
+                    </td>
+
+                    <td>
+
+                        @item.uric_acid
+
+                    </td>
+
+
+
+                    <td>
+
+                        @item.color_status
+
+                    </td>
+
+
+
+
+                </tr>
+
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+
+</body>
+
+
+

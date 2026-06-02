@@ -1,0 +1,416 @@
+﻿@model gHRM.Web.ViewModels.FeedBack.FeedbackRegisterViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+
+    var CategoryList = Model == null ? null : Model.FeedbackCategoryList;
+    var UnitList = Model == null ? null : Model.UnitList;
+}
+<style>
+    .jtable > thead > tr {
+        height: 50px;
+    }
+</style>
+ 
+
+<script type="text/javascript">
+
+    function reloadGrid() {
+
+        $('#grid').jtable('load', { QType: '1', SolvedStatus: '1' });
+       // clear();
+
+    }
+
+    function GetDownloadFile(FileUploadId) {
+        //alert("Do");
+        window.location.href = '@Url.Action("DownloadFile", "FeedbackRegister")?FileUploadId=' + FileUploadId;
+    }
+
+
+    function LoadEmpInfoByCode(employee_code) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeData", "FeedbackRegister", "http")',
+            data: { EmpId: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                        $("#OfficeId").val(data.OfficeId);
+
+                    }
+                    else {
+
+                        $("#EmployeeName").val('');
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                    }
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message","Employee not Found.");
+                //alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    function Delete(id) {
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("Delete", "FeedbackRegister", "http")',
+                    data: { id: id },
+                    dataType: 'json',
+                    async: true,
+                    success: function (Result) {
+                        //$('#grid').jtable('load', { EmployeeId: 0 });
+                        reloadGrid();
+                        $.alert.open("Message","Data Deleted Successfully.");
+                       
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+    function clear()
+    {
+        $("#txtEmpName").val("");
+        $("#EmployeeName").val("");
+        $("#EmployeeId").val("");
+        $("#OfficeId").val("");
+        $("#FeedbackDescription").val("");
+        $("#FeedbackDate").datepicker('setDate', new Date());
+
+        $("#FeedbackCategoryID").prop('selectedIndex', 0);
+    }
+ 
+    $(document).ready(function () {
+
+        
+
+        $("#btnReset").click(function () { // Reset form
+           // clear();
+        });
+        //  $("#Effect").prop('selectedIndex', 0);
+
+        $("#btnSubmit").click(function () { // Reset form
+         // var requiredValue0 = $("#UnitId").val();
+          var requiredValue1 =   $("#EmployeeName").val();
+          var requiredValue2 =   $("#EmployeeId").val();
+          var requiredValue3 =   $("#OfficeId").val();
+          var requiredValue4 =   $("#FeedbackDescription").val();
+          var requiredValue5 =   $("#FeedbackDate").val();
+          //  requiredValue0 == '0' ||
+            if ( requiredValue1 == '' || requiredValue2 == '' || requiredValue3 == '' || requiredValue4 == '' || requiredValue5 == '')
+          { 
+              $.alert.open("Message","Please Give all required data.");
+              return false;
+          }
+
+            reloadGrid();
+
+        });
+
+        $("#FeedbackDate").datepicker(
+         {
+             dateFormat: "dd-M-yy",
+             showAnim: "scale",
+             changeMonth: true,
+             changeYear: true,
+             yearRange: "1920:2050"
+
+         });
+
+        $("#FeedbackDate").datepicker(
+      'setDate', new Date());
+
+        $("#txtEmpName").blur(function (e) {
+            var employee_code = $("#txtEmpName").val();
+            if ($("#txtEmpName").val() == '')
+            {
+                $("#EmployeeName").val('');
+                $("#txtEmpName").val('');
+                $("#EmployeeName").val('');
+                $("#EmployeeId").val('');
+                $("#OfficeId").val('');
+            }
+            if ($("#txtEmpName").val() != '') {
+                LoadEmpInfoByCode(employee_code);
+            }
+            else {
+                $("#EmployeeName").empty();
+                $("#EmployeeName").val('');
+            }
+        });
+
+
+    
+        $('#grid').jtable({
+            paging: true,
+            pageSize: 100,
+            sorting: false,
+            defaultSorting: 'FeedbackRegisterID',
+            actions: {
+                listAction: function (postData, jtParams) {
+
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/FeedbackRegister/FeedbackRegisterSolvedStatusWise?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+            },
+
+
+            fields: {
+                OrderId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                FeedbackRegisterID: {
+                    title: 'Register ID',
+                    width: '10%'
+                },
+                OfficeName: {
+                    title: 'Office Name',
+                    width: '10%'
+                },
+                EmployeeCode: {
+                    title: 'Employee Code',
+                    width: '10%'
+                },
+                EmployeeName: {
+                    title: 'Employee Name',
+                    width: '20%'
+                },
+                FeedbackCategoryName: {
+                    title: 'Country Name',
+                    width: '15%'
+                },
+                FeedbackDescription: {
+                    title: 'Feedback Description',
+                    width: '15%'
+                },
+                FeedbackDateMsg: {
+                    title: 'Feedback Date',
+                    width: '15%'
+                },
+                SolvedStatus: {
+                    title: 'Solved Status',
+                    width: '20%'
+                },
+                DownloadLink: {
+                    title: "Download",
+                    sorting: false,
+                    display: function (data) {     
+                        return "<div class='text-center'><a href='#' OnClick= GetDownloadFile('" + data.record.FeedbackRegisterID + "'" + ");><i class='fa fa-download'></i></a></div>";
+                    }
+                },
+                EditLink: {
+                    title: "Edit",
+                    disable:true,
+                    sorting: false,
+                    display: function (data) {
+                        return "<div class='text-center'><a href='/FeedbackRegister/Edit/" + data.record.FeedbackRegisterID + "'><i class='fa fa-pencil-square-o'></i></a></div>";
+                    }
+                },
+                DeleteLink: {
+                    title: "Delete",
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="Delete(' + data.record.FeedbackRegisterID + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+                }
+
+            }
+        });
+
+        reloadGrid();
+    });
+</script>
+
+&nbsp;
+<h2 class="page-title">FEEDBACK REGISTER</h2>
+&nbsp;
+
+@using (Html.BeginForm("Create", "FeedbackRegister", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", @id = "CREATE" }))
+{
+   
+    <div class="form-horizontal">
+       
+        <h4>Feedback Entry</h4>
+        <hr />
+        <fieldset>
+            <legend>Feedback Entry</legend>
+
+            <div class="row" style="display:none;">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.UnitId, htmlAttributes: new { @class = "control-label  col-sm-4 required" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.UnitId, Model.UnitList, new { @class = "form-control", @id = "UnitId" })
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EmployeeCode, new { @class = "control-label col-md-4 required" })
+                            <div class="col-md-8">
+                                @Html.TextBox("txtEmpName", "", new { @class = "form-control" })
+                                @Html.HiddenFor(model => model.EmployeeId)
+                                @Html.HiddenFor(model => model.OfficeId)
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.EmployeeName, new { @class = "control-label col-md-4 required" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FeedbackCategoryID, new { @class = "control-label col-md-2 required" })
+                            <div class="col-md-10">
+                                @Html.DropDownListFor(model => model.FeedbackCategoryID, CategoryList, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FeedbackDescription, new { @class = "control-label col-md-2 required" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.FeedbackDescription, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FeedbackDate, new { @class = "control-label col-md-4 required" })
+                            <div class="col-md-8">
+                                @Html.EditorFor(model => model.FeedbackDate, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.FeedbackDate)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.File_AttachmentU, new { @class = "control-label col-md-4" })
+                            <div class="col-md-8">
+                                @Html.TextBoxFor(model => model.File_AttachmentU, new { type = "file", @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+</fieldset>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <div class="form-group form-action" style="padding:10px;margin:5px;">
+                        &nbsp;
+                        @*<input type="button" value="Save" id="btnSave" class="btn btn-success" />*@
+                        <input type="submit" value="Submit" id="btnSubmit" class="btn btn-success" />
+                        &nbsp;
+                        <input type="button" value="Reset" id="btnReset" class="btn btn-facebook" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- MESSAGE -->
+<div class="row">
+    <div class="panel-body">
+        <div class="create-success create-content alert alert-success alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">File Uploaded Successfully.</p>
+        </div>
+    </div>
+
+    <div class="danger">
+        <div class="create-content create-content alert alert-error alert-dismissable" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <p class="message-content">Error </p>
+        </div>
+    </div>
+
+</div>
+ 
+@if (TempData["Success"] != null)
+{
+    <script>
+        $(".panel-body .create-success").show(700).fadeToggle(2000);
+    </script>
+}
+@if (TempData["Error"] != null)
+{
+    <script>
+
+        $(".danger .create-content").show(700).fadeToggle(2000);
+
+    </script>
+}
+<!-- End of Message-->
+
+ 
+        @*<input type="submit" value="Submit" class="btn btn-default" />*@
+
+        &nbsp;
+        <div id="grid">
+
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>

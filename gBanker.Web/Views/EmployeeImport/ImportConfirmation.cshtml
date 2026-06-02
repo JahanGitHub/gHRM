@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "Import Employee Confirmation";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+@section AdminPageBreadCrumb {
+    <div class="row">
+        <ol class="breadcrumb breadcrumb-arrow">
+            <li><a href="/employeeimport/import">Import Employee</a></li>
+            <li><a href="/EmployeeImport/importconfirmation">Import Exsting Employee Confirmation</a></li>
+        </ol>
+    </div>
+}
+
+<h2 class="page-title">@ViewBag.Title</h2>
+&nbsp;
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 text-center-force main-box small-graph-box gray-bg">
+                        <h3>
+                            <span class="text-success">
+                                <i class="fa fa-check-circle light-gray"></i> Import Employee Confirmation!
+                            </span>
+                        </h3>
+                        <h4>Your employees were imported successfully!</h4>
+                        <h4><a target="_blank" href="/employee/index"><i class="fa fa-list"></i> Click Here to view Employees </a></h4>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}

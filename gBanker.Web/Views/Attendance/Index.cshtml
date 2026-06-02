@@ -1,0 +1,263 @@
+﻿@model gHRM.Web.ViewModels.AttAttendanceViewModel
+
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/Attendance">Attendance</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    function LoadEmpInfoByCode(employee_code) {
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmpInfoByCode", "Attendance", "http")',
+            data: { employeeID: employee_code },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.each(data, function (index, data) {
+                    if (data != "Error") {
+                        $("#EmployeeCode").val(data.EmployeeCode);
+                        $("#EmployeeName").val(data.EmployeeName);
+                        $("#EmployeeId").val(data.EmployeeId);
+                    }
+                    else {
+                        $("#EmployeeName").val('');
+                        alert("Wrong Employe Code");
+                        $("#txtEmpName").focus();
+                        $("#EmployeeId").val('');
+                    }
+                });
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Employee Not found.");
+            }
+        });
+    }
+
+    function GridLoad(EmployeeId, AttenDate) {
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetAtt_AttendanceList", "Attendance", "http")',
+                    dataType: 'json',
+                    data: { EmployeeId: EmployeeId, AttenDate: AttenDate }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "Id",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "rowSl",
+                     title: "Sl",
+                     width: "80px",
+                     filterable: true
+                 },
+                 {
+                     
+                     field: "EmployeeCode",
+                     title: "Employee Code",
+                     width: "80px",
+                     filterable: true
+                     //locked: true
+                 },
+                 {
+                     field: "EmployeeName",
+                     title: "Employee Name",
+                     width: "80px",
+                     filterable: true
+                     //locked: true
+                 },
+                 {
+                     field: "LogInTime",
+                     title: "LogIn Time",
+                     width: "80px",
+                     filterable: true
+                     //locked: true
+                 },
+                 {
+                     field: "ExpectedTime",
+                     title: "Expected Time",
+                     width: "80px",
+                     filterable: true
+                 },
+                 {
+                     field: "AttenTypeFullName",
+                     title: "Status",
+                     width: "50px",
+                     filterable: true
+                     //locked: true
+                 },
+
+                 //{
+                 //    width: "40px",
+                 //    title: 'Action',
+                 //    template: function (data) {
+
+                 //        //return '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.Id + ');"><i class="fa fa-trash-o"></i></a></div>';
+                 //        var btn = '';
+                 //        btn += '<div class="text-center" style="float:left;"><a href="#" OnClick="EditTimeKeepingRoster(' + "'" + data.TimeKeepingRosterId + "'" + ',' + "'" + data.RosterName + "'" + ',' + "'" + data.LIT + "'" + ',' + "'" + data.LLT + "'" + ',' + "'" + data.LOT + "'" + ',' + "'" + data.ESD + "'" + ',' + "'" + data.EED + "'" + ');"><i class="fa fa-pencil-square-o"></i></a></div>';
+                 //        btn += '<div class="text-center"><a href="#" OnClick="InformationDelete(' + data.TimeKeepingRosterId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                 //        return btn;
+                 //    }
+
+                 //},
+            ]
+        });
+    }
+    //
+
+
+
+    $(document).ready(function () {
+
+        $("#EmployeeCode").blur(function (e) {
+            var employee_code = $("#EmployeeCode").val();
+            if ($("#EmployeeCode").val() != '') {
+                LoadEmpInfoByCode(employee_code);
+            }
+            else {
+                $("#EmployeeName").val('');
+            }
+        });
+
+        $("#AttenDate").datepicker(
+          {
+              dateFormat: "dd-M-yy",
+              showAnim: "scale",
+              changeMonth: true,
+              changeYear: true,
+              yearRange: "1920:2050"
+
+          });
+
+        //  $("#AttenDate").datepicker(
+        //'setDate', new Date());
+
+        reloadGrid();
+
+
+
+        //$('#grid').jtable('load');
+        $("#filterColumn").change(function () {
+            if ($(this).val() === "ViewAll") {
+                $("#filterValue").val('');
+            }
+        });
+    });
+
+
+
+    function reloadGrid() {
+        //var OfficeId = 0;
+        if ($("#EmployeeId").val() > 0) {
+            EmployeeId = $("#EmployeeId").val();
+        }
+        else { EmployeeId = 0; }
+        if ($("#AttenDate").val() != '') {
+            AttenDate = $("#AttenDate").val();
+        }
+        else { AttenDate = 0; }
+
+        GridLoad(EmployeeId, AttenDate);
+    }
+
+</script>
+
+@Html.ActionLink("Add New", "Create", null, new { @class = "btn btn-success btn-sm pull-right" })
+&nbsp;
+<h2 class="page-title">Attendance List</h2>
+&nbsp;
+<div class="container-fluid">
+    <div class="row">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.HiddenFor(model => model.EmployeeId)
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-md-4">Employee Name</label>
+                    <div class="col-sm-8">
+                        @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AttenDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                    <div class="col-md-8">
+                        @Html.EditorFor(model => model.AttenDate, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    &nbsp;
+                    <div class="col-md-8">
+                        <input type="button" id="btnSearch" value="Search" class="btn btn-primary" onclick="reloadGrid();" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            &nbsp;
+        </div>
+        &nbsp;
+        <div id="grid">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jtable")
+    @Scripts.Render("~/bundles/alert")
+}

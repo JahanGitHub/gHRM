@@ -1,0 +1,296 @@
+﻿@model gHRM.Web.ViewModels.Basic.NoticeViewModel
+
+@{ ViewBag.Title = "Edit Notice";
+                Layout = "~/Views/Shared/_AdminLteLayout.cshtml"; }
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#PublishDateMsg").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true
+        });
+
+        $("#LiveFromMsg").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true
+        });
+
+        $("#LiveToMsg").datepicker({
+            dateFormat: "dd-M-yy",
+            showAnim: "scale",
+            changeMonth: true,
+            changeYear: true
+        });
+
+        $("#btnNoticeUpdate").click(function (e) {
+
+            e.preventDefault();
+
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+
+            $('#frmNoticeEdit').ajaxSubmit({
+
+                type: "POST",
+                dataType: 'json',
+
+                success: function (data) {
+                    if (data.Result == "OK") {
+                        $.alert.open('success', 'Updated Successfully', function () {
+                            window.location.href = '/Notice/Index';
+                        });
+                    }
+                    else {
+                        $.alert.open('error', data.Message);
+                    }
+                },
+
+                error: function () {
+
+                    $.alert.open('error', 'Error while updating');
+                }
+            });
+
+        });
+
+    });
+
+</script>
+
+@Html.ActionLink("Back to List", "Index", null, new { @class = "pull-right btn btn-success" })
+
+<br />
+
+<h2 class="page-title">Edit Notice</h2>
+
+@using (Html.BeginForm("Edit", "Notice", FormMethod.Post,
+    new
+    {
+        enctype = "multipart/form-data",
+        @class = "form-horizontal",
+        id = "frmNoticeEdit"
+    }))
+{
+@Html.AntiForgeryToken()
+
+                <div class="container-fluid">
+
+                    <fieldset>
+
+                        <legend>Notice Information</legend>
+
+                        @Html.HiddenFor(model => model.NoticeId)
+
+                        <div class="row">
+
+                            <div class="col-sm-6">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(model => model.PublishDateMsg,
+                                              htmlAttributes: new { @class = "control-label col-md-4" })
+
+                                    <div class="col-sm-8">
+
+                                        @Html.EditorFor(model => model.PublishDateMsg,
+                                                  new
+                                                  {
+                                                      htmlAttributes = new
+                                                      {
+                                                          @class = "form-control"
+                                                      }
+                                                  })
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-sm-6">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(model => model.LiveFromMsg,
+                                             htmlAttributes: new { @class = "control-label col-md-4" })
+
+                                    <div class="col-sm-8">
+
+                                        @Html.EditorFor(model => model.LiveFromMsg,
+                                                 new
+                                                 {
+                                                     htmlAttributes = new
+                                                     {
+                                                         @class = "form-control"
+                                                     }
+                                                 })
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-6">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(model => model.LiveToMsg,
+                                             htmlAttributes: new { @class = "control-label col-md-4" })
+
+                                    <div class="col-sm-8">
+
+                                        @Html.EditorFor(model => model.LiveToMsg,
+                                                 new
+                                                 {
+                                                     htmlAttributes = new
+                                                     {
+                                                         @class = "form-control"
+                                                     }
+                                                 })
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            @*<div class="col-sm-6">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(m => m.RoleId, htmlAttributes: new { @class = "control-label col-md-4" })
+
+                                    <div class="col-sm-8">
+
+                                        @Html.DropDownListFor(
+                                                 m => m.RoleId,
+                                                 Model.RoleList,
+                                                 "-- Select Role --",
+                                                 new { @class = "form-control" }
+                                             )
+
+                                    </div>
+
+                                </div>
+
+                            </div>*@
+
+                        </div>
+
+                        @*<div class="row">
+
+                            <div class="col-sm-6">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(m => m.OfficeTypeId, htmlAttributes: new { @class = "control-label col-md-4" })
+
+                                    <div class="col-sm-8">
+
+                                        @Html.DropDownListFor(
+                                                 m => m.OfficeTypeId,
+                                                 Model.OfficeTypeList,
+                                                 "-- Select Office Type --",
+                                                 new { @class = "form-control" }
+                                             )
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>*@
+
+                        <div class="row">
+                            <div class="col-sm-12">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(model => model.Title,
+                                             htmlAttributes: new { @class = "control-label col-md-2" })
+
+                                    <div class="col-sm-10">
+
+                                        @Html.EditorFor(model => model.Title,
+                                                 new
+                                                 {
+                                                     htmlAttributes = new
+                                                     {
+                                                         @class = "form-control"
+                                                     }
+                                                 })
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-12">
+
+                                <div class="form-group">
+
+                                    @Html.LabelFor(model => model.NoticeText,
+                                              htmlAttributes: new { @class = "control-label col-md-2" })
+
+                                    <div class="col-sm-10">
+
+                                        @Html.TextAreaFor(model => model.NoticeText, new { @class = "form-control", id = "NoticeText" })
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-sm-2"></div>
+
+                            <div class="col-sm-6">
+
+                                <button type="button"
+                                        id="btnNoticeUpdate"
+                                        class="btn btn-primary">
+                                    Update
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </fieldset>
+
+                </div>}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.config.versionCheck = false;
+    $(document).ready(function () {
+        CKEDITOR.replace("NoticeText");
+    });
+</script>

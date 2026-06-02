@@ -1,0 +1,360 @@
+﻿@model gHRM.Web.ViewModels.TransferReportViewModel
+
+@{
+    ViewBag.Title = "Employee Transfer Indicator";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    var pvOfficeNevigation = new gHRM.Web.ViewModels.OfficeNevigationPartialViewModel();
+    pvOfficeNevigation.OfficeTypeList = Model.OfficeTypeList;
+    pvOfficeNevigation.ZoneList = Model.ZoneList;
+    pvOfficeNevigation.AreaList = Model.AreaList;
+    pvOfficeNevigation.UnitList = Model.UnitList;
+    var deptList = Model == null ? null : Model.DepartmentList;
+    var desgList = Model == null ? null : Model.DesignationList;
+    var empStatus = Model == null ? null : Model.EmployeeStatusList;
+}
+
+<script type="text/javascript">
+    var Page = {
+        ShowCompanyReport: function () {
+            var degreeCode = $("#EducationDegreeCode").val();
+            var concentrationCode = $("#ConcentrationCode").val();
+            var responsibilityId = $("#ResponsibilityId").val();
+            var DepartmentId = $("#DepartmentId").val();
+            if (DepartmentId == '' || DepartmentId == null || DepartmentId == 0) { DepartmentId = '' };
+            var DesignationId = $("#DesignationId").val();
+            if (DesignationId == '' || DesignationId == null || DesignationId == 0) { DesignationId = '' };
+            var SectionId = $("#Section").val();
+            if (SectionId == '' || SectionId == null || SectionId == 0) { SectionId = '' };
+            var Gender = $("#Gender").val();
+            if (Gender == '' || Gender == null || Gender == 0) { Gender = '' }
+            var Age = $("#Age").val();
+            if (Age == '' || Age == null || Age == 0) { Age = '' }
+            var AgeStatus = $('input[name=AgeStatus]:checked').val();
+            if (AgeStatus == "Above") {
+                AgeStatus = "A";
+            } else if (AgeStatus == "Below") {
+                AgeStatus = "B";
+            } else {
+                AgeStatus = "E";
+            }
+
+            var AgeOffice = $("#AgeOffice").val();
+            if (AgeOffice == '' || AgeOffice == null || AgeOffice == 0) { AgeOffice = '' }
+            var AgeStatusOffice = $('input[name=AgeStatusOffice]:checked').val();
+            if (AgeStatusOffice == "AboveOffice") {
+                AgeStatusOffice = "A";
+            } else if (AgeStatusOffice == "BelowOffice") {
+                AgeStatusOffice = "B";
+            } else {
+                AgeStatusOffice = "E";
+            }
+            var status = $("#ActiveInactive").val();
+            if (status == 2) {
+                status = 0
+            }
+            else if (status == '' || status == null) {
+                status = '';
+            };
+            var empType = $("#EmploymentType").val();
+            if (empType == 0) {
+                empType = '';
+            }
+            var officeId = 0;
+            var officeLevelId = 0;
+
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    officeId = $("#PVHeadOfficeId").val();
+                }
+                else if (officeTypeId == 3) {
+                    officeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    officeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    officeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    officeId = $("#UnitId").val();
+                }
+            }
+
+            if (officeTypeId != "") {
+
+                if ($("#UnitId").val() != "") {
+                    officeLevelId = $("#UnitId").val();
+                }
+                else if ($("#AreaId").val() != "") {
+                    officeLevelId = $("#AreaId").val();
+                }
+                else if ($("#ZoneId").val() != "") {
+                    officeLevelId = $("#ZoneId").val();
+                }
+            }
+            url = '/TransferReport/CompanyReport_EmployeeTransferIndicatorReport?status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&officeLevelId=' + officeLevelId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&Gender=' + Gender + '&Age=' + Age + '&AgeStatus=' + AgeStatus + '&ResponsibilityId=' + responsibilityId + '&AgeOffice=' + AgeOffice + '&AgeStatusOffice=' + AgeStatusOffice;
+            PrintReport(url);
+        }
+    };
+
+    $(document).ready(function () {
+
+        $(".reportDate").show();
+        $(".reportOffice").show();
+        $("#DepAndDes").show();
+        $("#SectionAndResponsibility").show();
+        $("#ActiveAndInActive").show();
+        $("#YearPartJCF,#YearPartOffice").show();
+
+
+        $("#DepartmentId").change(function () {
+            var deptId = $("#DepartmentId").val();
+            var ddlSection = $("#Section");
+            if (deptId != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetDepartmentWiseSection", "Employee", "http")',
+                    data: { deptId: deptId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            ddlSection.html("");
+                            $.each(data, function (id, option) {
+                                ddlSection.append($('<option></option>').val(option.Value).html(option.Text));
+                            });
+                        } else {
+                            ddlSection.html("<option value='0'>Please Select</option>");
+                        }
+                    },
+                });
+            } else {
+
+                ddlSection.html("<option value='0'>Please Select</option>");
+            }
+        });
+
+
+        $("#btnPrint").click(function () {
+
+            //var dateFrom = $("#DateFrom").val();
+            //var dateTo = $("#DateTo").val();
+            var degreeCode = $("#EducationDegreeCode").val();
+            var concentrationCode = $("#ConcentrationCode").val();
+            var responsibilityId = $("#ResponsibilityId").val();
+            var DepartmentId = $("#DepartmentId").val();
+            if (DepartmentId == '' || DepartmentId == null || DepartmentId == 0) { DepartmentId = '' };
+            var DesignationId = $("#DesignationId").val();
+            if (DesignationId == '' || DesignationId == null || DesignationId == 0) { DesignationId = '' };
+            var SectionId = $("#Section").val();
+            if (SectionId == '' || SectionId == null || SectionId == 0) { SectionId = '' };
+            var Gender = $("#Gender").val();
+            if (Gender == '' || Gender == null || Gender == 0) { Gender = '' }
+            var Age = $("#Age").val();
+            if (Age == '' || Age == null || Age == 0) { Age = '' }
+            var AgeStatus = $('input[name=AgeStatus]:checked').val();
+            if (AgeStatus == "Above") {
+                AgeStatus = "A";
+            } else if (AgeStatus == "Below") {
+                AgeStatus = "B";
+            } else {
+                AgeStatus = "E";
+            }
+
+            var AgeOffice = $("#AgeOffice").val();
+            if (AgeOffice == '' || AgeOffice == null || AgeOffice == 0) { AgeOffice = '' }
+            var AgeStatusOffice = $('input[name=AgeStatusOffice]:checked').val();
+            if (AgeStatusOffice == "AboveOffice") {
+                AgeStatusOffice = "A";
+            } else if (AgeStatusOffice == "BelowOffice") {
+                AgeStatusOffice = "B";
+            } else {
+                AgeStatusOffice = "E";
+            }
+            var status = $("#ActiveInactive").val();
+            if (status == 2) {
+                status = 0
+            }
+            else if (status == '' || status == null) {
+                status = '';
+            };
+            var empType = $("#EmploymentType").val();
+            if (empType == 0) {
+                empType = '';
+            }
+            var officeId = 0;
+            var officeLevelId = 0;
+
+            var officeTypeId = $("#OfficeTypeId").val();
+
+            if (officeTypeId != "") {
+                if (officeTypeId == 1) {
+                    officeId = $("#PVHeadOfficeId").val();
+                }
+                else if (officeTypeId == 3) {
+                    officeId = $("#PVProjectId").val();
+                }
+                else if (officeTypeId == 4) {
+                    officeId = $("#ZoneId").val();
+                }
+                else if (officeTypeId == 5) {
+                    officeId = $("#AreaId").val();
+                }
+                else if (officeTypeId == 6) {
+                    officeId = $("#UnitId").val();
+                }
+            }
+
+            if (officeTypeId != "") {
+               
+                if ($("#UnitId").val() != "") {
+                    officeLevelId = $("#UnitId").val();
+                }
+                else if ($("#AreaId").val() != "") {
+                    officeLevelId = $("#AreaId").val();
+                }
+                else if ($("#ZoneId").val() != "") {
+                    officeLevelId = $("#ZoneId").val();
+                }
+            }
+
+            url = '/TransferReport/EmployeeTransferIndicatorReport?status=' + status + '&empType=' + empType + '&officeId=' + officeId + '&OfficeTypeId=' + officeTypeId + '&officeLevelId=' + officeLevelId + '&DepartmentId=' + DepartmentId + '&DesignationId=' + DesignationId + '&SectionId=' + SectionId + '&Gender=' + Gender + '&Age=' + Age + '&AgeStatus=' + AgeStatus + '&ResponsibilityId=' + responsibilityId + '&AgeOffice=' + AgeOffice + '&AgeStatusOffice=' + AgeStatusOffice;
+            PrintReport(url);
+        });
+
+    });
+
+    function PrintReport(printUrl) {
+        window.open(printUrl, 'mywindow', 'fullscreen=yes, scrollbars=auto');
+    }
+
+</script>
+
+
+<h2 class="page-title">Employee Transfer Indicator</h2>
+<br />
+<div class="row">
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="container-fluid">
+            <div class="reportOffice">
+                @Html.Partial("~/Views/Shared/_OfficeNevigationPane.cshtml", pvOfficeNevigation)
+            </div>
+
+            <div class="row" id="DepAndDes">
+                <hr />
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentId, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.DepartmentId, deptList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationId, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.DesignationId, desgList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="SectionAndResponsibility">
+                <hr />
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Section (সেকশন)</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.Section, Model.SectionList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.ResponsibilityId, htmlAttributes: new { @class = "control-label col-sm-4" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.ResponsibilityId, Model.ResponsibilityList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="ActiveAndInActive">
+                <hr />
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label col-md-4">Activation Status (সক্রিয়)</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.ActiveInactive, Model.ActiveInactiveList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group ">
+                        <label class="control-label col-md-4">Employment Type (কাজের ধরন)</label>
+                        <div class="col-md-8">
+                            @Html.DropDownListFor(model => model.EmploymentType, Model.EmploymentTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8" id="YearPartOffice">
+                    <hr />
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.AgeOffice, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.AgeOffice, new { htmlAttributes = new { @class = "form-control", @placeholder = "Office Age" } })
+                        </div>
+                        <div class="col-md-3 custom-control "><input type="radio" name="AgeStatusOffice" value="AboveOffice">Above</div>
+                        <div class="col-md-3 custom-control "><input type="radio" name="AgeStatusOffice" value="BelowOffice">Below</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8" id="YearPartJCF">
+                    <hr />
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Age, htmlAttributes: new { @class = "control-label col-md-3" })
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.Age, new { htmlAttributes = new { @class = "form-control", @placeholder = "Age" } })
+                        </div>
+                        <div class="col-md-3 custom-control "><input type="radio" name="AgeStatus" value="Above">Above</div>
+                        <div class="col-md-3 custom-control "><input type="radio" name="AgeStatus" value="Below">Below</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8">
+                    <hr />
+                    <div class="form-group">
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="button" id="btnPrint" value="Print" class="btn btn-success" />
+                            @if (ViewBag.EMPLOYEE_TRANSFER_INDICATOR_REPORT_SHOW_BTN_COMPANYREPORT)
+                            {
+                            <input type="button" value="@ViewBag.CompanyCode Report" class="btn btn-success" onclick="Page.ShowCompanyReport()" />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+

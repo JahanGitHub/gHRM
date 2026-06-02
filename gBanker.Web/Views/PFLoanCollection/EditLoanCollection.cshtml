@@ -1,0 +1,246 @@
+﻿@model gHRM.Web.ViewModels.PF.LoanCollectionViewModel
+
+@{
+    ViewBag.Title = "Loan Collection";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script type="text/javascript">
+    function isNumber(evt, element) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (
+            (charCode != 45 || $(element).val().indexOf('-') != -1) &&      // “-” CHECK MINUS, AND ONLY ONE.
+            (charCode != 46 || $(element).val().indexOf('.') != -1) &&      // “.” CHECK DOT, AND ONLY ONE.
+            (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function UpdateLoanCollection(collectionId, employeeId, transactionDate, loanInstallment, interestInstallment) {
+
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("UpdateLoanCollection", "PFLoanCollection", "http")',
+            data: { collectionId: collectionId, employeeId: employeeId, transactionDate: transactionDate, loanInstallment: loanInstallment, interestInstallment: interestInstallment },
+            dataType: 'json',
+            async: true,
+            success: function (data) {
+                $.alert.open("Message", data.message);
+                setTimeout(function () {
+                    window.location.href = "/PFLoanCollection/LoanCollectionList";
+                }, 1500);
+            },
+            error: function (request, status, error) {
+                $.alert.open("Message", "Data Not Saved");
+               
+            }
+        });
+    }
+
+    function clear() {
+        $("#LoanInstallment").val('');
+        $("#InterestInstallment").val('');
+        $("#InterestCharge").val('');
+    }
+
+    function GetAdjustableLoanInfoByLoanId(collectionId, loanId, amount, transDate) {
+
+        var result = true;
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetAdjustableLoanInfoByLoanId", "PFLoanCollection", "http")',
+            data: { collectionId: collectionId, loanId: loanId, amount: amount, transDate: transDate },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.status == 'ok') {
+                    $('#LoanInstallment').val(data.LoanInstallment);
+                    $('#InterestInstallment').val(data.InterestInstallment);
+                    $('#InterestCharge').val(data.InterestCharge);
+                }
+                else if (data.status == 'nok' && data.message != '') {
+                    result = false;
+                    alert(data.message);
+                }
+            },
+            error: function (request, status, error) {
+            }
+        });
+        return result;
+    }
+
+    function DisableAll(flag) {
+        $('#Amount').prop('disabled', flag);
+        $('#btnUpdateLoanCollection').prop('disabled', flag);
+    }
+
+
+    function Update() {
+        var collectionId = $("#CollectionId").val();
+        var amount = $("#Amount").val();
+        var employeeId = $("#EmployeeId").val();
+        var transactionDate = $("#TransactionDate").val();
+
+        var loanInstallment = $("#LoanInstallment").val();
+        var interestInstallment = $("#InterestInstallment").val();
+
+        if (collectionId == '' || employeeId == '' || transactionDate == '' || amount == '' || loanInstallment == '' || interestInstallment == '') {
+            $.alert.open("Please enter valid data");
+            $("#Amount").focus();
+            return;
+        }
+        if (parseFloat(amount) <= 0) {
+            alert('Enter more than zero (0) as Amount');
+            return;
+        }
+
+        UpdateLoanCollection(collectionId, employeeId, transactionDate, loanInstallment, interestInstallment);
+    }
+
+    $(document).ready(function () {
+
+        //Day Status
+        @if (Model.IsOpen == true)
+        {
+            <text>
+            DisableAll(false);
+            </text>
+        }
+
+        @if(Model.IsOpen == false){
+            <text>
+            DisableAll(true);
+            </text>
+        }
+
+        $('#Amount').keypress(function (event) {
+            return isNumber(event, this)
+        });
+
+        $('#Amount').change(function () {
+            clear();
+            var collectionId    = $('#CollectionId').val();
+            var loanId          = $('#LoanId').val();
+            var amount          = $('#Amount').val();
+            var transDate       = $("#TransactionDate").val();
+            var result = GetAdjustableLoanInfoByLoanId(collectionId, loanId, amount, transDate);
+        });
+
+
+        $("#btnUpdateLoanCollection").click(function () {
+
+            $.alert.open('confirm', 'Are you sure you want to update?', function (button) {
+                if (button == 'yes') {
+                    Update();
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+        });
+
+    });
+</script>
+
+
+@Html.ActionLink("Back to List", "LoanCollectionList", null, new { @class = "pull-right   btn btn-success" })
+&nbsp;
+<h2 class="page-title">
+    Edit Loan Collection
+    &nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size:14px;">[ Day State:&nbsp;@Model.DayStatus</span>&nbsp;&nbsp;&nbsp;
+    <span style="color: black; font-size: 14px; "> Transaction Date:&nbsp;@Model.TransactionDate ]</span>
+</h2>
+&nbsp;
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true)
+
+        <div class="row">
+            <div class="form-group">
+
+                @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    @Html.HiddenFor(model => model.CollectionId)
+                    @Html.HiddenFor(model => model.LoanId)
+                    @Html.HiddenFor(model => model.EmployeeId)
+                </div>
+
+                @*@Html.LabelFor(model => model.EmployeeId, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeId, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                    @Html.HiddenFor(model => model.CollectionId)
+                    @Html.HiddenFor(model => model.LoanId)
+                </div>*@
+
+                <label for="LoanInstallment" class="control-label col-md-2">Interest Amount</label>
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.LoanInstallment, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+
+                @*@Html.LabelFor(model => model.InterestInstallment, htmlAttributes: new { @class = "control-label col-md-2" })*@
+
+                <label for="InterestInstallment" class="control-label col-md-2">Interest Amount</label>
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InterestInstallment, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2 required" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", @tabindex = 1 } })
+                </div>
+                @Html.LabelFor(model => model.InterestCharge, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.InterestCharge, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="form-group">
+                <div class="col-sm-5"></div>
+                @Html.LabelFor(model => model.TransactionDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-3">
+                    @Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", @readonly = true } })
+                </div>
+            </div>
+        </div>
+
+        <hr />
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="form-group" style="padding-left:7px;">
+                    <input type="button" value="Update" id="btnUpdateLoanCollection" class="btn btn-success" tabindex="2" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

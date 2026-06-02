@@ -1,0 +1,387 @@
+﻿@model gHRM.Web.ViewModels.EmployeeOtherInformationViewModel
+@{
+    ViewBag.Title = "Employee Office Visit Information";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    $(document).ready(function () {
+        $("#CurrentOfficeProvided").val('');
+        getEmployeeOfficeVisitInfo();
+        $("#btnOfficeVisitUpdate").hide();
+        $("#btnOfficeVisitRestore").hide();
+
+        $("#EmployeeCode").blur(function () {
+            var empCode = $("#EmployeeCode").val();
+            if (empCode != "") {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("GetEmployeeInfoByCode", "EmployeeOfficeVisitInformation", "http")',
+                    data: { empCode: empCode },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        $.each(data, function (index, data) {
+                            if (data != "") {
+                                $("#Department").val(data.Department);
+                                $("#Designation").val(data.Designation);
+                                $("#EmployeeName").val(data.EmployeeName);
+                            } else {
+                                $("#Department").val('');
+                                $("#Designation").val('');
+                                $("#EmployeeName").val('');
+                            }
+                        });
+
+                    },
+                    error: function (request, status, error) {
+                        alert(error);
+                    }
+                });
+            }
+        });
+
+
+
+    });
+
+
+    function SaveOfficeVisitInfo() {
+        var empCode = $("#EmployeeCode").val();
+        var visitType = $("#VisitType").val();
+        var location = $("#Location").val();
+        var reason = $("#Reason").val();
+        var currentOfficeProvided = $("#CurrentOfficeProvided").val();
+
+        var obj = {
+            EmployeeCode: empCode,
+            VisitType: visitType,
+            Location: location,
+            Reason: reason,
+            CurrentOfficeProvided: currentOfficeProvided
+        }
+
+        if (visitType != "" && location != "" && reason != "" && currentOfficeProvided != "") {
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("SaveOfficeVisitInfo", "EmployeeOfficeVisitInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeOfficeVisitInfo();
+                        ClearVisitInfoform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function ClearVisitInfoform() {
+        $("#EmployeeCode").val('');
+        $("#Department").val('');
+        $("#Designation").val('');
+        $("#EmployeeName").val('');
+        $("#VisitType").val('');
+        $("#Location").val('');
+        $("#Reason").val('');
+        $("#CurrentOfficeProvided").val('');
+    }
+
+
+    function getEmployeeOfficeVisitInfo() {
+        $('#gridOfficeVisit').jtable({
+            paging: true,
+            pageSize: 20,
+            sorting: true,
+            actions: {
+                listAction: function (postData, jtParams) {
+                    return $.Deferred(function ($dfd) {
+                        $.ajax({
+                            url: '/EmployeeOfficeVisitInformation/GetEmployeeOfficeVisitInformation?jtStartIndex=' + jtParams.jtStartIndex + '&jtPageSize=' + jtParams.jtPageSize + '&jtSorting=' + jtParams.jtSorting,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: postData,
+                            success: function (data) {
+                                $dfd.resolve(data);
+
+                            },
+                            error: function () {
+                                $dfd.reject();
+                            }
+                        });
+                    });
+                }
+
+            },
+            fields: {
+                EmpOfficeVisitId: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                EmployeeId: {
+                    title: 'EmployeeId',
+                    width: '3%'
+                },
+                EmployeeCode: {
+                    title: 'EmployeeCode',
+                    width: '5%'
+                },
+
+                VisitType: {
+                    title: 'Visit Type',
+                    width: '5%'
+                },
+                Location: {
+                    title: 'Location',
+                    width: '5%'
+                },
+                Reason: {
+                    title: 'Reason',
+                    width: '5%'
+                },
+                CurrentOfficeProvidedVal: {
+                    key: true,
+                    list: false,
+                    create: false,
+                    edit: false
+                },
+                CurrentOfficeProvided: {
+                    title: 'CurrentOfficeProvided',
+                    width: '5%'
+                },
+                EditLink: {
+                    title: "Edit",
+                    width: '2%',
+                    sorting: false,
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="EditOfficeVisitInformation( ' + "'"+ data.record.EmployeeCode + "'" + ',' + data.record.EmpOfficeVisitId + ',' + "'" + data.record.VisitType + "'" + ',' + "'" + data.record.Location + "'" + ',' + "'" + data.record.Reason + "'" + ','  + data.record.CurrentOfficeProvidedVal + ' );"><i class="fa fa-pencil-square-o"></i></a></div>';
+                    }
+                },
+                Delete: {
+                    title: "Delete",
+                    width: '2%',
+                    display: function (data) {
+                        return '<div class="text-center"><a href="#" OnClick="DeleteOfficeVisitInfo(' + data.record.EmpOfficeVisitId + ');"><i class="fa fa-trash-o"></i></a></div>';
+                    }
+
+                },
+            }
+        });
+        $('#gridOfficeVisit').jtable('load');
+    }
+
+    function EditOfficeVisitInformation(EmployeeCode,EmpOfficeVisitId, VisitType, Location, Reason, CurrentOfficeProvided) {
+        debugger;
+        $("#EmployeeCode").val(EmployeeCode).trigger('blur');
+        $("#EmployeeCode").attr('Disabled', true);
+        $("#EmpOfficeVisitId").val(EmpOfficeVisitId);
+        $("#VisitType").val(VisitType);
+        $("#Location").val(Location);
+        $("#Reason").val(Reason);
+        $("#CurrentOfficeProvided").val(CurrentOfficeProvided);
+
+        $("#btnOfficeVisitSave").hide();
+        $("#btnOfficeVisitUpdate").show();
+        $("#btnOfficeVisitRestore").show();
+    }
+
+    function UpdateOfficeVisitInfo() {
+        var empVisitId = $("#EmpOfficeVisitId").val();
+        var visitType = $("#VisitType").val();
+        var location = $("#Location").val();
+        var reason = $("#Reason").val();
+        var currentOfficeProvided = $("#CurrentOfficeProvided").val();
+
+        var obj = {
+            EmpOfficeVisitId: empVisitId,
+            VisitType: visitType,
+            Location: location,
+            Reason: reason,
+            CurrentOfficeProvided: currentOfficeProvided
+        }
+
+        if (visitType != "" && location != "" && reason != "" && currentOfficeProvided != "") {
+            $.ajax({
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                url: '@Url.Action("UpdateOfficeVisitInfo", "EmployeeOfficeVisitInformation", "http")',
+                data: JSON.stringify({ obj: obj }),
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.result == 1) {
+                        $(".panel-body .create-success").show(800).fadeToggle(3000);
+                        $.alert.open("Success", data.message);
+                        getEmployeeOfficeVisitInfo();
+                        ClearVisitInfoform();
+                    } else {
+                        $.alert.open("Error", data.message);
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(error);
+                }
+            });
+
+
+        } else {
+            $.alert.open("Error", "Please provide the required field");
+        }
+    }
+
+    function ResetOfficeVisitInfo() {
+        $("#btnOfficeVisitSave").show();
+        $("#btnOfficeVisitUpdate").hide();
+        $("#btnOfficeVisitRestore").hide();
+        ClearVisitInfoform();
+    }
+
+
+    function DeleteOfficeVisitInfo(EmpOfficeVisitId) {
+
+        $.alert.open('confirm', 'Are you sure you want to delete this record?', function (button) {
+            if (button == 'yes') {
+                $.ajax({
+                    type: 'GET',
+                    contentType: "application/json; charset=utf-8",
+                    url: '@Url.Action("DeleteOfficeVisitInfo", "EmployeeOfficeVisitInformation", "http")',
+                    data: { Id: EmpOfficeVisitId },
+                    dataType: 'json',
+                    async: true,
+                    success: function (data) {
+                        if (data.result == 1) {
+                            $('#gridCertificate').jtable('load');
+                            $.alert.open("Error", data.message);
+                            getEmployeeOfficeVisitInfo();
+                        } else {
+                            $.alert.open("Error", data.message);
+                        }
+
+                    },
+                    error: function (request, status, error) {
+                        alert(request.statusText + "/" + request.statusText + "/" + error);
+                    }
+                });
+                return true;
+            }
+            else {
+                hiddenField.value = 'false';
+                return false;
+            }
+        });
+    }
+
+
+</script>
+
+<h2 class="page-title"> Employee Office Visit Information</h2> &nbsp;
+<div class="form-horizontal">
+    @Html.HiddenFor(model => model.EmpOfficeVisitId)
+    @Html.HiddenFor(model => model.EmployeeId)
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required">Employee Code</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeCode, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4"> Department </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Department, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4">Designation</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Designation, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4"> Employee Name </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.EmployeeName, new { @class = "form-control", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Visit Type </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.VisitType, Model.VisitTypeList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Location </label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(model => model.Location, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Reason </label>
+                    <div class="col-sm-8">
+                        @Html.TextAreaFor(model => model.Reason, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 required"> Current Office Provided </label>
+                    <div class="col-sm-8">
+                        @Html.DropDownListFor(model => model.CurrentOfficeProvided, Model.OfficeProvidedList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group form-action" style="padding:10px;margin:5px;">
+                <div class="col-sm-12 col-sm-offset-2">
+                    <input type="button" id="btnOfficeVisitSave" value="Save" class="btn btn-primary" onclick="SaveOfficeVisitInfo()" />
+                    <input type="button" id="btnOfficeVisitUpdate" value="Update" class="btn btn-primary" onclick="UpdateOfficeVisitInfo()" /> &nbsp;
+                    <input type="button" id="btnOfficeVisitRestore" value="Reset" class="btn btn-primary" onclick="ResetOfficeVisitInfo()" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="gridOfficeVisit"></div>
+            </div>
+        </div>
+    </div>
+</div>

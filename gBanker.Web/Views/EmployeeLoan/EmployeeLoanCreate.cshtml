@@ -1,0 +1,333 @@
+﻿@model gHRM.Web.ViewModels.Loan.EmployeeLoanInstallmentDetailViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+    
+}
+
+<script src="http://malsup.github.com/jquery.form.js?v=@gHRM.Core.Utilities.CommonHelper.DEV_VERSION()"></script>
+<script type="text/javascript">
+    function LoadEmpInfo(employeeCode) {
+        var ddl = $("#LoanTypeId");
+        ddl.html('');
+        debugger;
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("GetEmployeeInfoByCode", "EmployeeLoan", "http")',
+            data: { employeeCode: employeeCode },
+            dataType: 'json',
+            async: false,
+            success: function (data) {//klm
+                if (data != "") {
+                    $("#EmployeeId").val(data.EmployeeId);
+                    $("#EmployeeName").val(data.EmployeeName);
+                    $("#OfficeName").val(data.OfficeName);
+                    $("#DepartmentName").val(data.DepartmentName);
+                    $("#DesignationName").val(data.DesignationName);
+
+                    $.each(data.LoanComponentList, function (id, option) {
+                        ddl.append($('<option></option>').val(option.Value).html(option.Text));
+                    });
+
+                } else {
+                    $.alert.open("Error", "Sorry invalid Employee Code. Please check again");
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $("#btnSave").click(function () {
+
+            var prComponentId = $("#LoanTypeId").val();
+            var installmentInterval = $("#InstallmentInterval").val();
+            var installmentAmount = $("#InstallmentAmount").val();
+            var loanOpeningAmt = $("#LoanOpeningAmt").val();
+            var interestCharge = $("#InterestCharge").val();
+            var totalLoanAmt = $("#TotalLoanAmt").val();
+            var noOfInstallMent = $("#NoOfInstallMent").val();
+            var restNoOfInstallMent = $("#RestNoOfInstallMent").val();
+            var yearTotal = $("#YearTotal").val();
+            var loanStartDate = $("#LoanStartDate").val();
+            var loanEndDate = $("#LoanEndDate").val();
+            var employeeId = $("#EmployeeId").val();
+            var loanScheme = $("#LoanScheme").val();
+            if (prComponentId > 0 && installmentInterval > 0 && installmentAmount > 0 && loanOpeningAmt > 0 && interestCharge > 0 && totalLoanAmt > 0
+                && noOfInstallMent > 0 && restNoOfInstallMent > 0 && yearTotal > 0 && loanStartDate != "" && employeeId > 0 && loanScheme != "" && loanEndDate!="") {
+            
+                var newObj =  {
+                    EmployeeId: employeeId,
+                    PRComponentId: prComponentId,
+                    TotalAmount: totalLoanAmt,
+                    LoanOpening: loanOpeningAmt,
+                    InterestRate: interestCharge,
+                    NoOfInstallMent: noOfInstallMent,
+                    YearTotal: yearTotal,
+                    LoanStartDate: loanStartDate,
+                    LoanEndDate: loanEndDate,
+                    RestNoOfInstallMent: restNoOfInstallMent,
+                    InstallmentInterval: installmentInterval,
+                    InstallmentAmount: installmentAmount,
+                    LoanType: loanScheme
+                };
+                if (newObj!=null) {
+                    $.ajax({
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        url: '@Url.Action("SaveEmployeeLoanInfo", "EmployeeLoan", "http")',
+                        data: JSON.stringify({ LoanObject: newObj }),
+                        dataType: 'json',
+                        async: false,
+                        success: function (data) {//klm
+                            if (data.result==1) {
+                                $.alert.open("Success", data.message);
+                            } else {
+                                $.alert.open("Error", data.message);
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.statusText + "/" + request.statusText + "/" + error);
+                        }
+                    });
+                }
+
+            } else {
+                $.alert.open("Error", "Please provide all required information");
+            }
+        });
+      
+        $("#EmployeeCode").blur(function () {
+            var employeeCode = $("#EmployeeCode").val();          
+            if (employeeCode != "") {
+                LoadEmpInfo(employeeCode);
+            }
+
+        });
+        $("#LoanStartDate").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           yearRange: "1980:2050",
+           changeYear: true,
+           minDate:new Date()
+       });
+        $("#LoanStartDate").datepicker('setDate', new Date());//
+        $("#LoanEndDate").datepicker(
+       {
+           dateFormat: "dd-M-yy",
+           showAnim: "scale",
+           changeMonth: true,
+           yearRange: "1980:2050",
+           changeYear: true,
+           minDate: new Date()
+       });
+        $("#LoanEndDate").datepicker('setDate', new Date());
+    });
+</script>
+
+<br />
+<h2 class="page-title">New Loan Create</h2>
+
+@using (Html.BeginForm("EmployeeLoanCreate", "EmployeeLoan", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "EmployeeLoanCreate" }))
+{
+    @Html.AntiForgeryToken()    
+    <div id="AjaxLoader" class="ajaxLoader"></div>
+    <div class="container-fluid">
+        <fieldset>
+            <legend>Employee Info</legend>
+            @Html.HiddenFor(model => model.EmployeeId)
+           
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeCode, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeCode, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.EmployeeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.EmployeeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>                
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.OfficeName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.OfficeName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DepartmentName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DepartmentName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.DesignationName, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.DesignationName, new { htmlAttributes = new { @class = "form-control", @readonly = "true" } })
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>Loan Detail Info</legend>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LoanTypeId, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.LoanTypeId, Model.LoanTypeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.InstallmentInterval, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.InstallmentInterval, Model.InstallmentIntervalList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.TotalLoanAmt, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.TotalLoanAmt, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LoanOpeningAmt, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.LoanOpeningAmt, new { htmlAttributes = new { @class = "form-control"} })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.InterestCharge, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.InterestCharge, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.InstallmentAmount, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.InstallmentAmount, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.NoOfInstallMent, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.NoOfInstallMent, new { htmlAttributes = new { @class = "form-control"} })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.RestNoOfInstallMent, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.RestNoOfInstallMent, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.YearTotal, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.EditorFor(model => model.YearTotal, new { htmlAttributes = new { @class = "form-control" } })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LoanScheme, htmlAttributes: new { @class = "control-label col-md-4" })
+                        <div class="col-sm-8">
+                            @Html.DropDownListFor(model => model.LoanScheme, Model.LoanSchemeList, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="row">
+                    @*<div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.YearTotal, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.YearTotal, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>*@
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LoanStartDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.LoanStartDate, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LoanEndDate, htmlAttributes: new { @class = "control-label col-md-4" })
+                            <div class="col-sm-8">
+                                @Html.EditorFor(model => model.LoanEndDate, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+</fieldset>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="form-group form-action" style="padding:10px;margin:5px;">
+                    &nbsp;
+                    <input type="button" value="Save" id="btnSave" class="btn btn-primary"/>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/gbUtility")
+    @Scripts.Render("~/bundles/alert")
+}

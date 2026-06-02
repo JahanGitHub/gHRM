@@ -1,0 +1,125 @@
+﻿@model gHRM.Web.ViewModels.LeaveApprovalPendingViewModel
+@{
+    ViewBag.Title = "Leave Approval Pending";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<script>
+
+    function GridLoad() {
+        var dataSource = new kendo.data.DataSource({
+            type: "aspnetmvc-ajax",
+            pageSize: 25,
+            schema: {
+                data: "data", // records are returned in the "data" field of the response
+                total: "total" // total number of records is in the "total" field of the response
+            },
+            serverPaging: true,   // enable server paging
+            serverSorting: true,
+            serverFiltering: true,
+            transport: {
+                read: {
+                    url: '@Url.Action("GetLeaveApprovalPendingInfo", "LeaveApprove", "http")',
+                    dataType: 'json'
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            //height: 600,
+            groupable: false,
+            reorderable: true,
+            filterable: true,
+            sortable: true,
+
+            selectable: false,
+            resizable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true,
+                buttonCount: 5
+            },
+            columns: [
+                 {
+                     field: "Id",
+                     hidden: true,
+                     filterable: false
+                 },
+                 {
+                     field: "LeaveNo",
+                     hidden: true,
+                     filterable: false
+                 },
+                
+                 {
+                     width: "80px",
+                     field: "EmployeeCode",
+                     title: "Emp. Code",
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "EmployeeName",
+                     title: "Emp.Name",
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "DepartmentName",
+                     title: "Department",
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "OffcDesignName",
+                     title: "Designation",
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "PendingApproverName",
+                     title: "Pending Approver",
+                     //locked: true
+                 },
+                  {
+                      width: "80px",
+                      field: "LeaveTypeName",
+                      filterable: true,
+                      title: "Leave Type",
+                      //locked: true
+                  },
+                 {
+                     width: "80px",
+                     field: "LeaveRequestDate",
+                     title: "Request Date",
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "LeaveStartDate",
+                     title: "Start Date",
+                     //locked: true
+                 },
+                 {
+                     width: "80px",
+                     field: "LeaveEndDate",
+                     title: "End Date",
+                     //locked: true
+                 },
+         ]
+        });
+    }
+    $(document).ready(function () {
+        GridLoad();
+    });
+
+</script>
+
+<h2 class="page-title">Leave Approval Pending Status</h2> &nbsp;
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="grid"></div>
+    </div>
+</div>

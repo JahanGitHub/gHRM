@@ -1,0 +1,238 @@
+﻿@model gHRM.Web.ViewModels.ApprovalConfigurationViewModel
+<div class="row">
+    <ol class="breadcrumb breadcrumb-arrow">
+        <li><a href="/LeaveApproversGlobal">ApprovalConfiguration</a></li>
+        <li><a href="/LeaveApproversGlobal/Create">ApprovalConfigurationCreate</a></li>
+    </ol>
+</div>
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_AdminLteLayout.cshtml";
+}
+
+<style type="text/css">
+    #tdHide {
+        display: none;
+    }
+
+    #multiSection {
+        width: 40px;
+    }
+
+    .pop_tbl_style {
+        width: 100%;
+    }
+
+    .tbl {
+        border-collapse: collapse;
+        border: 1px solid #CCCCCC;
+        font-family: "Arial";
+        font-size: 12px;
+        background-color: White;
+        width: 100%;
+    }
+
+    .tHead {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .tFoot {
+        background-color: #333333;
+        font-family: Arial;
+        color: White;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #tableRow {
+        font-family: Arial;
+        color: Black;
+        font-size: 12px;
+    }
+
+        #tableRow:nth-child(odd) {
+            background-color: #E2E4FF;
+        }
+
+        #tableRow:nth-child(even) {
+            background-color: White;
+        }
+
+    .tbl th {
+        text-align: center;
+    }
+
+    .jtable > thead > tr {
+        height: 50px;
+    }
+
+    table.jambo_table thead {
+        background: rgba(52, 73, 94, 0.94);
+        color: #ECF0F1;
+    }
+
+    .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+        padding: 11px;
+        line-height: 1.42857143;
+        vertical-align: top;
+        border-top: 1px solid #ddd;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #eee;
+    }
+
+    .table > tbody > tr:hover {
+        background-color: #9E9E9E;
+    }
+
+    .table {
+        width: 100%;
+        counter-reset: rowNumber;
+    }
+
+        .table > tbody > tr {
+            counter-increment: rowNumber;
+        }
+
+            .table > tbody > tr > td:first-child::before {
+                content: counter(rowNumber);
+            }
+
+    .txtcapitalize {
+        text-transform: capitalize;
+    }
+
+    #element_to_pop_up {
+        background-color: #fff;
+        border-radius: 15px;
+        color: #000;
+        display: none;
+        padding: 20px;
+        min-width: 400px;
+        min-height: 180px;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        if ('@Model.ConfigMasterId' > 0) {
+            $("#ApplicantDesignationId").attr('disabled', true);
+            LoadLeaveApprovalConfigurationDetail(@Model.ConfigMasterId);
+        }
+    });
+
+    function LoadLeaveApprovalConfigurationDetail(ConfigMasterId) {
+
+        var dtTable = $('#tblLeaveApprover');
+        var tableBody = dtTable.find('tbody');
+        $.ajax({
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            url: '@Url.Action("LoadLeaveApprovalConfigurationDetail", "LeaveApproversGlobal", "http")',
+            data: { ConfigMasterId: ConfigMasterId },
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var NewSl = 0;
+                var levelStatus = 1;
+                if (data.length > 0) {
+                    var designation = data[0]['ConfigDesignationId'];
+                    $("#ApplicantDesignationId").val(designation);
+
+                    tableBody.empty();
+                    $.each(data, function (index, Disc) {
+                        NewSl = index + 1;
+                        tableBody.append('<tr>' +
+                                                 '<td></td>' + Disc.rowSl +
+                                                 '<td>' + Disc.OfficeName + '</td>' +
+                                                 '<td>' + Disc.DepartmentName + '</td>' +
+                                                 '<td>' + Disc.DesignationName + '<input type="text" value="' + Disc.ConfigMasterId + '" style="display:none;" name="ConfigMasterId" id="txtConfigMasterId' + NewSl + '" /></td>' +
+                                                 '<td>' + Disc.ApprovalLevelInString + '<input type="text" value="' + Disc.ConfigDesignationId + '" style="display:none;" name="ConfigDesignationId" id="txtConfigDesignationId' + NewSl + '" />'
+                                                                 + '<input type="text" value="' + Disc.ApproveDesignationId + '" style="display:none;" name="ApproveDesignationId" id="txtApproveDesignationId' + NewSl + '" />'
+                                                                 //+ '<input type="text" value="' + Disc.ConfigMasterId + '" style="display:none;" name="LevelStatus" id="txtLevelStatus' + NewSl + '" />' +
+                            + '</td>' +
+
+                            '<td>' + Disc.FromDay + '</td>' +
+                            '<td>' + Disc.ToDay + '</td>' +
+
+                                                 //'<td style="text-align:center;">' +
+                                                 //'<input type="text" value="' + NewSl + '" style="display:none;" name="NewSl" id="txtNewSl' + NewSl + '" />' +
+                                                 //'<input type="text" value="' + levelStatus + '" style="display:none;" name="LevelStatus" id="txtLevelStatus' + NewSl + '" />' +
+                                              '</tr>'
+                        )
+                    })
+                } else {
+                    tableBody.html('');
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.statusText + "/" + request.statusText + "/" + error);
+            }
+        });
+    }
+
+</script>
+
+
+@Html.ActionLink("Back to List", "LeaveApprovalIndex", null, new { @class = "btn btn-success btn-sm pull-right" })
+<h2 class="page-title">Leave Approval Configuration</h2>
+<br />
+@using (Html.BeginForm("ConfigureLeaveApproval", "LeaveApproversGlobal", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal global-submit-form", id = "ConfigureLeaveApproval" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container-fluid">
+        <div class="row">
+            @Html.HiddenFor(model => model.ConfigMasterId)
+            <div class="col-sm-6">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ApplicantDesignationId, htmlAttributes: new { @class = "control-label col-md-4 required" })
+                    <div class="col-md-8">
+                        @Html.DropDownListFor(model => model.ApplicantDesignationId, Model.ApplicantDesignationList, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="border:1px solid #ffeeff;"> </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="box-header">
+                    <h3 class="box-title">Approver List</h3>
+                </div>
+                <div class="box-body no-padding table-responsive">
+                    <table class="table table-striped responsive-utilities jambo_table bulk_action" id="tblLeaveApprover">
+                        <thead>
+                            <tr class="headings">
+                                <th class="column-title">Sl</th>
+                                <th class="column-title">Office</th>
+                                <th class="column-title">Department</th>
+                                <th class="column-title">Designation</th>
+                                <th class="column-title">Approval Level</th>
+                                <th class="column-title">From Day</th>
+                                <th class="column-title">To Day</th>
+                                @*<th class="column-title">Command</th>*@
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <br />
+
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

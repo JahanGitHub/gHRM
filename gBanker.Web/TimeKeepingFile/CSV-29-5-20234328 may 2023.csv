@@ -1,0 +1,81 @@
+No.,User ID,First Name,Last Name,Department,Date,Time,Event,Terminal,Remark
+1,9999,Md. Amimul,Hossain,General,5/28/2023,9:30:40,IN,ACTAtek,#FP# 
+2,705,Md. Ziaul,Aziz,General,5/28/2023,9:50:40,IN,ACTAtek,#FP# 
+3,9993,Ms. Kulsum,Begum,General,5/28/2023,9:30:40,IN,ACTAtek,#FP# 
+4,2647,Golam,Morshed,General,5/28/2023,10:40:35,IN,ACTAtek,#SMC(SN:l27008EB09B)# 
+5,8,Md. Zahidul ,Islam,General,5/28/2023,10:15:06,IN,ACTAtek,#FP# 
+6,2644,Md. Saidul,Haque,General,5/28/2023,10:06:32,IN,ACTAtek,#SMC(SN:l27008E237B)# 
+7,2832,S. M. Jahangir,Jahangir,General,5/28/2023,9:52:22,IN,ACTAtek,#FP# 
+8,2677,Khalid,Ahmed,General,5/28/2023,9:35:47,IN,ACTAtek,#FP# 
+9,2845,Musfica,Jahan,General,5/28/2023,10:00:00,IN,ACTAtek,#FP# 
+10,2830,Munazza Batul ,Ahona,General,5/28/2023,10:01:41,IN,ACTAtek,#FP# 
+11,2834,Md. Mizanur , Rahman,General,5/28/2023,9:59:22,IN,ACTAtek,#FP# 
+12,1141,Mohammad Abdul,Momin,General,5/28/2023,9:58:34,IN,ACTAtek,#FP# 
+13,11,AH Mansur Ahmad,Sarkar,General,5/28/2023,9:58:28,IN,ACTAtek,#FP# 
+14,896,Mohammad Hashem,Ali,General,5/28/2023,9:57:54,IN,ACTAtek,#SMC(SN:l100075E3E1)# 
+15,2833,Mostak ,Ahammed,General,5/28/2023,9:56:48,IN,ACTAtek,#FP# 
+16,625,Quazi Al Amin Jaber,Sabery,General,5/28/2023,9:55:11,IN,ACTAtek,#FP# 
+17,788,Azad ,Abul Hasanat,Admin,5/28/2023,9:55:05,IN,ACTAtek,#FP# 
+18,2037,Muhammad Anisur,Rahman,General,5/28/2023,9:53:26,IN,ACTAtek,#FP# 
+19,1895,Nargis Akhter,Banu,General,5/28/2023,9:53:19,IN,ACTAtek,#FP# 
+20,111,Md. Anwar,Hossain,General,5/28/2023,9:52:00,IN,ACTAtek,#FP# 
+21,821,A.K.M. Jafor Iqbal,Khan,General,5/28/2023,9:50:41,IN,ACTAtek,#SMC(SN:l27008E52AC)# 
+22,2826,Istiak Ahmed,Mondal,General,5/28/2023,9:50:36,IN,ACTAtek,#FP# 
+23,1962,Mohammad Anwarul,Haque,General,5/28/2023,9:50:19,IN,ACTAtek,#SMC(SN:l27008EF9D3)# 
+24,1202,Md. Atiqur,Rahman,General,5/28/2023,9:50:13,IN,ACTAtek,#SMC(SN:l27008F2F3F)# 
+25,20,Sk. Md. ,Sayeeduzzaman,General,5/28/2023,9:50:04,IN,ACTAtek,#SMC(SN:l27008EEA9B)# 
+26,2849,Md. Saidul Islam,Talukder,General,5/28/2023,9:49:52,IN,ACTAtek,#FP# 
+27,2738,Md. Rafiur,Rahman,General,5/28/2023,9:22:45,IN,ACTAtek,#SMC(SN:l2B00CAE5B4)# 
+28,7,Mehedi,Masud,General,5/28/2023,9:46:05,IN,ACTAtek,#SMC(SN:l27008E8005)# 
+29,2427,Md. Rayhan,Hossain,General,5/28/2023,9:46:01,IN,ACTAtek,#FP# 
+30,2837,Iftakher Hasan,Hasan,General,5/28/2023,9:43:49,IN,ACTAtek,#FP# 
+31,819,Md. Ataur Rahman,,General,5/28/2023,9:43:34,IN,ACTAtek,#SMC(SN:l100075C8DC)# 
+32,658,Bappa,Barua,General,5/28/2023,9:41:46,IN,ACTAtek,#FP# 
+33,2783,Kazi Arafat,Hossain,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+34,5027,Md. Mahmudur,Rahman,General,5/28/2023,9:41:35,IN,ACTAtek,#FP# 
+35,1358,Shyamol,Bhowmick,General,5/28/2023,9:40:46,IN,ACTAtek,#FP# 
+36,2840,Bikash Chandra,Sarker,General,5/28/2023,9:38:48,IN,ACTAtek,#FP# 
+37,2737,Sheikh Farzana,Farzana,General,5/28/2023,9:38:10,IN,ACTAtek,#FP# 
+38,1868,Harun Or,Rashid,General,5/28/2023,10:03:02,IN,ACTAtek,#FP# 
+39,984,Md. Ayub,Ali,General,5/28/2023,9:37:56,IN,ACTAtek,#FP# 
+40,985,Mohammad Rais,Uddin,General,5/28/2023,10:05:43,IN,ACTAtek,#FP# 
+41,2010,Protap Kumar,Joaddar,General,5/28/2023,9:35:08,IN,ACTAtek,#FP# 
+42,2740,Md. Ahsanul,Haque,General,5/28/2023,9:34:01,IN,ACTAtek,#FP# 
+43,1361,Md. Mahbub,Hossain,General,5/28/2023,9:33:29,IN,ACTAtek,#SMC(SN:l10007615F7)# 
+44,14,Md. Sharif ,Uddin,General,5/28/2023,9:45:23,IN,ACTAtek,#FP# 
+45,1175,Khondokar Abu,Abedeen,General,5/28/2023,9:33:15,IN,ACTAtek,#FP# 
+46,594,Gouri Shankar,Sarker,General,5/28/2023,10:03:10,IN,ACTAtek,#FP# 
+47,1933,Mohammad Abu,Sayem,General,5/28/2023,11:00:34,IN,ACTAtek,#FP# 
+48,589,Md. Nasir Uddin,Mahamud,General,5/28/2023,9:32:28,IN,ACTAtek,#SMC(SN:l27008E08D8)# 
+49,1523,Mohammad Altaf,Hossain,General,5/28/2023,10:00:23,IN,ACTAtek,#FP# 
+50,2835,Lubaba,Chowdhury,General,5/28/2023,9:50:17,IN,ACTAtek,#FP# 
+51,1778,Biplob Kumar,Chowdhury,General,5/28/2023,9:23:29,IN,ACTAtek,#SMC(SN:l27008F0DCD)# 
+52,2848,Md. Rajib,Chowdhury,General,5/28/2023,9:18:25,IN,ACTAtek,#FP# 
+53,2846,Muhammad,Muhaimin,General,5/28/2023,9:13:38,IN,ACTAtek,#FP# 
+54,2083,Sudhan Chandra,Barman,General,5/28/2023,9:18:25,IN,ACTAtek,#FP# 
+55,1830,Kazi Mamun-Ur-,Rashid,General,5/28/2023,8:45:11,IN,ACTAtek,#FP# 
+56,1970,Md. Aminul ,Islam,General,5/28/2023,8:53:56,IN,ACTAtek,#FP# 
+57,5020,Khandaker Shahidur,Rahman,General,5/28/2023,8:51:52,IN,ACTAtek,#SMC(SN:l0B001FF791)# 
+58,9994,Rabeya,Rabeya,General,5/28/2023,8:51:44,IN,ACTAtek,#FP# 
+59,2836,Saif Ul Islam ,Khan,General,5/28/2023,8:45:11,IN,ACTAtek,#FP# 
+60,2838,Md. Kawsar ,Rahman,General,5/28/2023,9:50:17,IN,ACTAtek,#FP# 
+61,5037,Md. Rakibul ,Islam,General,5/28/2023,9:50:23,IN,ACTAtek,#FP# 
+62,2831,Md. Mahbubul ,Haque,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+63,2685,Md. ,Al-Amin,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+64,2735,Md. Mahfuz ,Morshed,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+65,2847,Prince ,Mahmud,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+66,2678,Md. Shaiful ,Islam,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+67,2842,Md. ,Nurullah,General,5/28/2023,10:05:40,IN,ACTAtek,#FP# 
+68,2839,Asraful Islam ,Tanoy,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+69,1360,Md. Humayan ,Kabir,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+70,1690,Md. Abdur ,Rahim,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+71,1285,Md. Nazrul ,Islam,General,5/28/2023,9:35:40,IN,ACTAtek,#FP# 
+72,1619,Binoy Bushan ,Paul,General,5/28/2023,9:30:40,IN,ACTAtek,#FP# 
+73,1218,Md. Rofiqul ,Islam,General,5/28/2023,9:36:40,IN,ACTAtek,#FP# 
+74,2583,Md. Salauddin ,Ahmed,General,5/28/2023,9:41:40,IN,ACTAtek,#FP# 
+75,2628,Md Mahabub ,Hassan,General,5/28/2023,9:50:40,IN,ACTAtek,#FP# 
+76,2451,Habibur ,Rahman,General,5/28/2023,9:30:40,IN,ACTAtek,#FP# 
+77,1970,Md. Aminul ,Islam,General,5/28/2023,19:10:56 PM,OUT,ACTAtek,#FP# 
+78,2648,Md. Rana ,Biswas,General,5/28/2023,19:10:56 PM,OUT,ACTAtek,#FP# 
+79,9999,Md. Amimul,Hossain,General,5/28/2023,18:10:56 PM,OUT,ACTAtek,#FP# 
+80,5020,Khandaker Shahidur,Rahman,General,5/28/2023,19:10:56 PM,OUT,ACTAtek,#SMC(SN:l0B001FF791)# 
