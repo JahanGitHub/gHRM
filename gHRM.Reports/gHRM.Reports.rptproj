@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <FullPath>Debug</FullPath>
+    <OutputPath>bin\Debug</OutputPath>
+    <ErrorLevel>2</ErrorLevel>
+    <OverwriteDatasets>False</OverwriteDatasets>
+    <OverwriteDataSources>False</OverwriteDataSources>
+    <TargetServerVersion>SSRS2016</TargetServerVersion>
+    <Platform>Win32</Platform>
+    <TargetReportFolder>gHRMPlus_Reports</TargetReportFolder>
+    <TargetDatasetFolder>Datasets</TargetDatasetFolder>
+    <TargetDatasourceFolder>Data Sources</TargetDatasourceFolder>
+    <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
+    <TargetServerURL>http://192.192.192.176:8081/ReportServer</TargetServerURL>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'DebugLocal' ">
+    <FullPath>DebugLocal</FullPath>
+    <OutputPath>bin\DebugLocal</OutputPath>
+    <ErrorLevel>2</ErrorLevel>
+    <OverwriteDatasets>False</OverwriteDatasets>
+    <OverwriteDataSources>False</OverwriteDataSources>
+    <TargetServerVersion>SSRS2016</TargetServerVersion>
+    <Platform>Win32</Platform>
+    <TargetReportFolder>gHRM.Reports</TargetReportFolder>
+    <TargetDatasetFolder>Datasets</TargetDatasetFolder>
+    <TargetDatasourceFolder>Data Sources</TargetDatasourceFolder>
+    <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
+    <TargetServerURL>http://localhost/reportserver</TargetServerURL>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <FullPath>Release</FullPath>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorLevel>2</ErrorLevel>
+    <OverwriteDatasets>False</OverwriteDatasets>
+    <OverwriteDataSources>False</OverwriteDataSources>
+    <TargetServerVersion>SSRS2016</TargetServerVersion>
+    <Platform>Win32</Platform>
+    <TargetReportFolder>gHRM.Reports</TargetReportFolder>
+    <TargetDatasetFolder>Datasets</TargetDatasetFolder>
+    <TargetDatasourceFolder>Data Sources</TargetDatasourceFolder>
+    <TargetReportPartFolder>Report Parts</TargetReportPartFolder>
+    <TargetServerURL>http://localhost/reportserver</TargetServerURL>
+  </PropertyGroup>
+  <PropertyGroup>
+    <State>$base64$PFNvdXJjZUNvbnRyb2xJbmZvIHhtbG5zOnhzZD0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zOmRkbDI9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDAzL2VuZ2luZS8yIiB4bWxuczpkZGwyXzI9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDAzL2VuZ2luZS8yLzIiIHhtbG5zOmRkbDEwMF8xMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDA4L2VuZ2luZS8xMDAvMTAwIiB4bWxuczpkZGwyMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEwL2VuZ2luZS8yMDAiIHhtbG5zOmRkbDIwMF8yMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEwL2VuZ2luZS8yMDAvMjAwIiB4bWxuczpkZGwzMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDExL2VuZ2luZS8zMDAiIHhtbG5zOmRkbDMwMF8zMDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDExL2VuZ2luZS8zMDAvMzAwIiB4bWxuczpkZGw0MDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEyL2VuZ2luZS80MDAiIHhtbG5zOmRkbDQwMF80MDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEyL2VuZ2luZS80MDAvNDAwIiB4bWxuczpkZGw1MDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEzL2VuZ2luZS81MDAiIHhtbG5zOmRkbDUwMF81MDA9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vYW5hbHlzaXNzZXJ2aWNlcy8yMDEzL2VuZ2luZS81MDAvNTAwIiB4bWxuczpkd2Q9Imh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vRGF0YVdhcmVob3VzZS9EZXNpZ25lci8xLjAiPg0KICA8RW5hYmxlZD50cnVlPC9FbmFibGVkPg0KICA8UHJvamVjdE5hbWU+U0FLPC9Qcm9qZWN0TmFtZT4NCiAgPEF1eFBhdGg+U0FLPC9BdXhQYXRoPg0KICA8TG9jYWxQYXRoPlNBSzwvTG9jYWxQYXRoPg0KICA8UHJvdmlkZXI+U0FLPC9Qcm92aWRlcj4NCjwvU291cmNlQ29udHJvbEluZm8+</State>
+    <DataSources>@(DataSource)</DataSources>
+    <DataSets>@(DataSet)</DataSets>
+    <Reports>@(Report)</Reports>
+  </PropertyGroup>
+  <ItemGroup>
+    <Report Include="ActiveEmployeeInfoByDesignation.rdl" />
+    <Report Include="ActiveEmployee_E_TIN_Info.rdl" />
+    <Report Include="AdddinTransferPlanningOfficeOrder.rdl" />
+    <Report Include="ConfirmationEligibleEmployeeList.rdl" />
+    <Report Include="ConfirmationEligibleEmployeeSummary.rdl" />
+    <Report Include="CooperativeConfigurationReport.rdl" />
+    <Report Include="CooperativeLedgerReport.rdl" />
+    <Report Include="Copy of EmployeeMonthlySalaryReport_GT.rdl" />
+    <Report Include="Copy of EmployeeMonthlySalaryReport_GTT_new.rdl" />
+    <Report Include="Copy of EmployeeMonthlySalaryReport_GT_APPROVED.rdl" />
+    <Report Include="Copy of LoanLedgerReport.rdl" />
+    <Report Include="Copy of LoanLedgerReport2.rdl" />
+    <Report Include="CVCount.rdl" />
+    <Report Include="DelayConfirmationEmployeeList.rdl" />
+    <Report Include="DepartmentWiseEmployeeInformation.rdl" />
+    <Report Include="DepartmentWiseEmployeeReportWithCount.rdl" />
+    <Report Include="DesignationWiseEmployeeRectuitment.rdl" />
+    <Report Include="DesignationWiseJoiningResign.rdl" />
+    <Report Include="Employee Highest Education List.rdl" />
+    <Report Include="EmployeeBioDataTemplate.rdl" />
+    <Report Include="EmployeeDesignationWiseReportProposedNewReportFormat.rdl" />
+    <Report Include="EmployeeDistrictInformation.rdl" />
+    <Report Include="EmployeeDistrictInformationSummary.rdl" />
+    <Report Include="EmployeeDistrictInfo_Test.rdl" />
+    <Report Include="EmployeeDistrictInfo_Test2.rdl" />
+    <Report Include="EmployeeEducationReportByCode.rdl" />
+    <Report Include="EmployeeGuarantorInformation.rdl" />
+    <Report Include="EmployeeHalfDayLeaveReport.rdl" />
+    <Report Include="EmployeeJoiningLetterOfTransferReportForMousumi.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GC.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GK.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GMPF.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GT.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT_new-14-10-2025.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT_new.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT_new2.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT_new_24_Jan_2026_Bak - Copy.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT_new_sl_auto.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GTT_old.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GT_APPROVED.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_GUP.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_PIDIM.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_Prottyashi.rdl" />
+    <Report Include="EmployeeMonthlySalaryReport_SANGRAM.rdl" />
+    <Report Include="EmployeeNomineeReport.rdl" />
+    <Report Include="EmployeePreviousWorkExperience.rdl" />
+    <Report Include="EmployeeSalaryAdviceReport_GTT.rdl" />
+    <Report Include="EmployeeTransferIndicator.rdl" />
+    <Report Include="EmployeetypeWiseLeaveStatement.rdl" />
+    <Report Include="EmployeeWiseGender.rdl" />
+    <Report Include="Employee_Dropout_ReportByReason_Resign.rdl" />
+    <Report Include="Employee_E_TIN_Info.rdl" />
+    <Report Include="Employee_PaySlip_Report.rdl" />
+    <Report Include="ExperienceCertificateReport_GC.rdl" />
+    <Report Include="ExperienceCertificateReport_GC_Zone.rdl" />
+    <Report Include="ExperienceCertificateReport_GC_Zone2.rdl" />
+    <Report Include="Final payment Details.rdl" />
+    <Report Include="FinalPaymentDailyLedger.rdl" />
+    <Report Include="FinalpaymentDetails.rdl" />
+    <Report Include="FinalpaymentDetailsYPSA.rdl" />
+    <Report Include="FinalPaymentVoucherReport.rdl" />
+    <Report Include="FinalSattlementReport_GC.rdl" />
+    <Report Include="FIX_Compnay_Wise_Asset_Statement.rdl" />
+    <Report Include="FIX_Fixed_Assets_And_Depreciation_Schedule.rdl" />
+    <Report Include="FIX_Group_Wise_Asset_List.rdl" />
+    <Report Include="FIX_List_Of_Asset_Additions.rdl" />
+    <Report Include="FIX_List_Of_Asset_Sales.rdl" />
+    <Report Include="FIX_Location_Wise_Asset_list.rdl" />
+    <Report Include="FIX_User_Wise_Asset_list.rdl" />
+    <Report Include="GC-FO Separation Employee List.rdl" />
+    <Report Include="GC-HO Separation Employee List.rdl" />
+    <Report Include="GCAllEmployeeMonthlySalary.rdl" />
+    <Report Include="GCAllEmployeeMonthlySalary_Test.rdl" />
+    <Report Include="GCAllOfficeEmployeeSalaryGenerateReport.rdl" />
+    <Report Include="GcConfirmationEligibleEmployeeList.rdl" />
+    <Report Include="GcFOConfirmationEligibleEmployeeList.rdl" />
+    <Report Include="GC_HO_DMC_Bonus.rdl" />
+    <Report Include="GC_ReleaseLetter.rdl" />
+    <Report Include="GC_Salary_Statement_Details.rdl" />
+    <Report Include="Gender Wise Employee List.rdl" />
+    <Report Include="GurantorMoneyReport.rdl" />
+    <Report Include="HO_SavingsPortfolioStatement.rdl" />
+    <Report Include="IncomeTaxDetails.rdl" />
+    <Report Include="IncomeTaxDetails2.rdl" />
+    <Report Include="IncrementEligibleEmployeeList.rdl" />
+    <Report Include="IncrementEligibleEmployeeSummary.rdl" />
+    <Report Include="IncrementLetterReport_GC.rdl" />
+    <Report Include="InitialAssessmentReport.rdl" />
+    <Report Include="InitialAssessmentReportForPromotionIncrement.rdl" />
+    <Report Include="InitialAssessmentReport_HO.rdl" />
+    <Report Include="JobConfirmationReport.rdl" />
+    <Report Include="LeaveSummeryAndDetails.rdl" />
+    <Report Include="LoanBalanceSheetReport.rdl" />
+    <Report Include="LoanCollectionReport.rdl" />
+    <Report Include="LoanLedgerReport.rdl" />
+    <Report Include="LoanLedgerReport2.rdl" />
+    <Report Include="LoanLedgerReport3.rdl" />
+    <Report Include="LoanLedgerReport_11132025.rdl" />
+    <Report Include="LoanLedgerReport_verc-18-11-2025.rdl" />
+    <Report Include="LoanLedgerReport_verc.rdl" />
+    <Report Include="LoanTopSheetReport.rdl" />
+    <Report Include="MizanTwoTest.rdl" />
+    <Report Include="MonthlyInstallmentReport.rdl" />
+    <Report Include="MonthWiseEmployeeConfirmation.rdl" />
+    <Report Include="MulitpleDataSetTest.rdl" />
+    <Report Include="OfficeReport.rdl" />
+    <Report Include="OfficeWiseEmployeeRectuitment.rdl" />
+    <Report Include="OfficeWiseEmployeeRectuitmentVsDropput.rdl" />
+    <Report Include="OfficeWiseSalaryForNEP.rdl" />
+    <Report Include="PFReportBeforeApproval.rdl" />
+    <Report Include="PromotionalReportByCode.rdl" />
+    <Report Include="PromotionDetailsYPSA.rdl" />
+    <Report Include="PromotionEligibleEmployeeList.rdl" />
+    <Report Include="PromotionEligibleEmployeeSummary.rdl" />
+    <Report Include="PromotionLetterReport_GC.rdl" />
+    <Report Include="PromotionReportForDateToDate.rdl" />
+    <Report Include="SalaryAttendanceRecord.rdl" />
+    <Report Include="SalaryIncrementReport_YPSA.rdl" />
+    <Report Include="SSRS_SalaryAdvice.rdl" />
+    <Report Include="SubReportPromotionHistory.rdl" />
+    <Report Include="TaxPayersIndividual.rdl" />
+    <Report Include="TerminationReport_GC.rdl" />
+    <Report Include="TerminationReport_GC_ALL.rdl" />
+    <Report Include="TerminationReport_GC_HO.rdl" />
+    <Report Include="TerminationReport_GC_HO_Sign.rdl" />
+    <Report Include="TerminationReport_GC_Sign.rdl" />
+    <Report Include="TerminationReport_GC_ZONE2.rdl" />
+    <Report Include="TerminationReport_GC_ZZ.rdl" />
+    <Report Include="TerminationReport_GC_ZZ_Sign.rdl" />
+    <Report Include="TestOneMizan.rdl" />
+    <Report Include="TransferableEmployeeList.rdl" />
+    <Report Include="TransferableEmployeeSummary.rdl" />
+    <Report Include="TransferDetailsYPSA.rdl" />
+    <Report Include="TransferPlanningOfficeOrder.rdl" />
+    <Report Include="TransferPlanningProposal.rdl" />
+    <Report Include="TransferPlanningProposal_Addin.rdl" />
+    <Report Include="TransferReportForDateToDate.rdl" />
+    <Report Include="TransferReportForEmpCode.rdl" />
+    <Report Include="ZKBioAttendance.rdl" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Reporting Services\Microsoft.ReportingServices.MSBuilder.targets" />
+</Project>
